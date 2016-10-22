@@ -11,12 +11,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
     <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery-titlealert-0.7/jquery.titlealert.min.js"></script>
     <script type="text/javascript" src="/static/js/client.js"></script>
     <script type="text/javascript" src="/static/js/js.cookie.js"></script>
     <script type="text/javascript" src="static/js/farbtastic/farbtastic.js"></script>
-    <link rel="stylesheet" href="static/js/farbtastic/farbtastic.css" type="text/css" />
+    <link rel="stylesheet" href="static/js/farbtastic/farbtastic.css" type="text/css"/>
 </head>
 <body>
 <div class="container-fluid">
@@ -27,8 +28,13 @@
     <div class="row">
         <form id="chat" action="#">
             <div class="input-group">
-                <span class="input-group-btn"><button id="username" type="button" class="btn btn-info" onclick="setUsername()">you:</button></span>
-                <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..." autocomplete="off"
+                <span class="input-group-btn">
+                    <button id="username" type="button" class="btn btn-info" onclick="setUsername()">
+                        you:
+                    </button>
+                </span>
+                <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..."
+                       autocomplete="off"
                        aria-describedby="username"/>
               <span class="input-group-btn">
                 <button class="btn btn-primary" type="submit">Go!</button>
@@ -47,21 +53,31 @@
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="userStatsLabel">User preferences</h4>
             </div>
-            <div class="modal-body">
-                <label for="set_name">Username:</label>
-                <input class="form-control" type="text" name="set_name" id="set_name" placeholder="Username" onchange="enableSave()" />
-                <form><input type="text" id="color" name="color" value="#123456" onchange="enableSave()" /></form>
-                <div id="colorpicker"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" id="saveUserData" class="btn btn-primary" onclick="updateUsername()" disabled="true">Save changes</button>
-            </div>
+            <form id="update-user">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="set_name">Username:</label>
+                        <input class="form-control" type="text" name="set_name" id="set_name" placeholder="Username" />
+                    </div>
+                    <div class="form-group">
+                        <label for="color">Color:</label>
+                        <input type="text" id="color" name="color" />
+                        <div id="colorpicker"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">
+                        Save changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<div class="modal" id="connectError" tabindex="-1" role="dialog" aria-labelledby="connectErrorLabel" data-backdrop="static">
+<div class="modal" id="connectError" tabindex="-1" role="dialog" aria-labelledby="connectErrorLabel"
+     data-backdrop="static">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">

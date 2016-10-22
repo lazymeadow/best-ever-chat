@@ -2,7 +2,7 @@
 import time
 from collections import deque
 
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, make_response, jsonify
 from flask_socketio import SocketIO, emit, disconnect
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -23,6 +23,12 @@ history = deque(maxlen=100)
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
+
+
+@app.route('/validate_username', methods=['POST'])
+def validate_username():
+    print request.form['set_name'], str(request.form['set_name'] not in users.keys()).lower()
+    return make_response(str(request.form['set_name'] not in users.keys()).lower())
 
 
 @socketio.on('connect_message', namespace='/chat')

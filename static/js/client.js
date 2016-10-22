@@ -1,37 +1,12 @@
 var socket;
 
-function updateUsername() {
-    var username = Cookies.get("username");
-    data = {};
-    if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
-        data.newUser = $('#set_name').val();
-        Cookies.set("username", $("#set_name").val());
-        showUsername();
-    }
-    var color = Cookies.get("color");
-    if ($("#color").val() !== '#123456' && $('#color').val() !== color) {
-        data.newColor = $("#color").val();
-        Cookies.set("color", $("#color").val());
-    }
-
-    if (data.newUser || data.newColor) {
-        if (socket) {
-            socket.emit('update_user', {
-                data: data,
-                user: username || Cookies.get("username")
-            });
-        }
-        $('#userStats').modal('hide');
-
-        $('#saveUserData').attr('disabled', true);
-    }
-}
-
 function setUsername() {
+    console.log("set username");
     var username = Cookies.get("username");
     if (username)
         $("#set_name").val(Cookies.get("username"));
     var color = Cookies.get("color");
+    console.log(color);
     if (color) {
         colorpicker.setColor(color);
     }
@@ -72,32 +47,6 @@ function connect() {
         });
 
         socket.on('chat_response', print_message);
-
-        function print_message(msg) {
-
-            let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-            let message = $('<span/>').text('<' + msg.user + '> ' + msg.data);
-            if (msg.color)
-                message.css('color', msg.color);
-            if (msg.user === 'Server') {
-                message.addClass('text-warning');
-            }
-            if (msg.user === 'Client') {
-                message.addClass('text-danger');
-            }
-            $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
-            $('#log').scrollTop(document.getElementById('log').scrollHeight);
-            if (!window_focus) {
-                numMessages++;
-                window.document.title = "(" + numMessages + ") Best ever chat!";
-            }
-            $.titleAlert('New message!', {
-                requireBlur: true,
-                stopOnFocus: true,
-                interval: 500,
-                duration: 3000
-            });
-        }
 
         socket.on('user_list', function(msg) {
             $('#user_list').empty();
@@ -153,12 +102,12 @@ $(document).ready(function() {
         window_focus = false;
     });
 
-    colorpicker = $.farbtastic("#colorpicker", function(color) {
-        $("#color").val(color);
-        if (Cookies.get("color") !== color)
-            enableSave();
-    });
-
+    colorpicker = $.farbtastic("#colorpicker",
+        function(color) {
+            $("#color").val(color);
+            $("#color").css('background-color', color);
+        }
+    );
 
     namespace = '/chat';
 
@@ -174,9 +123,82 @@ $(document).ready(function() {
         $('#chat_text').val('');
         return false;
     });
+
+    $('form#update-user').validate({
+        rules: {
+            set_name: {
+                required: true,
+                remote: {
+                    url: '/validate_username',
+                    type: 'post',
+                    data: {
+                        username: function() { return $("#set_name").val(); }
+                    }
+                },
+                minlength: 1
+            },
+            color: {
+                required: true
+            }
+        },
+        messages: {
+            set_name: {
+                remote: "Invalid name."
+            }
+        },
+        submitHandler: function() {
+             var username = Cookies.get("username");
+            data = {};
+            if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
+                data.newUser = $('#set_name').val();
+                Cookies.set("username", $("#set_name").val());
+                showUsername();
+            }
+            var color = Cookies.get("color");
+            if ($('#color').val() !== color) {
+                data.newColor = $("#color").val();
+                Cookies.set("color", colorpicker.color);
+            }
+
+            if (data.newUser || data.newColor) {
+                if (socket) {
+                    socket.emit('update_user', {
+                        data: data,
+                        user: username || Cookies.get("username")
+                    });
+                }
+            }
+            else {
+                print_message({user: "Client", data: "No changes made", time: moment.now()});
+            }
+            $('#userStats').modal('hide');
+        }
+    });
+
 });
 
-function enableSave() {
-    console.log(event);
-    $('#saveUserData').attr('disabled', false);
-}
+function print_message(msg) {
+
+            let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+            let message = $('<span/>').text('<' + msg.user + '> ' + msg.data);
+            if (msg.color)
+                message.css('color', msg.color);
+            if (msg.user === 'Server') {
+                message.addClass('text-warning');
+            }
+            if (msg.user === 'Client') {
+                message.addClass('text-danger');
+            }
+            $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
+            $('#log').scrollTop(document.getElementById('log').scrollHeight);
+            if (!window_focus) {
+                numMessages++;
+                window.document.title = "(" + numMessages + ") Best ever chat!";
+            }
+            $.titleAlert('New message!', {
+                requireBlur: true,
+                stopOnFocus: true,
+                interval: 500,
+                duration: 3000
+            });
+        }
