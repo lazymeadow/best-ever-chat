@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+import re
 import time
 from collections import deque
 
-from flask import Flask, render_template, session, request, make_response, jsonify
+from flask import Flask, render_template, session, request, make_response, escape
 from flask_socketio import SocketIO, emit, disconnect
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -43,7 +44,9 @@ def connect_message(message):
 
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
-    new_msg = {'user': message['user'], 'data': message['data'], 'time': time.time(),
+    chat_msg = escape(message['data'])
+    r = re.compile(r"(https?://[^ ]+)")
+    new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', str(chat_msg)), 'time': time.time(),
                'color': users[message['user']]['color']}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)

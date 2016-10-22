@@ -179,26 +179,26 @@ $(document).ready(function() {
 
 function print_message(msg) {
 
-            let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-            let message = $('<span/>').text('<' + msg.user + '> ' + msg.data);
-            if (msg.color)
-                message.css('color', msg.color);
-            if (msg.user === 'Server') {
-                message.addClass('text-warning');
-            }
-            if (msg.user === 'Client') {
-                message.addClass('text-danger');
-            }
-            $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
-            $('#log').scrollTop(document.getElementById('log').scrollHeight);
-            if (!window_focus) {
-                numMessages++;
-                window.document.title = "(" + numMessages + ") Best ever chat!";
-            }
-            $.titleAlert('New message!', {
-                requireBlur: true,
-                stopOnFocus: true,
-                interval: 500,
-                duration: 3000
-            });
-        }
+    let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+    let message = $('<span/>').text('<' + msg.user + '> ').append($('<span/>').html(msg.data));
+    if (msg.color)
+        message.css('color', msg.color);
+    if (msg.user === 'Server') {
+        message.addClass('text-warning');
+    }
+    if (msg.user === 'Client') {
+        message.addClass('text-danger');
+    }
+    $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
+    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    if (!window_focus) {
+        numMessages++;
+        window.document.title = "(" + numMessages + ") Best ever chat!";
+    }
+    $.titleAlert('New message!', {
+        requireBlur: true,
+        stopOnFocus: true,
+        interval: 500,
+        duration: 3000
+    });
+}
