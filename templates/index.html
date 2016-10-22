@@ -38,14 +38,14 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!-- Modals -->
+<div class="modal" id="userStats" tabindex="-1" role="dialog" aria-labelledby="userStatsLabel">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">User preferences</h4>
+                <h4 class="modal-title" id="userStatsLabel">User preferences</h4>
             </div>
             <div class="modal-body">
                 <label for="set_name">Username:</label>
@@ -60,5 +60,25 @@
         </div>
     </div>
 </div>
+
+<div class="modal" id="connectError" tabindex="-1" role="dialog" aria-labelledby="connectErrorLabel" data-backdrop="static">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="connectErrorLabel">Connection Error</h4>
+            </div>
+            <div class="modal-body">
+                Error connecting to the server.
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>-->
+                <button type="button" class="btn btn-primary" onclick="attemptReconnect()">Retry</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

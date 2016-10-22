@@ -21,7 +21,7 @@ function updateUsername() {
                 user: username || Cookies.get("username")
             });
         }
-        $('#myModal').modal('hide');
+        $('#userStats').modal('hide');
 
         $('#saveUserData').attr('disabled', true);
     }
@@ -35,7 +35,7 @@ function setUsername() {
     if (color) {
         colorpicker.setColor(color);
     }
-    $('#myModal').modal('show');
+    $('#userStats').modal('show');
 }
 
 function showUsername() {
@@ -47,13 +47,19 @@ function showUsername() {
 }
 
 var numMessages = 0;
+var MAX_RETRIES = 3;
 var colorpicker;
 
 function connect() {
     if (!Cookies.get('username'))
         window.setTimeout(connect, 500);
     else {
-        socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+        socket = io.connect('http://' + document.domain + ':' + location.port + namespace,
+            {
+                reconnectionDelay: 1500,
+                reconnectionDelayMax: 4500,
+                reconnectionAttempts: MAX_RETRIES
+            });
 
         socket.on('history_response', function(data) {
             for (var message in data.history) {
@@ -114,10 +120,20 @@ function connect() {
             }
         });
 
-        socket.on('reconnect_attempt', function() {
-            print_message({user: 'Client', time: moment.now(), data: 'Attempting to reconnect to the server...'});
-        })
+        socket.on('reconnect_attempt', function(number) {
+            print_message({user: 'Client', time: moment.now(), data: 'Attempting to reconnect to the server... (' + number + '/' + MAX_RETRIES + ')'});
+        });
+
+        socket.on('reconnect_failed', function() {
+            print_message({user: 'Client', time: moment.now(), data: 'Reconnect failed.'});
+            $('#connectError').modal('show');
+        });
     }
+}
+
+function attemptReconnect() {
+    socket.open();
+    $('#connectError').modal('hide');
 }
 
 var window_focus = true;
