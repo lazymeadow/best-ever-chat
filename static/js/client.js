@@ -1,12 +1,14 @@
 var socket;
 
+function imageChat() {
+    socket.emit('broadcast_image', 'http://wondrouspics.com/wp-content/uploads/2011/12/Cute_kitten.jpg');
+}
+
 function setUsername() {
-    console.log("set username");
     var username = Cookies.get("username");
     if (username)
         $("#set_name").val(Cookies.get("username"));
     var color = Cookies.get("color");
-    console.log(color);
     if (color) {
         colorpicker.setColor(color);
     }
@@ -132,10 +134,11 @@ $(document).ready(function() {
                     url: '/validate_username',
                     type: 'post',
                     data: {
-                        username: function() { return $("#set_name").val(); }
+                        username: function() { return Cookies.get('username'); }
                     }
                 },
-                minlength: 1
+                minlength: 1,
+                maxlength: 32
             },
             color: {
                 required: true

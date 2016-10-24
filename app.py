@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import json
 import re
 import time
 from collections import deque
@@ -28,8 +29,10 @@ def index():
 
 @app.route('/validate_username', methods=['POST'])
 def validate_username():
-    print request.form['set_name'], str(request.form['set_name'] not in users.keys()).lower()
-    return make_response(str(request.form['set_name'] not in users.keys()).lower())
+    if request.form['set_name'] == request.form['username']:
+        return make_response('true')
+    return make_response(
+        str(request.form['set_name'] not in users.keys()).lower())
 
 
 @socketio.on('connect_message', namespace='/chat')
@@ -42,11 +45,18 @@ def connect_message(message):
     emit('user_list', {'data': users.keys()}, broadcast=True)
 
 
+@socketio.on('broadcast_image', namespace='/chat')
+def broadcast_image(url):
+    new_msg = {'user': session['user'], 'data': "<img src=\"{}\" width=\"100px\" />".format(url), 'time': time.time()}
+    history.append(new_msg)
+    emit('chat_response', new_msg, broadcast=True)
+
+
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
-    chat_msg = escape(message['data'])
+    chat_msg = escape(unicode(message['data']))
     r = re.compile(r"(https?://[^ ]+)")
-    new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', str(chat_msg)), 'time': time.time(),
+    new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
                'color': users[message['user']]['color']}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)
@@ -98,4 +108,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=6969, debug=True)
+    socketio.run(app, host='0.0.0.0', port=6969)
