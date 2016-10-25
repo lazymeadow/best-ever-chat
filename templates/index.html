@@ -22,7 +22,14 @@
     <link rel="stylesheet" href="static/js/farbtastic/farbtastic.css" type="text/css"/>
 </head>
 <body>
+
+
 <div class="container-fluid">
+
+{% if debug %}
+<div class="alert alert-warning" role="alert"><i class="fa fa-exclamation-triangle"></i> WATCH OUT, IT'S IN DEBUG MODE</div>
+{% endif %}
+
     <div class="row">
         <div class="col-xs-9">
             <div class="panel panel-primary pre-scrollable" id="log"></div>
