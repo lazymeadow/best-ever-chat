@@ -12,6 +12,9 @@ function setUsername() {
     if (color) {
         colorpicker.setColor(color);
     }
+    else {
+        colorpicker.setColor('#000000');
+    }
     $('#userStats').modal('show');
 }
 
@@ -58,7 +61,7 @@ function connect() {
         });
 
         socket.on('update_response', function(msg) {
-            print_message(msg);
+            print_message(msg.data);
             if (msg.revertName) {
                 Cookies.set("username", msg.revertName);
                 showUsername();
@@ -67,16 +70,17 @@ function connect() {
 
         socket.on('disconnect', function() {
             if (!reloading) {
-                print_message({user: 'Client', time: moment.now(), data: 'Connection lost!!'});
+                console.log(moment().format("MM/DD/YY HH:mm:ss "));
+                print_message({user: 'Client', time: moment().unix(), data: 'Connection lost!!'});
             }
         });
 
         socket.on('reconnect_attempt', function(number) {
-            print_message({user: 'Client', time: moment.now(), data: 'Attempting to reconnect to the server... (' + number + '/' + MAX_RETRIES + ')'});
+            print_message({user: 'Client', time: moment().unix(), data: 'Attempting to reconnect to the server... (' + number + '/' + MAX_RETRIES + ')'});
         });
 
         socket.on('reconnect_failed', function() {
-            print_message({user: 'Client', time: moment.now(), data: 'Reconnect failed.'});
+            print_message({user: 'Client', time: moment().unix(), data: 'Reconnect failed.'});
             $('#connectError').modal('show');
         });
     }
@@ -107,7 +111,7 @@ $(document).ready(function() {
     colorpicker = $.farbtastic("#colorpicker",
         function(color) {
             $("#color").val(color);
-            $("#color").css('background-color', color);
+            $("#color").css('color', color);
         }
     );
 
@@ -167,12 +171,16 @@ $(document).ready(function() {
                 if (socket) {
                     socket.emit('update_user', {
                         data: data,
-                        user: username || Cookies.get("username")
+                        user: function (){
+                            if (username)
+                                return username;
+                            return Cookies.get("username");
+                        }
                     });
                 }
             }
             else {
-                print_message({user: "Client", data: "No changes made", time: moment.now()});
+                print_message({user: "Client", data: "No changes made", time: moment().unix()});
             }
             $('#userStats').modal('hide');
         }
@@ -181,7 +189,6 @@ $(document).ready(function() {
 });
 
 function print_message(msg) {
-
     let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     let message = $('<span/>').text('<' + msg.user + '> ').append($('<span/>').html(msg.data));
     if (msg.color)

@@ -12,6 +12,7 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
+# DEBUG = False
 DEBUG = True
 
 app = Flask(__name__)
@@ -27,6 +28,7 @@ history = deque(maxlen=100)
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode, debug=DEBUG)
+    # return "chat is down today. it's broken as fuck."
 
 
 @app.route('/validate_username', methods=['POST'])
@@ -91,7 +93,8 @@ def update_user(data):
                 users[data['data']['newUser']] = users[data['user']]
                 session['user'] = data['data']['newUser']
                 emit('chat_response',
-                     {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'], 'time': time.time()},
+                     {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'],
+                      'time': time.time()},
                      include_self=False, broadcast=True)
                 users.pop(data['user'], None)
                 emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
