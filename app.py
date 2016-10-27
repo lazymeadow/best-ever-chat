@@ -41,35 +41,37 @@ def validate_username():
 
 @socketio.on('connect_message', namespace='/chat')
 def connect_message(message):
-    try:
+    if 'user' in message.keys():
         session['user'] = message['user']
-        if session['user'] not in users:
-            users[session['user']] = {'color': message['color']}
-        new_msg = {'user': 'Server', 'data': message['user'] + ' has connected!', 'time': time.time()}
-        emit('chat_response', new_msg, broadcast=True)
-        emit('user_list', {'data': users.keys()}, broadcast=True)
-    except Exception as e:
-        emit('chat_response', {'user': 'Server', 'data': 'There has been an error. ' + e.message, 'time': time.time()})
+    else:
+        emit('chat_response', {'user': 'Server', 'data': 'Connection made but no username found', 'time': time.time()})
+        return
+
+    if message['user'] not in users:
+        users[message['user']] = {'color': message['color']}
+    new_msg = {'user': 'Server', 'data': message['user'] + ' has connected!', 'time': time.time()}
+    emit('chat_response', new_msg, broadcast=True)
+    emit('user_list', {'data': users.keys()}, broadcast=True)
 
 
 @socketio.on('broadcast_image', namespace='/chat')
 def broadcast_image(url):
-    new_msg = {'user': session['user'], 'data': "<img src=\"{}\" width=\"100px\" />".format(url), 'time': time.time()}
+    user = None
+    if 'user' in session.keys():
+        user = session['user']
+    new_msg = {'user': user, 'data': "<img src=\"{}\" width=\"100px\" />".format(url), 'time': time.time()}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
 
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
-    try:
-        chat_msg = escape(unicode(message['data']))
-        r = re.compile(r"(https?://[^ ]+)")
-        new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
-                   'color': users[message['user']]['color']}
-        history.append(new_msg)
-        emit('chat_response', new_msg, broadcast=True)
-    except Exception as e:
-        emit('chat_response', {'user': 'Server', 'data': 'There has been an error. ' + e.message, 'time': time.time()})
+    chat_msg = escape(unicode(message['data']))
+    r = re.compile(r"(https?://[^ ]+)")
+    new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
+               'color': users[message['user']]['color']}
+    history.append(new_msg)
+    emit('chat_response', new_msg, broadcast=True)
 
 
 @socketio.on('disconnect_request', namespace='/chat')
@@ -79,28 +81,25 @@ def disconnect_request():
 
 @socketio.on('update_user', namespace='/chat')
 def update_user(data):
-    try:
-        if 'newColor' in data['data'].keys():
-            users[data['user']]['color'] = data['data']['newColor']
-            emit('update_response', {'user': 'Server', 'data': 'Color updated', 'time': time.time()})
+    if 'newColor' in data['data'].keys():
+        users[data['user']]['color'] = data['data']['newColor']
+        emit('update_response', {'user': 'Server', 'data': 'Color updated', 'time': time.time()})
 
-        if 'newUser' in data['data'].keys():
-            if data['data']['newUser'] in users.keys():
-                emit('update_response',
-                     {'user': 'Server', 'data': 'Name taken', 'revertName': data['user'],
-                      'time': time.time()})
-            else:
-                users[data['data']['newUser']] = users[data['user']]
-                session['user'] = data['data']['newUser']
-                emit('chat_response',
-                     {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'],
-                      'time': time.time()},
-                     include_self=False, broadcast=True)
-                users.pop(data['user'], None)
-                emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
-                emit('user_list', {'data': users.keys()}, broadcast=True)
-    except Exception as e:
-        emit('chat_response', {'user': 'Server', 'data': 'There has been an error. ' + e.message, 'time': time.time()})
+    if 'newUser' in data['data'].keys():
+        if data['data']['newUser'] in users.keys():
+            emit('update_response',
+                 {'user': 'Server', 'data': 'Name taken', 'revertName': data['user'],
+                  'time': time.time()})
+        else:
+            users[data['data']['newUser']] = users[data['user']]
+            session['user'] = data['data']['newUser']
+            emit('chat_response',
+                 {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'],
+                  'time': time.time()},
+                 include_self=False, broadcast=True)
+            users.pop(data['user'], None)
+            emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
+            emit('user_list', {'data': users.keys()}, broadcast=True)
 
 
 @socketio.on('connect', namespace='/chat')
@@ -115,14 +114,11 @@ def reconnect():
 
 @socketio.on('disconnect', namespace='/chat')
 def disconnect():
-    try:
-        users.pop(session['user'], None)
-        session.pop('user', None)
-        new_msg = {'user': 'Server', 'data': session['user'] + ' disconnected!', 'time': time.time()}
-        emit('chat_response', new_msg, broadcast=True, include_self=False)
-        emit('user_list', {'data': users.keys()}, broadcast=True, include_self=False)
-    except Exception as e:
-        emit('chat_response', {'user': 'Server', 'data': 'There has been an error. ' + e.message, 'time': time.time()})
+    new_msg = {'user': 'Server', 'data': session['user'] + ' disconnected!', 'time': time.time()}
+    emit('chat_response', new_msg, broadcast=True, include_self=False)
+    users.pop(session['user'], None)
+    emit('user_list', {'data': users.keys()}, broadcast=True, include_self=False)
+    session.pop('user', None)
 
 
 if __name__ == '__main__':
