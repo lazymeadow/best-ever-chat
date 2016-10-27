@@ -61,7 +61,7 @@ function connect() {
         });
 
         socket.on('update_response', function(msg) {
-            print_message(msg.data);
+            print_message(msg);
             if (msg.revertName) {
                 Cookies.set("username", msg.revertName);
                 showUsername();
@@ -168,16 +168,10 @@ $(document).ready(function() {
             }
 
             if (data.newUser || data.newColor) {
-                if (socket) {
-                    socket.emit('update_user', {
-                        data: data,
-                        user: function (){
-                            if (username)
-                                return username;
-                            return Cookies.get("username");
-                        }
-                    });
-                }
+                socket.emit('update_user', {
+                    data: data,
+                    user: username
+                });
             }
             else {
                 print_message({user: "Client", data: "No changes made", time: moment().unix()});
@@ -189,6 +183,7 @@ $(document).ready(function() {
 });
 
 function print_message(msg) {
+    console.log(msg);
     let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     let message = $('<span/>').text('<' + msg.user + '> ').append($('<span/>').html(msg.data));
     if (msg.color)

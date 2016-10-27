@@ -12,8 +12,8 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
