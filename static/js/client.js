@@ -1,7 +1,14 @@
 var socket;
 
+function showImageInput() {
+    $('#imageInput').modal('show');
+}
+
 function imageChat() {
-    socket.emit('broadcast_image', 'http://wondrouspics.com/wp-content/uploads/2011/12/Cute_kitten.jpg');
+    if($('#img_url').val()) {
+        $('#imageInput').modal('hide');
+        socket.emit('broadcast_image', $('#img_url').val());
+    }
 }
 
 function setUsername() {

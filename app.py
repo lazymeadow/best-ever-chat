@@ -28,7 +28,6 @@ history = deque(maxlen=100)
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode, debug=DEBUG)
-    # return "chat is down today. it's broken as fuck."
 
 
 @app.route('/validate_username', methods=['POST'])
@@ -59,7 +58,7 @@ def broadcast_image(url):
     user = None
     if 'user' in session.keys():
         user = session['user']
-    new_msg = {'user': user, 'data': "<img src=\"{}\" width=\"100px\" />".format(url), 'time': time.time()}
+    new_msg = {'user': user, 'color': users[user]['color'], 'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
