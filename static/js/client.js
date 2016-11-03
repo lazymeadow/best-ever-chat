@@ -1,5 +1,11 @@
 var socket;
 
+function addEmoji(emoji) {
+    console.log(emoji);
+    $('#chat_text').val($('#chat_text').val() + emoji);
+    $('#chat_text').focus();
+}
+
 function showImageInput() {
     $('#imageInput').modal('show');
 }
@@ -77,7 +83,6 @@ function connect() {
 
         socket.on('disconnect', function() {
             if (!reloading) {
-                console.log(moment().format("MM/DD/YY HH:mm:ss "));
                 print_message({user: 'Client', time: moment().unix(), data: 'Connection lost!!'});
             }
         });
@@ -134,7 +139,6 @@ $(document).ready(function() {
             user: Cookies.get('username')
         });
         $('#chat_text').val('');
-        return false;
     });
 
     $('form#update-user').validate({
@@ -190,7 +194,6 @@ $(document).ready(function() {
 });
 
 function print_message(msg) {
-    console.log(msg);
     let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     let message = $('<span/>').text('<' + msg.user + '> ').append($('<span/>').html(msg.data));
     if (msg.color)

@@ -17,8 +17,6 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <link rel="stylesheet" href="static/js/farbtastic/farbtastic.css" type="text/css"/>
 </head>
 <body>
@@ -54,10 +52,28 @@
             <button id="username" type="button" class="btn btn-info" onclick="setUsername()">
                 you:
             </button>
+            <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" type="button">
+                😃
+            </button>
+                <div class="dropdown-menu">
+                    <table>
+                    {% for emojis in emoji_list|batch(12) %}
+                        <tr>
+                            {% for emoji in emojis %}
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" onclick="addEmoji('{{emoji}}')">{{emoji}}</button>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </div>
         </span>
                 <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..."
-                       autocomplete="off"
-                       aria-describedby="username"/>
+                       autocomplete="off"/>
         <span class="input-group-btn">
             <button class="btn btn-primary" type="button" onclick="showImageInput()">
                 <i class="fa fa-picture-o"></i>

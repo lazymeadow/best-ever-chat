@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import json
 import re
 import time
@@ -12,8 +13,8 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
@@ -24,10 +25,18 @@ users = {}
 
 history = deque(maxlen=100)
 
+available_emojis = [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅', u'😆', u'😉', u'😊', u'😋', u'😌', u'😍', u'😎',
+                    u'😏', u'😐', u'😑', u'😒', u'😓', u'😔', u'😕', u'😖', u'😗', u'😘', u'😙', u'😚', u'😛', u'😜',
+                    u'😝', u'😞', u'😟', u'😠', u'😡', u'😢', u'😣', u'😤', u'😥', u'😦', u'😧', u'😨', u'😩', u'😪',
+                    u'😫', u'😬', u'😭', u'😮', u'😯', u'😰', u'😱', u'😲', u'😳', u'😴', u'😵', u'😶', u'😷', u'🙁',
+                    u'🙂', u'🙃', u'🙄', u'🤖', u'🖳', u'💩', u'🚽', u'🚲', u'🐢', u'🐉', u'🐅', u'🐄', u'🐐', u'🐑',
+                    u'🐬', u'🐳', u'💩', u'🖕', u'🖖', u'✌', u'🤘', u'🤙', u'🤚', u'🤛', u'🤜', u'🤝', u'🤞', u'💪',
+                    u'🚀', u'🥓', u'🥒', u'🥞', u'🥔', u'🍌', u'🍍', u'🦄', u'🦈', u'💩']
+
 
 @app.route('/')
 def index():
-    return render_template('index.html', async_mode=socketio.async_mode, debug=DEBUG)
+    return render_template('index.html', async_mode=socketio.async_mode, debug=DEBUG, emoji_list=available_emojis)
 
 
 @app.route('/validate_username', methods=['POST'])
@@ -58,17 +67,21 @@ def broadcast_image(url):
     user = None
     if 'user' in session.keys():
         user = session['user']
-    new_msg = {'user': user, 'color': users[user]['color'], 'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
+    new_msg = {'user': user, 'color': users[user]['color'],
+               'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
 
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
+    user = None
+    if 'user' in session.keys():
+        user = session['user']
     chat_msg = unicode(escape(message['data']))
     r = re.compile(r"(https?://[^ ]+)")
-    new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
-               'color': users[message['user']]['color']}
+    new_msg = {'user': user, 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
+               'color': users[user]['color']}
     history.append(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
