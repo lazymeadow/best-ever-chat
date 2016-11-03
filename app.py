@@ -12,8 +12,8 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
@@ -66,7 +66,7 @@ def broadcast_image(url):
 
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
-    chat_msg = escape(unicode(message['data']))
+    chat_msg = unicode(escape(message['data']))
     r = re.compile(r"(https?://[^ ]+)")
     new_msg = {'user': message['user'], 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
                'color': users[message['user']]['color']}
