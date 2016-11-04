@@ -5,6 +5,7 @@ import re
 import time
 from collections import deque
 
+import datetime
 from flask import Flask, render_template, session, request, make_response, escape
 from flask_socketio import SocketIO, emit, disconnect
 
@@ -13,13 +14,18 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
+
+from logging.handlers import TimedRotatingFileHandler
+
+file_handler = TimedRotatingFileHandler('chatHistory.log', when='D')
+app.logger.addHandler(file_handler)
 
 users = {}
 
@@ -34,6 +40,21 @@ available_emojis = [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅
                     u'🚀', u'🥓', u'🥒', u'🥞', u'🥔', u'🍌', u'🍍', u'🦄', u'🦈', u'💩']
 
 
+def save_history(msg, log=True, visible=True):
+    """
+    :param msg: message to be saved
+    :param log: include message in external log file
+    :param visible: add message to the chat history deque
+    :return: None
+    """
+    if visible is True:
+        history.append(msg)
+    if log is True:
+        app.logger.info(
+            "({}) {} - {}\n\t{}".format(msg['color'], datetime.date.fromtimestamp(msg['time']).ctime(), msg['user'],
+                                        msg['data']))
+
+
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode, debug=DEBUG, emoji_list=available_emojis)
@@ -41,10 +62,13 @@ def index():
 
 @app.route('/validate_username', methods=['POST'])
 def validate_username():
-    if request.form['set_name'] == request.form['username']:
+    new_name = request.form['set_name'].strip()
+    if new_name == '':
+        return make_response('false')
+    if new_name == request.form['username']:
         return make_response('true')
     return make_response(
-        str(request.form['set_name'] not in users.keys()).lower())
+        str(new_name not in users.keys()).lower())
 
 
 @socketio.on('connect_message', namespace='/chat')
@@ -69,7 +93,7 @@ def broadcast_image(url):
         user = session['user']
     new_msg = {'user': user, 'color': users[user]['color'],
                'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
-    history.append(new_msg)
+    save_history(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
 
@@ -82,7 +106,7 @@ def broadcast_message(message):
     r = re.compile(r"(https?://[^ ]+)")
     new_msg = {'user': user, 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
                'color': users[user]['color']}
-    history.append(new_msg)
+    save_history(new_msg)
     emit('chat_response', new_msg, broadcast=True)
 
 

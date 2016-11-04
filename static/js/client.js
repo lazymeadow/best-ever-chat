@@ -11,7 +11,7 @@ function showImageInput() {
 }
 
 function imageChat() {
-    if($('#img_url').val()) {
+    if ($('#img_url').val()) {
         $('#imageInput').modal('hide');
         socket.emit('broadcast_image', $('#img_url').val());
     }
@@ -24,8 +24,7 @@ function setUsername() {
     var color = Cookies.get("color");
     if (color) {
         colorpicker.setColor(color);
-    }
-    else {
+    } else {
         colorpicker.setColor('#000000');
     }
     $('#userStats').modal('show');
@@ -47,12 +46,11 @@ function connect() {
     if (!Cookies.get('username'))
         window.setTimeout(connect, 500);
     else {
-        socket = io.connect('http://' + document.domain + ':' + location.port + namespace,
-            {
-                reconnectionDelay: 1500,
-                reconnectionDelayMax: 4500,
-                reconnectionAttempts: MAX_RETRIES
-            });
+        socket = io.connect('http://' + document.domain + ':' + location.port + namespace, {
+            reconnectionDelay: 1500,
+            reconnectionDelayMax: 4500,
+            reconnectionAttempts: MAX_RETRIES
+        });
 
         socket.on('history_response', function(data) {
             for (var message in data.history) {
@@ -83,16 +81,28 @@ function connect() {
 
         socket.on('disconnect', function() {
             if (!reloading) {
-                print_message({user: 'Client', time: moment().unix(), data: 'Connection lost!!'});
+                print_message({
+                    user: 'Client',
+                    time: moment().unix(),
+                    data: 'Connection lost!!'
+                });
             }
         });
 
         socket.on('reconnect_attempt', function(number) {
-            print_message({user: 'Client', time: moment().unix(), data: 'Attempting to reconnect to the server... (' + number + '/' + MAX_RETRIES + ')'});
+            print_message({
+                user: 'Client',
+                time: moment().unix(),
+                data: 'Attempting to reconnect to the server... (' + number + '/' + MAX_RETRIES + ')'
+            });
         });
 
         socket.on('reconnect_failed', function() {
-            print_message({user: 'Client', time: moment().unix(), data: 'Reconnect failed.'});
+            print_message({
+                user: 'Client',
+                time: moment().unix(),
+                data: 'Reconnect failed.'
+            });
             $('#connectError').modal('show');
         });
     }
@@ -116,6 +126,7 @@ $(document).ready(function() {
         numMessages = 0;
         window.document.title = "Best ever chat!";
         window_focus = true;
+        $('#chat_text').focus();
     }).blur(function() {
         window_focus = false;
     });
@@ -133,13 +144,7 @@ $(document).ready(function() {
 
     window.setTimeout(connect, 500);
 
-    $('form#chat').submit(function(event) {
-        socket.emit('broadcast_message', {
-            data: $('#chat_text').val(),
-            user: Cookies.get('username')
-        });
-        $('#chat_text').val('');
-    });
+
 
     $('form#update-user').validate({
         rules: {
@@ -149,7 +154,9 @@ $(document).ready(function() {
                     url: '/validate_username',
                     type: 'post',
                     data: {
-                        username: function() { return Cookies.get('username'); }
+                        username: function() {
+                            return Cookies.get('username');
+                        }
                     }
                 },
                 minlength: 1,
@@ -165,7 +172,7 @@ $(document).ready(function() {
             }
         },
         submitHandler: function() {
-             var username = Cookies.get("username");
+            var username = Cookies.get("username");
             data = {};
             if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
                 data.newUser = $('#set_name').val();
@@ -183,9 +190,12 @@ $(document).ready(function() {
                     data: data,
                     user: username
                 });
-            }
-            else {
-                print_message({user: "Client", data: "No changes made", time: moment().unix()});
+            } else {
+                print_message({
+                    user: "Client",
+                    data: "No changes made",
+                    time: moment().unix()
+                });
             }
             $('#userStats').modal('hide');
         }
@@ -193,9 +203,20 @@ $(document).ready(function() {
 
 });
 
+function submitChat(event) {
+    if (event.keyCode === 13) {
+        socket.emit('broadcast_message', {
+            data: $('#chat_text').val(),
+            user: Cookies.get('username')
+        });
+        $('#chat_text').val('');
+        $('#chat_text').focus();
+    }
+}
+
 function print_message(msg) {
     let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    let message = $('<span/>').text('<' + msg.user + '> ').append($('<span/>').html(msg.data));
+    let message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.data));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {

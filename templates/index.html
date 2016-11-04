@@ -71,10 +71,8 @@
                 </div>
             </div>
         </span>
-        <form id="chat" action="#">
-                <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..."
-                       autocomplete="off"/>
-        </form>
+            <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..."
+                   autocomplete="off" onkeydown="submitChat(event)"/>
         <span class="input-group-btn">
             <button class="btn btn-primary" type="button" onclick="showImageInput()">
                 <i class="fa fa-picture-o"></i>
