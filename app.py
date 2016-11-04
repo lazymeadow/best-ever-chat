@@ -14,18 +14,13 @@ from flask_socketio import SocketIO, emit, disconnect
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-
-from logging.handlers import TimedRotatingFileHandler
-
-file_handler = TimedRotatingFileHandler('chatHistory.log', when='D')
-app.logger.addHandler(file_handler)
 
 users = {}
 
@@ -49,10 +44,6 @@ def save_history(msg, log=True, visible=True):
     """
     if visible is True:
         history.append(msg)
-    if log is True:
-        app.logger.info(
-            "({}) {} - {}\n\t{}".format(msg['color'], datetime.date.fromtimestamp(msg['time']).ctime(), msg['user'],
-                                        msg['data']))
 
 
 @app.route('/')
