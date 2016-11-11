@@ -52,6 +52,11 @@ function connect() {
             reconnectionAttempts: MAX_RETRIES
         });
 
+        socket.on('session_error', function() {
+            socket.close();
+            socket.open();
+        });
+
         socket.on('history_response', function(data) {
             for (var message in data.history) {
                 print_message(data.history[message]);
@@ -104,6 +109,22 @@ function connect() {
                 data: 'Reconnect failed.'
             });
             $('#connectError').modal('show');
+        });
+
+        socket.on('connect_error', function(error) {
+            print_message({
+                user: 'Client',
+                time: moment().unix(),
+                data: 'Connection error'});
+            console.log(error);
+        });
+
+        socket.on('reconnect_error', function(error) {
+            print_message({
+                user: 'Client',
+                time: moment().unix(),
+                data: 'Reonnection error'});
+            console.log(error);
         });
     }
 }

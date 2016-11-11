@@ -5,26 +5,24 @@ import re
 import time
 from collections import deque
 
-import datetime
 from flask import Flask, render_template, session, request, make_response, escape
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect, send
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
-async_mode = "eventlet"
+async_mode = None
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
 socketio = SocketIO(app, async_mode=async_mode)
-thread = None
 
 users = {}
 
-history = deque(maxlen=100)
+history = deque(maxlen=75)
 
 available_emojis = [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅', u'😆', u'😉', u'😊', u'😋', u'😌', u'😍', u'😎',
                     u'😏', u'😐', u'😑', u'😒', u'😓', u'😔', u'😕', u'😖', u'😗', u'😘', u'😙', u'😚', u'😛', u'😜',
@@ -33,17 +31,6 @@ available_emojis = [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅
                     u'🙂', u'🙃', u'🙄', u'🤖', u'🖳', u'💩', u'🚽', u'🚲', u'🐢', u'🐉', u'🐅', u'🐄', u'🐐', u'🐑',
                     u'🐬', u'🐳', u'💩', u'🖕', u'🖖', u'✌', u'🤘', u'🤙', u'🤚', u'🤛', u'🤜', u'🤝', u'🤞', u'💪',
                     u'🚀', u'🥓', u'🥒', u'🥞', u'🥔', u'🍌', u'🍍', u'🦄', u'🦈', u'💩']
-
-
-def save_history(msg, log=True, visible=True):
-    """
-    :param msg: message to be saved
-    :param log: include message in external log file
-    :param visible: add message to the chat history deque
-    :return: None
-    """
-    if visible is True:
-        history.append(msg)
 
 
 @app.route('/')
@@ -79,26 +66,30 @@ def connect_message(message):
 
 @socketio.on('broadcast_image', namespace='/chat')
 def broadcast_image(url):
-    user = None
-    if 'user' in session.keys():
-        user = session['user']
-    new_msg = {'user': user, 'color': users[user]['color'],
-               'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
-    save_history(new_msg)
-    emit('chat_response', new_msg, broadcast=True)
+    try:
+        if 'user' in session.keys():
+            user = session['user']
+            new_msg = {'user': user, 'color': users[user]['color'],
+                       'data': "<img src=\"{}\" width=\"100px\" />".format(escape(url)), 'time': time.time()}
+            history.append(new_msg)
+            emit('chat_response', new_msg, broadcast=True)
+    except KeyError:
+        emit('session_error', {})
 
 
 @socketio.on('broadcast_message', namespace='/chat')
 def broadcast_message(message):
-    user = None
-    if 'user' in session.keys():
-        user = session['user']
-    chat_msg = unicode(escape(message['data']))
-    r = re.compile(r"(https?://[^ ]+)")
-    new_msg = {'user': user, 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
-               'color': users[user]['color']}
-    save_history(new_msg)
-    emit('chat_response', new_msg, broadcast=True)
+    try:
+        if 'user' in session.keys():
+            user = session['user']
+            chat_msg = unicode(escape(message['data']))
+            r = re.compile(r"(https?://[^ ]+)")
+            new_msg = {'user': user, 'data': r.sub(r'<a href="\1">\1</a>', chat_msg), 'time': time.time(),
+                       'color': users[user]['color']}
+            history.append(new_msg)
+            emit('chat_response', new_msg, broadcast=True)
+    except KeyError:
+        emit('session_error', {})
 
 
 @socketio.on('disconnect_request', namespace='/chat')
