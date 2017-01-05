@@ -60,14 +60,15 @@ function connect() {
         });
 
         socket.on('session_error', function() {
-            socket.close();
-            socket.open();
+            console.log('session error');
         });
 
         socket.on('history_response', function(data) {
+            sounds = false;
             for (var message in data.history) {
                 print_message(data.history[message]);
             }
+            sounds = Cookies.get('sounds');
             socket.emit('connect_message', {
                 user: Cookies.get("username"),
                 color: Cookies.get('color') || '#000000'
