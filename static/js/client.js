@@ -237,29 +237,30 @@ $(document).ready(function() {
                 Cookies.set("color", colorpicker.color);
             }
 
-            if (data.newUser || data.newColor) {
-                socket.emit('update_user', {
-                    data: data,
-                    user: username
-                });
-            }
-            else if ($('#toggle-sound').val() !== sounds) {
-                toggleSounds();
-                if (sounds) {
-                    print_message({
-                        user: "Client",
-                        data: "Sound enabled",
-                        time: moment().unix()
+            if (data.newUser || data.newColor || $('#toggle-sound').val() !== sounds) {
+                if (data.newUser || data.newColor) {
+                    socket.emit('update_user', {
+                        data: data,
+                        user: username
                     });
                 }
-                else {
-                    print_message({
-                        user: "Client",
-                        data: "Sound disabled",
-                        time: moment().unix()
-                    });
+                if ($('#toggle-sound').val() !== sounds) {
+                    toggleSounds();
+                    if (sounds) {
+                        print_message({
+                            user: "Client",
+                            data: "Sound enabled",
+                            time: moment().unix()
+                        });
+                    }
+                    else {
+                        print_message({
+                            user: "Client",
+                            data: "Sound disabled",
+                            time: moment().unix()
+                        });
+                    }
                 }
-
             }
             else {
                 print_message({
