@@ -33,7 +33,7 @@
 
     <div class="row">
         <div class="col-xs-9">
-            <div class="panel panel-primary pre-scrollable" id="log"></div>
+            <div class="panel panel-primary" style="overflow-y: scroll; height: 100%" id="log"></div>
 
         </div>
         <div class="col-xs-3">
@@ -50,7 +50,8 @@
         <div class="input-group">
         <span class="input-group-btn">
             <button id="username" type="button" class="btn btn-info" onclick="setUsername()">
-                you:
+                <i class="fa fa-cog"></i>
+                <span id="username_display">you:</span>
             </button>
             <div class="btn-group">
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
