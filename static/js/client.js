@@ -66,7 +66,6 @@ function connect() {
                 user: Cookies.get("username"),
                 color: Cookies.get('color') || '#000000'
             });
-            connect_sound[0].play();
         });
 
         socket.on('chat_response', print_message);
@@ -269,7 +268,11 @@ function print_message(msg) {
     }
     if (msg.user === 'Server') {
         if (msg.data.includes('disconnected')) disconnect_sound[0].play();
-        else if (msg.data.includes('connected')) connect_sound[0].play();
+        else if (msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
+            connect_sound[0].play();
+
+            console.log(msg.data.includes('connected') && !msg.data.includes(Cookies.get('username')));
+        }
     }
     else {
         if (msg.user !== Cookies.get('username')) recv_sound[0].play();

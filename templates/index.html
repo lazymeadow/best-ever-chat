@@ -45,7 +45,7 @@
     </div>
 
     <div class="row">
-            <div class="input-group">
+        <div class="input-group">
         <span class="input-group-btn">
             <button id="username" type="button" class="btn btn-info" onclick="setUsername()">
                 you:
@@ -72,12 +72,12 @@
         </span>
             <input class="form-control" type="text" name="chat_text" id="chat_text" placeholder="..."
                    autocomplete="off" onkeydown="submitChat(event)"/>
-        <span class="input-group-btn">
+            <span class="input-group-btn">
             <button class="btn btn-primary" type="button" onclick="showImageInput()">
                 <i class="fa fa-picture-o"></i>
             </button>
       </span>
-            </div>
+        </div>
     </div>
 </div>
 
@@ -87,7 +87,7 @@
 
 <!-- Modals -->
 <div class="modal" id="userStats" tabindex="-1" role="dialog" aria-labelledby="userStatsLabel">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -96,14 +96,21 @@
             </div>
             <form id="update-user">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="set_name">Username:</label>
-                        <input class="form-control" type="text" name="set_name" id="set_name" placeholder="Username"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="color">Color:</label>
-                        <input type="text" id="color" name="color"/>
-                        <div id="colorpicker"></div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label>Sound:</label>
+                            <i class="fa fa-volume-up"></i>
+                        </div>
+                        <div class="form-group">
+                            <label for="set_name">Username:</label>
+                            <input class="form-control" type="text" name="set_name" id="set_name"
+                                   placeholder="Username"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="color">Color:</label>
+                            <input class="form-control" type="text" id="color" name="color"/>
+                            <div id="colorpicker"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
