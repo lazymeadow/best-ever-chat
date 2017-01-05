@@ -1,4 +1,5 @@
 var socket;
+var recv_sound, send_sound, connect_sound, disconnect_sound, moo_sound;
 
 function addEmoji(emoji) {
     console.log(emoji);
@@ -65,6 +66,7 @@ function connect() {
                 user: Cookies.get("username"),
                 color: Cookies.get('color') || '#000000'
             });
+            connect_sound[0].play();
         });
 
         socket.on('chat_response', print_message);
@@ -143,6 +145,18 @@ window.onbeforeunload = function() {
 };
 
 $(document).ready(function() {
+    recv_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imrcv.wav').attr('type', 'audio/mpeg');
+    $('body').append(recv_sound);
+    send_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imsend.wav').attr('type', 'audio/mpeg');
+    $('body').append(send_sound);
+    connect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyin.wav').attr('type', 'audio/mpeg');
+    $('body').append(connect_sound);
+    disconnect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyout.wav').attr('type', 'audio/mpeg');
+    $('body').append(disconnect_sound);
+    moo_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/moo.wav').attr('type', 'audio/mpeg');
+    $('body').append(moo_sound);
+
+
     $(window).focus(function() {
         numMessages = 0;
         window.document.title = "Best ever chat!";
@@ -232,6 +246,7 @@ function submitChat(event) {
         });
         $('#chat_text').val('');
         $('#chat_text').focus();
+        send_sound[0].play();
     }
 }
 
@@ -251,6 +266,13 @@ function print_message(msg) {
     if (!window_focus) {
         numMessages++;
         window.document.title = "(" + numMessages + ") Best ever chat!";
+    }
+    if (msg.user === 'Server') {
+        if (msg.data.includes('disconnected')) disconnect_sound[0].play();
+        else if (msg.data.includes('connected')) connect_sound[0].play();
+    }
+    else {
+        if (msg.user !== Cookies.get('username')) recv_sound[0].play();
     }
     $.titleAlert('New message!', {
         requireBlur: true,
