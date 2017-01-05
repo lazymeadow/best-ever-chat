@@ -99,25 +99,29 @@ def disconnect_request():
 
 @socketio.on('update_user', namespace='/chat')
 def update_user(data):
-    if 'newColor' in data['data'].keys():
-        users[data['user']]['color'] = data['data']['newColor']
-        emit('update_response', {'user': 'Server', 'data': 'Color updated', 'time': time.time()})
+    try:
+        if 'newColor' in data['data'].keys():
+            users[data['user']]['color'] = data['data']['newColor']
+            emit('update_response', {'user': 'Server', 'data': 'Color updated', 'time': time.time()})
 
-    if 'newUser' in data['data'].keys():
-        if data['data']['newUser'] in users.keys():
-            emit('update_response',
-                 {'user': 'Server', 'data': 'Name taken', 'revertName': data['user'],
-                  'time': time.time()})
-        else:
-            users[data['data']['newUser']] = users[data['user']]
-            session['user'] = data['data']['newUser']
-            emit('chat_response',
-                 {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'],
-                  'time': time.time()},
-                 include_self=False, broadcast=True)
-            users.pop(data['user'], None)
-            emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
-            emit('user_list', {'data': users.keys()}, broadcast=True)
+        if 'newUser' in data['data'].keys():
+            if data['data']['newUser'] in users.keys():
+                emit('update_response',
+                     {'user': 'Server', 'data': 'Name taken', 'revertName': data['user'],
+                      'time': time.time()})
+            else:
+                users[data['data']['newUser']] = users[data['user']]
+                session['user'] = data['data']['newUser']
+                emit('chat_response',
+                     {'user': 'Server', 'data': data['user'] + ' is now ' + data['data']['newUser'],
+                      'time': time.time()},
+                     include_self=False, broadcast=True)
+                if data['user'] in users:
+                    users.pop(data['user'], None)
+                emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
+                emit('user_list', {'data': users.keys()}, broadcast=True)
+    except KeyError:
+        emit('session_error', {})
 
 
 @socketio.on('connect', namespace='/chat')
@@ -132,11 +136,20 @@ def reconnect():
 
 @socketio.on('disconnect', namespace='/chat')
 def disconnect():
-    new_msg = {'user': 'Server', 'data': session['user'] + ' disconnected!', 'time': time.time()}
-    emit('chat_response', new_msg, broadcast=True, include_self=False)
-    users.pop(session['user'], None)
-    emit('user_list', {'data': users.keys()}, broadcast=True, include_self=False)
-    session.pop('user', None)
+    try:
+        new_msg = {'user': 'Server', 'data': session['user'] + ' disconnected!', 'time': time.time()}
+        emit('chat_response', new_msg, broadcast=True, include_self=False)
+        if session['user'] in users:
+            users.pop(session['user'], None)
+        session.pop('user', None)
+        emit('user_list', {'data': users.keys()}, broadcast=True, include_self=False)
+    except KeyError:
+        emit('session_error', {})
+
+
+@socketio.on_error('/chat')  # handles the '/chat' namespace
+def error_handler_chat(e):
+    print e['message']
 
 
 if __name__ == '__main__':
