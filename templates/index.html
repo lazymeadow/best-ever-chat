@@ -11,10 +11,12 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
     <script src="https://use.fontawesome.com/b02b7d5ab5.js"></script>
+    <script src="//gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery-titlealert-0.7/jquery.titlealert.min.js"></script>
     <script type="text/javascript" src="static/js/farbtastic/farbtastic.js"></script>
     <script type="text/javascript" src="/static/js/client.js"></script>
 
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="static/js/farbtastic/farbtastic.css" type="text/css"/>
@@ -57,7 +59,7 @@
             </button>
                 <div class="dropdown-menu">
                     <table>
-                    {% for emojis in emoji_list|batch(12) %}
+                    {% for emojis in emoji_list | batch(12) %}
                         <tr>
                             {% for emoji in emojis %}
                             <td>
@@ -98,18 +100,24 @@
                 <div class="modal-body">
                     <div class="form-horizontal">
                         <div class="form-group">
-                            <label>Sound:</label>
-                            <i class="fa fa-volume-up"></i>
+                            <label class="col-sm-2 control-label">Sound:</label>
+                            <div class="col-sm-10">
+                                <input id="toggle-sound" type="checkbox">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="set_name">Username:</label>
-                            <input class="form-control" type="text" name="set_name" id="set_name"
-                                   placeholder="Username"/>
+                            <label class="col-sm-2 control-label" for="set_name">Username:</label>
+                            <div class="col-sm-5">
+                                <input class="form-control" type="text" name="set_name" id="set_name"
+                                       placeholder="Username"/>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="color">Color:</label>
-                            <input class="form-control" type="text" id="color" name="color"/>
-                            <div id="colorpicker"></div>
+                            <label class="col-sm-2 control-label" for="color">Color:</label>
+                            <div class="col-sm-5">
+                                <input class="form-control" type="text" id="color" name="color"/>
+                            </div>
+                            <div class="col-xs-offset-2 col-sm-offset-7" id="colorpicker"></div>
                         </div>
                     </div>
                 </div>

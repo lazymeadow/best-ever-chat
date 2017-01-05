@@ -1,4 +1,5 @@
 var socket;
+var sounds = false;
 var recv_sound, send_sound, connect_sound, disconnect_sound, moo_sound;
 
 function addEmoji(emoji) {
@@ -37,6 +38,11 @@ function showUsername() {
         $("#username").text(username + ":");
     else
         setUsername();
+}
+
+function toggleSounds() {
+    sounds = !sounds;
+    Cookies.set('sounds', sounds);
 }
 
 var numMessages = 0;
@@ -155,6 +161,18 @@ $(document).ready(function() {
     moo_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/moo.wav').attr('type', 'audio/mpeg');
     $('body').append(moo_sound);
 
+    console.log(sounds);
+    console.log(Cookies.get('sounds'));
+    sounds = Cookies.get('sounds');
+    console.log(sounds);
+    $('#toggle-sound').prop("checked", sounds);
+    $('#toggle-sound').bootstrapToggle({
+        size: 'small',
+        on: "<i class='fa fa-volume-up'></i>",
+        onstyle: 'success',
+        off: "<i class='fa fa-volume-off'></i>",
+        offstyle: 'danger'
+    });
 
     $(window).focus(function() {
         numMessages = 0;
@@ -224,7 +242,26 @@ $(document).ready(function() {
                     data: data,
                     user: username
                 });
-            } else {
+            }
+            else if ($('#toggle-sound').val() !== sounds) {
+                toggleSounds();
+                if (sounds) {
+                    print_message({
+                        user: "Client",
+                        data: "Sound enabled",
+                        time: moment().unix()
+                    });
+                }
+                else {
+                    print_message({
+                        user: "Client",
+                        data: "Sound disabled",
+                        time: moment().unix()
+                    });
+                }
+
+            }
+            else {
                 print_message({
                     user: "Client",
                     data: "No changes made",
@@ -245,7 +282,7 @@ function submitChat(event) {
         });
         $('#chat_text').val('');
         $('#chat_text').focus();
-        send_sound[0].play();
+        if (sounds) send_sound[0].play();
     }
 }
 
@@ -267,15 +304,13 @@ function print_message(msg) {
         window.document.title = "(" + numMessages + ") Best ever chat!";
     }
     if (msg.user === 'Server') {
-        if (msg.data.includes('disconnected')) disconnect_sound[0].play();
-        else if (msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
+        if (sounds && msg.data.includes('disconnected')) disconnect_sound[0].play();
+        else if (sounds && msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
             connect_sound[0].play();
-
-            console.log(msg.data.includes('connected') && !msg.data.includes(Cookies.get('username')));
         }
     }
     else {
-        if (msg.user !== Cookies.get('username')) recv_sound[0].play();
+        if (sounds && msg.user !== Cookies.get('username') && msg.user !== 'Client') recv_sound[0].play();
     }
     $.titleAlert('New message!', {
         requireBlur: true,
