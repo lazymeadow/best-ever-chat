@@ -149,7 +149,7 @@ def disconnect():
 
 @socketio.on_error('/chat')  # handles the '/chat' namespace
 def error_handler_chat(e):
-    print e['message']
+    print 'well that\s bad'
 
 
 if __name__ == '__main__':
