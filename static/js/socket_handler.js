@@ -9,8 +9,7 @@ $(document).ready(function () {
 function submitChat(event) {
     if (event.keyCode === 13) {
         socket.emit('broadcast_message', {
-            data: $('#chat_text').val(),
-            user: Cookies.get('username')
+            data: $('#chat_text').val()
         });
         $('#chat_text').val('');
         $('#chat_text').focus();
@@ -27,8 +26,9 @@ function connect() {
             reconnectionAttempts: MAX_RETRIES
         });
 
-        socket.on('session_error', function() {
-            console.log('session error');
+        socket.on('session_error', function(data) {
+            console.error('Error on:', data.type, 'with', data.data);
+            socket.emit(data.type, data.data);
         });
 
         socket.on('history_response', function(data) {

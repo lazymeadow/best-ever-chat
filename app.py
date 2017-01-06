@@ -79,7 +79,7 @@ def broadcast_image(url):
             history.append(new_msg)
             emit('chat_response', new_msg, broadcast=True)
     except KeyError:
-        emit('session_error', {})
+        emit('session_error', {'type': 'broadcast_image', 'data': url})
 
 
 @socketio.on('broadcast_message', namespace='/chat')
@@ -94,7 +94,7 @@ def broadcast_message(message):
             history.append(new_msg)
             emit('chat_response', new_msg, broadcast=True)
     except KeyError:
-        emit('session_error', {})
+        emit('session_error', {'type': 'broadcast_message', 'data': message})
 
 
 @socketio.on('disconnect_request', namespace='/chat')
@@ -126,7 +126,7 @@ def update_user(data):
                 emit('update_response', {'user': 'Server', 'data': 'Name changed', 'time': time.time()})
                 emit('user_list', {'data': users.keys()}, broadcast=True)
     except KeyError:
-        emit('session_error', {})
+        emit('session_error', {'type': 'update_user', 'data': data})
 
 
 @socketio.on('connect', namespace='/chat')
@@ -149,12 +149,13 @@ def disconnect():
         session.pop('user', None)
         emit('user_list', {'data': users.keys()}, broadcast=True, include_self=False)
     except KeyError:
-        emit('session_error', {})
+        emit('session_error', {'type': 'disconnect'})
 
 
 @socketio.on_error('/chat')  # handles the '/chat' namespace
 def error_handler_chat(e):
     print 'well that\s bad'
+    emit('error', {'error': e})
 
 
 if __name__ == '__main__':
