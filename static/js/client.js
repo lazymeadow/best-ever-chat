@@ -1,6 +1,4 @@
 var socket;
-var sounds = false;
-var recv_sound, send_sound, connect_sound, disconnect_sound, moo_sound;
 
 function addEmoji(emoji) {
     console.log(emoji);
@@ -31,9 +29,11 @@ function setUsername() {
         colorpicker.setColor('#000000');
     }
 
-    var sounds_cookie = JSON.parse(Cookies.get("sounds"));
-    if (sounds_cookie !== undefined) {
-        $("#sounds_toggle").prop("checked", sounds_cookie);
+    if (Cookies.get('sounds') === undefined) {
+        $("#sounds_toggle").prop("checked", false);
+    }
+    else {
+        $("#sounds_toggle").prop("checked", JSON.parse(Cookies.get('sounds')));
     }
 
     $('#userStats').modal('show');
@@ -47,10 +47,6 @@ function showUsername() {
         setUsername();
 }
 
-function toggleSounds() {
-    sounds = !sounds;
-    Cookies.set('sounds', sounds);
-}
 
 var numMessages = 0;
 var MAX_RETRIES = 3;
@@ -71,11 +67,12 @@ function connect() {
         });
 
         socket.on('history_response', function(data) {
-            sounds = false;
+            sounds_setting = JSON.parse(Cookies.get('sounds'));
+            Cookies.set('sounds', false);
             for (var message in data.history) {
                 print_message(data.history[message]);
             }
-            sounds = JSON.parse(Cookies.get('sounds'));
+            Cookies.set('sounds', sounds_setting);
             socket.emit('connect_message', {
                 user: Cookies.get("username"),
                 color: Cookies.get('color') || '#000000'
@@ -157,54 +154,7 @@ window.onbeforeunload = function() {
     socket.emit('disconnect_request');
 };
 
-$(document).ready(function() {
-    recv_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imrcv.wav').attr('type', 'audio/mpeg');
-    $('body').append(recv_sound);
-    send_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imsend.wav').attr('type', 'audio/mpeg');
-    $('body').append(send_sound);
-    connect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyin.wav').attr('type', 'audio/mpeg');
-    $('body').append(connect_sound);
-    disconnect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyout.wav').attr('type', 'audio/mpeg');
-    $('body').append(disconnect_sound);
-    moo_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/moo.wav').attr('type', 'audio/mpeg');
-    $('body').append(moo_sound);
-
-    $('#toggle-sound').bootstrapToggle({
-        size: 'small',
-        on: "<i class='fa fa-volume-up'></i>",
-        onstyle: 'success',
-        off: "<i class='fa fa-volume-off'></i>",
-        offstyle: 'danger'
-    });
-
-    sounds = JSON.parse(Cookies.get("sounds"));
-    $('#toggle-sound').prop("checked", sounds);
-
-    $(window).focus(function() {
-        numMessages = 0;
-        window.document.title = "Best ever chat!";
-        window_focus = true;
-        $('#chat_text').focus();
-    }).blur(function() {
-        window_focus = false;
-    });
-
-    colorpicker = $.farbtastic("#colorpicker",
-        function(color) {
-            $("#color").val(color);
-            $("#color").css('color', color);
-        }
-    );
-
-    namespace = '/chat';
-
-    showUsername();
-
-    window.setTimeout(connect, 500);
-
-
-
-    $('form#update-user').validate({
+var updateSettings = {
         rules: {
             set_name: {
                 required: true,
@@ -243,16 +193,16 @@ $(document).ready(function() {
                 Cookies.set("color", colorpicker.color);
             }
 
-            if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== sounds) {
+            if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
                 if (data.newUser || data.newColor) {
-                    socket.emit('update_user', {
+                    if (socket) socket.emit('update_user', {
                         data: data,
                         user: username
                     });
                 }
-                if ($('#toggle-sound').is(':checked') != sounds) {
+                if ($('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
                     toggleSounds();
-                    if (sounds) {
+                    if (JSON.parse(Cookies.get('sounds'))) {
                         print_message({
                             user: "Client",
                             data: "Sound enabled",
@@ -277,7 +227,34 @@ $(document).ready(function() {
             }
             $('#userStats').modal('hide');
         }
+    };
+
+$(document).ready(function() {
+
+    $(window).focus(function() {
+        numMessages = 0;
+        window.document.title = "Best ever chat!";
+        window_focus = true;
+        $('#chat_text').focus();
+    }).blur(function() {
+        window_focus = false;
     });
+
+    colorpicker = $.farbtastic("#colorpicker",
+        function(color) {
+            $("#color").val(color);
+            $("#color").css('color', color);
+        }
+    );
+    $('#update-user').validate(updateSettings);
+
+    namespace = '/chat';
+
+
+    window.setTimeout(connect, 500);
+
+
+    showUsername();
 
 });
 
@@ -309,17 +286,17 @@ function print_message(msg) {
         window.document.title = "(" + numMessages + ") Best ever chat!";
     }
     if (msg.user === 'Server') {
-        if (sounds && msg.data.includes('disconnected')) disconnect_sound[0].play();
-        else if (sounds && msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
-            connect_sound[0].play();
+        if (msg.data.includes('disconnected')) play_disconnect();
+        else if (msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
+            play_connect();
         }
     }
     else if (msg.user === Cookies.get('username')) {
-        if (sounds) send_sound[0].play()
+        play_send();
     }
     else {
         numMessages++;
-        if (sounds && msg.user !== 'Client') recv_sound[0].play();
+        if (msg.user !== 'Client') play_receive();
     }
     $.titleAlert('New message!', {
         requireBlur: true,

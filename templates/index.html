@@ -15,6 +15,10 @@
     <script type="text/javascript" src="/static/js/jquery-titlealert-0.7/jquery.titlealert.min.js"></script>
     <script type="text/javascript" src="static/js/farbtastic/farbtastic.js"></script>
     <script type="text/javascript" src="/static/js/client.js"></script>
+    <script type="text/javascript" src="/static/js/socket_handler.js"></script>
+    <script type="text/javascript" src="/static/js/message_handler.js"></script>
+    <script type="text/javascript" src="/static/js/settings_handler.js"></script>
+    <script type="text/javascript" src="/static/js/sounds_handler.js"></script>
 
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -97,13 +101,13 @@
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="userStatsLabel">User preferences</h4>
             </div>
-            <form id="update-user">
+            <form id="update-user" action="">
                 <div class="modal-body">
                     <div class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Sound:</label>
+                            <label class="col-sm-2 control-label" for="toggle-sound">Sound:</label>
                             <div class="col-sm-10">
-                                <input id="toggle-sound" type="checkbox">
+                                <input id="toggle-sound" name="toggle-sound" type="checkbox">
                             </div>
                         </div>
                         <div class="form-group">
