@@ -289,7 +289,6 @@ function submitChat(event) {
         });
         $('#chat_text').val('');
         $('#chat_text').focus();
-        if (sounds) send_sound[0].play();
     }
 }
 
