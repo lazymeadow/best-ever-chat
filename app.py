@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import json
 import re
 import time
 from collections import deque
@@ -13,8 +12,10 @@ from flask_socketio import SocketIO, emit, disconnect, send
 # the best option based on installed packages.
 async_mode = 'eventlet'
 
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
+
+client_version = 42
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananaPUDDINGfudgesicleFACE'
@@ -62,6 +63,10 @@ def connect_message(message):
     new_msg = {'user': 'Server', 'data': message['user'] + ' has connected!', 'time': time.time()}
     emit('chat_response', new_msg, broadcast=True)
     emit('user_list', {'data': users.keys()}, broadcast=True)
+    if 'version' not in message.keys() or client_version > message['version']:
+        emit('chat_response',
+             {'user': 'Server', 'data': 'Your client is out of date. Please refresh your page if you ' +
+                                        'want to see the new hotness.', 'time': time.time()})
 
 
 @socketio.on('broadcast_image', namespace='/chat')

@@ -41,7 +41,8 @@ function connect() {
             Cookies.set('sounds', sounds_setting);
             socket.emit('connect_message', {
                 user: Cookies.get("username"),
-                color: Cookies.get('color') || '#000000'
+                color: Cookies.get('color') || '#000000',
+                version: version
             });
         });
 

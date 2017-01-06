@@ -1,3 +1,5 @@
+version = 42;
+
 var socket;
 
 function addEmoji(emoji) {
