@@ -1,9 +1,10 @@
+client_version = 42;
+
 var sock;
 
 var timeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
-
 var window_focus = true;
 
 $(document).ready(function () {
@@ -76,6 +77,7 @@ function connect() {
             window.clearTimeout(timeout);
             timeout = null;
             reconnect_count = 0;
+            sock.send(JSON.stringify({'type': 'version', 'client_version': client_version}));
         };
 
         sock.onmessage = function(e) {

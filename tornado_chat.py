@@ -30,6 +30,8 @@ users = {}
 
 history = deque(maxlen=75)
 
+client_version = 42
+
 
 class PageHandler(BaseHandler):
     """Regular HTTP handler to serve the chatroom page"""
@@ -72,6 +74,11 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
     def on_message(self, message):
         json_message = json.loads(message)
+        if json_message['type'] == 'version':
+            if json_message['client_version'] < client_version:
+                self.send_from_server('Your client is out of date. Please refresh your page, you dork.')
+            if json_message['client_version'] > client_version:
+                self.send_from_server('There is something wrong with your client version. What did you do?')
         if json_message['type'] == 'chatMessage':
             self.broadcast_chat_message(json_message['user'], json_message['message'])
         if json_message['type'] == 'imageMessage':
