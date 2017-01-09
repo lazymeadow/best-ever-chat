@@ -1,6 +1,34 @@
-version = 2;
+var sock;
 
-var socket;
+var timeout = null;
+var reconnect_count = 0;
+var MAX_RETRIES = 3;
+
+var window_focus = true;
+
+$(document).ready(function () {
+    // page stuff
+    $(window).focus(function() {
+        numMessages = 0;
+        window.document.title = "Best ever chat!";
+        window_focus = true;
+        $('#chat_text').focus();
+    }).blur(function() {
+        window_focus = false;
+    });
+
+    colorpicker = $.farbtastic("#colorpicker",
+        function(color) {
+            $("#color").val(color);
+            $("#color").css('color', color);
+        }
+    );
+    $('#update-user').validate(updateSettings);
+
+    showUsername();
+
+    timeout = window.setTimeout(connect, 500);
+});
 
 function addEmoji(emoji) {
     console.log(emoji);
@@ -12,12 +40,110 @@ function showImageInput() {
     $('#imageInput').modal('show');
 }
 
+
 function imageChat() {
     if ($('#img_url').val()) {
         $('#imageInput').modal('hide');
-        socket.emit('broadcast_image', $('#img_url').val());
+        sock.send(JSON.stringify({'type': 'imageMessage',
+                    'user': Cookies.get('username'),
+                    'url': $('#img_url').val()
+                  }));
+        $('#img_url').val('');
+        $('#chat_text').focus();
     }
 }
+
+function submitChat(event) {
+    if (event.keyCode === 13) {
+        sock.send(JSON.stringify({'type': 'chatMessage',
+                    'user': Cookies.get('username'),
+                    'message': $('#chat_text').val()
+                  }));
+        $('#chat_text').val('');
+        $('#chat_text').focus();
+    }
+}
+
+
+function connect() {
+    if (Cookies.get('username')) {
+
+        // socket stuff
+    //    sock = new SockJS('http://chat.applepeacock.com');
+        sock = new SockJS('http://localhost:6969/chat');
+
+        sock.onopen = function() {
+            window.clearTimeout(timeout);
+            timeout = null;
+            reconnect_count = 0;
+        };
+
+        sock.onmessage = function(e) {
+            var type = e.data.type;
+            var data = e.data.data;
+            // handle all the damn message types
+            if (type === 'userList') {
+                updateUserList(data);
+            }
+            if (type === 'history') {
+                sounds_setting = JSON.parse(Cookies.get('sounds'));
+                Cookies.set('sounds', false);
+                for (var message in data) {
+                    print_message(data[message]);
+                }
+                numMessages -= data.length;
+                Cookies.set('sounds', sounds_setting);
+            }
+            if (type === 'chatMessage') {
+                print_message(data);
+            }
+        };
+        sock.onclose = function() {
+            print_message({
+                    user: 'Client',
+                    time: moment().unix(),
+                    message: 'Connection lost!!'
+                });
+
+            attempt_reconnect();
+        };
+    }
+}
+
+function attempt_reconnect() {
+    window.clearTimeout(timeout);
+    if (reconnect_count < MAX_RETRIES)
+        timeout = window.setTimeout(reconnect, 1000);
+    else {
+        print_message({
+                user: 'Client',
+                time: moment().unix(),
+                message: 'Reconnect failed.'
+            });
+        $('#connectError').modal('show');
+        reconnect_count = 0;
+    }
+}
+
+function reconnect() {
+    $('#connectError').modal('hide');
+    connect();
+    reconnect_count++;
+    print_message({
+        user: 'Client',
+        time: moment().unix(),
+        message: 'Attempting to reconnect to the server... (' + reconnect_count + '/' + MAX_RETRIES + ')'
+    });
+}
+
+
+function updateUserList(newList) {
+    $('#user_list').empty();
+    for (var user in newList) {
+        $('#user_list').append($('<div/>').text(user));
+    }
+}
+
 
 function setUsername() {
     var username_cookie = Cookies.get("username");
@@ -50,17 +176,6 @@ function showUsername() {
 }
 
 
-var numMessages = 0;
-var MAX_RETRIES = 3;
-var colorpicker;
-
-var window_focus = true;
-var reloading = false;
-
-window.onbeforeunload = function() {
-    reloading = true;
-    socket.emit('disconnect_request');
-};
 
 var updateSettings = {
         rules: {
@@ -103,10 +218,11 @@ var updateSettings = {
 
             if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
                 if (data.newUser || data.newColor) {
-                    if (socket) socket.emit('update_user', {
-                        data: data,
-                        user: username
-                    });
+                    sock.send(JSON.stringify({
+                        'type': 'userSettings',
+                        'settings': data,
+                        'user': username
+                    }));
                 }
                 if ($('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
                     toggleSounds();
@@ -137,33 +253,12 @@ var updateSettings = {
         }
     };
 
-$(document).ready(function() {
 
-    $(window).focus(function() {
-        numMessages = 0;
-        window.document.title = "Best ever chat!";
-        window_focus = true;
-        $('#chat_text').focus();
-    }).blur(function() {
-        window_focus = false;
-    });
-
-    colorpicker = $.farbtastic("#colorpicker",
-        function(color) {
-            $("#color").val(color);
-            $("#color").css('color', color);
-        }
-    );
-    $('#update-user').validate(updateSettings);
-
-    showUsername();
-
-});
-
+var numMessages = 0;
 
 function print_message(msg) {
     let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    let message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.data));
+    let message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
@@ -175,8 +270,8 @@ function print_message(msg) {
     $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
     $('#log').scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === 'Server') {
-        if (msg.data.includes('disconnected')) play_disconnect();
-        else if (msg.data.includes('connected') && !msg.data.includes(Cookies.get('username'))) {
+        if (msg.message.includes('disconnected')) play_disconnect();
+        else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {
             play_connect();
         }
     }
