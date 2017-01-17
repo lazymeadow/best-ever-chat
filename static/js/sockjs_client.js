@@ -1,4 +1,4 @@
-client_version = 42;
+client_version = 43;
 
 var sock;
 
