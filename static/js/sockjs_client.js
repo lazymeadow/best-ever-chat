@@ -14,6 +14,7 @@ $(document).ready(function () {
         window.document.title = "Best ever chat!";
         window_focus = true;
         $('#chat_text').focus();
+        $("#favicon").attr("href","/static/favicon.png");
     }).blur(function() {
         window_focus = false;
     });
@@ -289,6 +290,7 @@ function print_message(msg) {
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
             window.document.title = "(" + numMessages + ") Best ever chat!";
+            $("#favicon").attr("href","/static/favicon2.png");
         }
     }
 }
