@@ -24,25 +24,6 @@ $(document).ready(function () {
     }
     $('input:radio[name=sounds-radios]').filter('[value={}]'.replace('{}', Cookies.get('sound_set'))).prop('checked', true);
 
-    generate_audio_tags();
-});
-
-function chooseSoundSet() {
-    Cookies.set('sound_set', $('input[name="sounds-radios"]:checked').val());
-    generate_audio_tags();
-
-    play_activate();
-}
-
-function toggleSounds() {
-    var sounds = JSON.parse(Cookies.get('sounds'));
-    Cookies.set('sounds', !sounds);
-    play_activate();
-}
-
-function generate_audio_tags() {
-    $('audio').remove();
-
     receive_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-receive.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
     $('body').append(receive_sound);
     send_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-send.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
@@ -53,6 +34,27 @@ function generate_audio_tags() {
     $('body').append(disconnect_sound);
     activate_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/activate-sounds.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
     $('body').append(activate_sound);
+});
+
+function chooseSoundSet() {
+    Cookies.set('sound_set', $('input[name="sounds-radios"]:checked').val());
+    update_audio_tags();
+
+    play_activate();
+}
+
+function toggleSounds() {
+    var sounds = JSON.parse(Cookies.get('sounds'));
+    Cookies.set('sounds', !sounds);
+    play_activate();
+}
+
+function update_audio_tags() {
+    receive_sound.attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-receive.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    send_sound.attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-send.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    connect_sound.attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/user-online.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    disconnect_sound.attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/user-offline.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    activate_sound.attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/activate-sounds.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
 }
 
 
