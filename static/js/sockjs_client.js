@@ -219,11 +219,7 @@ var updateSettings = {
                 Cookies.set("color", colorpicker.color);
             }
 
-            if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
-                chooseSoundSet();
-            }
-
-            if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
+            if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds')) || $('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
                 if (data.newUser || data.newColor) {
                     sock.send(JSON.stringify({
                         'type': 'userSettings',
@@ -236,23 +232,31 @@ var updateSettings = {
                     if (JSON.parse(Cookies.get('sounds'))) {
                         print_message({
                             user: "Client",
-                            data: "Sound enabled",
+                            message: "Sound enabled",
                             time: moment().unix()
                         });
                     }
                     else {
                         print_message({
                             user: "Client",
-                            data: "Sound disabled",
+                            message: "Sound disabled",
                             time: moment().unix()
                         });
                     }
+                }
+                if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
+                    chooseSoundSet();
+                    print_message({
+                        user: "Client",
+                        message: Cookies.get('sound_set') + " sounds chosen",
+                        time: moment().unix()
+                    });
                 }
             }
             else {
                 print_message({
                     user: "Client",
-                    data: "No changes made",
+                    message: "No changes made",
                     time: moment().unix()
                 });
             }
