@@ -218,6 +218,10 @@ var updateSettings = {
                 Cookies.set("color", colorpicker.color);
             }
 
+            if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
+                chooseSoundSet();
+            }
+
             if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
                 if (data.newUser || data.newColor) {
                     sock.send(JSON.stringify({

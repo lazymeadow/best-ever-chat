@@ -27,8 +27,9 @@
 <div class="container-fluid">
 
     {% if debug %}
-    <div class="alert alert-warning" role="alert"><i class="fa fa-exclamation-triangle"></i> WATCH OUT, IT'S IN DEBUG
-        MODE
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-exclamation-triangle"></i>
+        WATCH OUT, IT'S IN DEBUG MODE
     </div>
     {% endif %}
 
@@ -103,8 +104,18 @@
                     <div class="form-horizontal">
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="toggle-sound">Sound:</label>
-                            <div class="col-sm-10">
+                            <div class="col-sm-2">
                                 <input id="toggle-sound" name="toggle-sound" type="checkbox">
+                            </div>
+                            <div id="sound-options" class="col-sm-8">
+                                <label class="radio-inline">
+                                    <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
+                                    AIM
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
+                                    MSN
+                                </label>
                             </div>
                         </div>
                         <div class="form-group">

@@ -1,38 +1,60 @@
 // sounds
-var receive_sound, send_sound, connect_sound, disconnect_sound, moo_sound;
+var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
 
 // functions
 $(document).ready(function () {
-    receive_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imrcv.wav').attr('type', 'audio/mpeg');
-    $('body').append(receive_sound);
-    send_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/imsend.wav').attr('type', 'audio/mpeg');
-    $('body').append(send_sound);
-    connect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyin.wav').attr('type', 'audio/mpeg');
-    $('body').append(connect_sound);
-    disconnect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/buddyout.wav').attr('type', 'audio/mpeg');
-    $('body').append(disconnect_sound);
-    moo_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/moo.wav').attr('type', 'audio/mpeg');
-    $('body').append(moo_sound);
-
+    if (Cookies.get("sounds") === undefined) {
+        Cookies.set("sounds", false);
+    }
     $('#toggle-sound').bootstrapToggle({
         size: 'small',
         on: "<i class='fa fa-volume-up'></i>",
         onstyle: 'success',
         off: "<i class='fa fa-volume-off'></i>",
         offstyle: 'danger'
+    })
+    .on('change', function (event) {
+        $('input:radio[name=sounds-radios]').prop('disabled', !$(this).prop("checked"));
     });
+    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds'))).change();
+    $('input:radio[name=sounds-radios]').prop('disabled', !$('#toggle-sound').prop("checked"));
 
-    if (Cookies.get("sounds") === undefined) {
-        Cookies.set("sounds", false);
+    if (Cookies.get("sound_set") === undefined) {
+        Cookies.set("sound_set", 'AIM');
     }
-    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds')));
+    $('input:radio[name=sounds-radios]').filter('[value={}]'.replace('{}', Cookies.get('sound_set'))).prop('checked', true);
+
+    generate_audio_tags();
 });
+
+function chooseSoundSet() {
+    Cookies.set('sound_set', $('input[name="sounds-radios"]:checked').val());
+    generate_audio_tags();
+
+    play_activate();
+}
 
 function toggleSounds() {
     var sounds = JSON.parse(Cookies.get('sounds'));
     Cookies.set('sounds', !sounds);
-    play_moo();
+    play_activate();
 }
+
+function generate_audio_tags() {
+    $('audio').remove();
+
+    receive_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-receive.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    $('body').append(receive_sound);
+    send_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/message-send.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    $('body').append(send_sound);
+    connect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/user-online.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    $('body').append(connect_sound);
+    disconnect_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/user-offline.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    $('body').append(disconnect_sound);
+    activate_sound = $('<audio>').attr('src', 'https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/{}/activate-sounds.wav'.replace('{}', Cookies.get("sound_set"))).attr('type', 'audio/mpeg');
+    $('body').append(activate_sound);
+}
+
 
 function play_receive() {
     if (JSON.parse(Cookies.get('sounds')))
@@ -54,7 +76,7 @@ function play_disconnect() {
         disconnect_sound[0].play();
 }
 
-function play_moo() {
+function play_activate() {
     if (JSON.parse(Cookies.get('sounds')))
-        moo_sound[0].play();
+        activate_sound[0].play();
 }
