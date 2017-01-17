@@ -56,11 +56,17 @@ function imageChat() {
 }
 
 function submitChat(event) {
+    if (event.keyCode === 38) {
+        if (Cookies.get('last_message') !== undefined) {
+            $('#chat_text').val(Cookies.get('last_message'));
+        }
+    }
     if (event.keyCode === 13) {
         sock.send(JSON.stringify({'type': 'chatMessage',
                     'user': Cookies.get('username'),
                     'message': $('#chat_text').val()
                   }));
+        Cookies.set('last_message', $('#chat_text').val());
         $('#chat_text').val('');
         $('#chat_text').focus();
     }
