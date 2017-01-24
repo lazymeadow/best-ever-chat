@@ -160,7 +160,6 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
 if __name__ == "__main__":
     import logging
-
     logging.getLogger().setLevel(logging.DEBUG)
 
     # 1. Create chat router

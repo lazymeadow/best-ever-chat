@@ -8,6 +8,8 @@ var MAX_RETRIES = 3;
 var window_focus = true;
 
 $(document).ready(function () {
+    showEmojiList();
+    toggleModal('userStats');
     // page stuff
     $(window).focus(function() {
         numMessages = 0;
@@ -39,13 +41,12 @@ function addEmoji(emoji) {
 }
 
 function showImageInput() {
-    $('#imageInput').modal('show');
+    toggleModal('imageInput');
 }
-
 
 function imageChat() {
     if ($('#img_url').val()) {
-        $('#imageInput').modal('hide');
+        toggleModal('imageInput');
         sock.send(JSON.stringify({'type': 'imageMessage',
                     'user': Cookies.get('username'),
                     'url': $('#img_url').val()
@@ -71,7 +72,6 @@ function submitChat(event) {
         $('#chat_text').focus();
     }
 }
-
 
 function connect() {
     if (Cookies.get('username')) {
@@ -129,13 +129,13 @@ function attempt_reconnect() {
                 time: moment().unix(),
                 message: 'Reconnect failed.'
             });
-        $('#connectError').modal('show');
+        toggleModal('connectError');
         reconnect_count = 0;
     }
 }
 
 function reconnect() {
-    $('#connectError').modal('hide');
+    toggleModal('connectError');
     connect();
     reconnect_count++;
     print_message({
@@ -145,14 +145,12 @@ function reconnect() {
     });
 }
 
-
 function updateUserList(newList) {
     $('#user_list').empty();
     for (var user in newList) {
         $('#user_list').append($('<div/>').text(user));
     }
 }
-
 
 function setUsername() {
     var username_cookie = Cookies.get("username");
@@ -173,7 +171,7 @@ function setUsername() {
         $("#sounds_toggle").prop("checked", JSON.parse(Cookies.get('sounds')));
     }
 
-    $('#userStats').modal('show');
+    toggleModal('userStats');
 }
 
 function showUsername() {
@@ -183,8 +181,6 @@ function showUsername() {
     else
         setUsername();
 }
-
-
 
 var updateSettings = {
         rules: {
@@ -266,7 +262,7 @@ var updateSettings = {
                     time: moment().unix()
                 });
             }
-            $('#userStats').modal('hide');
+            toggleModal('userStats');
         }
     };
 
@@ -279,10 +275,10 @@ function print_message(msg) {
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
-        message.addClass('text-warning');
+        message.addClass('server-message');
     }
     if (msg.user === 'Client') {
-        message.addClass('text-danger');
+        message.addClass('client-message');
     }
     $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
     $('#log').scrollTop(document.getElementById('log').scrollHeight);
@@ -302,5 +298,26 @@ function print_message(msg) {
             window.document.title = "(" + numMessages + ") Best ever chat!";
             $("#favicon").attr("href","/static/favicon2.png");
         }
+    }
+}
+
+function showEmojiList() {
+    var emojiList = $('#emoji-list');
+    if(emojiList.is(':visible'))
+        emojiList.hide();
+    else
+        emojiList.show();
+
+}
+
+function toggleModal(modalId) {
+    var modal = $('#' + modalId);
+    if (modal.is(':visible')) {
+        modal.hide();
+        $('#overlay').hide();
+    }
+    else {
+        modal.show();
+        $('#overlay').show();
     }
 }

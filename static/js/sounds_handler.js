@@ -6,16 +6,16 @@ $(document).ready(function () {
     if (Cookies.get("sounds") === undefined) {
         Cookies.set("sounds", false);
     }
-    $('#toggle-sound').bootstrapToggle({
-        size: 'small',
-        on: "<i class='fa fa-volume-up'></i>",
-        onstyle: 'success',
-        off: "<i class='fa fa-volume-off'></i>",
-        offstyle: 'danger'
-    })
-    .on('change', function (event) {
-        $('input:radio[name=sounds-radios]').prop('disabled', !$(this).prop("checked"));
-    });
+//    $('#toggle-sound').bootstrapToggle({
+//        size: 'small',
+//        on: "<i class='fa fa-volume-up'></i>",
+//        onstyle: 'success',
+//        off: "<i class='fa fa-volume-off'></i>",
+//        offstyle: 'danger'
+//    })
+//    .on('change', function (event) {
+//        $('input:radio[name=sounds-radios]').prop('disabled', !$(this).prop("checked"));
+//    });
     $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds'))).change();
 
     $('input:radio[name=sounds-radios]').prop('disabled', !$('#toggle-sound').prop("checked"));

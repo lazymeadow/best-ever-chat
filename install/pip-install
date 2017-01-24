@@ -4,3 +4,4 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 python-engineio
 python-socketio
+lesscss
