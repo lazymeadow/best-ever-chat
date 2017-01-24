@@ -41,11 +41,11 @@
         <i class="fa fa-cog"></i>
         <span id="username_display">you:</span>
     </div>
+    <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)"
+           autocomplete="off"/>
     <div class="button not-first centered" onclick="showEmojiList()">
         😃
     </div>
-    <input type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)"
-           autocomplete="false"/>
     <div class="button not-first centered" onclick="showImageInput()">
         <i class="fa fa-picture-o"></i>
     </div>
@@ -73,26 +73,32 @@
         <button class="close" type="button" onclick="toggleModal('userStats')">
             &times;
         </button>
-        <h4 class="modal-title" id="userStatsLabel">User preferences</h4>
-        <label for="toggle-sound">Sound:</label>
-        <input id="toggle-sound" name="toggle-sound" type="checkbox">
-        <label>
-            <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
-            AIM
-        </label>
-        <label>
-            <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
-            MSN
-        </label>
-        <label for="set_name">Username:</label>
-        <input type="text" name="set_name" id="set_name"
-               placeholder="Username"/>
-        <label for="color">Color:</label>
-        <input type="text" id="color" name="color"/>
+        <h4 id="userStatsLabel">User preferences</h4>
+        <div class="form-element">
+            <label for="toggle-sound">Sound:</label>
+            <input id="toggle-sound" name="toggle-sound" type="checkbox">
+            <label>
+                <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
+                AIM
+            </label>
+            <label>
+                <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
+                MSN
+            </label>
+        </div>
+        <div class="form-element">
+            <label for="set_name">Username:</label>
+            <input type="text" name="set_name" id="set_name"
+                   placeholder="Username"/>
+        </div>
+        <div class="form-element">
+            <label for="color">Color:</label>
+            <input type="text" id="color" name="color"/>
+        </div>
         <div id="colorpicker"></div>
-        <button type="submit">
+        <div class="button" role="button" type="submit">
             Save changes
-        </button>
+        </div>
     </form>
 </div>
 
