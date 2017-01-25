@@ -126,7 +126,8 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
     def broadcast_image(self, user, image_url):
         new_message = {'user': user,
                        'color': users[user]['color'],
-                       'message': "<img src=\"{}\" width=\"100px\" />".format(xhtml_escape(image_url)),
+                       'message': "<a href=\"{}\" target=\"_\"><img src=\"{}\" width=\"100px\" /></a>".format(
+                           xhtml_escape(image_url), xhtml_escape(image_url)),
                        'time': time.time()}
         history.append(new_message)
         self.broadcast(self.participants, {'type': 'chatMessage',
@@ -160,6 +161,7 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
 if __name__ == "__main__":
     import logging
+
     logging.getLogger().setLevel(logging.DEBUG)
 
     # 1. Create chat router
