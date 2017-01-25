@@ -14,7 +14,7 @@ from tornado.escape import to_unicode, linkify, xhtml_escape
 from custom_render import BaseHandler
 
 settings = {
-    'debug_warning': True,
+    'debug_warning': False,
     'template_path': 'templates',
     'static_path': os.path.join(os.path.dirname(__file__), 'static'),
     'emojis': [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅', u'😆', u'😉', u'😊', u'😋', u'😌', u'😍', u'😎',
@@ -87,12 +87,13 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
             self.update_user_settings(json_message['user'], json_message['settings'])
 
     def on_close(self):
-        # Remove client from the clients list and broadcast leave message
+	# Remove client from the clients list and broadcast leave message
         self.participants.remove(self)
         users.pop(self.username, None)
 
         self.broadcast_from_server(self.participants, self.username + " left.")
         self.broadcast_user_list()
+	self.close()
 
     def send_from_server(self, message):
         self.send({'type': 'chatMessage',
@@ -165,7 +166,15 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
 
     # 1. Create chat router
-    ChatRouter = sockjs.tornado.SockJSRouter(ChatConnection, '/chat')
+    ChatRouter = sockjs.tornado.SockJSRouter(ChatConnection, '/chat', user_settings={
+		'disabled_transports': [
+		'xhr',
+		'xhr_streaming',
+		'jsonp',
+		'htmlfile',
+		'eventsource'
+	]
+    })
 
     # 2. Create Tornado application
     app = tornado.web.Application(
@@ -179,7 +188,7 @@ if __name__ == "__main__":
     )
 
     # 3. Make Tornado app listen on port 6969
-    app.listen(6969)
+    app.listen(6969, no_keep_alive=True)
 
     # 4. Start IOLoop
     tornado.ioloop.IOLoop.instance().start()
