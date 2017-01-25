@@ -9,7 +9,10 @@ var window_focus = true;
 
 $(document).ready(function () {
     showEmojiList();
-    toggleModal('userStats');
+    $('#userStats').hide();
+    $('#connectError').hide();
+    $('#imageInput').hide();
+    $('#overlay').hide();
     // page stuff
     $(window).focus(function() {
         numMessages = 0;
@@ -176,8 +179,9 @@ function setUsername() {
 
 function showUsername() {
     var username = Cookies.get("username");
-    if (username)
+    if (username) {
         $("#username_display").text(username + ":");
+    }
     else
         setUsername();
 }

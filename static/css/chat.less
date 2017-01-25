@@ -1,38 +1,35 @@
 @serverColor: #8a6d3b;
 @clientColor: #a94442;
-
 // greys
-@color-primary-0: #A4A4A4;	/* Main Primary color */
+@color-primary-0: #A4A4A4;
+/* Main Primary color */
+
 @color-primary-1: #FFFFFF;
 @color-primary-2: #D3D3D3;
 @color-primary-3: #747474;
 @color-primary-4: #383737;
-@overlayColor: fade(@color-primary-4, 75%);
+@overlayColor: fade(@color-primary-4,
+75%);
 @borderColor: @color-primary-4;
 @backgroundColor: @color-primary-0;
 @lightBackgroundColor: @color-primary-2;
 @lightest: @color-primary-1;
 @buttonColor: @color-primary-2;
-@buttonHoverColor: darken(@color-primary-2, 10%);
-
-@headerHeight: 25px;
+@buttonHoverColor: darken(@color-primary-2,
+10%);
+@headerHeight: 30px;
 @chatBarHeight: 45px;
 @rightBarWidth: 250px;
-
 @elementPadding: 5px;
-
 body {
     background: @backgroundColor;
-    font: 100% 'candela_book', Helvetica, sans-serif;
-}
-
-button {
-    font: 100% 'candela_book', Helvetica, sans-serif;
+    font: 1em 'candela_book', Helvetica, sans-serif;
 }
 
 #user_list {
     bottom: @chatBarHeight;
     border: @borderColor 1px solid;
+    border-radius: 3px;
     background: @lightBackgroundColor;
     top: @headerHeight;
     position: fixed;
@@ -52,7 +49,7 @@ button {
     right: @rightBarWidth;
     height: @headerHeight;
     h1 {
-        font-size: 1.1em;
+        font-size: 1.3em;
         font-weight: bold;
         padding: 0;
         margin: 0;
@@ -70,9 +67,10 @@ button {
 #log {
     position: fixed;
     background: @lightest;
-    font: 90% 'bpmonoregular';
+    font: .9em 'bpmonoregular', monospace;
     overflow-y: auto;
     border: solid 1px @borderColor;
+    border-radius: 3px;
     margin: @elementPadding;
     padding: 0;
     top: @headerHeight;
@@ -98,11 +96,16 @@ button {
 
 #emoji-list {
     position: absolute;
+    bottom: @chatBarHeight - @elementPadding;
+    right: 0;
+    margin: 0 @elementPadding;
     background: @lightBackgroundColor;
     border: solid 1px @borderColor;
+    border-radius: 3px;
     span {
-        height: 1em;
-        width: 1em;
+        height: 1.2em;
+        width: 1.2em;
+        font-size: 1.2em;
         cursor: pointer;
     }
 }
@@ -116,159 +119,240 @@ button {
     bottom: 0;
     left: 0;
     right: 0;
-
     .button {
         flex: 0 0 auto;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
+    .first {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
     .not-first {
         border-left: none;
+        border-radius: 0;
     }
-
+    .last {
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+    }
     input {
         flex: 1 0 auto;
     }
 }
 
 input {
+    font: 1.1em 'candela_book', Helvetica, sans-serif;
     padding: @elementPadding;
     background: @lightest;
     height: 25px;
     border: @borderColor 1px solid;
+    border-radius: 3px;
 }
 
+button,
 div.button {
+    font: 1em 'candela_book', Helvetica, sans-serif;
     padding: 0 5px;
     min-width: 35px;
     height: 35px;
     background: @buttonColor;
     border: @borderColor 1px solid;
+    border-radius: 3px;
     cursor: pointer;
 }
+
+button:hover,
 div.button:hover {
     background: @buttonHoverColor;
 }
 
 div#overlay {
-	z-index: 99;
-	width: 100vw;
-	height: 100vh;
-	position: fixed;
-	background: @overlayColor;
-	display: block;
-	top: 0;
-	left: 0;
+    z-index: 99;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    background: @overlayColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal {
     z-index: 100;
-    margin: auto;
-    position: absolute;
-    display: block;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
     width: 500px;
-    min-height: 250px;
+    min-height: 100px;
     max-height: 80vh;
     overflow-y: auto;
-    padding: 25px;
+    padding: 5px;
     background: @lightest;
     border: solid 1px @borderColor;
+    border-radius: 3px;
+    flex: 0 1 auto;
+    .close {
+        float: right;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: @backgroundColor;
+        background: @lightest;
+    }
+    .modal-title {
+        padding: 0;
+        margin: 0;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    .modal-content {
+        margin: 5px 0;
+    }
+    .modal-submit {
+        float: right;
+    }
 }
 
-.close {
-    border: none;
-    background: @color-primary-0;
-    color: gray;
-    float: right;
-    font-size: 2em;
+.form-group {
+    padding: @elementPadding;
+    .form-element {
+        display: inline-block;
+    }
+}
+
+.toggle {
+display: inline-block;
+    position: relative;
+    width: 50px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.toggle-checkbox {
+    display: none;
+}
+
+.toggle-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: @borderColor 1px solid;
+    border-radius: 3px;
+}
+
+.toggle-inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+
+.toggle-inner:before, .toggle-inner:after {
+    display: block;
+    float: left;
+    width: 50%;
+    height: 30px;
+    padding: 0;
+    line-height: 30px;
+    font-size: 14px;
+    color: white;
+    box-sizing: border-box;
+}
+
+.toggle-inner:before {
+    content: "\f028";
+    padding-left: 10px;
+    background-color: #43753A;
+    color: #FFFFFF;
+}
+
+.toggle-inner:after {
+    content: "\f026";
+    padding-right: 15px;
+    background-color: #A31A1A;
+    color: #FFFFFF;
+    text-align: right;
+}
+
+.toggle-switch {
+    display: block;
+    width: 10px;
+    margin: 0px;
+    background: #FFFFFF;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 38px;
+    border: @borderColor 1px solid;
+    border-radius: 3px;
+    transition: all 0.3s ease-in 0s;
+}
+
+.toggle-checkbox:checked + .toggle-label .toggle-inner {
+    margin-left: 0;
+}
+
+.toggle-checkbox:checked + .toggle-label .toggle-switch {
+    right: 0px;
 }
 
 @font-face {
     font-family: 'candela_book';
     src: url('web fonts/candela_bold_macroman/CandelaBold-webfont.eot');
-    src: url('web fonts/candela_bold_macroman/CandelaBold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/candela_bold_macroman/CandelaBold-webfont.woff') format('woff'),
-         url('web fonts/candela_bold_macroman/CandelaBold-webfont.ttf') format('truetype'),
-         url('web fonts/candela_bold_macroman/CandelaBold-webfont.svg#candela_boldbold') format('svg');
+    src: url('web fonts/candela_bold_macroman/CandelaBold-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/candela_bold_macroman/CandelaBold-webfont.woff') format('woff'), url('web fonts/candela_bold_macroman/CandelaBold-webfont.ttf') format('truetype'), url('web fonts/candela_bold_macroman/CandelaBold-webfont.svg#candela_boldbold') format('svg');
     font-weight: bold;
     font-style: normal;
-
 }
 
 @font-face {
     font-family: 'candela_book';
     src: url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.eot');
-    src: url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.woff') format('woff'),
-         url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.ttf') format('truetype'),
-         url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.svg#candelabold_italic') format('svg');
+    src: url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.woff') format('woff'), url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.ttf') format('truetype'), url('web fonts/candela_bolditalic_macroman/CandelaBoldItalic-webfont.svg#candelabold_italic') format('svg');
     font-weight: bold;
     font-style: italic;
-
 }
 
 @font-face {
     font-family: 'candela_book';
     src: url('web fonts/candela_book_macroman/CandelaBook-webfont.eot');
-    src: url('web fonts/candela_book_macroman/CandelaBook-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/candela_book_macroman/CandelaBook-webfont.woff') format('woff'),
-         url('web fonts/candela_book_macroman/CandelaBook-webfont.ttf') format('truetype'),
-         url('web fonts/candela_book_macroman/CandelaBook-webfont.svg#candelabook') format('svg');
+    src: url('web fonts/candela_book_macroman/CandelaBook-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/candela_book_macroman/CandelaBook-webfont.woff') format('woff'), url('web fonts/candela_book_macroman/CandelaBook-webfont.ttf') format('truetype'), url('web fonts/candela_book_macroman/CandelaBook-webfont.svg#candelabook') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 
 @font-face {
     font-family: 'candela_book';
     src: url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.eot');
-    src: url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.woff') format('woff'),
-         url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.ttf') format('truetype'),
-         url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.svg#candelabook_italic') format('svg');
+    src: url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.woff') format('woff'), url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.ttf') format('truetype'), url('web fonts/candela_bookitalic_macroman/CandelaItalic-webfont.svg#candelabook_italic') format('svg');
     font-weight: normal;
     font-style: italic;
-
 }
 
 @font-face {
     font-family: 'bpmonobold';
     src: url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.eot');
-    src: url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.woff') format('woff'),
-         url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.ttf') format('truetype'),
-         url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.svg#bpmonobold') format('svg');
+    src: url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.woff') format('woff'), url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.ttf') format('truetype'), url('web fonts/bpmono_bold_macroman/BPmonoBold-webfont.svg#bpmonobold') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 
 @font-face {
     font-family: 'bpmonoitalic';
     src: url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.eot');
-    src: url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.woff') format('woff'),
-         url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.ttf') format('truetype'),
-         url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.svg#bpmonoitalic') format('svg');
+    src: url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.woff') format('woff'), url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.ttf') format('truetype'), url('web fonts/bpmono_italic_macroman/BPmonoItalics-webfont.svg#bpmonoitalic') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 
 @font-face {
     font-family: 'bpmonoregular';
     src: url('web fonts/bpmono_regular_macroman/BPmono-webfont.eot');
-    src: url('web fonts/bpmono_regular_macroman/BPmono-webfont.eot?#iefix') format('embedded-opentype'),
-         url('web fonts/bpmono_regular_macroman/BPmono-webfont.woff') format('woff'),
-         url('web fonts/bpmono_regular_macroman/BPmono-webfont.ttf') format('truetype'),
-         url('web fonts/bpmono_regular_macroman/BPmono-webfont.svg#bpmonoregular') format('svg');
+    src: url('web fonts/bpmono_regular_macroman/BPmono-webfont.eot?#iefix') format('embedded-opentype'), url('web fonts/bpmono_regular_macroman/BPmono-webfont.woff') format('woff'), url('web fonts/bpmono_regular_macroman/BPmono-webfont.ttf') format('truetype'), url('web fonts/bpmono_regular_macroman/BPmono-webfont.svg#bpmonoregular') format('svg');
     font-weight: normal;
     font-style: normal;
 }
-
