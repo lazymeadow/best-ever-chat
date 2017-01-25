@@ -180,7 +180,7 @@ function setUsername() {
 function showUsername() {
     var username = Cookies.get("username");
     if (username) {
-        $("#username_display").text(username + ":");
+        $("#username_display").text(" " + username + ":");
     }
     else
         setUsername();
