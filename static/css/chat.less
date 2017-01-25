@@ -36,7 +36,7 @@ body {
     margin: @elementPadding;
     padding: @elementPadding;
     right: 0;
-    width: @rightBarWidth - @elementPadding;
+    width: @rightBarWidth - @elementPadding*2;
     overflow-y: auto;
 }
 
@@ -73,10 +73,10 @@ body {
     border: solid 1px @borderColor;
     border-radius: 3px;
     margin: @elementPadding;
-    padding: 0;
+    padding: @elementPadding;
     top: @headerHeight;
     bottom: @chatBarHeight;
-    right: @rightBarWidth + @elementPadding;
+    right: @rightBarWidth + @elementPadding*2;
     left: 0;
 }
 
@@ -86,7 +86,7 @@ body {
     top: 0;
     right: 0;
     bottom: @chatBarHeight;
-    width: @rightBarWidth;
+    width: @rightBarWidth - @elementPadding*2;
     h3 {
         font-size: 1em;
         font-weight: normal;

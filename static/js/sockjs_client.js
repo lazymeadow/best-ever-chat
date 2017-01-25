@@ -291,7 +291,7 @@ function print_message(msg) {
     if (msg.user === 'Client') {
         message.addClass('client-message');
     }
-    $('#log').append('<br>' + $('<div/>').append(date).append(message).html());
+    $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
     $('#log').scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === 'Server') {
         if (msg.message.includes('disconnected')) play_disconnect();
