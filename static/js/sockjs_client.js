@@ -117,12 +117,20 @@ function connect() {
                     message: 'Connection lost!!'
                 });
 
-            attempt_reconnect();
+            if (reconnect_count === 0) {
+                toggleModal('connectError');
+            }
+            else {
+                attempt_reconnect();
+            }
         };
     }
 }
 
 function attempt_reconnect() {
+    if (reconnect_count === 0) {
+        toggleModal('connectError');
+    }
     window.clearTimeout(timeout);
     if (reconnect_count < MAX_RETRIES)
         timeout = window.setTimeout(reconnect, 1000);
@@ -138,7 +146,6 @@ function attempt_reconnect() {
 }
 
 function reconnect() {
-    toggleModal('connectError');
     connect();
     reconnect_count++;
     print_message({
