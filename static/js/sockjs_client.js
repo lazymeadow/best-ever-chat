@@ -1,4 +1,4 @@
-client_version = 44;
+client_version = 45;
 
 var sock;
 
@@ -81,7 +81,7 @@ function connect() {
 
         // socket stuff
     //    sock = new SockJS('http://chat.applepeacock.com');
-        sock = new SockJS('http://localhost:6969/chat');
+        sock = new SockJS('http://chat.applepeacock.com/chat/');
 
         sock.onopen = function() {
             window.clearTimeout(timeout);

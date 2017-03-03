@@ -30,7 +30,7 @@ users = {}
 
 history = deque(maxlen=75)
 
-client_version = 44
+client_version = 45
 
 
 class PageHandler(BaseHandler):
