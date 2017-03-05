@@ -1,4 +1,4 @@
-client_version = 45;
+client_version = 46;
 
 var sock;
 
@@ -16,7 +16,7 @@ $(document).ready(function () {
     // page stuff
     $(window).focus(function() {
         numMessages = 0;
-        window.document.title = "Best ever chat!";
+        window.document.title = "Best evar chat!";
         window_focus = true;
         $('#chat_text').focus();
         $("#favicon").attr("href","/static/favicon.png");
@@ -80,8 +80,8 @@ function connect() {
     if (Cookies.get('username')) {
 
         // socket stuff
-    //    sock = new SockJS('http://chat.applepeacock.com');
-        sock = new SockJS('http://chat.applepeacock.com/chat/');
+        //sock = new SockJS('http://chat.applepeacock.com/chat/');
+        sock = new SockJS('http://localhost:6969/chat/');
 
         sock.onopen = function() {
             window.clearTimeout(timeout);

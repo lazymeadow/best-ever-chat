@@ -3,3 +3,4 @@ Tornado>=2.1.1
 Jinja2==2.7.3
 python-engineio
 python-socketio
+lesscpy

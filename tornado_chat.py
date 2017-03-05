@@ -5,8 +5,10 @@
 import json
 import os
 import time
+from StringIO import StringIO
 from collections import deque
 
+import lesscpy
 import sockjs.tornado
 import tornado.web
 from tornado.escape import to_unicode, linkify, xhtml_escape
@@ -30,7 +32,7 @@ users = {}
 
 history = deque(maxlen=75)
 
-client_version = 45
+client_version = 46
 
 
 class PageHandler(BaseHandler):
@@ -87,13 +89,13 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
             self.update_user_settings(json_message['user'], json_message['settings'])
 
     def on_close(self):
-	# Remove client from the clients list and broadcast leave message
+        # Remove client from the clients list and broadcast leave message
         self.participants.remove(self)
         users.pop(self.username, None)
 
         self.broadcast_from_server(self.participants, self.username + " left.")
         self.broadcast_user_list()
-	self.close()
+        self.close()
 
     def send_from_server(self, message):
         self.send({'type': 'chatMessage',
@@ -161,19 +163,22 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
 
 if __name__ == "__main__":
+    with open('static/css/chat.less') as css, open('static/chat.css', 'w') as output:
+        output.write(lesscpy.compile(StringIO(css.read()), minify=True))
+
     import logging
 
     logging.getLogger().setLevel(logging.DEBUG)
 
     # 1. Create chat router
     ChatRouter = sockjs.tornado.SockJSRouter(ChatConnection, '/chat', user_settings={
-		'disabled_transports': [
-		'xhr',
-		'xhr_streaming',
-		'jsonp',
-		'htmlfile',
-		'eventsource'
-	]
+        'disabled_transports': [
+            'xhr',
+            'xhr_streaming',
+            'jsonp',
+            'htmlfile',
+            'eventsource'
+        ]
     })
 
     # 2. Create Tornado application
