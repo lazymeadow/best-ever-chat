@@ -11,13 +11,13 @@ from collections import deque
 import lesscpy
 import sockjs.tornado
 import tornado.web
+from sockjs.tornado.transports.base import BaseTransportMixin
 from tornado.escape import to_unicode, linkify, xhtml_escape
 
 from custom_render import BaseHandler
 
 settings = {
     'debug_warning': False,
-    'debug': True,
     'template_path': 'templates',
     'static_path': os.path.join(os.path.dirname(__file__), 'static'),
     'emojis': [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅', u'😆', u'😉', u'😊', u'😋', u'😌', u'😍', u'😎',
@@ -31,7 +31,9 @@ settings = {
 
 users = {}
 
-history = deque(maxlen=75)
+MAX_DEQUE_LENGTH = 75
+
+history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 client_version = 46
 
@@ -55,11 +57,14 @@ class ValidateHandler(BaseHandler):
         self.write(json.dumps(new_name not in users.keys()))
 
 
-class ChatConnection(sockjs.tornado.SockJSConnection):
+class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     """Chat connection implementation"""
     # Class level variable
     participants = set()
+    rooms = {"main": []}
     username = None
+    previous_tell = None
+    reply_to = None
 
     def on_open(self, info):
         self.username = info.get_cookie('username').value
@@ -77,13 +82,16 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
     def on_message(self, message):
         json_message = json.loads(message)
+        if json_message['type'] == 'chatMessage':
+            if json_message['message'][0] == '/':
+                self.parse_command(json_message)
+            else:
+                self.broadcast_chat_message(json_message['user'], json_message['message'])
         if json_message['type'] == 'version':
             if json_message['client_version'] < client_version:
                 self.send_from_server('Your client is out of date. Please refresh your page, you dork.')
             if json_message['client_version'] > client_version:
                 self.send_from_server('There is something wrong with your client version. What did you do?')
-        if json_message['type'] == 'chatMessage':
-            self.broadcast_chat_message(json_message['user'], json_message['message'])
         if json_message['type'] == 'imageMessage':
             self.broadcast_image(json_message['user'], json_message['url'])
         if json_message['type'] == 'userSettings':
@@ -91,8 +99,8 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
     def on_close(self):
         # Remove client from the clients list and broadcast leave message
-        self.participants.remove(self)
         users.pop(self.username, None)
+        self.participants.remove(self)
 
         self.broadcast_from_server(self.participants, self.username + " left.")
         self.broadcast_user_list()
@@ -117,6 +125,17 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
     def send_chat_history(self):
         self.send({'type': 'history', 'data': sorted(history, cmp=lambda x, y: cmp(x['time'], y['time']))})
+
+    def broadcast_private_message(self, sender, recipient, message):
+        recipients = set()
+        recipients.add(sender)
+        recipients.add(recipient)
+        recipient.reply_to = [x for x in self.participants if x.username == sender.username][0]
+        new_message = {'type': 'privateMessage', 'data': {'sender': sender.username,
+                                                          'recipient': recipient.username,
+                                                          'message': message,
+                                                          'time': time.time()}}
+        self.broadcast(recipients, new_message)
 
     def broadcast_chat_message(self, user, message):
         new_message = {'user': user,
@@ -162,6 +181,74 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
                 self.send_from_server("Name changed.")
                 self.broadcast_user_list()
 
+    def parse_command(self, json_message):
+        message = json_message['message']
+        command, _, command_args = message[1:].partition(' ')
+        if command == 'create':
+            room_name = command_args.split(' ')[0]
+            if room_name == '':
+                self.send_from_server('You must supply a name to create a room.')
+            else:
+                if room_name in users.keys():
+                    self.send_from_server('You cannot use an existing username as a room name.')
+                elif room_name in self.rooms.keys():
+                    self.send_from_server('Room \'{}\' already exists'.format(room_name))
+                else:
+                    self.rooms[room_name] = [self.username]
+                    print self.rooms
+                    self.send_from_server('Created room \'{}\''.format(room_name))
+        elif command == 'invite':
+            invitees = command_args.split(' ')
+            room_name = invitees.pop(0)
+            print invitees
+            print room_name
+            for user in invitees:
+                if user not in users.keys():
+                    self.send_from_server('You cannot invite someone who is not connected to chat.')
+                else:
+                    self.broadcast_from_server(
+                        [x for x in self.participants if x.username in self.rooms[room_name]],
+                        '{} has joined \'{}\''.format(user, room_name))
+                    self.rooms[room_name].append(user)
+                    self.broadcast_from_server([x for x in self.participants if x.username == user],
+                                               'You have been added to \'{}\''.format(room_name))
+            print self.username
+        elif command == 'tell' or command == 't':
+            user, _, message = command_args.partition(' ')
+            if user in users.keys():
+                self.previous_tell = [x for x in self.participants if x.username == user][0]
+                self.broadcast_private_message(self,
+                                               self.previous_tell,
+                                               message)
+            else:
+                self.send_from_server('{} is not connected to chat.'.format(user))
+        elif command == 'retell' or command == 'rt':
+            if self.previous_tell is not None:
+                if self.previous_tell not in self.participants:
+                    self.send_from_server('{} is not connected to chat.'.format(self.previous_tell.username))
+                else:
+                    self.broadcast_private_message(self,
+                                                   self.previous_tell,
+                                                   command_args)
+            else:
+                self.send_from_server('You cannot retell if you have not sent a tell.')
+
+        elif command == 'reply' or command == 'r':
+            if self.reply_to is not None:
+                if self.reply_to not in self.participants:
+                    self.send_from_server('{} is not connected to chat.'.format(self.reply_to.username))
+                else:
+                    self.broadcast_private_message(self,
+                                                   self.reply_to,
+                                                   command_args)
+            else:
+                self.send_from_server('You cannot reply if you have not received a tell.')
+        else:
+            if command in self.rooms.keys():
+                print command, 'is a room'
+            else:
+                self.broadcast_chat_message(json_message['user'], json_message['message'][1:])
+
 
 if __name__ == "__main__":
     import logging
@@ -169,7 +256,7 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
 
     # 1. Create chat router
-    ChatRouter = sockjs.tornado.SockJSRouter(ChatConnection, '/chat', user_settings={
+    ChatRouter = sockjs.tornado.SockJSRouter(MultiRoomChatConnection, '/chat', user_settings={
         'disabled_transports': [
             'xhr',
             'xhr_streaming',

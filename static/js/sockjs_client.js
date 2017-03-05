@@ -14,18 +14,18 @@ $(document).ready(function () {
     $('#imageInput').hide();
     $('#overlay').hide();
     // page stuff
-    $(window).focus(function() {
+    $(window).focus(function () {
         numMessages = 0;
         window.document.title = "Best evar chat!";
         window_focus = true;
         $('#chat_text').focus();
-        $("#favicon").attr("href","/static/favicon.png");
-    }).blur(function() {
+        $("#favicon").attr("href", "/static/favicon.png");
+    }).blur(function () {
         window_focus = false;
     });
 
     colorpicker = $.farbtastic("#colorpicker",
-        function(color) {
+        function (color) {
             $("#color").val(color);
             $("#color").css('color', color);
         }
@@ -50,10 +50,11 @@ function showImageInput() {
 function imageChat() {
     if ($('#img_url').val()) {
         toggleModal('imageInput');
-        sock.send(JSON.stringify({'type': 'imageMessage',
-                    'user': Cookies.get('username'),
-                    'url': $('#img_url').val()
-                  }));
+        sock.send(JSON.stringify({
+            'type': 'imageMessage',
+            'user': Cookies.get('username'),
+            'url': $('#img_url').val()
+        }));
         $('#img_url').val('');
         $('#chat_text').focus();
     }
@@ -66,10 +67,11 @@ function submitChat(event) {
         }
     }
     if (event.keyCode === 13) {
-        sock.send(JSON.stringify({'type': 'chatMessage',
-                    'user': Cookies.get('username'),
-                    'message': $('#chat_text').val()
-                  }));
+        sock.send(JSON.stringify({
+            'type': 'chatMessage',
+            'user': Cookies.get('username'),
+            'message': $('#chat_text').val()
+        }));
         Cookies.set('last_message', $('#chat_text').val());
         $('#chat_text').val('');
         $('#chat_text').focus();
@@ -83,14 +85,14 @@ function connect() {
         //sock = new SockJS('http://chat.applepeacock.com/chat/');
         sock = new SockJS('http://localhost:6969/chat/');
 
-        sock.onopen = function() {
+        sock.onopen = function () {
             window.clearTimeout(timeout);
             timeout = null;
             reconnect_count = 0;
             sock.send(JSON.stringify({'type': 'version', 'client_version': client_version}));
         };
 
-        sock.onmessage = function(e) {
+        sock.onmessage = function (e) {
             var type = e.data.type;
             var data = e.data.data;
             // handle all the damn message types
@@ -109,13 +111,16 @@ function connect() {
             if (type === 'chatMessage') {
                 print_message(data);
             }
+            if (type === 'privateMessage') {
+                print_private_message(data);
+            }
         };
-        sock.onclose = function() {
+        sock.onclose = function () {
             print_message({
-                    user: 'Client',
-                    time: moment().unix(),
-                    message: 'Connection lost!!'
-                });
+                user: 'Client',
+                time: moment().unix(),
+                message: 'Connection lost!!'
+            });
 
             if (reconnect_count === 0) {
                 toggleModal('connectError');
@@ -136,10 +141,10 @@ function attempt_reconnect() {
         timeout = window.setTimeout(reconnect, 1000);
     else {
         print_message({
-                user: 'Client',
-                time: moment().unix(),
-                message: 'Reconnect failed.'
-            });
+            user: 'Client',
+            time: moment().unix(),
+            message: 'Reconnect failed.'
+        });
         toggleModal('connectError');
         reconnect_count = 0;
     }
@@ -194,95 +199,116 @@ function showUsername() {
 }
 
 var updateSettings = {
-        rules: {
-            set_name: {
-                required: true,
-                remote: {
-                    url: '/validate_username',
-                    type: 'post',
-                    data: {
-                        username: function() {
-                            return Cookies.get('username');
-                        }
+    rules: {
+        set_name: {
+            required: true,
+            remote: {
+                url: '/validate_username',
+                type: 'post',
+                data: {
+                    username: function () {
+                        return Cookies.get('username');
                     }
-                },
-                minlength: 1,
-                maxlength: 32
+                }
             },
-            color: {
-                required: true
-            }
+            minlength: 1,
+            maxlength: 16
         },
-        messages: {
-            set_name: {
-                remote: "Invalid name."
-            }
-        },
-        submitHandler: function() {
-            var username = Cookies.get("username");
-            data = {};
-            if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
-                data.newUser = $('#set_name').val();
-                Cookies.set("username", $("#set_name").val());
-                showUsername();
-            }
-            var color = Cookies.get("color");
-            if ($('#color').val() !== color) {
-                data.newColor = $("#color").val();
-                Cookies.set("color", colorpicker.color);
-            }
+        color: {
+            required: true
+        }
+    },
+    messages: {
+        set_name: {
+            remote: "Invalid name."
+        }
+    },
+    submitHandler: function () {
+        var username = Cookies.get("username");
+        var data = {};
+        if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
+            data.newUser = $('#set_name').val();
+            Cookies.set("username", $("#set_name").val());
+            showUsername();
+        }
+        var color = Cookies.get("color");
+        if ($('#color').val() !== color) {
+            data.newColor = $("#color").val();
+            Cookies.set("color", colorpicker.color);
+        }
 
-            if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds')) || $('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
-                if (data.newUser || data.newColor) {
-                    sock.send(JSON.stringify({
-                        'type': 'userSettings',
-                        'settings': data,
-                        'user': username
-                    }));
-                }
-                if ($('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
-                    toggleSounds();
-                    if (JSON.parse(Cookies.get('sounds'))) {
-                        print_message({
-                            user: "Client",
-                            message: "Sound enabled",
-                            time: moment().unix()
-                        });
-                    }
-                    else {
-                        print_message({
-                            user: "Client",
-                            message: "Sound disabled",
-                            time: moment().unix()
-                        });
-                    }
-                }
-                if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
-                    chooseSoundSet();
+        if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds')) || $('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
+            if (data.newUser || data.newColor) {
+                sock.send(JSON.stringify({
+                    'type': 'userSettings',
+                    'settings': data,
+                    'user': username
+                }));
+            }
+            if ($('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
+                toggleSounds();
+                if (JSON.parse(Cookies.get('sounds'))) {
                     print_message({
                         user: "Client",
-                        message: Cookies.get('sound_set') + " sounds chosen",
+                        message: "Sound enabled",
+                        time: moment().unix()
+                    });
+                }
+                else {
+                    print_message({
+                        user: "Client",
+                        message: "Sound disabled",
                         time: moment().unix()
                     });
                 }
             }
-            else {
+            if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
+                chooseSoundSet();
                 print_message({
                     user: "Client",
-                    message: "No changes made",
+                    message: Cookies.get('sound_set') + " sounds chosen",
                     time: moment().unix()
                 });
             }
-            toggleModal('userStats');
         }
-    };
+        else {
+            print_message({
+                user: "Client",
+                message: "No changes made",
+                time: moment().unix()
+            });
+        }
+        toggleModal('userStats');
+    }
+};
 
 
 var numMessages = 0;
 
+function print_private_message(msg) {
+    var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+    var salutation = '[message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + '] ';
+    var message = $('<span/>').append($('<em/>').append($('<strong/>').text(salutation)).append($('<span/>').html(msg.message)));
+    if (msg.color)
+        message.addClass('private-message');
+    $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
+    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    if (msg.user === Cookies.get('username')) {
+        play_send();
+    }
+    else {
+        numMessages++;
+        if (msg.user !== 'Client') play_receive();
+        if (!window_focus) {
+            window.document.title = "(" + numMessages + ") Best ever chat!";
+            $("#favicon").attr("href", "/static/favicon2.png");
+        }
+    }
+}
+
 function print_message(msg) {
-    let date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    let message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.message));
+    var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+    var message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
@@ -307,14 +333,14 @@ function print_message(msg) {
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
             window.document.title = "(" + numMessages + ") Best ever chat!";
-            $("#favicon").attr("href","/static/favicon2.png");
+            $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
 }
 
 function showEmojiList() {
     var emojiList = $('#emoji-list');
-    if(emojiList.is(':visible'))
+    if (emojiList.is(':visible'))
         emojiList.hide();
     else
         emojiList.show();
