@@ -17,6 +17,7 @@ from custom_render import BaseHandler
 
 settings = {
     'debug_warning': False,
+    'debug': True,
     'template_path': 'templates',
     'static_path': os.path.join(os.path.dirname(__file__), 'static'),
     'emojis': [u'💩', u'😀', u'😁', u'😂', u'😃', u'😄', u'😅', u'😆', u'😉', u'😊', u'😋', u'😌', u'😍', u'😎',
@@ -163,9 +164,6 @@ class ChatConnection(sockjs.tornado.SockJSConnection):
 
 
 if __name__ == "__main__":
-    with open('static/css/chat.less') as css, open('static/chat.css', 'w') as output:
-        output.write(lesscpy.compile(StringIO(css.read()), minify=True))
-
     import logging
 
     logging.getLogger().setLevel(logging.DEBUG)
