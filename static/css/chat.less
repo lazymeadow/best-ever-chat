@@ -1,18 +1,19 @@
 @import url('https://fonts.googleapis.com/css?family=Amiko');
+
 @serverColor: #8a6d3b;
 @clientColor: #a94442;
 
 @dark: #4A4A4A;
-@buttonColor: #9FD3E3;
+@lightButtonColor: #C6E2EB;
 @overlayColor: fade(@dark, 75%);
 @borderColor: @dark;
 @backgroundColor: #25687D;
 @lightBackgroundColor: #C9C9C9;
 @lightest: #FCFCFC;
-@buttonHoverColor: darken(@buttonColor, 10%);
+@buttonHoverColor: darken(@lightButtonColor, 15%);
 @headerHeight: 30px;
 @chatBarHeight: 45px;
-@rightBarWidth: 250px;
+@rightBarWidth: 200px;
 @elementPadding: 5px;
 body {
   background: @backgroundColor;
@@ -22,15 +23,22 @@ body {
 #user_list {
   bottom: @chatBarHeight;
   border: @borderColor 1px none;
-  border-radius: 3px;
-  background: @lightBackgroundColor;
+  border-left: @lightBackgroundColor 1px solid;
+  border-radius: 0 3px 3px 0;
+  background: @lightest;
   top: @headerHeight;
   position: fixed;
-  margin: @elementPadding;
-  padding: @elementPadding;
-  right: 0;
-  width: @rightBarWidth - @elementPadding*2;
+  margin: @elementPadding 0;
+  right: @elementPadding;
+  width: @rightBarWidth;
   overflow-y: auto;
+  div {
+    padding: @elementPadding;
+  }
+}
+
+#user_list > div:nth-of-type(odd) {
+  background: darken(@lightest, 5%);
 }
 
 .header {
@@ -42,10 +50,11 @@ body {
   left: 0;
   right: @rightBarWidth;
   height: @headerHeight;
+  color: @lightest;
   h1 {
     font-size: 1.3em;
     font-weight: bold;
-    padding: 0;
+    padding: @elementPadding 0;
     margin: 0;
   }
 }
@@ -63,27 +72,27 @@ body {
   background: @lightest;
   overflow-y: auto;
   border: none 1px @borderColor;
-  border-radius: 3px;
-  margin: @elementPadding;
+  border-radius: 3px 0 0 3px;
+  margin: @elementPadding 0;
   padding: @elementPadding;
   top: @headerHeight;
   bottom: @chatBarHeight;
-  right: @rightBarWidth + @elementPadding*2;
-  left: 0;
+  right: @rightBarWidth;
+  left: @elementPadding;
 }
 
 .right_bar {
   position: fixed;
-  padding: @elementPadding;
   top: 0;
-  right: 0;
+  right: @elementPadding;
   bottom: @chatBarHeight;
-  width: @rightBarWidth - @elementPadding*2;
+  width: @rightBarWidth;
   h3 {
     font-size: 1em;
     font-weight: normal;
-    padding: 0 5px 10px;
+    padding: 15px 0;
     margin: 0;
+    color: @lightest;
   }
 }
 
@@ -117,6 +126,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    .fa {
+      font-size: 1.5em;
+    }
   }
   .first {
     border-radius: 3px 0 0 3px;
@@ -148,7 +160,8 @@ div.button {
   padding: 0 5px;
   min-width: 35px;
   height: 35px;
-  background: @buttonColor;
+  background: @lightButtonColor;
+  color: darken(@backgroundColor, 50%);
   border: @borderColor 1px solid;
   border-radius: 3px;
   cursor: pointer;
@@ -167,7 +180,7 @@ div#overlay {
   background: @overlayColor;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 }
 
 .modal {
@@ -177,6 +190,8 @@ div#overlay {
   max-height: 80vh;
   overflow-y: auto;
   padding: 5px;
+  margin-left: auto;
+  margin-right: auto;
   background: @lightest;
   border: solid 1px @borderColor;
   border-radius: 3px;
@@ -199,7 +214,15 @@ div#overlay {
     margin: 5px 0;
   }
   .modal-submit {
+    font-family: 'Amiko', sans-serif;
+    min-width: 100px;
     float: right;
+    background: @backgroundColor;
+    color: @lightest;
+    border: none;
+  }
+  .modal-submit:hover {
+    background: darken(@backgroundColor, 10%);
   }
 }
 
@@ -227,7 +250,7 @@ div#overlay {
   display: block;
   overflow: hidden;
   cursor: pointer;
-  //border: @borderColor 1px solid;
+  border: @borderColor 1px solid;
   border-radius: 3px;
 }
 
@@ -269,12 +292,12 @@ div#overlay {
   display: block;
   width: 10px;
   margin: 0;
-  background: @buttonColor;
+  background: @lightBackgroundColor;
   position: absolute;
-  top: -1px;
-  bottom: -1px;
-  right: 40px;
-  border: @borderColor 1px none;
+  top: 0;
+  bottom: 0;
+  right: 38px;
+  border: @borderColor 1px solid;
   border-radius: 3px;
   transition: all 0.3s ease-in 0s;
 }

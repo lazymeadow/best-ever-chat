@@ -31,15 +31,15 @@
 
 <div class="chat-bar">
     <div class="button first" id="username" onclick="setUsername()">
-        <i class="fa fa-cog"></i>
+        <i class="fa fa-cog"></i>&nbsp;
         <span id="username_display"> you:</span>
     </div>
     <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)"
            autocomplete="off"/>
-    <div class="button not-first centered" onclick="showEmojiList()">
+    <div class="button not-first" onclick="showEmojiList()">
         😃
     </div>
-    <div class="button last centered" onclick="showImageInput()">
+    <div class="button last" onclick="showImageInput()">
         <i class="fa fa-picture-o"></i>
     </div>
 </div>
