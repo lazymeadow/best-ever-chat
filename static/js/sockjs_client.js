@@ -1,6 +1,7 @@
 client_version = 46;
 
 var sock;
+var colorpicker;
 
 var timeout = null;
 var reconnect_count = 0;
@@ -24,12 +25,8 @@ $(document).ready(function () {
         window_focus = false;
     });
 
-    colorpicker = $.farbtastic("#colorpicker",
-        function (color) {
-            $("#color").val(color);
-            $("#color").css('color', color);
-        }
-    );
+    colorpicker = bestColorPicker($('#color'));
+
     $('#update-user').validate(updateSettings);
 
     showUsername();
@@ -175,8 +172,6 @@ function setUsername() {
     var color_cookie = Cookies.get("color");
     if (color_cookie) {
         colorpicker.setColor(color_cookie);
-    } else {
-        colorpicker.setColor('#000000');
     }
 
     if (Cookies.get('sounds') === undefined) {
@@ -232,9 +227,9 @@ var updateSettings = {
             showUsername();
         }
         var color = Cookies.get("color");
-        if ($('#color').val() !== color) {
+        if (colorpicker.val() !== color) {
             data.newColor = $("#color").val();
-            Cookies.set("color", colorpicker.color);
+            Cookies.set("color", colorpicker.val());
         }
 
         if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds')) || $('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
@@ -288,9 +283,7 @@ var numMessages = 0;
 function print_private_message(msg) {
     var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     var salutation = '[message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + '] ';
-    var message = $('<span/>').append($('<em/>').append($('<strong/>').text(salutation)).append($('<span/>').html(msg.message)));
-    if (msg.color)
-        message.addClass('private-message');
+    var message = $('<span/>').append($('<em/>').append($('<strong/>').text(salutation)).append($('<span/>').html(msg.message))).addClass('private-message');
     $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
     $('#log').scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === Cookies.get('username')) {

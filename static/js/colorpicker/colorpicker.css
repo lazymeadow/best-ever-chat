@@ -1,0 +1,14 @@
+.color-block {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 8px 8px;
+}
+
+.selected-color {
+    border: black 3px solid;
+    width: 19px;
+    height: 19px;
+}
+
