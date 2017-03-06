@@ -161,7 +161,7 @@ input {
 }
 
 button,
-div.button {
+.button {
   padding: 0 5px;
   min-width: 35px;
   height: 35px;
@@ -173,7 +173,7 @@ div.button {
 }
 
 button:hover,
-div.button:hover {
+.button:hover {
   background: @buttonHoverColor;
 }
 
@@ -187,7 +187,7 @@ div#overlay {
   align-items: center;
   justify-content: center;
   top: 0;
-  left:0;
+  left: 0;
 }
 
 .modal {
@@ -230,6 +230,18 @@ div#overlay {
   }
   .modal-submit:hover {
     background: darken(@backgroundColor, 10%);
+  }
+  .modal-cancel {
+    .button;
+    background: lighten(@lightBackgroundColor, 10%);
+    color: darken(@lightBackgroundColor, 25%);
+    min-width: 100px;
+    float: left;
+    border: none;
+  }
+  .modal-cancel:hover {
+    background: @lightBackgroundColor;
+    color: darken(@lightBackgroundColor, 35%);
   }
 }
 

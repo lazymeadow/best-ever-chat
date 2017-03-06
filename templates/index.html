@@ -37,8 +37,8 @@
         <span id="username_display"> you:</span>
     </div>
     <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)"
-           autocomplete="off"/>
-    <div class="button not-first" onclick="showEmojiList()">
+           autocomplete="off" onfocus="$('#emoji-list').hide()"/>
+    <div class="button not-first" id="toggle-emojis" onclick="toggleEmojiList()">
         😃
     </div>
     <div class="button last" onclick="showImageInput()">
@@ -103,6 +103,9 @@
                     <div name="color" id="color"></div>
                 </div>
                 <hr/>
+                <button class="modal-cancel" type="button" onclick="toggleModal('userStats')">
+                    Cancel
+                </button>
                 <button class="modal-submit" type="submit">
                     Save changes
                 </button>
@@ -118,7 +121,9 @@
         <div class="modal-content">
             Error connecting to the server.
             <hr/>
-            <button type="button" class="modal-submit" onclick="attempt_reconnect()">Retry</button>
+            <button type="button" class="modal-submit" onclick="attempt_reconnect()">
+                Retry
+            </button>
         </div>
     </div>
 
@@ -132,7 +137,12 @@
                 <input type="url" id="img_url"/>
             </div>
             <hr/>
-            <button type="button" class="modal-submit" onclick="imageChat()">Send</button>
+            <button type="button" class="modal-submit" onclick="imageChat()">
+                Send
+            </button>
+            <button class="modal-cancel" type="button" onclick="toggleModal('imageInput')">
+                Cancel
+            </button>
         </div>
     </div>
 
@@ -144,7 +154,9 @@
         <div class="modal-content">
             <span id="information_content"></span>
             <hr/>
-            <button type="button" class="modal-submit" onclick="dismissInformation()">Cool</button>
+            <button type="button" class="modal-submit" onclick="dismissInformation()">
+                Cool
+            </button>
         </div>
     </div>
 </div>

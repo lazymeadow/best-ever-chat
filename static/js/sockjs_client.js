@@ -9,7 +9,7 @@ var MAX_RETRIES = 3;
 var window_focus = true;
 
 $(document).ready(function () {
-    showEmojiList();
+    $('#emoji-list').hide();
     $('#userStats').hide();
     $('#connectError').hide();
     $('#imageInput').hide();
@@ -36,9 +36,7 @@ $(document).ready(function () {
 });
 
 function addEmoji(emoji) {
-    console.log(emoji);
     $('#chat_text').val($('#chat_text').val() + emoji);
-    $('#chat_text').focus();
 }
 
 function showImageInput() {
@@ -341,13 +339,12 @@ function print_message(msg) {
     }
 }
 
-function showEmojiList() {
+function toggleEmojiList() {
     var emojiList = $('#emoji-list');
     if (emojiList.is(':visible'))
         emojiList.hide();
     else
         emojiList.show();
-
 }
 
 function dismissInformation() {
