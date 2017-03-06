@@ -13,6 +13,7 @@ $(document).ready(function () {
     $('#userStats').hide();
     $('#connectError').hide();
     $('#imageInput').hide();
+    $('#information').hide();
     $('#overlay').hide();
     // page stuff
     $(window).focus(function () {
@@ -95,6 +96,15 @@ function connect() {
             // handle all the damn message types
             if (type === 'userList') {
                 updateUserList(data);
+            }
+            if (type === 'versionUpdate') {
+                Cookies.remove('info_read');
+            }
+            if (type == 'information') {
+                if (!Cookies.get('info_read')) {
+                    $('#information_content').html(data.message);
+                    toggleModal('information');
+                }
             }
             if (type === 'history') {
                 sounds_setting = JSON.parse(Cookies.get('sounds'));
@@ -338,6 +348,11 @@ function showEmojiList() {
     else
         emojiList.show();
 
+}
+
+function dismissInformation() {
+    Cookies.set('info_read', true);
+    toggleModal('information');
 }
 
 function toggleModal(modalId) {

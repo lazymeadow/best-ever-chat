@@ -36,6 +36,9 @@ MAX_DEQUE_LENGTH = 75
 history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 client_version = 46
+update_message = "Everything looks better! <br/>" \
+                 "There's a new color picker! <br/>" \
+                 "You can private message people! Type '/help'!"
 
 
 class PageHandler(BaseHandler):
@@ -78,6 +81,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         self.broadcast_user_list()
         self.send_chat_history()
+        self.send_information(update_message)
         self.send_from_server('Connection successful')
 
     def on_message(self, message):
@@ -89,7 +93,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_chat_message(json_message['user'], json_message['message'])
         if json_message['type'] == 'version':
             if json_message['client_version'] < client_version:
-                self.send_from_server('Your client is out of date. Please refresh your page, you dork.')
+                self.send_from_server('Your client is out of date. Refresh your page, or else.')
+                self.send({'type': 'versionUpdate'})
             if json_message['client_version'] > client_version:
                 self.send_from_server('There is something wrong with your client version. What did you do?')
         if json_message['type'] == 'imageMessage':
@@ -119,6 +124,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                        'time': time.time()}
         self.broadcast(send_to, {'type': 'chatMessage',
                                  'data': new_message})
+
+    def send_information(self, message):
+        self.send({'type': 'information', 'data': {'message': message}})
 
     def broadcast_user_list(self):
         self.broadcast(self.participants, {'type': 'userList', 'data': users})
@@ -184,7 +192,40 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     def parse_command(self, json_message):
         message = json_message['message']
         command, _, command_args = message[1:].partition(' ')
-        if command == 'create':
+        if command == 'help':
+            self.send_from_server('Okay, fine, this is what you can do:<table>' +
+                                  '<tr>' +
+                                  '<td>/tell &lt;username&gt;</td>' +
+                                  '<td>/t &lt;username&gt;</td>' +
+                                  '<td>send a private message</td>' +
+                                  '</tr>' +
+                                  '<tr>' +
+                                  '<td>/reply</td>' +
+                                  '<td>/r</td>' +
+                                  '<td>reply to the last private message you received</td>' +
+                                  '</tr>' +
+                                  '<tr>' +
+                                  '<td>/retell</td>' +
+                                  '<td>/rt</td>' +
+                                  '<td>send a private message to the last person you sent one to</td>' +
+                                  '</tr>' +
+                                  # '<tr>' +
+                                  # '<td>/create &lt;room name&gt;</td>' +
+                                  # '<td>/c &lt;room name&gt;</td>' +
+                                  # '<td>create a sub-room</td>' +
+                                  # '</tr>' +
+                                  # '<tr>' +
+                                  # '<td>/invite &lt;username&gt;</td>' +
+                                  # '<td>/i &lt;username&gt;</td>' +
+                                  # '<td>invite someone to a sub-room you are in</td>' +
+                                  # '</tr>' +
+                                  # '<tr>' +
+                                  # '<td>/leave &lt;room name&gt;</td>' +
+                                  # '<td>/l &lt;room name&gt;</td>' +
+                                  # '<td>leave a sub-room you are in</td>' +
+                                  # '</tr>' +
+                                  '</table>')
+        elif command == 'create':
             room_name = command_args.split(' ')[0]
             if room_name == '':
                 self.send_from_server('You must supply a name to create a room.')
@@ -247,7 +288,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             if command in self.rooms.keys():
                 print command, 'is a room'
             else:
-                self.broadcast_chat_message(json_message['user'], json_message['message'][1:])
+                self.send_from_server('Invalid command \'{}\''.format(command))
 
 
 if __name__ == "__main__":
