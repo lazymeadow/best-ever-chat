@@ -225,38 +225,43 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                   # '<td>leave a sub-room you are in</td>' +
                                   # '</tr>' +
                                   '</table>')
-        elif command == 'create':
-            room_name = command_args.split(' ')[0]
-            if room_name == '':
-                self.send_from_server('You must supply a name to create a room.')
-            else:
-                if room_name in users.keys():
-                    self.send_from_server('You cannot use an existing username as a room name.')
-                elif room_name in self.rooms.keys():
-                    self.send_from_server('Room \'{}\' already exists'.format(room_name))
-                else:
-                    self.rooms[room_name] = [self.username]
-                    print self.rooms
-                    self.send_from_server('Created room \'{}\''.format(room_name))
-        elif command == 'invite':
-            invitees = command_args.split(' ')
-            room_name = invitees.pop(0)
-            print invitees
-            print room_name
-            for user in invitees:
-                if user not in users.keys():
-                    self.send_from_server('You cannot invite someone who is not connected to chat.')
-                else:
-                    self.broadcast_from_server(
-                        [x for x in self.participants if x.username in self.rooms[room_name]],
-                        '{} has joined \'{}\''.format(user, room_name))
-                    self.rooms[room_name].append(user)
-                    self.broadcast_from_server([x for x in self.participants if x.username == user],
-                                               'You have been added to \'{}\''.format(room_name))
-            print self.username
+        # elif command == 'create':
+        #     room_name = command_args.split(' ')[0]
+        #     if room_name == '':
+        #         self.send_from_server('You must supply a name to create a room.')
+        #     else:
+        #         if room_name in users.keys():
+        #             self.send_from_server('You cannot use an existing username as a room name.')
+        #         elif room_name in self.rooms.keys():
+        #             self.send_from_server('Room \'{}\' already exists'.format(room_name))
+        #         else:
+        #             self.rooms[room_name] = [self.username]
+        #             print self.rooms
+        #             self.send_from_server('Created room \'{}\''.format(room_name))
+        # elif command == 'invite':
+        #     invitees = command_args.split(' ')
+        #     room_name = invitees.pop(0)
+        #     print invitees
+        #     print room_name
+        #     for user in invitees:
+        #         if user not in users.keys():
+        #             self.send_from_server('You cannot invite someone who is not connected to chat.')
+        #         else:
+        #             self.broadcast_from_server(
+        #                 [x for x in self.participants if x.username in self.rooms[room_name]],
+        #                 '{} has joined \'{}\''.format(user, room_name))
+        #             self.rooms[room_name].append(user)
+        #             self.broadcast_from_server([x for x in self.participants if x.username == user],
+        #                                        'You have been added to \'{}\''.format(room_name))
+        #     print self.username
         elif command == 'tell' or command == 't':
             user, _, message = command_args.partition(' ')
-            if user in users.keys():
+            if user == '':
+                self.send_from_server('Who do you want to private message?<table><tr>' +
+                                      '<td>/tell &lt;username&gt;</td>' +
+                                      '<td>/t &lt;username&gt;</td>' +
+                                      '</tr></table>')
+            elif user in users.keys():
                 self.previous_tell = [x for x in self.participants if x.username == user][0]
                 self.broadcast_private_message(self,
                                                self.previous_tell,
@@ -285,10 +290,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 self.send_from_server('You cannot reply if you have not received a tell.')
         else:
-            if command in self.rooms.keys():
-                print command, 'is a room'
-            else:
-                self.send_from_server('Invalid command \'{}\''.format(command))
+            # if command in self.rooms.keys():
+            #     print command, 'is a room'
+            # else:
+            self.send_from_server('Invalid command \'{}\''.format(command))
 
 
 if __name__ == "__main__":
