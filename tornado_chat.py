@@ -2,16 +2,19 @@
 """
     Best chat ever now a sockjs-tornado application.
 """
+import StringIO
 import json
 import os
 import time
-from StringIO import StringIO
+import urllib2
 from collections import deque
+from hashlib import sha256
 
-import lesscpy
+import botocore
 import sockjs.tornado
 import tornado.web
-from sockjs.tornado.transports.base import BaseTransportMixin
+from boto3 import resource
+from requests import get
 from tornado.escape import to_unicode, linkify, xhtml_escape
 
 from custom_render import BaseHandler
@@ -36,9 +39,7 @@ MAX_DEQUE_LENGTH = 75
 history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 client_version = 46
-update_message = "Everything looks better! <br/>" \
-                 "There's a new color picker! <br/>" \
-                 "You can private message people! Type '/help'!"
+update_message = "Oh my gosh, try sending an image!!"
 
 
 class PageHandler(BaseHandler):
@@ -68,6 +69,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     username = None
     previous_tell = None
     reply_to = None
+
+    bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
     def on_open(self, info):
         self.username = info.get_cookie('username').value
@@ -155,10 +158,24 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                            'data': new_message})
 
     def broadcast_image(self, user, image_url):
+
+        try:
+            req_for_image = get(image_url, stream=True)
+            file_object_from_req = req_for_image.raw
+            req_data = file_object_from_req.read()
+            s3_key = 'images/' + sha256(image_url).hexdigest()
+
+            # Do the actual upload to s3
+            self.bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
+            image_src_url = 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
+
+        except Exception, e:
+            image_src_url = image_url
+
         new_message = {'user': user,
                        'color': users[user]['color'],
-                       'message': "<a href=\"{}\" target=\"_\"><img src=\"{}\" width=\"100px\" /></a>".format(
-                           xhtml_escape(image_url), xhtml_escape(image_url)),
+                       'message': "<a href=\"{}\" target=\"_\"><img src=\"{}\" width=\"300px\" /></a>".format(
+                           xhtml_escape(image_url), xhtml_escape(image_src_url)),
                        'time': time.time()}
         history.append(new_message)
         self.broadcast(self.participants, {'type': 'chatMessage',
