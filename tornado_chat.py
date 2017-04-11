@@ -6,11 +6,9 @@ import StringIO
 import json
 import os
 import time
-import urllib2
 from collections import deque
 from hashlib import sha256
 
-import botocore
 import sockjs.tornado
 import tornado.web
 from boto3 import resource
@@ -158,18 +156,23 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                            'data': new_message})
 
     def broadcast_image(self, user, image_url):
-
+        s3_key = 'images/' + sha256(image_url).hexdigest()
         try:
-            req_for_image = get(image_url, stream=True)
-            file_object_from_req = req_for_image.raw
-            req_data = file_object_from_req.read()
-            s3_key = 'images/' + sha256(image_url).hexdigest()
+            exists = filter(lambda x: x.key == s3_key, list(self.bucket.objects.all()))
+            logging.info('Found object in S3: {}'.format(exists))
+            if len(exists) <= 0:
+                req_for_image = get(image_url, stream=True)
+                file_object_from_req = req_for_image.raw
+                req_data = file_object_from_req.read()
+                if len(req_data) == 0:
+                    raise Exception('empty data, response code:{}'.format(req_for_image.status_code))
 
-            # Do the actual upload to s3
-            self.bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
+                # Do the actual upload to s3
+                self.bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
             image_src_url = 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
-
-        except Exception, e:
+        except Exception as e:
+            logging.info(e.message)
+            logging.info('Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
             image_src_url = image_url
 
         new_message = {'user': user,
