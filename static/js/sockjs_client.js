@@ -357,7 +357,9 @@ function toggleModal(modalId) {
     var modal = $('#' + modalId);
     if (modal.is(':visible')) {
         modal.hide();
-        $('#overlay').hide();
+        if (!$('.modal').is(':visible')) {  // no other modals are open
+            $('#overlay').hide();
+        }
     }
     else {
         modal.show();
