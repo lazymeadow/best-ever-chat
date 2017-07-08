@@ -13,7 +13,7 @@ import sockjs.tornado
 import tornado.web
 from boto3 import resource
 from requests import get
-from tornado.escape import to_unicode, linkify, xhtml_escape
+from tornado.escape import to_unicode, linkify, xhtml_escape, url_unescape
 
 from custom_render import BaseHandler
 
@@ -71,7 +71,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
     def on_open(self, info):
-        self.username = info.get_cookie('username').value
+        self.username = url_unescape(info.get_cookie('username').value)
         # Send that someone joined
         self.broadcast_from_server(self.participants, self.username + ' has connected')
 
