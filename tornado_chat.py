@@ -88,7 +88,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     def on_message(self, message):
         json_message = json.loads(message)
         if json_message['type'] == 'chatMessage':
-            if json_message['message'][0] == '/':
+            if json_message['message'] and json_message['message'][0] == '/':
                 self.parse_command(json_message)
             else:
                 self.broadcast_chat_message(json_message['user'], json_message['message'])
