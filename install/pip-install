@@ -4,3 +4,4 @@ Jinja2==2.7.3
 python-engineio
 python-socketio
 lesscpy
+boto3

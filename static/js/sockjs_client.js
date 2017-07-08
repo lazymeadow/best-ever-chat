@@ -119,6 +119,7 @@ function connect() {
             if (type === 'privateMessage') {
                 print_private_message(data);
             }
+            twemoji.parse(document.body, {base: '/static/', folder:'emojione/assets/'});
         };
         sock.onclose = function () {
             print_message({
