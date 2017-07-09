@@ -35,7 +35,7 @@
         <i class="fa fa-cog"></i>&nbsp;
         <span id="username_display"> you:</span>
     </div>
-    <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)"
+    <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)" onkeyup="updateTypingStatus(event)"
            autocomplete="off" onfocus="$('#emoji-list').hide()"/>
     <div class="button not-first" id="toggle-emojis" onclick="toggleEmojiList()">
         😃

@@ -56,6 +56,33 @@ function imageChat() {
     }
 }
 
+var typingStatus, typingTimeout;
+function updateTypingStatus(newStatus) {
+    typingStatus = newStatus || $('#chat_text').val().length > 0;
+
+    if (!typingTimeout) {
+        sendTypingStatus();
+        typingTimeout = window.setTimeout(function () {
+            window.clearTimeout(typingTimeout);
+            typingTimeout = false;
+            if (typingStatus) {
+                updateTypingStatus();
+            }
+        }, 500);
+    }
+
+    function sendTypingStatus() {
+        sock.send(JSON.stringify({
+            'type': 'userStatus',
+            'user': Cookies.get('username'),
+            'status': {
+                'typing': typingStatus,
+                'currentMessage': $('#chat_text').val()
+            }
+        }));
+    }
+}
+
 function submitChat(event) {
     if (event.keyCode === 38) {
         if (Cookies.get('last_message') !== undefined) {
@@ -63,6 +90,7 @@ function submitChat(event) {
         }
     }
     if (event.keyCode === 13) {
+        updateTypingStatus(false);
         sock.send(JSON.stringify({
             'type': 'chatMessage',
             'user': Cookies.get('username'),
@@ -119,7 +147,7 @@ function connect() {
             if (type === 'privateMessage') {
                 print_private_message(data);
             }
-            twemoji.parse(document.body, {base: '/static/', folder:'emojione/assets/'});
+            twemoji.parse(document.body, {base: '/static/', folder: 'emojione/assets/'});
         };
         sock.onclose = function () {
             print_message({
@@ -169,7 +197,11 @@ function reconnect() {
 function updateUserList(newList) {
     $('#user_list').empty();
     for (var user in newList) {
-        $('#user_list').append($('<div/>').text(user));
+        var userDiv = $('<div/>').text(user);
+        if (newList[user]['typing']) {
+            userDiv.append($('<i>').addClass('fa fa-fw fa-commenting-o'));
+        }
+        $('#user_list').append(userDiv);
     }
 }
 

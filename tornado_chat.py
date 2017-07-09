@@ -78,7 +78,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # Add client to the clients list
         self.participants.add(self)
         users[self.username] = {'color': info.get_cookie('color').value,
-                                'sounds': info.get_cookie('sounds').value}
+                                'sounds': info.get_cookie('sounds').value,
+                                'typing': False}
 
         self.broadcast_user_list()
         self.send_chat_history()
@@ -102,6 +103,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_image(json_message['user'], json_message['url'])
         if json_message['type'] == 'userSettings':
             self.update_user_settings(json_message['user'], json_message['settings'])
+        if json_message['type'] == 'userStatus':
+            self.update_user_status(json_message['user'], json_message['status'])
 
     def on_close(self):
         # Remove client from the clients list and broadcast leave message
@@ -207,6 +210,20 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_from_server(self.participants.difference(self_set),
                                            user + " is now " + self.username)
                 self.send_from_server("Name changed.")
+                self.broadcast_user_list()
+
+    def update_user_status(self, user, json_status):
+        if user != self.username or not json_status:
+            return
+
+        if 'typing' in json_status:
+            if 'currentMessage' in json_status and json_status['currentMessage']:
+                typing_status = json_status['currentMessage'][0] != '/'
+            else:
+                typing_status = json_status['typing']
+
+            if users[self.username]['typing'] is not typing_status:
+                users[self.username]['typing'] = typing_status
                 self.broadcast_user_list()
 
     def parse_command(self, json_message):
