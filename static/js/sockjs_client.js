@@ -6,7 +6,7 @@ var colorpicker;
 var timeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
-var window_focus = true;
+var window_focus = document.hasFocus();
 
 $(document).ready(function () {
     $('#emoji-list').hide();
@@ -136,9 +136,8 @@ function connect() {
                 sounds_setting = JSON.parse(Cookies.get('sounds'));
                 Cookies.set('sounds', false);
                 for (var message in data) {
-                    print_message(data[message]);
+                    print_message(data[message], true);
                 }
-                numMessages -= data.length;
                 Cookies.set('sounds', sounds_setting);
             }
             if (type === 'chatMessage') {
@@ -331,16 +330,16 @@ function print_private_message(msg) {
         play_send();
     }
     else {
-        numMessages++;
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
+            numMessages++;
             window.document.title = "(" + numMessages + ") Best ever chat!";
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
 }
 
-function print_message(msg) {
+function print_message(msg, ignoreCount) {
     var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     var message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.message));
     if (msg.color)
@@ -362,10 +361,10 @@ function print_message(msg) {
     else if (msg.user === Cookies.get('username')) {
         play_send();
     }
-    else {
-        numMessages++;
+    else if (!ignoreCount) {
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
+            numMessages++;
             window.document.title = "(" + numMessages + ") Best ever chat!";
             $("#favicon").attr("href", "/static/favicon2.png");
         }
