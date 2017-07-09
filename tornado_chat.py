@@ -16,6 +16,7 @@ from requests import get
 from tornado.escape import to_unicode, linkify, xhtml_escape, url_unescape
 
 from custom_render import BaseHandler
+from emoji.emojipy import Emoji
 
 settings = {
     'debug_warning': False,
@@ -35,6 +36,8 @@ users = {}
 MAX_DEQUE_LENGTH = 75
 
 history = deque(maxlen=MAX_DEQUE_LENGTH)
+
+emoji = Emoji()
 
 client_version = 46
 update_message = "Oh my gosh, try sending an image!!"
@@ -150,9 +153,16 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.broadcast(recipients, new_message)
 
     def broadcast_chat_message(self, user, message):
+        # first linkify
+        message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
+        # last find shortcode emojis
+        message_text = emoji.shortcode_to_unicode(message_text)
+        # then find ascii emojis
+        message_text = emoji.ascii_to_unicode(message_text)
+
         new_message = {'user': user,
                        'color': users[user]['color'],
-                       'message': linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False),
+                       'message': message_text,
                        'time': time.time()}
         history.append(new_message)
         self.broadcast(self.participants, {'type': 'chatMessage',
