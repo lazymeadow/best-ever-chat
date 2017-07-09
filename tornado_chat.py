@@ -39,8 +39,16 @@ history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 emoji = Emoji()
 
-client_version = 46
-update_message = "Oh my gosh, try sending an image!!"
+client_version = 47
+update_message = "<h3>Fixed a lot of bugs!!!</h3><ul>" \
+                 "<li>Spaces in usernames don't disconnect you anymore!</li>" \
+                 "<li>Links open in a new tab instead of on the next tab!</li>" \
+                 "<li>Message count in the tab title doesn't become negative or wrong anymore!</li>" \
+                 "<li>Sending a blank message doesn't disconnect you anymore!</li>" \
+                 "<li>Multiple modals will now close individually!</li></ul>" \
+                 "<h3>Added some cool stuff!!!</h3><ul>" \
+                 "<li>There's a typing indicator!</li>" \
+                 "<li>Emojis are way too fancy now!</li></ul>"
 
 
 class PageHandler(BaseHandler):
