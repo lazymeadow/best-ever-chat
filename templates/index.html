@@ -1,8 +1,5 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Best ever chat!</title>
+{% extends "base.html" %}
+{% block includes %}
     <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
@@ -11,14 +8,14 @@
     <script src="//twemoji.maxcdn.com/2/twemoji.min.js?2.3.0"></script>
     <script src="https://use.fontawesome.com/b02b7d5ab5.js"></script>
     <script type="text/javascript" src="static/js/colorpicker/colorpicker.js"></script>
-    <script type="text/javascript" src="/static/js/sockjs_client.js"></script>
     <script type="text/javascript" src="/static/js/sounds_handler.js"></script>
+    <script type="text/javascript" src="/static/js/sockjs_client.js"></script>
 
-    <link id="favicon" rel="shortcut icon" type="image/png" href="/static/favicon.png"/>
-    <link rel="stylesheet" href="static/chat.css" type="text/css"/>
     <link rel="stylesheet" href="static/js/colorpicker/colorpicker.css" type="text/css"/>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
+
 
 <div class="header">
     <h1>Best Evar Chat!!1!</h1>
@@ -32,8 +29,8 @@
 </div>
 
 <div class="chat-bar">
-    <div class="button first" id="username" onclick="setUsername()">
-        <i class="fa fa-cog"></i>&nbsp;
+    <div class="button first" id="username" onclick="toggleMenu()">
+        <i class="fa fa-fw fa-bars"></i>&nbsp;
         <span id="username_display"> you:</span>
     </div>
     <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..." onkeydown="submitChat(event)" onkeyup="updateTypingStatus(event)"
@@ -52,12 +49,23 @@
         <tr>
             {% for emoji in emojis %}
             <td>
-                <span onclick="addEmoji('{{emoji}}')">{{emoji}}</span>
+                <span onclick="toggleEmojiList(); addEmoji('{{emoji}}')">{{emoji}}</span>
             </td>
             {% endfor %}
         </tr>
         {% endfor %}
     </table>
+</div>
+
+<div id="menu">
+    <span class="menu-item" onclick="toggleMenu(); setUsername()">
+        <i class="fa fa-fw fa-cog"></i>
+        Settings
+    </span>
+    <span class="menu-item" onclick="logout()">
+        <i class="fa fa-fw fa-sign-out"></i>
+        Log out
+    </span>
 </div>
 
 <!-- Modals -->
@@ -102,6 +110,7 @@
                     <div name="color" id="color"></div>
                 </div>
                 <hr/>
+                {{ xsrf_form_html() }}
                 <button class="modal-cancel" type="button" onclick="toggleModal('userStats')">
                     Cancel
                 </button>
@@ -160,5 +169,5 @@
     </div>
 </div>
 
-</body>
-</html>
+
+{% endblock %}

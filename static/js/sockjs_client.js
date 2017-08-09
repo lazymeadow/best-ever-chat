@@ -1,4 +1,4 @@
-client_version = 47;
+client_version = 48;
 
 var sock;
 var colorpicker;
@@ -10,6 +10,7 @@ var window_focus = document.hasFocus();
 
 $(document).ready(function () {
     $('#emoji-list').hide();
+    $('#menu').hide();
     $('#userStats').hide();
     $('#connectError').hide();
     $('#imageInput').hide();
@@ -102,6 +103,10 @@ function submitChat(event) {
     }
 }
 
+function logout() {
+    window.location = '/logout';
+}
+
 function connect() {
     if (Cookies.get('username')) {
 
@@ -120,6 +125,30 @@ function connect() {
             var type = e.data.type;
             var data = e.data.data;
             // handle all the damn message types
+            if (type === 'auth_fail') {
+                print_message(data);
+
+                window.setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            }
+            if (type === 'update') {
+                for (var updateKey in data.data) {
+                    if (data.data.hasOwnProperty(updateKey) && Cookies.get(updateKey) !== data.data[updateKey]) {
+                        Cookies.set(updateKey, data.data[updateKey]);
+                        if (updateKey === 'username') {
+                            showUsername();
+                        }
+                        if (updateKey === 'sounds') {
+                            toggleSounds();
+                        }
+                        if (updateKey === 'sound_set') {
+                            chooseSoundSet();
+                        }
+                    }
+                }
+                print_message(data);
+            }
             if (type === 'userList') {
                 updateUserList(data);
             }
@@ -146,7 +175,13 @@ function connect() {
             if (type === 'privateMessage') {
                 print_private_message(data);
             }
-            twemoji.parse(document.body, {base: '/static/', folder: 'emojione/assets/'});
+            twemoji.parse(document.body, {
+                base: '/static/',
+                folder: 'emojione/assets/',
+                attributes: function (icon, variant) {
+                    return {title: icon + variant};
+                }
+            });
         };
         sock.onclose = function () {
             print_message({
@@ -196,7 +231,7 @@ function reconnect() {
 function updateUserList(newList) {
     $('#user_list').empty();
     for (var user in newList) {
-        var userDiv = $('<div/>').text(user);
+        var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
         if (newList[user]['typing']) {
             userDiv.append($('<i>').addClass('fa fa-fw fa-commenting-o'));
         }
@@ -214,7 +249,7 @@ function setUsername() {
         colorpicker.setColor(color_cookie);
     }
 
-    if (Cookies.get('sounds') === undefined) {
+    if (!Cookies.get('sounds')) {
         $("#sounds_toggle").prop("checked", false);
     }
     else {
@@ -243,6 +278,9 @@ var updateSettings = {
                 data: {
                     username: function () {
                         return Cookies.get('username');
+                    },
+                    _xsrf: function () {
+                        return Cookies.get('_xsrf');
                     }
                 }
             },
@@ -263,48 +301,28 @@ var updateSettings = {
         var data = {};
         if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
             data.newUser = $('#set_name').val();
-            Cookies.set("username", $("#set_name").val());
-            showUsername();
+            data.oldUser = Cookies.get('username');
         }
         var color = Cookies.get("color");
         if (colorpicker.val() !== color) {
             data.newColor = $("#color").val();
-            Cookies.set("color", colorpicker.val());
+        }
+        var sounds = $('#toggle-sound').is(':checked');
+        if (sounds !== JSON.parse(Cookies.get('sounds'))) {
+            data.newSounds = sounds;
+        }
+        var soundSet = $('input[name="sounds-radios"]:checked').val();
+        if (soundSet !== Cookies.get('sound_set')) {
+            data.newSoundSet = soundSet;
         }
 
-        if (data.newUser || data.newColor || $('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds')) || $('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
-            if (data.newUser || data.newColor) {
-                sock.send(JSON.stringify({
-                    'type': 'userSettings',
-                    'settings': data,
-                    'user': username
-                }));
-            }
-            if ($('#toggle-sound').is(':checked') !== JSON.parse(Cookies.get('sounds'))) {
-                toggleSounds();
-                if (JSON.parse(Cookies.get('sounds'))) {
-                    print_message({
-                        user: "Client",
-                        message: "Sound enabled",
-                        time: moment().unix()
-                    });
-                }
-                else {
-                    print_message({
-                        user: "Client",
-                        message: "Sound disabled",
-                        time: moment().unix()
-                    });
-                }
-            }
-            if ($('input[name="sounds-radios"]:checked').val() !== Cookies.get('sound_set')) {
-                chooseSoundSet();
-                print_message({
-                    user: "Client",
-                    message: Cookies.get('sound_set') + " sounds chosen",
-                    time: moment().unix()
-                });
-            }
+        if (data.newUser || data.newColor || data.newSoundSet || data.newSounds !== undefined) {
+            if (!sock) connect();
+            sock.send(JSON.stringify({
+                'type': 'userSettings',
+                'settings': data,
+                'user': username
+            }));
         }
         else {
             print_message({
@@ -369,6 +387,14 @@ function print_message(msg, ignoreCount) {
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
+}
+
+function toggleMenu() {
+    var menu = $('#menu');
+    if (menu.is(':visible'))
+        menu.hide();
+    else
+        menu.show();
 }
 
 function toggleEmojiList() {

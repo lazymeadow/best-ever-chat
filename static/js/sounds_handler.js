@@ -3,9 +3,6 @@ var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
 
 // functions
 $(document).ready(function () {
-    if (Cookies.get("sounds") === undefined) {
-        Cookies.set("sounds", false);
-    }
     $('#toggle-sound')
     .on('change', function (event) {
         $('input:radio[name=sounds-radios]').prop('disabled', !$(this).prop("checked"));
@@ -32,14 +29,14 @@ $(document).ready(function () {
 });
 
 function chooseSoundSet() {
-    Cookies.set('sound_set', $('input[name="sounds-radios"]:checked').val());
+    $('input:radio[name=sounds-radios]').filter('[value={}]'.replace('{}', Cookies.get('sound_set'))).prop('checked', true);
     update_audio_tags();
     play_activate();
 }
 
 function toggleSounds() {
-    var sounds = JSON.parse(Cookies.get('sounds'));
-    Cookies.set('sounds', !sounds);
+    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds')));
+    $('input:radio[name=sounds-radios]').prop('disabled', !$('#toggle-sound').prop("checked"));
     play_activate();
 }
 

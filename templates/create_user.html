@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if error %}
+<span style="color: red">Error: {{ error }}</span><p>
+    {% endif %}
+<div class="login">
+    <form action="/register" method="POST">
+        <div class="form-group">
+            <div class="form-element">
+                <label for="parasite">Username</label>
+                <input type=text name="parasite" id="parasite"/>
+            </div>
+            <div class="form-element">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password"/>
+            </div>
+            <div class="form-element">
+                <label for="password2">Confirm Password</label>
+                <input type="password" name="password2" id="password2"/>
+            </div>
+            {{ xsrf_form_html() }}
+        </div>
+        <div>
+            <button class="primary" type="submit">Login</button>
+            <a href="/login">I already did this! Go login</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
