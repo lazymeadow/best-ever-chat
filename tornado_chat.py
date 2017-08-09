@@ -31,7 +31,7 @@ history = deque(maxlen=MAX_DEQUE_LENGTH)
 emoji = Emoji()
 
 client_version = 48
-update_message = ""
+update_message = "<h3>I think you already know what's different.</h3>"
 
 http_server = None
 
