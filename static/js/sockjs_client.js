@@ -338,12 +338,20 @@ var updateSettings = {
 
 var numMessages = 0;
 
+function scroll_to_bottom() {
+    var log = $('#log');
+    var scrollThreshold = 50;  // If a user is scrolled nearly to the bottom (but about 2 lines away) the div will still scroll to the bottom
+    if (Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold) {
+        log.scrollTop(log[0].scrollHeight);
+    }
+}
+
 function print_private_message(msg) {
     var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     var salutation = '[message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + '] ';
     var message = $('<span/>').append($('<em/>').append($('<strong/>').text(salutation)).append($('<span/>').html(msg.message))).addClass('private-message');
     $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
-    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    scroll_to_bottom();
     if (msg.user === Cookies.get('username')) {
         play_send();
     }
@@ -369,7 +377,7 @@ function print_message(msg, ignoreCount) {
         message.addClass('client-message');
     }
     $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
-    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    scroll_to_bottom();
     if (msg.user === 'Server') {
         if (msg.message.includes('disconnected')) play_disconnect();
         else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {
