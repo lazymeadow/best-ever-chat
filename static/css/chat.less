@@ -108,24 +108,18 @@ div.login {
   color: @privateMessageColor;
 }
 
-.left-pane {
+#log {
   position: fixed;
-  margin: 5px 0;
-  padding: 0;
+  background: @lightest;
+  overflow-y: auto;
+  border: none 1px @borderColor;
+  border-radius: 3px 0 0 3px;
+  margin: @elementPadding 0;
+  padding: @elementPadding;
   top: @headerHeight;
   bottom: @chatBarHeight;
   right: @rightBarWidth;
   left: @elementPadding;
-  border: none 1px @borderColor;
-  border-radius: 3px 0 0 3px;
-  background: @lightest;
-}
-
-#log {
-  height: 100%;
-  padding: 0 @elementPadding;
-  overflow-y: auto;
-  margin: 0;
 }
 
 .right_bar {
