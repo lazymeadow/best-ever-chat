@@ -8,3 +8,4 @@ requests==2.8.*
 sockjs-tornado==1.0.3
 Tornado>=2.1,<4
 torndb==0.3
+MySQL-python==1.2.5

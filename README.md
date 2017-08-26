@@ -3,10 +3,11 @@ It's, like, really good, oh my gosh.
 
 ## Setup:
 ### Install:
-1. `pip install -r install/pip-install`
-
-
+There are some dependencies that are necessary to install. There might be more. Let me know.
+1. `sudo apt-get install build-essential python-dev libmysqlclient-dev python-mysqldb npm`
 2. `npm install -g less less-plugin-clean-css`
+3. `pip install -r install/pip-install`
+
 #### Database:
 1. Setup a local MySql database.
 2. Import `install/bestChat.sql` to get the schema and tables.
