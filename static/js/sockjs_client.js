@@ -135,16 +135,21 @@ function connect() {
             }
             if (type === 'update') {
                 for (var updateKey in data.data) {
-                    if (data.data.hasOwnProperty(updateKey) && Cookies.get(updateKey) !== data.data[updateKey]) {
-                        Cookies.set(updateKey, data.data[updateKey]);
-                        if (updateKey === 'username') {
-                            showUsername();
+                    if (data.data.hasOwnProperty(updateKey)) {
+                        if (updateKey === 'email') {
+                            $('#email').val(data.data[updateKey]);
                         }
-                        if (updateKey === 'sounds') {
-                            toggleSounds();
-                        }
-                        if (updateKey === 'sound_set') {
-                            chooseSoundSet();
+                        else if (Cookies.get(updateKey) !== data.data[updateKey]) {
+                            Cookies.set(updateKey, data.data[updateKey]);
+                            if (updateKey === 'username') {
+                                showUsername();
+                            }
+                            if (updateKey === 'sounds') {
+                                toggleSounds();
+                            }
+                            if (updateKey === 'sound_set') {
+                                chooseSoundSet();
+                            }
                         }
                     }
                 }
@@ -322,6 +327,10 @@ var updateSettings = {
         var soundSet = $('input[name="sounds-radios"]:checked').val();
         if (soundSet !== Cookies.get('sound_set')) {
             data.newSoundSet = soundSet;
+        }
+        var email = $('#email').val();
+        if (email != '') {
+            data.newEmail = email;
         }
 
         var newPassword = $("#new_password").val();

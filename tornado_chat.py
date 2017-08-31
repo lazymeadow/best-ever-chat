@@ -29,7 +29,7 @@ users = {}
 
 MAX_DEQUE_LENGTH = 75
 SECRET_KEY = ''.join(
-            random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
+    random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
 
 history = deque(maxlen=MAX_DEQUE_LENGTH)
 
@@ -256,6 +256,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_from_server(updating_participants, 'Color updated.', message_type='update',
                                        data={'color': self.current_user.color})
 
+        if 'newEmail' in settings.keys():
+            self.current_user.email = settings['newEmail']
+            self.broadcast_from_server(updating_participants, 'Email updated to {}.'.format(self.current_user.email),
+                                       message_type='update',
+                                       data={'email': self.current_user.email})
+
         if 'newUser' in settings.keys() and 'oldUser' in settings.keys():
             user = settings['oldUser']
             if settings['newUser'] in users.keys():  # username is taken, validation backup
@@ -274,9 +280,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_from_server(updating_participants, "Name changed.", message_type='update',
                                            data={'username': self.username})
                 self.broadcast_user_list()
-        http_server.db.execute('UPDATE parasite SET color=%s, username=%s, sound=%s, soundSet=%s WHERE id=%s',
+
+        http_server.db.execute('UPDATE parasite SET color=%s, username=%s, sound=%s, soundSet=%s, email=%s WHERE id=%s',
                                self.current_user.color, self.current_user.username, self.current_user.sound,
-                               self.current_user.soundSet, self.current_user.id)
+                               self.current_user.soundSet, self.current_user.email, self.current_user.id)
 
     def update_user_status(self, user, json_status):
         if user != self.username or not json_status:
@@ -294,7 +301,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
     @gen.coroutine
     def change_user_password(self, user, password_list):
-        if user != self.username or not password_list or len(password_list) != 2 or password_list[0] != password_list[1]:
+        if user != self.username or not password_list or len(password_list) != 2 or password_list[0] != password_list[
+            1]:
             return
 
         updating_participants = [x for x in self.participants if x.current_user.id == self.current_user.id]
@@ -303,7 +311,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             bcrypt.hashpw, tornado.escape.utf8(password_list[0]),
             bcrypt.gensalt())
         if self.current_user.password != hashed_password:
-            http_server.db.execute("UPDATE parasite SET password = %s WHERE id = %s", hashed_password, self.current_user.id)
+            http_server.db.execute("UPDATE parasite SET password = %s WHERE id = %s", hashed_password,
+                                   self.current_user.id)
 
         self.broadcast_from_server(updating_participants, 'PASSWORD CHANGED! I hope that\'s what you wanted.')
 

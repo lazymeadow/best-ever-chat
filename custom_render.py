@@ -79,9 +79,10 @@ class AuthCreateHandler(BaseHandler):
                 bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
                 bcrypt.gensalt())
             parasite_id = self.db.execute(
-                "INSERT INTO parasite (id, password, username) "
-                "VALUES (%s, %s, %s)",
-                self.get_argument("parasite"), hashed_password, self.get_argument("parasite"))
+                "INSERT INTO parasite (id, email, password, username) "
+                "VALUES (%s, %s, %s, %s)",
+                self.get_argument("parasite"), self.get_argument("email"), hashed_password,
+                self.get_argument("parasite"))
             self.set_secure_cookie("parasite", str(parasite_id), expires_days=182)
             self.redirect(self.get_argument("next", "/"))
         else:
@@ -146,7 +147,8 @@ class AuthPasswordResetHandler(BaseHandler):
                 hashed_password = yield executor.submit(
                     bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
                     bcrypt.gensalt())
-                self.db.update("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password, parasite)
+                self.db.update("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
+                               parasite)
                 self.redirect("login?error=Password reset. Please login.")
             else:
                 self.redirect("login?error=Password reset failed.")
@@ -192,4 +194,5 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             s.sendmail(me, [you], msg.as_string())
             s.quit()
 
-        self.redirect("login?error=A password reset email has been sent for {}. Check your spam folder!".format(parasite))
+        self.redirect(
+            "login?error=A password reset email has been sent for {}. Check your spam folder!".format(parasite))
