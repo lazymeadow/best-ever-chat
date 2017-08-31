@@ -170,7 +170,7 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             string = serializer.dumps(parasite)
             self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
-            send_email(parasite_email, parasite, string)
+            send_email(parasite_email.email, parasite, string)
 
         self.redirect(
             "login?error=A password reset email has been sent for {}. Check your spam folder!".format(parasite))
@@ -198,5 +198,5 @@ def send_email(email, user, token):
     # envelope header.
 
     s = SMTP('localhost')
-    s.sendmail(me, [you], msg.as_string())
+    s.sendmail(me, you, msg.as_string())
     s.quit()
