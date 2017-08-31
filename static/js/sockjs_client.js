@@ -1,4 +1,4 @@
-client_version = 48;
+client_version = 49;
 
 var sock;
 var colorpicker;
@@ -58,6 +58,7 @@ function imageChat() {
 }
 
 var typingStatus, typingTimeout;
+
 function updateTypingStatus(newStatus) {
     typingStatus = newStatus || $('#chat_text').val().length > 0;
 
@@ -289,6 +290,13 @@ var updateSettings = {
         },
         color: {
             required: true
+        },
+        new_password: {
+            required: false,
+            minlength: 3
+        },
+        new_password2: {
+            equalTo: '#new_password'
         }
     },
     messages: {
@@ -316,6 +324,18 @@ var updateSettings = {
             data.newSoundSet = soundSet;
         }
 
+        var newPassword = $("#new_password").val();
+        var newPassword2 = $("#new_password2").val();
+        if (newPassword !== '' && newPassword === newPassword2) {
+            sock.send(JSON.stringify({
+                'type': 'password_change',
+                'data': [newPassword, newPassword],
+                'user': username
+            }));
+            $("#new_password").val('');
+            $("#new_password2").val('');
+        }
+
         if (data.newUser || data.newColor || data.newSoundSet || data.newSounds !== undefined) {
             if (!sock) connect();
             sock.send(JSON.stringify({
@@ -324,13 +344,14 @@ var updateSettings = {
                 'user': username
             }));
         }
-        else {
+        else if (!newPassword) {
             print_message({
                 user: "Client",
                 message: "No changes made",
                 time: moment().unix()
             });
         }
+
         toggleModal('userStats');
     }
 };

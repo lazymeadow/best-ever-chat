@@ -11,27 +11,32 @@ import time
 from collections import deque
 from hashlib import sha256
 
+import bcrypt
 import sockjs.tornado
 import tornado.web
 import torndb
 from boto3 import resource
 from requests import get
+from tornado import concurrent, gen
 from tornado.escape import to_unicode, linkify, xhtml_escape, url_unescape
 from tornado.ioloop import IOLoop
 
-from custom_render import BaseHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler
+from custom_render import BaseHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, AuthPasswordResetHandler, \
+    AuthPasswordResetRequestHandler, executor
 from emoji.emojipy import Emoji
 
 users = {}
 
 MAX_DEQUE_LENGTH = 75
+SECRET_KEY = ''.join(
+            random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
 
 history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 emoji = Emoji()
 
-client_version = 48
-update_message = "<h3>I think you already know what's different.</h3>"
+client_version = 49
+update_message = "<h3>You can change your password! It's about time.</h3>"
 
 http_server = None
 
@@ -108,7 +113,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.broadcast_user_list()
         self.send_chat_history()
         self.send_information(update_message)
-        self.send_from_server('Connection successful')
+        self.send_from_server('Connection successful. Type /help or /h for available commands.')
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -131,6 +136,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.update_user_settings(json_message['settings'])
         if json_message['type'] == 'userStatus':
             self.update_user_status(json_message['user'], json_message['status'])
+        if json_message['type'] == 'password_change':
+            self.change_user_password(json_message['user'], json_message['data'])
 
     def on_close(self):
         # Remove client from the clients list and broadcast leave message
@@ -285,6 +292,21 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 users[self.username]['typing'] = typing_status
                 self.broadcast_user_list()
 
+    @gen.coroutine
+    def change_user_password(self, user, password_list):
+        if user != self.username or not password_list or len(password_list) != 2 or password_list[0] != password_list[1]:
+            return
+
+        updating_participants = [x for x in self.participants if x.current_user.id == self.current_user.id]
+
+        hashed_password = yield executor.submit(
+            bcrypt.hashpw, tornado.escape.utf8(password_list[0]),
+            bcrypt.gensalt())
+        if self.current_user.password != hashed_password:
+            http_server.db.execute("UPDATE parasite SET password = %s WHERE id = %s", hashed_password, self.current_user.id)
+
+        self.broadcast_from_server(updating_participants, 'PASSWORD CHANGED! I hope that\'s what you wanted.')
+
     def parse_command(self, json_message):
         message = json_message['message']
         command, _, command_args = message[1:].partition(' ')
@@ -423,8 +445,7 @@ if __name__ == "__main__":
         ]
     })
     settings = {
-        'cookie_secret': ''.join(
-            random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32)),
+        'cookie_secret': SECRET_KEY,
         'template_path': 'templates',
         'xsrf_cookies': True,
         'login_url': "/login",
@@ -436,6 +457,8 @@ if __name__ == "__main__":
                    (r"/register", AuthCreateHandler),
                    (r"/login", AuthLoginHandler),
                    (r"/logout", AuthLogoutHandler),
+                   (r"/forgot_password", AuthPasswordResetRequestHandler),
+                   (r"/reset_password", AuthPasswordResetHandler),
                    (r'/static/(.*)', {'path': settings['static_path']}),
                    ('/validate_username', ValidateHandler)
                ] + chat_router.urls

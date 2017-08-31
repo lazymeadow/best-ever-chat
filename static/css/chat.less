@@ -17,410 +17,410 @@
 @rightBarWidth: 200px;
 @elementPadding: 5px;
 body {
-  background: @backgroundColor;
-  font: .9em 'Amiko', san-serif;
+	background: @backgroundColor;
+	font: .9em 'Amiko', san-serif;
 }
 
 div.login {
-  text-align: right;
-  width: 500px;
-  padding: 5px;
-  margin-left: auto;
-  margin-right: auto;
-  background: @lightest;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  min-height: 100px;
-  overflow-y: auto;
+	text-align: right;
+	width: 500px;
+	padding: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	background: @lightest;
+	border: solid 1px @borderColor;
+	border-radius: 3px;
+	min-height: 100px;
+	overflow-y: auto;
 
-  a {
-    float: left;
-    padding: 10px;
-  }
+	a {
+		float: left;
+		padding: 10px;
+	}
 
-  label {
-    min-width: 150px;
-  }
+	label {
+		min-width: 150px;
+	}
 
-  button.primary {
-    float: right;
-    min-width: 100px;
-  }
+	button.primary {
+		float: right;
+		min-width: 100px;
+	}
 
-  button.secondary {
-    float: left;
-    min-width: 100px;
-  }
+	button.secondary {
+		float: left;
+		min-width: 100px;
+	}
 }
 
 #user_list {
-  bottom: @chatBarHeight;
-  border: @borderColor 1px none;
-  border-left: @lightBackgroundColor 1px solid;
-  border-radius: 0 3px 3px 0;
-  background: @lightest;
-  top: @headerHeight;
-  position: fixed;
-  margin: @elementPadding 0;
-  right: @elementPadding;
-  width: @rightBarWidth;
-  overflow-y: auto;
-  div {
-    padding: @elementPadding;
-    i {
-      opacity: 0.55;
-      float: right;
-    }
-  }
+	bottom: @chatBarHeight;
+	border: @borderColor 1px none;
+	border-left: @lightBackgroundColor 1px solid;
+	border-radius: 0 3px 3px 0;
+	background: @lightest;
+	top: @headerHeight;
+	position: fixed;
+	margin: @elementPadding 0;
+	right: @elementPadding;
+	width: @rightBarWidth;
+	overflow-y: auto;
+	div {
+		padding: @elementPadding;
+		i {
+			opacity: 0.55;
+			float: right;
+		}
+	}
 }
 
 #user_list > div:nth-of-type(odd) {
-  background: darken(@lightest, 5%);
+	background: darken(@lightest, 5%);
 }
 
 .header {
-  position: fixed;
-  width: 100%;
-  z-index: 50;
-  padding: @elementPadding;
-  top: 0;
-  left: 0;
-  right: @rightBarWidth;
-  height: @headerHeight;
-  color: @lightest;
-  h1 {
-    font-size: 1.3em;
-    font-weight: bold;
-    padding: @elementPadding 0;
-    margin: 0;
-  }
+	position: fixed;
+	width: 100%;
+	z-index: 50;
+	padding: @elementPadding;
+	top: 0;
+	left: 0;
+	right: @rightBarWidth;
+	height: @headerHeight;
+	color: @lightest;
+	h1 {
+		font-size: 1.3em;
+		font-weight: bold;
+		padding: @elementPadding 0;
+		margin: 0;
+	}
 }
 
 .client-message {
-  color: @clientColor;
+	color: @clientColor;
 }
 
 .server-message {
-  color: @serverColor;
+	color: @serverColor;
 }
 
 .private-message {
-  color: @privateMessageColor;
+	color: @privateMessageColor;
 }
 
 #log {
-  position: fixed;
-  background: @lightest;
-  overflow-y: auto;
-  border: none 1px @borderColor;
-  border-radius: 3px 0 0 3px;
-  margin: @elementPadding 0;
-  padding: @elementPadding;
-  top: @headerHeight;
-  bottom: @chatBarHeight;
-  right: @rightBarWidth;
-  left: @elementPadding;
+	position: fixed;
+	background: @lightest;
+	overflow-y: auto;
+	border: none 1px @borderColor;
+	border-radius: 3px 0 0 3px;
+	margin: @elementPadding 0;
+	padding: @elementPadding;
+	top: @headerHeight;
+	bottom: @chatBarHeight;
+	right: @rightBarWidth;
+	left: @elementPadding;
 }
 
 .right_bar {
-  position: fixed;
-  top: 0;
-  right: @elementPadding;
-  bottom: @chatBarHeight;
-  width: @rightBarWidth;
-  h3 {
-    font-size: 1em;
-    font-weight: normal;
-    padding: 15px 0;
-    margin: 0;
-    color: @lightest;
-  }
+	position: fixed;
+	top: 0;
+	right: @elementPadding;
+	bottom: @chatBarHeight;
+	width: @rightBarWidth;
+	h3 {
+		font-size: 1em;
+		font-weight: normal;
+		padding: 15px 0;
+		margin: 0;
+		color: @lightest;
+	}
 }
 
 #menu {
-  position: absolute;
-  bottom: @chatBarHeight - @elementPadding;
-  left: 0;
-  margin: 0 @elementPadding;
-  background: @lightBackgroundColor;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  min-width: 100px;
+	position: absolute;
+	bottom: @chatBarHeight - @elementPadding;
+	left: 0;
+	margin: 0 @elementPadding;
+	background: @lightBackgroundColor;
+	border: solid 1px @borderColor;
+	border-radius: 3px;
+	min-width: 100px;
 
-  span.menu-item {
-    cursor: pointer;
-    display: block;
-    padding: 10px;
-  }
-  & > span:nth-of-type(odd) {
-    background: lighten(@lightBackgroundColor, 15%);
-  }
+	span.menu-item {
+		cursor: pointer;
+		display: block;
+		padding: 10px;
+	}
+	& > span:nth-of-type(odd) {
+		background: lighten(@lightBackgroundColor, 15%);
+	}
 }
 
 #emoji-list {
-  position: absolute;
-  bottom: @chatBarHeight - @elementPadding;
-  right: 0;
-  margin: 0 @elementPadding;
-  background: @lightBackgroundColor;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  span {
-    height: 1.2em;
-    width: 1.2em;
-    font-size: 1.2em;
-    cursor: pointer;
-  }
+	position: absolute;
+	bottom: @chatBarHeight - @elementPadding;
+	right: 0;
+	margin: 0 @elementPadding;
+	background: @lightBackgroundColor;
+	border: solid 1px @borderColor;
+	border-radius: 3px;
+	span {
+		height: 1.2em;
+		width: 1.2em;
+		font-size: 1.2em;
+		cursor: pointer;
+	}
 }
 
 .chat-bar {
-  position: fixed;
-  height: @chatBarHeight;
-  padding: @elementPadding;
-  display: flex;
-  align-items: flex-end;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  .button {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    .fa {
-      font-size: 1.5em;
-    }
-  }
-  .first {
-    border-radius: 3px 0 0 3px;
-  }
-  .not-first {
-    border-left: none;
-    border-radius: 0;
-  }
-  .last {
-    border-left: none;
-    border-radius: 0 3px 3px 0;
-  }
-  input {
-    flex: 1 0 auto;
-  }
+	position: fixed;
+	height: @chatBarHeight;
+	padding: @elementPadding;
+	display: flex;
+	align-items: flex-end;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	.button {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		.fa {
+			font-size: 1.5em;
+		}
+	}
+	.first {
+		border-radius: 3px 0 0 3px;
+	}
+	.not-first {
+		border-left: none;
+		border-radius: 0;
+	}
+	.last {
+		border-left: none;
+		border-radius: 0 3px 3px 0;
+	}
+	input {
+		flex: 1 0 auto;
+	}
 }
 
 input {
-  font: 1em 'Amiko', sans-serif;
-  padding: @elementPadding;
-  background: @lightest;
-  height: 25px;
-  border: @borderColor 1px solid;
-  border-radius: 3px;
+	font: 1em 'Amiko', sans-serif;
+	padding: @elementPadding;
+	background: @lightest;
+	height: 25px;
+	border: @borderColor 1px solid;
+	border-radius: 3px;
 }
 
 .primary-button() {
-  float: right;
-  background: @backgroundColor;
-  color: @lightest;
-  &:hover {
-    background: darken(@backgroundColor, 10%);
-  }
+	float: right;
+	background: @backgroundColor;
+	color: @lightest;
+	&:hover {
+		background: darken(@backgroundColor, 10%);
+	}
 }
 
 .cancel-button() {
-  background: lighten(@lightBackgroundColor, 10%);
-  color: darken(@lightBackgroundColor, 25%);
-  float: left;
-  &:hover {
-    background: @lightBackgroundColor;
-    color: darken(@lightBackgroundColor, 35%);
-  }
+	background: lighten(@lightBackgroundColor, 10%);
+	color: darken(@lightBackgroundColor, 25%);
+	float: left;
+	&:hover {
+		background: @lightBackgroundColor;
+		color: darken(@lightBackgroundColor, 35%);
+	}
 }
 
 button, .button {
-  padding: 0 5px;
-  min-width: 35px;
-  height: 35px;
-  font-family: 'Amiko', sans-serif;
-  border: @borderColor 1px solid;
-  border-radius: 3px;
-  cursor: pointer;
-  background: @lightButtonColor;
-  color: darken(@backgroundColor, 50%);
-  &:hover {
-    background: @buttonHoverColor;
-  }
+	padding: 0 5px;
+	min-width: 35px;
+	height: 35px;
+	font-family: 'Amiko', sans-serif;
+	border: @borderColor 1px solid;
+	border-radius: 3px;
+	cursor: pointer;
+	background: @lightButtonColor;
+	color: darken(@backgroundColor, 50%);
+	&:hover {
+		background: @buttonHoverColor;
+	}
 
-  &.primary {
-    .primary-button;
-  }
+	&.primary {
+		.primary-button;
+	}
 
-  &.cancel {
-    .cancel-button;
-  }
+	&.cancel {
+		.cancel-button;
+	}
 }
 
 div#overlay {
-  z-index: 99;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  background: @overlayColor;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: 0;
-  left: 0;
+	z-index: 99;
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	background: @overlayColor;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: 0;
+	left: 0;
 }
 
 .modal {
-  z-index: 100;
-  width: 500px;
-  min-height: 100px;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 5px;
-  margin-left: auto;
-  margin-right: auto;
-  background: @lightest;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  flex: 0 1 auto;
-  .close {
-    float: right;
-    border: none;
-    padding: 0;
-    margin: 0;
-    color: @backgroundColor;
-    background: @lightest;
-  }
-  .modal-title {
-    padding: 0;
-    margin: 0;
-    font-size: 1.5em;
-    font-weight: bold;
-  }
-  .modal-content {
-    margin: 5px 0;
-  }
+	z-index: 100;
+	width: 500px;
+	min-height: 100px;
+	max-height: 80vh;
+	overflow-y: auto;
+	padding: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	background: @lightest;
+	border: solid 1px @borderColor;
+	border-radius: 3px;
+	flex: 0 1 auto;
+	.close {
+		float: right;
+		border: none;
+		padding: 0;
+		margin: 0;
+		color: @backgroundColor;
+		background: @lightest;
+	}
+	.modal-title {
+		padding: 0;
+		margin: 0;
+		font-size: 1.5em;
+		font-weight: bold;
+	}
+	.modal-content {
+		margin: 5px 0;
+	}
 
-  button {
-    min-width: 100px;
-    border: none;
-  }
+	button {
+		min-width: 100px;
+		border: none;
+	}
 
-  .modal-submit {
-    float: right;
-    .primary-button;
-  }
-  .modal-cancel {
-    float: left;
-    .cancel-button;
-  }
+	.modal-submit {
+		float: right;
+		.primary-button;
+	}
+	.modal-cancel {
+		float: left;
+		.cancel-button;
+	}
 }
 
 .form-group {
-  padding: @elementPadding;
-  display: table;
+	padding: @elementPadding;
+	display: table;
 
-  .form-element {
-    display: table-row;
-    .toggle {
-      margin: 10px;
-      vertical-align: middle;
-    }
-  }
+	.form-element {
+		display: table-row;
+		.toggle {
+			margin: 10px;
+			vertical-align: middle;
+		}
+	}
 
-  label, input {
-    display: table-cell;
-    margin: 10px 25px;
-    &[type="radio"] {
-      margin: 10px;
-      vertical-align: middle;
-    }
-  }
+	label, input {
+		display: table-cell;
+		margin: 10px 25px;
+		&[type="radio"] {
+			margin: 10px;
+			vertical-align: middle;
+		}
+	}
 }
 
 .toggle {
-  display: inline-block;
-  position: relative;
-  width: 50px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+	display: inline-block;
+	position: relative;
+	width: 50px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 
-  .toggle-checkbox {
-    display: none;
-    margin: 0;
-  }
+	.toggle-checkbox {
+		display: none;
+		margin: 0;
+	}
 
-  .toggle-label {
-    display: block;
-    overflow: hidden;
-    cursor: pointer;
-    border: @borderColor 1px solid;
-    border-radius: 3px;
-    margin: 0;
-  }
+	.toggle-label {
+		display: block;
+		overflow: hidden;
+		cursor: pointer;
+		border: @borderColor 1px solid;
+		border-radius: 3px;
+		margin: 0;
+	}
 
-  .toggle-inner {
-    display: block;
-    width: 200%;
-    margin-left: -100%;
-    transition: margin 0.3s ease-in 0s;
-  }
+	.toggle-inner {
+		display: block;
+		width: 200%;
+		margin-left: -100%;
+		transition: margin 0.3s ease-in 0s;
+	}
 
-  .toggle-inner:before, .toggle-inner:after {
-    display: block;
-    float: left;
-    width: 50%;
-    height: 30px;
-    padding: 0;
-    line-height: 30px;
-    font-size: 14px;
-    color: white;
-    box-sizing: border-box;
-  }
+	.toggle-inner:before, .toggle-inner:after {
+		display: block;
+		float: left;
+		width: 50%;
+		height: 30px;
+		padding: 0;
+		line-height: 30px;
+		font-size: 14px;
+		color: white;
+		box-sizing: border-box;
+	}
 
-  .toggle-inner:before {
-    content: "\f028";
-    padding-left: 10px;
-    background-color: #43753A;
-    color: #FFFFFF;
-  }
+	.toggle-inner:before {
+		content: "\f028";
+		padding-left: 10px;
+		background-color: #43753A;
+		color: #FFFFFF;
+	}
 
-  .toggle-inner:after {
-    content: "\f026";
-    padding-right: 15px;
-    background-color: #A31A1A;
-    color: #FFFFFF;
-    text-align: right;
-  }
+	.toggle-inner:after {
+		content: "\f026";
+		padding-right: 15px;
+		background-color: #A31A1A;
+		color: #FFFFFF;
+		text-align: right;
+	}
 
-  .toggle-switch {
-    display: block;
-    width: 10px;
-    margin: 0;
-    background: @lightBackgroundColor;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 38px;
-    border: @borderColor 1px solid;
-    border-radius: 3px;
-    transition: all 0.3s ease-in 0s;
-  }
+	.toggle-switch {
+		display: block;
+		width: 10px;
+		margin: 0;
+		background: @lightBackgroundColor;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 38px;
+		border: @borderColor 1px solid;
+		border-radius: 3px;
+		transition: all 0.3s ease-in 0s;
+	}
 
-  .toggle-checkbox:checked + .toggle-label .toggle-inner {
-    margin-left: 0;
-  }
+	.toggle-checkbox:checked + .toggle-label .toggle-inner {
+		margin-left: 0;
+	}
 
-  .toggle-checkbox:checked + .toggle-label .toggle-switch {
-    right: 0;
-  }
+	.toggle-checkbox:checked + .toggle-label .toggle-switch {
+		right: 0;
+	}
 }
 
 img.emoji {
-  height: 1.1em;
-  width: 1.1em;
-  margin: 0 .05em 0 .1em;
-  vertical-align: -0.1em;
+	height: 1.1em;
+	width: 1.1em;
+	margin: 0 .05em 0 .1em;
+	vertical-align: -0.1em;
 }
