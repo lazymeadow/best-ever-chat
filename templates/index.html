@@ -112,8 +112,10 @@
                 <div class="form-group">
                     <label for="email">Change email:</label>
                     <input type="email" name="email" id="email"
-                           placeholder="Email"/>
+                           placeholder="Email" value=" "/>
                 </div>
+                {{ xsrf_form_html() }}
+                <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none" />
                 <div class="form-group">
                     <label for="new_password">Change password:</label>
                     <input type="password" name="new_password" id="new_password" autocomplete="off" />
@@ -123,7 +125,6 @@
                     <input type="password" name="new_password2" id="new_password2" />
                 </div>
                 <hr/>
-                {{ xsrf_form_html() }}
                 <button class="modal-cancel" type="button" onclick="toggleModal('userStats')">
                     Cancel
                 </button>

@@ -27,6 +27,9 @@ $(document).ready(function () {
         window_focus = false;
     });
 
+    $('#email').val(Cookies.get('email'));
+    Cookies.remove('email');
+
     colorpicker = bestColorPicker($('#color'));
 
     $('#update-user').validate(updateSettings);
