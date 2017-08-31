@@ -147,7 +147,7 @@ class AuthPasswordResetHandler(BaseHandler):
                 hashed_password = yield executor.submit(
                     bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
                     bcrypt.gensalt())
-                self.db.update("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
+                self.db.execute("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
                                parasite)
                 self.redirect("login?error=Password reset. Please login.")
             else:
@@ -168,7 +168,7 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             string = serializer.dumps(parasite)
-            self.db.update("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
+            self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
             link = 'http://bestevarchat.com/reset_password?token=' + string
             # Create a text/plain message
