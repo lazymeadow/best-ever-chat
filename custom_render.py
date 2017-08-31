@@ -170,29 +170,33 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             string = serializer.dumps(parasite)
             self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
-            link = 'http://bestevarchat.com/reset_password?token=' + string
-            # Create a text/plain message
-            msg = 'Well, someone has requested as password reset for {}.\n\n' \
-                  'If it wasn\'t you, then please, let me know. ' \
-                  'Otherwise, here\'s a link for you...' \
-                  'You\'d better hurry, it\'ll only be good for 24 hours. \n\n' \
-                  '{}'.format(parasite, link)
-
-            # me == the sender's email address
-            me = 'server@bestevarchat.com'
-            # you == the recipient's email address
-            you = parasite_email
-
-            msg['Subject'] = '[Best Evar Chat] You appear to have forgotten your password'
-            msg['From'] = me
-            msg['To'] = you
-
-            # Send the message via our own SMTP server, but don't include the
-            # envelope header.
-
-            s = SMTP('localhost')
-            s.sendmail(me, [you], msg.as_string())
-            s.quit()
+            send_email(parasite_email, parasite, string)
 
         self.redirect(
             "login?error=A password reset email has been sent for {}. Check your spam folder!".format(parasite))
+
+
+def send_email(email, user, token):
+    link = 'http://bestevarchat.com/reset_password?token=' + token
+    # Create a text/plain message
+    msg = MIMEText('Well, someone has requested as password reset for {}.\n\n'
+                   'If it wasn\'t you, then please, let me know. '
+                   'Otherwise, here\'s a link for you...'
+                   'You\'d better hurry, it\'ll only be good for 24 hours. \n\n'
+                   '{}'.format(user, link))
+
+    # me == the sender's email address
+    me = 'server@bestevarchat.com'
+    # you == the recipient's email address
+    you = email
+
+    msg['Subject'] = '[Best Evar Chat] You appear to have forgotten your password'
+    msg['From'] = me
+    msg['To'] = you
+
+    # Send the message via our own SMTP server, but don't include the
+    # envelope header.
+
+    s = SMTP('localhost')
+    s.sendmail(me, [you], msg.as_string())
+    s.quit()
