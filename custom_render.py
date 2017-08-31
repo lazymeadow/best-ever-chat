@@ -172,11 +172,11 @@ class AuthPasswordResetRequestHandler(BaseHandler):
 
             link = 'http://bestevarchat.com/reset_password?token=' + string
             # Create a text/plain message
-            msg = MIMEText('Well, someone has requested as password reset for {}.\n\n'
+            msg = 'Well, someone has requested as password reset for {}.\n\n'
                            'If it wasn\'t you, then please, let me know. '
                            'Otherwise, here\'s a link for you...'
                            'You\'d better hurry, it\'ll only be good for 24 hours. \n\n'
-                           '{}'.format(parasite, link))
+                           '{}'.format(parasite, link)
 
             # me == the sender's email address
             me = 'server@bestevarchat.com'
