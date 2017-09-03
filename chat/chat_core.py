@@ -284,13 +284,13 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             if idleStatus:
                 self.idle = True  # set before check
                 # if all participants are idle, set idle and broadcast user list
-                if reduce(lambda x, y: x.idle or y.idle, updating_participants):
+                if reduce(lambda x, y: x.idle or y.idle, updating_participants).idle:
                     users[self.username]['idle'] = True
                     self.broadcast_user_list()
             else:
                 # if all participants are idle, set active and broadcast user list
-                if reduce(lambda x, y: x.idle or y.idle, updating_participants):
-                    users[self.username]['idle'] = False
+                users[self.username]['idle'] = False
+                if reduce(lambda x, y: x.idle or y.idle, updating_participants).idle:
                     self.broadcast_user_list()
                 self.idle = False  # set after check
         elif 'typing' in json_status:
