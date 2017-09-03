@@ -1,69 +1,30 @@
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-import bcrypt as bcrypt
-import tornado.web
+import bcrypt
+import tornado
+from flask import json
 from itsdangerous import URLSafeTimedSerializer
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
-from tornado import gen, concurrent
+from tornado import escape, gen
 
-executor = concurrent.futures.ThreadPoolExecutor(2)
-
-
-class TemplateRendering:
-    """
-    A simple class to hold methods for rendering templates.
-    """
-
-    def render_template(self, template_name, **kwargs):
-        template_dirs = []
-        if self.settings.get('template_path', ''):
-            template_dirs.append(
-                self.settings["template_path"]
-            )
-
-        env = Environment(loader=FileSystemLoader(template_dirs))
-
-        try:
-            template = env.get_template(template_name)
-        except TemplateNotFound:
-            raise TemplateNotFound(template_name)
-        content = template.render(kwargs)
-        return content
+from chat.custom_render import BaseHandler, executor
 
 
-class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
-    @property
-    def db(self):
-        return self.application.db
+class PageHandler(BaseHandler):
+    """Regular HTTP handler to serve the chatroom page"""
 
-    def get_current_user(self):
-        user_id = self.get_secure_cookie("parasite")
-        if not user_id: return None
-        return self.db.get("SELECT * FROM parasite WHERE id = %s", str(user_id))
-
-    def check_unique_user(self, user_id):
-        return self.db.get("SELECT id FROM parasite LIMIT 1") is None
-
-    """
-    RequestHandler already has a `render()` method. I'm writing another
-    method `render2()` and keeping the API almost same.
-    """
-
-    def render2(self, template_name, **kwargs):
-        """
-        This is for making some extra context variables available to
-        the template
-        """
-        kwargs.update({
-            'settings': self.settings,
-            'STATIC_URL': self.settings.get('static_url_prefix', '/static/'),
-            'request': self.request,
-            'xsrf_token': self.xsrf_token,
-            'xsrf_form_html': self.xsrf_form_html
-        })
-        content = self.render_template(template_name, **kwargs)
-        self.write(content)
+    @tornado.web.authenticated
+    def get(self):
+        if self.current_user.username is not None:
+            self.set_cookie('username', str(self.current_user.username))
+        if self.current_user.color is not None:
+            self.set_cookie('color', str(self.current_user.color))
+        self.set_cookie('sounds', str(self.current_user.sound or 0))
+        if self.current_user.soundSet is not None:
+            self.set_cookie('sound_set', str(self.current_user.soundSet))
+        if self.current_user.email is not None:
+            self.set_cookie('email', str(self.current_user.email))
+        self.render2('index.html', emoji_list=self.settings['emojis'])
 
 
 class AuthCreateHandler(BaseHandler):
@@ -76,7 +37,7 @@ class AuthCreateHandler(BaseHandler):
             self.render2("create_user.html")
         if self.get_argument("password") == self.get_argument("password2"):
             hashed_password = yield executor.submit(
-                bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
+                bcrypt.hashpw, escape.utf8(self.get_argument("password")),
                 bcrypt.gensalt())
             parasite_id = self.db.execute(
                 "INSERT INTO parasite (id, email, password, username) "
@@ -148,7 +109,7 @@ class AuthPasswordResetHandler(BaseHandler):
                     bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
                     bcrypt.gensalt())
                 self.db.execute("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
-                               parasite)
+                                parasite)
                 self.redirect("login?error=Password reset. Please login.")
             else:
                 self.redirect("login?error=Password reset failed.")
