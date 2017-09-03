@@ -174,7 +174,7 @@ function connect() {
 
                 window.setTimeout(function () {
                     location.reload();
-                }, 1000);
+                }, 500);
             }
             if (type === 'update') {
                 for (var updateKey in data.data) {
