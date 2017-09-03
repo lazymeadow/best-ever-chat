@@ -67,6 +67,7 @@ $(document).ready(function () {
     $('input:radio[name=faction]').filter('[value={}]'.replace('{}', Cookies.get('faction'))).prop('checked', true);
 
     colorPicker = bestColorPicker($('#color'));
+    colorPicker.setColor(Cookies.get('color'));
 
     $('#update-user').validate(updateSettings);
 
@@ -449,8 +450,9 @@ function print_private_message(msg) {
 
 function print_message(msg, ignoreCount) {
     var chatLog = $('#log');
-    var date = $('<em />').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    var message = $('<span />').append($('<strong />').text('<' + msg.user + '> ')).append($('<span />').html(msg.message));
+    var messageContainer = $('<div>').addClass('chat-message');
+    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
+    var message = $('<div>').addClass('message').append($('<strong />').text(msg.user + ' : ')).append($('<span />').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
@@ -459,8 +461,8 @@ function print_message(msg, ignoreCount) {
     if (msg.user === 'Client') {
         message.addClass('client-message');
     }
-    chatLog.append($('<div />').append(date).append(message).html() + '<br />');
-    chatLog.scrollTop(document.getElementById('log').scrollHeight);
+    chatLog.append(messageContainer.append(date).append(message));
+    chatLog.scrollTop(chatLog[0].scrollHeight);
     if (msg.user === 'Server') {
         if (msg.message.includes('disconnected')) play_disconnect();
         else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {

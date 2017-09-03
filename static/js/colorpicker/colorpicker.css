@@ -4,6 +4,7 @@
     border-radius: 4px;
     display: inline-block;
     margin: 8px 8px;
+    cursor: pointer;
 }
 
 .selected-color {

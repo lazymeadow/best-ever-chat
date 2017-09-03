@@ -66,9 +66,13 @@ div.login {
 	right: @elementPadding;
 	width: @rightBarWidth;
 	overflow-y: auto;
+
 	div {
 		padding: @elementPadding;
 		i {
+			&:not(.typing) {
+				padding-right: 5px;
+			}
 			&.typing {
 				float: right;
 				opacity: 0.55;
@@ -129,6 +133,21 @@ div.login {
 	bottom: @chatBarHeight;
 	right: @rightBarWidth;
 	left: @elementPadding;
+	.chat-message {
+		display: flex;
+
+		& .time {
+			flex: 0 0 auto;
+			padding-right: 5px;
+		}
+
+		& .message {
+			flex : 1 1 auto;
+			& strong {
+				vertical-align: top;
+			}
+		}
+	}
 }
 
 .right_bar {
@@ -436,6 +455,9 @@ img.emoji {
 
 #volume-button {
 	display: inline;
+	&:hover {
+		cursor: pointer;
+	}
 
 }
 
@@ -448,4 +470,8 @@ img.emoji {
 
 .text-danger {
 	color: #A31A1A;
+}
+
+.text-muted {
+	opacity: .5;
 }
