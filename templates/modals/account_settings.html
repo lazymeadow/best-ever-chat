@@ -1,0 +1,34 @@
+{% set modalName = 'accountSettings' %}
+
+<div id="{{ modalName }}" class="modal">
+    <button class="close" type="button" onclick="toggleModal('{{ modalName }}')">
+        <i class="fa fa-close"></i>
+    </button>
+    <span class="modal-title">Account Settings</span>
+    <div class="modal-content">
+        <form id="update-account" action="">
+            <div class="form-group">
+                <label for="email">Change email:</label>
+                <input type="email" name="email" id="email"
+                       placeholder="Email" value=" "/>
+            </div>
+            {{ xsrf_form_html() }}
+            <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none"/>
+            <div class="form-group">
+                <label for="new_password">Change password:</label>
+                <input type="password" name="new_password" id="new_password" autocomplete="off"/>
+            </div>
+            <div class="form-group">
+                <label for="new_password2">Confirm password:</label>
+                <input type="password" name="new_password2" id="new_password2"/>
+            </div>
+            <hr/>
+            <button class="modal-cancel" type="button" onclick="toggleModal('{{ modalName }}')">
+                Cancel
+            </button>
+            <button class="modal-submit" type="submit">
+                Save changes
+            </button>
+        </form>
+    </div>
+</div>
