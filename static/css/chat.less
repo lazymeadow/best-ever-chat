@@ -16,6 +16,7 @@
 @chatBarHeight: 45px;
 @rightBarWidth: 200px;
 @elementPadding: 5px;
+
 body {
 	background: @backgroundColor;
 	font: .9em 'Amiko', san-serif;
@@ -67,7 +68,7 @@ div.login {
 	overflow-y: auto;
 	div {
 		padding: @elementPadding;
-		i{
+		i {
 			&.typing {
 				float: right;
 				opacity: 0.55;
@@ -431,4 +432,20 @@ img.emoji {
 	width: 1.1em;
 	margin: 0 .05em 0 .1em;
 	vertical-align: -0.1em;
+}
+
+#volume-button {
+	display: inline;
+
+}
+
+#volume-slider {
+	width: 100px;
+	padding: 0;
+	margin: 0;
+	vertical-align: middle;
+}
+
+.text-danger {
+	color: #A31A1A;
 }

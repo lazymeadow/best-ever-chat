@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `parasite` (
   `id` varchar(128) NOT NULL,
   `password` varchar(64) NOT NULL,
   `color` varchar(7) DEFAULT NULL,
-  `sound` tinyint(4) DEFAULT NULL,
+  `sound` int DEFAULT NULL,
   `username` varchar(32) DEFAULT NULL,
   `isGuest` bit(1) DEFAULT NULL,
   `soundSet` varchar(3) DEFAULT NULL,

@@ -26,7 +26,8 @@ emoji = Emoji()
 client_version = 50
 update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
                  "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go" \
-                 "change your settings.</p>"
+                 "change your settings.</p>" \
+                 "<h3>You can also adjust the volume!</h3>"
 
 
 class ValidateHandler(BaseHandler):
@@ -217,7 +218,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if 'newSounds' in settings.keys():
             self.current_user.sound = settings['newSounds']
             self.broadcast_from_server(updating_participants,
-                                       'Sounds {}.'.format(self.current_user.sound and 'enabled' or 'disabled'),
+                                       'Volume set to {}.'.format(self.current_user.sound),
                                        message_type='update', data={'sounds': self.current_user.sound})
 
         if 'newSoundSet' in settings.keys():

@@ -19,7 +19,7 @@ class PageHandler(BaseHandler):
             self.set_cookie('username', str(self.current_user.username))
         if self.current_user.color is not None:
             self.set_cookie('color', str(self.current_user.color))
-        self.set_cookie('sounds', str(self.current_user.sound or 0))
+        self.set_cookie('sounds', str(self.current_user.sound or 100))
         if self.current_user.soundSet is not None:
             self.set_cookie('sound_set', str(self.current_user.soundSet))
         if self.current_user.email is not None:

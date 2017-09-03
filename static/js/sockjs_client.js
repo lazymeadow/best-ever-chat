@@ -65,7 +65,6 @@ $(document).ready(function () {
 
     $('#email').val(Cookies.get('email'));
     $('input:radio[name=faction]').filter('[value={}]'.replace('{}', Cookies.get('faction'))).prop('checked', true);
-    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds')));
 
     colorPicker = bestColorPicker($('#color'));
 
@@ -192,7 +191,10 @@ function connect() {
                                 showUsername();
                             }
                             if (updateKey === 'sounds') {
-                                toggleSounds();
+                                $('#volume-slider').val(Cookies.get('sounds'));
+                            }
+                            if (updateKey === 'color') {
+                                colorPicker.setColor(Cookies.get('color'));
                             }
                             if (updateKey === 'sound_set') {
                                 chooseSoundSet();
@@ -215,13 +217,12 @@ function connect() {
                 }
             }
             if (type === 'history') {
-                sounds_setting = JSON.parse(Cookies.get('sounds'));
-                Cookies.set('sounds', false);
+                $('audio').each(function (_, element) { element.muted = true; });
                 for (var message in data) {
                     if (data.hasOwnProperty(message))
                         print_message(data[message], true);
                 }
-                Cookies.set('sounds', sounds_setting);
+                $('audio').each(function (_, element) { element.muted = false; });
             }
             if (type === 'chatMessage') {
                 print_message(data);
@@ -304,18 +305,6 @@ function setUsername() {
     if (username_cookie)
         $("#set_name").val(username_cookie);
 
-    var color_cookie = Cookies.get("color");
-    if (color_cookie) {
-        colorPicker.setColor(color_cookie);
-    }
-
-    if (!Cookies.get('sounds')) {
-        $("#sounds_toggle").prop("checked", false);
-    }
-    else {
-        $("#sounds_toggle").prop("checked", JSON.parse(Cookies.get('sounds')));
-    }
-
     toggleModal('userStats');
 }
 
@@ -378,8 +367,8 @@ var updateSettings = {
         if (colorPicker.val() !== color) {
             data.newColor = $("#color").val();
         }
-        var sounds = $('#toggle-sound').is(':checked');
-        if (sounds !== JSON.parse(Cookies.get('sounds'))) {
+        var sounds = $('#volume-slider').val();
+        if (sounds !== Cookies.get('sounds')) {
             data.newSounds = sounds;
         }
         var soundSet = $('input[name="sounds-radios"]:checked').val();
@@ -407,7 +396,7 @@ var updateSettings = {
             newPassword2.val('');
         }
 
-        if (data.newUser || data.newEmail || data.newFaction || data.newColor || data.newSoundSet || data.newSounds !== undefined) {
+        if (data.newUser || data.newEmail || data.newFaction || data.newColor || data.newSoundSet || data.newSounds) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',

@@ -1,15 +1,64 @@
 // sounds
-var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
+var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound, unmute_volume;
+
+
+function toggleMute() {
+    var btn = $('#volume-button');
+    var audio_elements = $('audio');
+    var volume_slider = $('#volume-slider');
+    if (audio_elements[0].muted) {
+        volume_slider.val(unmute_volume);
+        audio_elements.each(function (_, element) {
+            element.muted = false;
+        });
+        if (volume_slider.val() > 33)
+            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
+        else
+            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    }
+    else {
+        unmute_volume = volume_slider.val();
+        volume_slider.val(0);
+        audio_elements.each(function (_, element) {
+            element.muted = true;
+        });
+        btn.find('span').html('<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>');
+    }
+}
+
+function setSoundVolume(value) {
+    if (value == 0) {
+        toggleMute();
+    }
+    else {
+        $('audio').each(function (_, element) {
+            element.muted = false;
+            element.volume = value / 100;
+        });
+
+        var btn = $('#volume-button');
+        if (value > 33)
+            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
+        else
+            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    }
+}
 
 // functions
 $(document).ready(function () {
-    $('#toggle-sound')
-    .on('change', function (event) {
-        $('input:radio[name=sounds-radios]').prop('disabled', !$(this).prop("checked"));
+    $('#volume-slider').change(function (event) {
+        setSoundVolume(event.target.value);
+        play_activate();
     });
-    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds'))).change();
 
-    $('input:radio[name=sounds-radios]').prop('disabled', !$('#toggle-sound').prop("checked"));
+    $('#volume-button').click(function () {
+        toggleMute();
+        if (!$('audio')[0].muted)
+            play_activate();
+    });
+
+    $('#volume-slider').val(Cookies.get('sounds'));
+
     if (Cookies.get("sound_set") === undefined) {
         Cookies.set("sound_set", 'AIM');
     }
@@ -31,12 +80,6 @@ $(document).ready(function () {
 function chooseSoundSet() {
     $('input:radio[name=sounds-radios]').filter('[value={}]'.replace('{}', Cookies.get('sound_set'))).prop('checked', true);
     update_audio_tags();
-    play_activate();
-}
-
-function toggleSounds() {
-    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds')));
-    $('input:radio[name=sounds-radios]').prop('disabled', !$('#toggle-sound').prop("checked"));
     play_activate();
 }
 
