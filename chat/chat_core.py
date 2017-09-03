@@ -25,7 +25,7 @@ emoji = Emoji()
 
 client_version = 50
 update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
-                 "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go" \
+                 "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go " \
                  "change your settings.</p>" \
                  "<h3>You can also adjust the volume!</h3>"
 
