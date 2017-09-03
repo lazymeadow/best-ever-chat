@@ -21,7 +21,7 @@ USE `bestchat`;
 -- Table structure for table `parasite`
 --
 
-# DROP TABLE IF EXISTS `parasite`;
+DROP TABLE IF EXISTS `parasite`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `parasite` (
