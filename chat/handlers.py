@@ -24,6 +24,8 @@ class PageHandler(BaseHandler):
             self.set_cookie('sound_set', str(self.current_user.soundSet))
         if self.current_user.email is not None:
             self.set_cookie('email', str(self.current_user.email))
+        if self.current_user.faction is not None:
+            self.set_cookie('faction', str(self.current_user.faction))
         self.render2('index.html', emoji_list=self.settings['emojis'])
 
 

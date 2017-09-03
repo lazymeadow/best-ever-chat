@@ -1,14 +1,15 @@
-client_version = 49;
+var client_version = 50;
 
-var sock;
-var colorpicker;
+var sock, colorPicker;
 
 var timeout = null;
+var idleTimeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
 var window_focus = document.hasFocus();
 
 $(document).ready(function () {
+    // initial hiding of elements
     $('#emoji-list').hide();
     $('#menu').hide();
     $('#userStats').hide();
@@ -16,21 +17,57 @@ $(document).ready(function () {
     $('#imageInput').hide();
     $('#information').hide();
     $('#overlay').hide();
+
+    // set idle listeners
+    function resetIdleTimeout() {
+        window.clearTimeout(idleTimeout);
+        if (sock) {
+            sock.send(JSON.stringify({
+                'type': 'userStatus',
+                'user': Cookies.get('username'),
+                'status': {
+                    'idle': false
+                }
+            }));
+        }
+        idleTimeout = window.setTimeout(function () {
+            if (sock) {
+                sock.send(JSON.stringify({
+                    'type': 'userStatus',
+                    'user': Cookies.get('username'),
+                    'status': {
+                        'idle': true
+                    }
+                }));
+            }
+        }, 15 * 60 * 1000);  // fifteen minutes
+    }
+
+    $(document).mouseenter(resetIdleTimeout)
+        .scroll(resetIdleTimeout)
+        .keydown(resetIdleTimeout)
+        .click(resetIdleTimeout)
+        .dblclick(resetIdleTimeout);
+
     // page stuff
     $(window).focus(function () {
         numMessages = 0;
         window.document.title = "Best evar chat!";
         window_focus = true;
+
         $('#chat_text').focus();
         $("#favicon").attr("href", "/static/favicon.png");
+
+        resetIdleTimeout();
     }).blur(function () {
         window_focus = false;
     });
 
     $('#email').val(Cookies.get('email'));
-    Cookies.remove('email');
+    $('input:radio[name=faction]').filter('[value={}]'.replace('{}', Cookies.get('faction'))).prop('checked', true);
+    $('#toggle-sound').prop("checked", JSON.parse(Cookies.get('sounds')));
 
-    colorpicker = bestColorPicker($('#color'));
+    colorPicker = bestColorPicker($('#color'));
 
     $('#update-user').validate(updateSettings);
 
@@ -40,7 +77,8 @@ $(document).ready(function () {
 });
 
 function addEmoji(emoji) {
-    $('#chat_text').val($('#chat_text').val() + emoji);
+    var chatText = $('#chat_text');
+    chatText.val(chatText.val() + emoji);
 }
 
 function showImageInput() {
@@ -48,14 +86,15 @@ function showImageInput() {
 }
 
 function imageChat() {
-    if ($('#img_url').val()) {
+    var imgUrl = $('#img_url');
+    if (imgUrl.val()) {
         toggleModal('imageInput');
         sock.send(JSON.stringify({
             'type': 'imageMessage',
             'user': Cookies.get('username'),
-            'url': $('#img_url').val()
+            'url': imgUrl.val()
         }));
-        $('#img_url').val('');
+        imgUrl.val('');
         $('#chat_text').focus();
     }
 }
@@ -95,15 +134,16 @@ function submitChat(event) {
         }
     }
     if (event.keyCode === 13) {
+        var chatText = $('#chat_text');
         updateTypingStatus(false);
         sock.send(JSON.stringify({
             'type': 'chatMessage',
             'user': Cookies.get('username'),
-            'message': $('#chat_text').val()
+            'message': chatText.val()
         }));
-        Cookies.set('last_message', $('#chat_text').val());
-        $('#chat_text').val('');
-        $('#chat_text').focus();
+        Cookies.set('last_message', chatText.val());
+        chatText.val('');
+        chatText.focus();
     }
 }
 
@@ -139,11 +179,15 @@ function connect() {
             if (type === 'update') {
                 for (var updateKey in data.data) {
                     if (data.data.hasOwnProperty(updateKey)) {
-                        if (updateKey === 'email') {
-                            $('#email').val(data.data[updateKey]);
-                        }
-                        else if (Cookies.get(updateKey) !== data.data[updateKey]) {
+                        if (Cookies.get(updateKey) !== data.data[updateKey]) {
                             Cookies.set(updateKey, data.data[updateKey]);
+                            if (updateKey === 'email') {
+                                $('#email').val(data.data[updateKey]);
+                            }
+                            if (updateKey === 'faction') {
+                                $('input:radio[name=faction]').filter('[value={}]'.replace('{}',
+                                    Cookies.get('faction'))).prop('checked', true);
+                            }
                             if (updateKey === 'username') {
                                 showUsername();
                             }
@@ -164,7 +208,7 @@ function connect() {
             if (type === 'versionUpdate') {
                 Cookies.remove('info_read');
             }
-            if (type == 'information') {
+            if (type === 'information') {
                 if (!Cookies.get('info_read')) {
                     $('#information_content').html(data.message);
                     toggleModal('information');
@@ -174,7 +218,8 @@ function connect() {
                 sounds_setting = JSON.parse(Cookies.get('sounds'));
                 Cookies.set('sounds', false);
                 for (var message in data) {
-                    print_message(data[message], true);
+                    if (data.hasOwnProperty(message))
+                        print_message(data[message], true);
                 }
                 Cookies.set('sounds', sounds_setting);
             }
@@ -238,13 +283,19 @@ function reconnect() {
 }
 
 function updateUserList(newList) {
-    $('#user_list').empty();
+    var userList = $('#user_list');
+    userList.empty();
     for (var user in newList) {
-        var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
-        if (newList[user]['typing']) {
-            userDiv.append($('<i>').addClass('fa fa-fw fa-commenting-o'));
+        if (newList.hasOwnProperty(user)) {
+            var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
+            if (newList[user]['typing']) {
+                userDiv.append($('<i>').addClass('typing fa fa-fw fa-commenting-o'));
+            }
+            var activeIcon = $('<i>').addClass('fa fa-fw').addClass('fa-' + newList[user].faction);
+            activeIcon.addClass(newList[user]['idle'] ? 'idle' : 'active');
+            userDiv.prepend(activeIcon);
+            userList.append(userDiv);
         }
-        $('#user_list').append(userDiv);
     }
 }
 
@@ -255,7 +306,7 @@ function setUsername() {
 
     var color_cookie = Cookies.get("color");
     if (color_cookie) {
-        colorpicker.setColor(color_cookie);
+        colorPicker.setColor(color_cookie);
     }
 
     if (!Cookies.get('sounds')) {
@@ -305,6 +356,9 @@ var updateSettings = {
         },
         new_password2: {
             equalTo: '#new_password'
+        },
+        email: {
+            required: false
         }
     },
     messages: {
@@ -315,12 +369,13 @@ var updateSettings = {
     submitHandler: function () {
         var username = Cookies.get("username");
         var data = {};
-        if ($("#set_name").val() !== '' && $("#set_name").val() !== username) {
-            data.newUser = $('#set_name').val();
+        var setName = $("#set_name");
+        if (setName.val() !== '' && setName.val() !== username) {
+            data.newUser = setName.val();
             data.oldUser = Cookies.get('username');
         }
         var color = Cookies.get("color");
-        if (colorpicker.val() !== color) {
+        if (colorPicker.val() !== color) {
             data.newColor = $("#color").val();
         }
         var sounds = $('#toggle-sound').is(':checked');
@@ -331,24 +386,28 @@ var updateSettings = {
         if (soundSet !== Cookies.get('sound_set')) {
             data.newSoundSet = soundSet;
         }
+        var faction = $('input[name="faction"]:checked').val();
+        if (faction !== Cookies.get('faction')) {
+            data.newFaction = faction;
+        }
         var email = $('#email').val();
-        if (email != '') {
+        if (email !== '' && email !== Cookies.get('email')) {
             data.newEmail = email;
         }
 
-        var newPassword = $("#new_password").val();
-        var newPassword2 = $("#new_password2").val();
-        if (newPassword !== '' && newPassword === newPassword2) {
+        var newPassword = $("#new_password");
+        var newPassword2 = $("#new_password2");
+        if (newPassword.val() !== '' && newPassword.val() === newPassword2.val()) {
             sock.send(JSON.stringify({
                 'type': 'password_change',
-                'data': [newPassword, newPassword],
+                'data': [newPassword.val(), newPassword.val()],
                 'user': username
             }));
-            $("#new_password").val('');
-            $("#new_password2").val('');
+            newPassword.val('');
+            newPassword2.val('');
         }
 
-        if (data.newUser || data.newColor || data.newSoundSet || data.newSounds !== undefined) {
+        if (data.newUser || data.newEmail || data.newFaction || data.newColor || data.newSoundSet || data.newSounds !== undefined) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',
@@ -356,7 +415,7 @@ var updateSettings = {
                 'user': username
             }));
         }
-        else if (!newPassword) {
+        else {
             print_message({
                 user: "Client",
                 message: "No changes made",
@@ -372,11 +431,20 @@ var updateSettings = {
 var numMessages = 0;
 
 function print_private_message(msg) {
-    var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+    var chatLog = $('#log');
+
+    var date = $('<em />').addClass('text-muted')
+        .text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
     var salutation = '[message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + '] ';
-    var message = $('<span/>').append($('<em/>').append($('<strong/>').text(salutation)).append($('<span/>').html(msg.message))).addClass('private-message');
-    $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
-    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    var message = $('<span />')
+        .append($('<em />')
+            .append($('<strong />').text(salutation))
+            .append($('<span />').html(msg.message)))
+        .addClass('private-message');
+    chatLog.append($('<div />')
+        .append(date)
+        .append(message).html() + '<br />');
+    chatLog.scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === Cookies.get('username')) {
         play_send();
     }
@@ -391,8 +459,9 @@ function print_private_message(msg) {
 }
 
 function print_message(msg, ignoreCount) {
-    var date = $('<em/>').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    var message = $('<span/>').append($('<strong/>').text('<' + msg.user + '> ')).append($('<span/>').html(msg.message));
+    var chatLog = $('#log');
+    var date = $('<em />').addClass('text-muted').text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
+    var message = $('<span />').append($('<strong />').text('<' + msg.user + '> ')).append($('<span />').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
@@ -401,8 +470,8 @@ function print_message(msg, ignoreCount) {
     if (msg.user === 'Client') {
         message.addClass('client-message');
     }
-    $('#log').append($('<div/>').append(date).append(message).html() + '<br>');
-    $('#log').scrollTop(document.getElementById('log').scrollHeight);
+    chatLog.append($('<div />').append(date).append(message).html() + '<br />');
+    chatLog.scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === 'Server') {
         if (msg.message.includes('disconnected')) play_disconnect();
         else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {

@@ -23,8 +23,10 @@ history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 emoji = Emoji()
 
-client_version = 49
-update_message = "<h3>You can change your password! It's about time.</h3>"
+client_version = 50
+update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
+                 "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go" \
+                 "change your settings.</p>"
 
 
 class ValidateHandler(BaseHandler):
@@ -49,6 +51,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     current_user = None
     previous_tell = None
     reply_to = None
+    idle = False
     http_server = None
 
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
@@ -58,7 +61,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if parasite is None:
             self.send_auth_fail()
             return False
-        self.current_user = self.http_server.db.get("SELECT * FROM parasite WHERE id = %s", parasite)
+        self.current_user = self.http_server.db.get(
+            "SELECT id, password, username, color, sound, soundSet, email, faction FROM parasite WHERE id = %s",
+            parasite)
         if not self.current_user:
             self.current_user = {}
 
@@ -72,6 +77,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                        self.username + ' has connected')
             users[self.username] = {'color': self.current_user.color or '',
                                     'typing': False,
+                                    'idle': self.idle,
+                                    'faction': self.current_user.faction,
                                     'real_name': self.current_user.id}
 
         self.broadcast_user_list()
@@ -90,7 +97,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_chat_message(json_message['user'], json_message['message'])
         if json_message['type'] == 'version':
             if json_message['client_version'] < client_version:
-                self.send_from_server('Your client is out of date. Refresh your page, you twit.')
+                self.send_from_server('Your client is out of date. You\'d better refresh your page!')
                 self.send({'type': 'versionUpdate'})
             if json_message['client_version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
@@ -205,15 +212,19 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     def update_user_settings(self, settings):
         updating_participants = [x for x in self.participants if x.current_user.id == self.current_user.id]
 
+        should_broadcast_users = False
+
         if 'newSounds' in settings.keys():
             self.current_user.sound = settings['newSounds']
             self.broadcast_from_server(updating_participants,
                                        'Sounds {}.'.format(self.current_user.sound and 'enabled' or 'disabled'),
                                        message_type='update', data={'sounds': self.current_user.sound})
+
         if 'newSoundSet' in settings.keys():
             self.current_user.soundSet = settings['newSoundSet']
             self.broadcast_from_server(updating_participants, '{} sounds chosen.'.format(self.current_user.soundSet),
                                        message_type='update', data={'sound_set': self.current_user.soundSet})
+
         if 'newColor' in settings.keys():
             self.current_user.color = settings['newColor']
             users[self.username]['color'] = settings['newColor']
@@ -225,6 +236,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_from_server(updating_participants, 'Email updated to {}.'.format(self.current_user.email),
                                        message_type='update',
                                        data={'email': self.current_user.email})
+
+        if 'newFaction' in settings.keys():
+            self.current_user.faction = settings['newFaction']
+            users[self.username]['faction'] = settings['newFaction']
+            self.broadcast_from_server(updating_participants,
+                                       'Faction changed to {}.'.format(self.current_user.faction),
+                                       message_type='update', data={'faction': self.current_user.faction})
+            should_broadcast_users = True
 
         if 'newUser' in settings.keys() and 'oldUser' in settings.keys():
             user = settings['oldUser']
@@ -243,17 +262,37 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                            user + " is now " + self.username)
                 self.broadcast_from_server(updating_participants, "Name changed.", message_type='update',
                                            data={'username': self.username})
-                self.broadcast_user_list()
+                should_broadcast_users = True
 
-        self.http_server.db.execute('UPDATE parasite SET color=%s, username=%s, sound=%s, soundSet=%s, email=%s WHERE id=%s',
-                               self.current_user.color, self.current_user.username, self.current_user.sound,
-                               self.current_user.soundSet, self.current_user.email, self.current_user.id)
+        if should_broadcast_users:
+            self.broadcast_user_list()
+
+        self.http_server.db.execute(
+            'UPDATE parasite SET color=%s, username=%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s',
+            self.current_user.color, self.current_user.username, self.current_user.sound,
+            self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user.id)
 
     def update_user_status(self, user, json_status):
         if user != self.username or not json_status:
             return
 
-        if 'typing' in json_status:
+        if 'idle' in json_status:
+            idleStatus = json_status['idle']
+            # get all user participants
+            updating_participants = [x for x in self.participants if x.current_user.id == self.current_user.id]
+            if idleStatus:
+                self.idle = True  # set before check
+                # if all participants are idle, set idle and broadcast user list
+                if reduce(lambda x, y: x.idle or y.idle, updating_participants):
+                    users[self.username]['idle'] = True
+                    self.broadcast_user_list()
+            else:
+                # if all participants are idle, set active and broadcast user list
+                if reduce(lambda x, y: x.idle or y.idle, updating_participants):
+                    users[self.username]['idle'] = False
+                    self.broadcast_user_list()
+                self.idle = False  # set after check
+        elif 'typing' in json_status:
             if 'currentMessage' in json_status and json_status['currentMessage']:
                 typing_status = json_status['currentMessage'][0] != '/'
             else:
@@ -276,7 +315,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             bcrypt.gensalt())
         if self.current_user.password != hashed_password:
             self.http_server.db.execute("UPDATE parasite SET password = %s WHERE id = %s", hashed_password,
-                                   self.current_user.id)
+                                        self.current_user.id)
 
         self.broadcast_from_server(updating_participants, 'PASSWORD CHANGED! I hope that\'s what you wanted.')
 

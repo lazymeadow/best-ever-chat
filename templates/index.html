@@ -114,6 +114,17 @@
                     <input type="email" name="email" id="email"
                            placeholder="Email" value=" "/>
                 </div>
+                <div class="form-group">
+                    <label>Faction:</label>
+                     <input type="radio" name="faction" id="rebelFaction" value="rebel" checked>
+                    <label for="rebelFaction">
+                        Rebel Alliance
+                    </label>
+                    <input type="radio" name="faction" id="empireFaction" value="empire">
+                    <label for="empireFaction">
+                        Galactic Empire
+                    </label>
+                </div>
                 {{ xsrf_form_html() }}
                 <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none" />
                 <div class="form-group">

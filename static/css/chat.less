@@ -67,9 +67,17 @@ div.login {
 	overflow-y: auto;
 	div {
 		padding: @elementPadding;
-		i {
-			opacity: 0.55;
-			float: right;
+		i{
+			&.typing {
+				float: right;
+				opacity: 0.55;
+			}
+			&.active {
+				color: #57a848;
+			}
+			&.idle {
+				opacity: .25;
+			}
 		}
 	}
 }
