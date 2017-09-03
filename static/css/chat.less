@@ -109,18 +109,6 @@ div.login {
 	}
 }
 
-.client-message {
-	color: @clientColor;
-}
-
-.server-message {
-	color: @serverColor;
-}
-
-.private-message {
-	color: @privateMessageColor;
-}
-
 #log {
 	position: fixed;
 	background: @lightest;
@@ -142,11 +130,24 @@ div.login {
 		}
 
 		& .message {
-			flex : 1 1 auto;
+			flex: 1 1 auto;
 			& strong {
 				vertical-align: top;
 			}
+			&.client-message {
+				color: @clientColor;
+			}
+
+			&.server-message {
+				color: @serverColor;
+			}
+
+			&.private-message {
+				font-style: italic;
+				color: @privateMessageColor;
+			}
 		}
+
 	}
 }
 

@@ -422,18 +422,14 @@ var numMessages = 0;
 
 function print_private_message(msg) {
     var chatLog = $('#log');
+    var messageContainer = $('<div>').addClass('chat-message');
+    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
+    var salutation = 'message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + ': ';
+    var message = $('<div>').addClass('message private-message')
+        .append($('<strong />').text(salutation))
+        .append($('<span />').html(msg.message));
 
-    var date = $('<em />').addClass('text-muted')
-        .text(moment.unix(msg.time).format("MM/DD/YY HH:mm:ss "));
-    var salutation = '[message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + '] ';
-    var message = $('<span />')
-        .append($('<em />')
-            .append($('<strong />').text(salutation))
-            .append($('<span />').html(msg.message)))
-        .addClass('private-message');
-    chatLog.append($('<div />')
-        .append(date)
-        .append(message).html() + '<br />');
+    chatLog.append(messageContainer.append(date).append(message));
     chatLog.scrollTop(document.getElementById('log').scrollHeight);
     if (msg.user === Cookies.get('username')) {
         play_send();
@@ -452,7 +448,7 @@ function print_message(msg, ignoreCount) {
     var chatLog = $('#log');
     var messageContainer = $('<div>').addClass('chat-message');
     var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
-    var message = $('<div>').addClass('message').append($('<strong />').text(msg.user + ' : ')).append($('<span />').html(msg.message));
+    var message = $('<div>').addClass('message').append($('<strong />').text(msg.user + ': ')).append($('<span />').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
     if (msg.user === 'Server') {
