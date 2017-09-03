@@ -386,7 +386,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         #                                        'You have been added to \'{}\''.format(room_name))
         #     print self.username
         elif command == 'tell' or command == 't':
-            user, _, message = command_args.partition(' ')
+            matching_users = [item for item in users.keys() if command_args.startswith(item)]
+            user = max(matching_users)
+
+            message = command_args.replace(user, '')
+
             if user == '':
                 self.send_from_server('Who do you want to private message?<table><tr>' +
                                       '<td>/tell &lt;username&gt;</td>' +
