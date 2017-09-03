@@ -1,0 +1,18 @@
+<div class="modal" id="imageInput">
+    <button class="close" type="button" onclick="toggleModal('imageInput')">
+        <i class="fa fa-close"></i>
+    </button>
+    <span class="modal-title">Enter URL:</span>
+    <div class="modal-content">
+        <div class="modal-body">
+            <input type="url" id="img_url"/>
+        </div>
+        <hr/>
+        <button type="button" class="modal-submit" onclick="imageChat()">
+            Send
+        </button>
+        <button class="modal-cancel" type="button" onclick="toggleModal('imageInput')">
+            Cancel
+        </button>
+    </div>
+</div>

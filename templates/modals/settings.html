@@ -1,0 +1,71 @@
+<div id="userStats" class="modal">
+    <button class="close" type="button" onclick="toggleModal('userStats')">
+        <i class="fa fa-close"></i>
+    </button>
+    <span class="modal-title">User preferences</span>
+    <div class="modal-content">
+        <form id="update-user" action="">
+            <div class="form-group">
+                <label>Sound:</label>
+                <div class="form-element">
+                    <div title="Volume" id="volume-button">
+                                <span class="fa-stack fa">
+                                    <i class="fa fa-volume-up fa-stack-2x"></i>
+                                </span>
+                    </div>
+                    <input id="volume-slider" type="range" title="volume"/>
+                    <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
+                    <label for="aimSounds">
+                        AIM
+                    </label>
+                    <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
+                    <label for="msnSounds">
+                        MSN
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="set_name">Display name:</label>
+                <input type="text" name="set_name" id="set_name"
+                       placeholder="Username"/>
+            </div>
+            <div class="form-group">
+                <label for="color">Color:</label>
+                <div name="color" id="color"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Change email:</label>
+                <input type="email" name="email" id="email"
+                       placeholder="Email" value=" "/>
+            </div>
+            <div class="form-group">
+                <label>Faction:</label>
+                <input type="radio" name="faction" id="rebelFaction" value="rebel" checked>
+                <label for="rebelFaction">
+                    Rebel Alliance
+                </label>
+                <input type="radio" name="faction" id="empireFaction" value="empire">
+                <label for="empireFaction">
+                    Galactic Empire
+                </label>
+            </div>
+            {{ xsrf_form_html() }}
+            <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none"/>
+            <div class="form-group">
+                <label for="new_password">Change password:</label>
+                <input type="password" name="new_password" id="new_password" autocomplete="off"/>
+            </div>
+            <div class="form-group">
+                <label for="new_password2">Confirm password:</label>
+                <input type="password" name="new_password2" id="new_password2"/>
+            </div>
+            <hr/>
+            <button class="modal-cancel" type="button" onclick="toggleModal('userStats')">
+                Cancel
+            </button>
+            <button class="modal-submit" type="submit">
+                Save changes
+            </button>
+        </form>
+    </div>
+</div>
