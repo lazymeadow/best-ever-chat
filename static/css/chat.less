@@ -132,6 +132,13 @@ div.login {
 		padding: @elementPadding;
 	}
 
+	i {
+		cursor: pointer;
+		color: @lightest;
+		line-height: @tabHeight;
+		padding: 0 @elementPadding;
+	}
+
 	.tab {
 		flex: 0 0 auto;
 		background: @lightButtonColor;
@@ -141,10 +148,12 @@ div.login {
 		border-top-left-radius: 3px;
 		border-top-right-radius: 3px;
 		line-height: @tabHeight;
+
 		&.active {
 			background: @lightest;
 			border-color: @lightBackgroundColor;
 		}
+
 		&:not(.active):hover {
 			cursor: pointer;
 			background: @buttonHoverColor;
