@@ -5,6 +5,7 @@
 @privateMessageColor: #567f8c;
 
 @dark: #4A4A4A;
+@bodyColor: #222222;
 @lightButtonColor: #C6E2EB;
 @overlayColor: fade(@dark, 75%);
 @borderColor: @dark;
@@ -21,6 +22,7 @@
 body {
 	background: @backgroundColor;
 	font: .9em 'Amiko', san-serif;
+	color: @bodyColor;
 }
 
 div.login {
@@ -124,6 +126,12 @@ div.login {
 	align-items: stretch;
 	height: @tabHeight;
 
+	#add-room {
+		color: @lightest;
+		cursor: pointer;
+		padding: @elementPadding;
+	}
+
 	.tab {
 		flex: 0 0 auto;
 		background: @lightButtonColor;
@@ -216,8 +224,12 @@ div.login {
 		display: block;
 		padding: 10px;
 
-		&:hover {
+		&:not(.disabled):hover {
 			background: @lightButtonColor;
+		}
+		&.disabled {
+			color: lighten(@bodyColor, 45%);
+			cursor: default;
 		}
 	}
 	& > span:nth-of-type(odd) {

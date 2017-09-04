@@ -16,6 +16,7 @@ $(document).ready(function () {
     $('#menu').hide();
     $('#userSettings').hide();
     $('#accountSettings').hide();
+    $('#newRoom').hide();
     $('#connectError').hide();
     $('#imageInput').hide();
     $('#information').hide();
@@ -451,7 +452,11 @@ function setActiveTab(event) {
     $(event.target).addClass('active');
     $('#log').empty();
     print_message_history(active_room);
-    updateUserList(rooms[active_room].users)
+    updateUserList(rooms[active_room].users);
+    if (rooms[active_room]['owner_id'] === Cookies.get('id'))
+        $('#room-settings-menu').removeClass('disabled');
+    else
+        $('#room-settings-menu').addClass('disabled');
 }
 
 function print_message_history(room) {

@@ -109,6 +109,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.update_user_status(json_message['user'], json_message['status'])
         if json_message['type'] == 'password_change':
             self.change_user_password(json_message['user'], json_message['data'])
+        if json_message['type'] == 'newRoom':
+            self.create_room(json_message['user'], json_message['data'])
 
     def on_close(self):
         # Remove client from the clients list and broadcast leave message
@@ -431,14 +433,42 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         else:
             self.send_from_server('Invalid command \'{}\''.format(command))
 
-    def send_room_information(self):
-        current_rooms = []
-        for room in self.joined_rooms:
-            room_data = rooms[room].copy()
+    def send_room_information(self, room_id=None):
+        if room_id is not None:
+            room_data = rooms[room_id].copy()
             room_data.pop('participants')
             room_data['history'] = list(room_data['history'])
-            current_rooms.append(room_data)
-        self.send({'type': 'room_data', 'data': current_rooms})
+            self.send({'type': 'room_data', 'data': [room_data]})
+        else:
+            current_rooms = []
+            for room in self.joined_rooms:
+                room_data = rooms[room].copy()
+                room_data.pop('participants')
+                room_data['history'] = list(room_data['history'])
+                current_rooms.append(room_data)
+            self.send({'type': 'room_data', 'data': current_rooms})
+
+    def create_room(self, user, room_data):
+        if user != self.username:
+            return
+        # create room in db
+        room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner_id) VALUES (%s, %s)", room_data['name'],
+                                             self.current_user.id)
+        # add room to owner user
+        self.http_server.db.execute("INSERT INTO in_rooms (room_id, parasite_id) VALUES (%s, %s)", room_id,
+                                    self.current_user.id)
+        self.joined_rooms.append(room_id)
+        # add room to list
+        rooms[room_id] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room_id)
+        rooms[room_id]['participants'] = set()
+        rooms[room_id]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
+        rooms[room_id]['owner'] = self.username
+        # set user in room
+        rooms[room_id]['participants'].add(self)
+
+        # broadcast room information to owner
+        self.send_room_information(room_id=room_id)
+        self.send_from_server("Created room {}.".format(room_data['name']))
 
 
 chat_router = sockjs.tornado.SockJSRouter(MultiRoomChatConnection, '/chat', {
