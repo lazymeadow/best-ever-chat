@@ -8,8 +8,8 @@ import string
 import tornado.web
 import torndb
 
-from chat.chat_core import ValidateHandler, chat_router
-from chat.handlers import AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
+from chat.chat_core import chat_router
+from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
 from emoji.emoji_curation import curated_emojis
 

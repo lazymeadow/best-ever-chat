@@ -1,3 +1,4 @@
+import json
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
@@ -6,6 +7,7 @@ import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
 
+from chat.chat_core import users
 from chat.custom_render import BaseHandler, executor
 
 
@@ -21,6 +23,19 @@ class PageHandler(BaseHandler):
         self.set_cookie('email', self.current_user.email or '')
         self.set_cookie('faction', self.current_user.faction or 'rebel')
         self.render2('index.html', emoji_list=self.settings['emojis'])
+
+
+class ValidateHandler(BaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        new_name = self.get_argument('set_name', default=None, strip=True)
+        if new_name is None or new_name == '':
+            self.write(json.dumps(False))
+            return
+        if new_name == self.get_argument('username', default=None, strip=True):
+            self.write(json.dumps(True))
+            return
+        self.write(json.dumps(new_name not in users.keys()))
 
 
 class AuthCreateHandler(BaseHandler):

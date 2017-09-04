@@ -1,4 +1,4 @@
-var client_version = 50;
+var client_version = '2.0';
 
 var sock, colorPicker;
 
@@ -7,6 +7,8 @@ var idleTimeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
 var window_focus = document.hasFocus();
+var rooms = {};
+var active_room = 0;
 
 $(document).ready(function () {
     // initial hiding of elements
@@ -91,7 +93,8 @@ function imageChat() {
         sock.send(JSON.stringify({
             'type': 'imageMessage',
             'user': Cookies.get('username'),
-            'url': imgUrl.val()
+            'url': imgUrl.val(),
+            'room': active_room
         }));
         imgUrl.val('');
         $('#chat_text').focus();
@@ -138,7 +141,8 @@ function submitChat(event) {
         sock.send(JSON.stringify({
             'type': 'chatMessage',
             'user': Cookies.get('username'),
-            'message': chatText.val()
+            'message': chatText.val(),
+            'room': active_room
         }));
         Cookies.set('last_message', chatText.val());
         chatText.val('');
@@ -205,7 +209,12 @@ function connect() {
                 print_message(data);
             }
             if (type === 'userList') {
-                updateUserList(data);
+                var room_num = data.room;
+                if (rooms.hasOwnProperty(room_num)) {
+                    rooms[room_num].users = data.users;
+                    if (room_num === active_room)
+                        updateUserList(data.users);
+                }
             }
             if (type === 'versionUpdate') {
                 Cookies.remove('info_read');
@@ -216,18 +225,40 @@ function connect() {
                     toggleModal('information');
                 }
             }
-            if (type === 'history') {
-                $('audio').each(function (_, element) { element.muted = true; });
-                for (var message in data) {
-                    if (data.hasOwnProperty(message))
-                        print_message(data[message], true);
+            if (type === 'room_data') {
+                for (var i = 0; i < data.length; i++) {
+                    var room = data[i];
+                    var newTab = $('<div>').addClass('tab').text(room['name'])
+                        .prop('id', 'room_' + room['id'])
+                        .prop('room_id', room['id'])
+                        .click(setActiveTab);
+                    $('.tabs').append(newTab);
+                    rooms[room['id']] = room;
                 }
-                $('audio').each(function (_, element) { element.muted = false; });
+                $('#room_0').click();
             }
             if (type === 'chatMessage') {
-                print_message(data);
+                var roomNum = data.room;
+                if (roomNum === null) {
+                    for (var key in rooms) {
+                        rooms[key].history.push(data);
+                    }
+                    print_message(data);
+                }
+                else {
+                    if (rooms.hasOwnProperty(roomNum)) {
+                        rooms[roomNum].history.push(data);
+                        if (roomNum === active_room) {
+                            print_message(data);
+                        }
+                    }
+                }
             }
             if (type === 'privateMessage') {
+                data.type = 'privateMessage';
+                for (var id in rooms) {
+                    rooms[id].history.push(data);
+                }
                 print_private_message(data);
             }
             twemoji.parse(document.body, {
@@ -286,6 +317,7 @@ function reconnect() {
 function updateUserList(newList) {
     var userList = $('#user_list');
     userList.empty();
+
     for (var user in newList) {
         if (newList.hasOwnProperty(user)) {
             var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
@@ -410,4 +442,34 @@ function toggleModal(modalId) {
         modal.show();
         $('#overlay').show();
     }
+}
+
+function setActiveTab(event) {
+    active_room = event.target.room_id;
+    console.log('setting ' + active_room + ' to active');
+    $('.tab.active').removeClass('active');
+    $(event.target).addClass('active');
+    $('#log').empty();
+    print_message_history(active_room);
+    updateUserList(rooms[active_room].users)
+}
+
+function print_message_history(room) {
+    var history = rooms[room].history;
+    $('audio').each(function (_, element) {
+        element.muted = true;
+    });
+    for (var message in history) {
+        if (history.hasOwnProperty(message)) {
+            if (history[message].type === 'privateMessage') {
+                print_private_message(history[message]);
+            }
+            else {
+                print_message(history[message], true);
+            }
+        }
+    }
+    $('audio').each(function (_, element) {
+        element.muted = false;
+    });
 }
