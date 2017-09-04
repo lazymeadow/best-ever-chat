@@ -1,6 +1,7 @@
 $(document).ready(function () {
     $('#update-user').validate(userSettings);
     $('#update-account').validate(accountSettings);
+    $('#create-room').validate(newRoomSettings);
 });
 
 var userSettings = {
@@ -128,5 +129,25 @@ var accountSettings = {
         }
 
         toggleModal('accountSettings');
+    }
+};
+
+var newRoomSettings = {
+    rules: {
+        name: {
+            required: true,
+            minlength: 3
+        }
+    },
+    submitHandler: function () {
+        var data = {};
+        data.name = $('#name').val();
+
+        sock.send(JSON.stringify({
+            'type': 'newRoom',
+            'data': data,
+            'user': Cookies.get('username')
+        }));
+        toggleModal('newRoom');
     }
 };
