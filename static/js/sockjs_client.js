@@ -240,7 +240,7 @@ function connect() {
                         .prop('id', 'room_' + room['id'])
                         .prop('room_id', room['id'])
                         .click(setActiveTab);
-                    $('.tabs').append(newTab);
+                    $('#create-room-button').before(newTab);
                     rooms[room['id']] = room;
                 }
                 $('#room_0').click();

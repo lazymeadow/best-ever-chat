@@ -25,6 +25,7 @@
     </div>
 
     <div class="tabs">
+        <i class="fa fa-fw fa-plus" id="create-room-button" onclick="toggleModal('newRoom')"></i>
     </div>
 
     <div id="log"></div>
@@ -92,6 +93,8 @@
         {% include 'modals/image_input.html' %}
 
         {% include 'modals/information.html' %}
+
+        {% include 'modals/new_room_modal.html' %}
     </div>
 
 
