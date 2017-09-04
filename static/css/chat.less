@@ -13,6 +13,7 @@
 @lightest: #FCFCFC;
 @buttonHoverColor: darken(@lightButtonColor, 15%);
 @headerHeight: 30px;
+@tabHeight: 25px;
 @chatBarHeight: 45px;
 @rightBarWidth: 200px;
 @elementPadding: 5px;
@@ -60,11 +61,11 @@ div.login {
 	border-left: @lightBackgroundColor 1px solid;
 	border-radius: 0 3px 3px 0;
 	background: @lightest;
-	top: @headerHeight;
+	top: @headerHeight + @elementPadding + @tabHeight;
 	position: fixed;
-	margin: @elementPadding 0;
+	margin: 0 0 @elementPadding 0;
 	right: @elementPadding;
-	width: @rightBarWidth;
+	width: @rightBarWidth - 1px; // for border
 	overflow-y: auto;
 
 	div {
@@ -84,11 +85,11 @@ div.login {
 				opacity: .25;
 			}
 		}
+		&:nth-of-type(odd) {
+			background: darken(@lightest, 5%);
+		}
 	}
-}
 
-#user_list > div:nth-of-type(odd) {
-	background: darken(@lightest, 5%);
 }
 
 .header {
@@ -114,17 +115,46 @@ div.login {
 	}
 }
 
+.tabs {
+	position: fixed;
+	top: @headerHeight;
+	padding: 0;
+	margin: @elementPadding 0 0;
+	display: flex;
+	align-items: stretch;
+	height: @tabHeight;
+
+	.tab {
+		flex: 0 0 auto;
+		background: @lightButtonColor;
+		padding: 0 @elementPadding;
+		border: solid 1px @borderColor;
+		margin: 0 -1px 0 0 ;
+		border-top-left-radius: 3px;
+		border-top-right-radius: 3px;
+		line-height: @tabHeight;
+		&.active {
+			background: @lightest;
+			border-color: @lightBackgroundColor;
+		}
+		&:not(.active):hover {
+			cursor: pointer;
+			background: @buttonHoverColor;
+		}
+	}
+}
+
 #log {
 	position: fixed;
 	background: @lightest;
 	overflow-y: auto;
 	border: none 1px @borderColor;
 	border-radius: 3px 0 0 3px;
-	margin: @elementPadding 0;
+	margin: 0 0 @elementPadding 0;
 	padding: @elementPadding;
-	top: @headerHeight;
+	top: @headerHeight + @elementPadding  + @tabHeight;
 	bottom: @chatBarHeight;
-	right: @rightBarWidth;
+	right: @rightBarWidth + @elementPadding;
 	left: @elementPadding;
 	.chat-message {
 		display: flex;
@@ -162,7 +192,7 @@ div.login {
 
 .right_bar {
 	position: fixed;
-	top: 0;
+	top: @headerHeight + @elementPadding + @tabHeight;
 	right: @elementPadding;
 	bottom: @chatBarHeight;
 	width: @rightBarWidth;
