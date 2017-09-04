@@ -241,6 +241,11 @@ function connect() {
                         .prop('id', 'room_' + room['id'])
                         .prop('room_id', room['id'])
                         .click(setActiveTab);
+                    if (room['id'] > 0) {
+                        newTab.append($('<i>').addClass('fa fa-fw fa-times')
+                            .prop('room_id', room['id'])
+                            .click(removeTab));
+                    }
                     $('#create-room-button').before(newTab);
                     rooms[room['id']] = room;
                 }
@@ -463,7 +468,6 @@ function toggleModal(modalId) {
 
 function setActiveTab(event) {
     active_room = event.target.room_id;
-    console.log('setting ' + active_room + ' to active');
     $('.tab.active').removeClass('active');
     $(event.target).addClass('active');
     $('#log').empty();
@@ -473,6 +477,20 @@ function setActiveTab(event) {
         $('#room-settings-menu').removeClass('disabled');
     else
         $('#room-settings-menu').addClass('disabled');
+}
+
+function removeTab(event) {
+    var room_id = event.target.room_id;
+    if (active_room === room_id) {
+        setActiveTab(0);
+    }
+    $('#room_' + room_id).remove();
+
+    sock.send(JSON.stringify({
+        'type': 'leaveRoom',
+        'data': room_id,
+        'user': Cookies.get('username')
+    }));
 }
 
 function print_message_history(room) {
