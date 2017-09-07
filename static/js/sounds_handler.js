@@ -46,7 +46,8 @@ function setSoundVolume(value) {
 
 // functions
 $(document).ready(function () {
-    $('#volume-slider').change(function (event) {
+    var volumeSlider = $('#volume-slider');
+    volumeSlider.change(function (event) {
         setSoundVolume(event.target.value);
         play_activate();
     });
@@ -57,7 +58,7 @@ $(document).ready(function () {
             play_activate();
     });
 
-    $('#volume-slider').val(Cookies.get('sounds'));
+    volumeSlider.val(Cookies.get('sounds'));
 
     if (Cookies.get("sound_set") === undefined) {
         Cookies.set("sound_set", 'AIM');
@@ -75,6 +76,8 @@ $(document).ready(function () {
     activate_sound = $('<audio>').attr('type', 'audio/mpeg');
     $('body').append(activate_sound);
     update_audio_tags();
+
+    setSoundVolume(volumeSlider.val());
 });
 
 function chooseSoundSet() {
