@@ -203,7 +203,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         new_message = {'user': user,
                        'color': users[user]['color'],
-                       'message': "<a href=\"{}\" target=\"_blank\"><img src=\"{}\" width=\"300px\" /></a>".format(
+                       'message': "<a href=\"{}\" target=\"_blank\"><img src=\"{}\" /></a>".format(
                            xhtml_escape(image_url), xhtml_escape(image_src_url)),
                        'time': time.time()}
         history.append(new_message)

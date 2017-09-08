@@ -7,6 +7,7 @@ var idleTimeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
 var window_focus = document.hasFocus();
+var autoScroll = true;
 
 $(document).ready(function () {
     // initial hiding of elements
@@ -61,6 +62,13 @@ $(document).ready(function () {
         resetIdleTimeout();
     }).blur(function () {
         window_focus = false;
+    });
+
+    $('#log').scroll(function (event) {
+        var log = $(event.target);
+        var scrollThreshold = 100;  // approximately five lines
+        autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
+        console.log(autoScroll, log[0].scrollHeight);
     });
 
     $('#email').val(Cookies.get('email'));
@@ -218,12 +226,16 @@ function connect() {
                 }
             }
             if (type === 'history') {
-                $('audio').each(function (_, element) { element.muted = true; });
+                $('audio').each(function (_, element) {
+                    element.muted = true;
+                });
                 for (var message in data) {
                     if (data.hasOwnProperty(message))
                         print_message(data[message], true);
                 }
-                $('audio').each(function (_, element) { element.muted = false; });
+                $('audio').each(function (_, element) {
+                    element.muted = false;
+                });
             }
             if (type === 'chatMessage') {
                 print_message(data);
@@ -430,7 +442,11 @@ function print_private_message(msg) {
         .append($('<span />').html(msg.message));
 
     chatLog.append(messageContainer.append(date).append(message));
-    chatLog.scrollTop(document.getElementById('log').scrollHeight);
+    messageContainer.imagesLoaded(function () {
+        if (autoScroll) {
+            chatLog.scrollTop(document.getElementById('log').scrollHeight);
+        }
+    });
     if (msg.user === Cookies.get('username')) {
         play_send();
     }
@@ -458,7 +474,11 @@ function print_message(msg, ignoreCount) {
         message.addClass('client-message');
     }
     chatLog.append(messageContainer.append(date).append(message));
-    chatLog.scrollTop(chatLog[0].scrollHeight);
+    messageContainer.imagesLoaded(function () {
+        if (autoScroll) {
+            chatLog.scrollTop(chatLog[0].scrollHeight);
+        }
+    });
     if (msg.user === 'Server') {
         if (msg.message.includes('disconnected')) play_disconnect();
         else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {
