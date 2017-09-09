@@ -23,6 +23,7 @@ MAX_DEQUE_LENGTH = 75
 history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 emoji = Emoji()
+profamity_filter = ProfamityFilter()
 
 client_version = 50
 update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
