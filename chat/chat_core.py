@@ -299,7 +299,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                'message': message_text,
                                'time': time.time(),
                 'room': room_id}
-                rooms[room_id]['history'].append(new_message)
+                        rooms[room_id]['history'].append(new_message)
                 self.broadcast(self.participants, {'type': 'chatMessage',
                                            'data': new_message})
 
