@@ -1,15 +1,14 @@
 import json
 import time
 from collections import deque
+from datetime import timedelta
 
 import bcrypt
 import sockjs.tornado
 import tornado.web
 from boto3 import resource
-from datetime import timedelta
-from requests import get
 from tornado import gen, ioloop
-from tornado.escape import to_unicode, linkify, xhtml_escape
+from tornado.escape import xhtml_escape
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor
@@ -50,7 +49,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
-    def on_open(self):
+    def on_open(self, info):
         """
         Fires on initial connection. Add user to list and appropriate rooms, then broadcast connection.
         :return:
@@ -298,10 +297,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                'color': users[user]['color'],
                                'message': message_text,
                                'time': time.time(),
-                'room': room_id}
-                        rooms[room_id]['history'].append(new_message)
+                               'room': room_id}
+                rooms[room_id]['history'].append(new_message)
                 self.broadcast(self.participants, {'type': 'chatMessage',
-                                           'data': new_message})
+                                                   'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id):
         image_src_url = retrieve_image_in_s3(image_url, self.bucket)
