@@ -36,19 +36,6 @@ update_message = "<h3>Stop spamming</h3>" \
                  "<h3>Also some of the ascii emojis actually work now.</h3>"
 
 
-class ValidateHandler(BaseHandler):
-    @tornado.web.authenticated
-    def post(self):
-        new_name = self.get_argument('set_name', default=None, strip=True)
-        if new_name is None or new_name == '':
-            self.write(json.dumps(False))
-            return
-        if new_name == self.get_argument('username', default=None, strip=True):
-            self.write(json.dumps(True))
-            return
-        self.write(json.dumps(new_name not in users.keys()))
-
-
 class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     """Chat connection implementation"""
     # Class level variable
