@@ -78,8 +78,6 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 rooms[room]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
             rooms[room]['participants'].add(self)
 
-        self.send_room_information()
-
         def spam_callback():
             self.messageCount = 0
 
@@ -95,13 +93,17 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     'typing': {},
                                     'idle': self.idle,
                                     'faction': self.current_user['faction'],
-                                    'real_name': self.current_user['id']}
+                                    'real_name': self.current_user['id'],
+                                    'private_history': deque(maxlen=MAX_DEQUE_LENGTH)}
             for room in self.joined_rooms:
                 users[self.username]['typing'][room] = False
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
                                        self.username + ' has connected', rooms=self.joined_rooms)
             self.broadcast_user_list()
+
+        # wait until after user is initialized to send room data
+        self.send_room_information()
 
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
 
@@ -120,27 +122,27 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.parse_command(json_message)
             else:
                 self.broadcast_chat_message(json_message['user'], json_message['message'], json_message['room'])
-        if json_message['type'] == 'version':
+        elif json_message['type'] == 'version':
             if json_message['client_version'] < client_version:
                 self.send_from_server('Your client is out of date. You\'d better refresh your page!')
                 self.send({'type': 'versionUpdate'})
-            if json_message['client_version'] > client_version:
+            elif json_message['client_version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
-        if json_message['type'] == 'imageMessage':
+        elif json_message['type'] == 'imageMessage':
             self.broadcast_image(json_message['user'], json_message['url'], json_message['room'])
-        if json_message['type'] == 'userSettings':
+        elif json_message['type'] == 'userSettings':
             self.update_user_settings(json_message['settings'])
-        if json_message['type'] == 'userStatus':
+        elif json_message['type'] == 'userStatus':
             self.update_user_status(json_message['user'], json_message['status'])
-        if json_message['type'] == 'password_change':
+        elif json_message['type'] == 'password_change':
             self.change_user_password(json_message['user'], json_message['data'])
-        if json_message['type'] == 'newRoom':
+        elif json_message['type'] == 'newRoom':
             self.create_room(json_message['user'], json_message['data'])
-        if json_message['type'] == 'joinRoom':
+        elif json_message['type'] == 'joinRoom':
             self.join_room(json_message['user'], json_message['data'])
-        if json_message['type'] == 'leaveRoom':
+        elif json_message['type'] == 'leaveRoom':
             self.leave_room(json_message['user'], json_message['data'])
-        if json_message['type'] == 'deleteRoom':
+        elif json_message['type'] == 'deleteRoom':
             self.delete_room(json_message['user'], json_message['data'])
 
     def on_close(self):
@@ -223,6 +225,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             for user_key in map(lambda x: x.username, room_participants):
                 room_users[user_key] = users[user_key].copy()
                 room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
+                room_users[user_key].pop('private_history')
             self.broadcast(room_participants, {'type': 'userList', 'data': {'users': room_users, 'room': room_id}})
         else:
             for room in self.joined_rooms:
@@ -232,20 +235,24 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 for user_key in map(lambda x: x.username, room_participants):
                     room_users[user_key] = users[user_key].copy()
                     room_users[user_key]['typing'] = users[user_key]['typing'][room]
+                    room_users[user_key].pop('private_history')
                 self.broadcast(self.participants, {'type': 'userList', 'data': {'users': room_users, 'room': room}})
 
-    def broadcast_private_message(self, sender, recipient, message):
-        # TODO make private messages persistent
-        sender_participants = get_matching_participants(self.participants, sender)
+    def broadcast_private_message(self, recipient, recipient_username, message):
+        sender_participants = get_matching_participants(self.participants, self.current_user['id'])
         recipient_participants = get_matching_participants(self.participants, recipient)
         for participant in recipient_participants:
-            participant.reply_to = sender
+            participant.reply_to = self.current_user['id']
         recipients = sender_participants + recipient_participants
-        new_message = {'type': 'privateMessage', 'data': {'sender': sender_participants[0].username,
-                                                          'recipient': recipient_participants[0].username,
-                                                          'message': message,
-                                                          'time': time.time()}}
-        self.broadcast(recipients, new_message)
+
+        new_message = {'sender': sender_participants[0].username,
+                       'recipient': recipient_participants[0].username,
+                       'message': message,
+                       'time': time.time()}
+        self.broadcast(recipients, {'type': 'privateMessage', 'data': new_message})
+        new_message['type'] = 'privateMessage'
+        users[recipient_username]['private_history'].append(new_message)
+        users[self.username]['private_history'].append(new_message)
 
     def spammy_check_callback(self):
         # decerement limit counter
@@ -370,8 +377,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
                 self.broadcast_from_server(self.participants.difference(self_set),
                                            user + " is now " + self.username, rooms=self.joined_rooms)
-                self.broadcast_from_server(updating_participants, "Name changed.", message_type='update',
-                                           data={'username': self.username})
+                self.broadcast_from_server(updating_participants, "Name changed to {}.".format(self.username),
+                                           message_type='update', data={'username': self.username})
                 should_broadcast_users = True
 
         if should_broadcast_users:
@@ -461,32 +468,28 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                   '</table>')
         elif command == 'tell' or command == 't':
             matching_users = [item for item in users.keys() if command_args.startswith(item)]
-            user = max(matching_users)
+            user = None
+            if len(matching_users) > 0:
+                user = max(matching_users)
+                message = command_args.replace(user, '')
 
-            message = command_args.replace(user, '')
-
-            if user == '':
-                self.send_from_server('Who do you want to private message?<table><tr>' +
-                                      '<td>/tell &lt;username&gt;</td>' +
-                                      '<td>/t &lt;username&gt;</td>' +
-                                      '</tr></table>')
-            elif user in users.keys():
+            if user in users.keys():
                 self_participants = get_matching_participants(self.participants, self.username, 'username')
                 for participant in self_participants:
                     participant.previous_tell = users[user]['real_name']
-                self.broadcast_private_message(self.current_user['id'],
-                                               self.previous_tell,
+                self.broadcast_private_message(self.previous_tell,
+                                               user,
                                                message)
             else:
-                self.send_from_server('{} is not connected to chat.'.format(user))
+                self.send_from_server('Unrecognized user. Are they online?')
         elif command == 'retell' or command == 'rt':
             if self.previous_tell is not None:
                 previous_tell_users = [x for x in users if users[x]['real_name'] == self.previous_tell]
                 if len(previous_tell_users) == 0:
                     self.send_from_server('{} is not connected to chat.'.format(previous_tell_users[0]))
                 else:
-                    self.broadcast_private_message(self.current_user['id'],
-                                                   self.previous_tell,
+                    self.broadcast_private_message(self.previous_tell,
+                                                   previous_tell_users[0],
                                                    command_args)
             else:
                 self.send_from_server('You cannot retell if you have not sent a tell.')
@@ -497,8 +500,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 if len(reply_users) == 0:
                     self.send_from_server('{} is not connected to chat.'.format(reply_users[0]))
                 else:
-                    self.broadcast_private_message(self.current_user['id'],
-                                                   self.reply_to,
+                    self.broadcast_private_message(self.reply_to,
+                                                   reply_users[0],
                                                    command_args)
             else:
                 self.send_from_server('You cannot reply if you have not received a tell.')
@@ -509,14 +512,17 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if room_id is not None:
             room_data = rooms[room_id].copy()
             room_data.pop('participants')
-            room_data['history'] = list(room_data['history'])
+            room_data['history'] = sorted(list(room_data['history']) + list(users[self.username]['private_history']),
+                                          key=lambda x: x['time'])
             self.send({'type': 'room_data', 'data': [room_data]})
         else:
             current_rooms = []
             for room in self.joined_rooms:
                 room_data = rooms[room].copy()
                 room_data.pop('participants')
-                room_data['history'] = list(room_data['history'])
+                room_data['history'] = sorted(
+                    list(room_data['history']) + list(users[self.username]['private_history']),
+                    key=lambda x: x['time'])
                 current_rooms.append(room_data)
             self.send({'type': 'room_data', 'data': current_rooms})
 
@@ -544,7 +550,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.send_room_information(room_id=room_id)
         self.send_from_server("Created room {}.".format(room_data['name']))
 
-    def _room(self, param, param1):
+    def join_room(self, param, param1):
         pass
 
     def leave_room(self, user, room_id):

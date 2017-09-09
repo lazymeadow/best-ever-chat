@@ -179,11 +179,7 @@ function connect() {
             var data = e.data.data;
             // handle all the damn message types
             if (type === 'auth_fail') {
-                print_message(data);
-
-                window.setTimeout(function () {
-                    location.reload();
-                }, 500);
+                location.reload();
             }
             if (type === 'update') {
                 for (var updateKey in data.data) {
@@ -211,6 +207,11 @@ function connect() {
                             }
                         }
                     }
+                }
+
+                // update messages can go in all rooms
+                for (key in rooms) {
+                    rooms[key].history.push(data);
                 }
                 print_message(data);
             }
