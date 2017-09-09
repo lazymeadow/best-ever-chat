@@ -227,10 +227,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 # first linkify
                 message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
-                # last find shortcode emojis
-                message_text = emoji.shortcode_to_unicode(message_text)
                 # then find ascii emojis
                 message_text = emoji.ascii_to_unicode(message_text)
+                # last find shortcode emojis
+                message_text = emoji.shortcode_to_unicode(message_text)
 
                 new_message = {'user': user,
                                'color': users[user]['color'],
