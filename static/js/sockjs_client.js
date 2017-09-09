@@ -1,4 +1,4 @@
-var client_version = 50;
+var client_version = 51;
 
 var sock, colorPicker;
 

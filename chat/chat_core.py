@@ -24,11 +24,10 @@ history = deque(maxlen=MAX_DEQUE_LENGTH)
 
 emoji = Emoji()
 
-client_version = 50
-update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
-                 "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go " \
-                 "change your settings.</p>" \
-                 "<h3>You can also adjust the volume!</h3>"
+client_version = 51
+update_message = "<h3>Stop spamming</h3>" \
+                 "<p>If you send too many messages, you're going to be temporarily banned. And everyone will know it.</p>" \
+                 "<h3>Also some of the ascii emojis actually work now.</h3>"
 
 
 class ValidateHandler(BaseHandler):
