@@ -91,11 +91,13 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # Add client to the clients list
         self.participants.add(self)
         if self.username not in users.keys():
-            users[self.username] = {'color': self.current_user.color or '',
-                                    'typing': False,
+            users[self.username] = {'color': self.current_user['color'] or '',
+                                    'typing': {},
                                     'idle': self.idle,
-                                    'faction': self.current_user.faction,
+                                    'faction': self.current_user['faction'],
                                     'real_name': self.current_user['id']}
+            for room in self.joined_rooms:
+                users[self.username]['typing'][room] = False
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
                                        self.username + ' has connected', rooms=self.joined_rooms)
@@ -189,7 +191,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         :param message: display message to send
         :param message_type: type of message
         :param data: data to send with message
-        :param room_id: room to associate with message. igornied if rooms is defined
+        :param room_id: room to associate with message. ignored if rooms is defined
         :param rooms: rooms to associate message with. if defined, room_id is ignored
         """
         if rooms is not None:
@@ -219,7 +221,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             room_participants = rooms[room_id]['participants']
             room_users = {}
             for user_key in map(lambda x: x.username, room_participants):
-                room_users[user_key] = users[user_key]
+                room_users[user_key] = users[user_key].copy()
+                room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
             self.broadcast(room_participants, {'type': 'userList', 'data': {'users': room_users, 'room': room_id}})
         else:
             for room in self.joined_rooms:
@@ -227,7 +230,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 room_participants = rooms[room]['participants']
                 room_users = {}
                 for user_key in map(lambda x: x.username, room_participants):
-                    room_users[user_key] = users[user_key]
+                    room_users[user_key] = users[user_key].copy()
+                    room_users[user_key]['typing'] = users[user_key]['typing'][room]
                 self.broadcast(self.participants, {'type': 'userList', 'data': {'users': room_users, 'room': room}})
 
     def broadcast_private_message(self, sender, recipient, message):
@@ -364,7 +368,6 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
                 self_set = {self}
 
-                # TODO: broadcast in all rooms where user is located
                 self.broadcast_from_server(self.participants.difference(self_set),
                                            user + " is now " + self.username, rooms=self.joined_rooms)
                 self.broadcast_from_server(updating_participants, "Name changed.", message_type='update',
@@ -385,37 +388,38 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         if 'idle' in json_status:
             idleStatus = json_status['idle']
-            # get all user participants
-            updating_participants = get_matching_participants(self.participants, self.current_user['id'])
-            if idleStatus:
-                self.idle = True  # set before check
-                # if all participants are idle, set idle and broadcast user list
-                should_update = False
-                for participant in updating_participants:
-                    should_update = should_update or participant.idle
-                if should_update:
-                    users[self.username]['idle'] = True
-                    self.broadcast_user_list()
-            else:
-                # if all participants are idle, set active and broadcast user list
-                users[self.username]['idle'] = False
-                should_update = False
-                for participant in updating_participants:
-                    should_update = should_update or not participant.idle
+            if idleStatus != users[self.username]['idle']:
+                # get all user participants
+                updating_participants = get_matching_participants(self.participants, self.current_user['id'])
+                if idleStatus:
+                    self.idle = True  # set before check
+                    # if all participants are idle, set idle and broadcast user list
+                    should_update = True
+                    for participant in updating_participants:
+                        should_update = should_update and participant.idle
+                    if should_update:
+                        users[self.username]['idle'] = True
+                        self.broadcast_user_list()
+                else:
+                    # if all participants are idle, set active and broadcast user list
+                    should_update = True
+                    for participant in updating_participants:
+                        should_update = should_update and participant.idle
+                    if should_update:
+                        users[self.username]['idle'] = False
+                        self.broadcast_user_list()
+                    self.idle = False  # set after check
 
-                if should_update:
-                    self.broadcast_user_list()
-                self.idle = False  # set after check
         elif 'typing' in json_status:
+            room_id = json_status['room']
             if 'currentMessage' in json_status and json_status['currentMessage']:
                 typing_status = json_status['currentMessage'][0] != '/'
             else:
                 typing_status = json_status['typing']
 
-            if users[self.username]['typing'] is not typing_status:
-                users[self.username]['typing'] = typing_status
-                # TODO broadcast only to the room the user is typing in
-                self.broadcast_user_list()
+            if users[self.username]['typing'][room_id] is not typing_status:
+                users[self.username]['typing'][room_id] = typing_status
+                self.broadcast_user_list(room_id=room_id)
 
     @gen.coroutine
     def change_user_password(self, user, password_list):
@@ -534,6 +538,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         rooms[room_id]['owner'] = self.username
         # set user in room
         rooms[room_id]['participants'].update(get_matching_participants(self.participants, self.current_user['id']))
+        users[self.username]['typing'][room_id] = False
 
         # broadcast room information to owner
         self.send_room_information(room_id=room_id)

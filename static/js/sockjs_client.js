@@ -110,29 +110,26 @@ function imageChat() {
     }
 }
 
-var typingStatus, typingTimeout;
-
 function updateTypingStatus(newStatus) {
-    typingStatus = newStatus || $('#chat_text').val().length > 0;
-
-    if (!typingTimeout) {
-        sendTypingStatus();
-        typingTimeout = window.setTimeout(function () {
-            window.clearTimeout(typingTimeout);
-            typingTimeout = false;
-            if (typingStatus) {
-                updateTypingStatus();
-            }
-        }, 500);
-    }
-
-    function sendTypingStatus() {
+    if (newStatus === undefined) {
+        currentMessage = $('#chat_text').val();
         sock.send(JSON.stringify({
             'type': 'userStatus',
             'user': Cookies.get('username'),
             'status': {
-                'typing': typingStatus,
-                'currentMessage': $('#chat_text').val()
+                'typing': currentMessage.length > 0,
+                'currentMessage': currentMessage,
+                'room': active_room
+            }
+        }));
+    }
+    else {
+        sock.send(JSON.stringify({
+            'type': 'userStatus',
+            'user': Cookies.get('username'),
+            'status': {
+                'typing': newStatus,
+                'room': active_room
             }
         }));
     }
@@ -146,7 +143,6 @@ function submitChat(event) {
     }
     if (event.keyCode === 13) {
         var chatText = $('#chat_text');
-        updateTypingStatus(false);
         sock.send(JSON.stringify({
             'type': 'chatMessage',
             'user': Cookies.get('username'),
@@ -157,6 +153,7 @@ function submitChat(event) {
         chatText.val('');
         chatText.focus();
     }
+    updateTypingStatus();
 }
 
 function logout() {
@@ -222,7 +219,7 @@ function connect() {
                 if (rooms.hasOwnProperty(room_num)) {
                     rooms[room_num].users = data.users;
                     if (room_num === active_room)
-                        updateUserList(data.users);
+                        updateUserList();
                 }
             }
             if (type === 'versionUpdate') {
@@ -328,7 +325,8 @@ function reconnect() {
     });
 }
 
-function updateUserList(newList) {
+function updateUserList() {
+    var newList = rooms[active_room].users;
     var userList = $('#user_list');
     userList.empty();
 
@@ -467,7 +465,9 @@ function toggleModal(modalId) {
 }
 
 function setActiveTab(event) {
+    updateTypingStatus(false);  // set typing to false in current room
     active_room = event.target.room_id;
+    updateTypingStatus();  // updating to whatever typing status is current in new room
     $('.tab.active').removeClass('active');
     $(event.target).addClass('active');
     $('#log').empty();
@@ -477,6 +477,7 @@ function setActiveTab(event) {
         $('#room-settings-menu').removeClass('disabled');
     else
         $('#room-settings-menu').addClass('disabled');
+
 }
 
 function removeTab(event) {
