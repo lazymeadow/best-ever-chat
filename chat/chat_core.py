@@ -8,10 +8,11 @@ import bcrypt
 import sockjs.tornado
 import tornado.web
 from boto3 import resource
+from datetime import timedelta
 from requests import get
-from tornado import gen
+from tornado import gen, ioloop
 from tornado.escape import to_unicode, linkify, xhtml_escape
-from tornado.ioloop import IOLoop
+from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor, BaseHandler
 from emoji.emojipy import Emoji
@@ -54,6 +55,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     reply_to = None
     idle = False
     http_server = None
+    limited = False
+    messageCount = 0
+    spammy_timeout = None
 
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
@@ -69,6 +73,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.current_user = {}
 
         self.username = self.current_user.username
+
+        def spam_callback():
+            self.messageCount = 0
+
+        PeriodicCallback(
+            spam_callback,
+            1000
+        ).start()
 
         # Add client to the clients list
         self.participants.add(self)
@@ -165,21 +177,69 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                           'time': time.time()}}
         self.broadcast(recipients, new_message)
 
-    def broadcast_chat_message(self, user, message):
-        # first linkify
-        message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
-        # last find shortcode emojis
-        message_text = emoji.shortcode_to_unicode(message_text)
-        # then find ascii emojis
-        message_text = emoji.ascii_to_unicode(message_text)
+    def spammy_check_callback(self):
+        # decerement limit counter
+        self.limited -= 1
+        # check if 0 - set to false and send update
+        if self.limited == 0:
+            self.limited = False
+            self.send_from_server('You can send messages again.')
+        # else if 5, 3, 2, 1 then send update
+        else:
+            if self.limited <= 3:
+                self.send_from_server('{} seconds before you can speak!'.format(self.limited))
+            ioloop.IOLoop.instance().add_timeout(
+                timedelta(seconds=1),
+                self.spammy_check_callback
+            )
 
-        new_message = {'user': user,
-                       'color': users[user]['color'],
-                       'message': message_text,
-                       'time': time.time()}
-        history.append(new_message)
-        self.broadcast(self.participants, {'type': 'chatMessage',
-                                           'data': new_message})
+    def clear_spammy_warning_callback(self):
+        self.spammy_timeout = None
+
+    def you_are_spammy(self):
+        # reset the message count every second.
+        self.limited = 10
+        # unlimit the user in 3 seconds.
+        ioloop.IOLoop.instance().add_timeout(
+            timedelta(seconds=1),
+            self.spammy_check_callback
+        )
+        self.send_from_server('Wow, you are sending messages way too fast. Slow down, turbo.')
+        self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
+        self.spammy_timeout = ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1),
+                                                                   self.clear_spammy_warning_callback)
+
+    def broadcast_chat_message(self, user, message):
+        if self.limited:
+            if not self.spammy_timeout:
+                self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
+                self.spammy_timeout = ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1),
+                                                                           self.clear_spammy_warning_callback)
+        else:
+            self.messageCount += 1
+            if self.messageCount > 5:
+                self.you_are_spammy()
+                spammy_participants = [x for x in self.participants if
+                                       x.current_user.id == self.current_user['id'] and x != self]
+                self.broadcast_from_server(self.participants.difference(spammy_participants + [self]),
+                                           "{} has been blocked for spamming!!".format(self.username))
+                for participant in spammy_participants:
+                    participant.you_are_spammy()
+            else:
+                # first linkify
+                message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
+                # last find shortcode emojis
+                message_text = emoji.shortcode_to_unicode(message_text)
+                # then find ascii emojis
+                message_text = emoji.ascii_to_unicode(message_text)
+
+                new_message = {'user': user,
+                               'color': users[user]['color'],
+                               'message': message_text,
+                               'time': time.time()}
+                history.append(new_message)
+                self.broadcast(self.participants, {'type': 'chatMessage',
+                                                   'data': new_message})
 
     def broadcast_image(self, user, image_url):
         s3_key = 'images/' + sha256(image_url).hexdigest()
