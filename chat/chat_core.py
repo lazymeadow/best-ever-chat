@@ -205,9 +205,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.spammy_check_callback
         )
         self.send_from_server('Wow, you are sending messages way too fast. Slow down, turbo.')
-        self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
-        self.spammy_timeout = ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1),
-                                                                   self.clear_spammy_warning_callback)
+        if not self.spammy_timeout:
+            self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
+            self.spammy_timeout = ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1),
+                                                                       self.clear_spammy_warning_callback)
 
     def broadcast_chat_message(self, user, message):
         if self.limited:
@@ -218,10 +219,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         else:
             self.messageCount += 1
             if self.messageCount > 5:
-                self.you_are_spammy()
-                spammy_participants = [x for x in self.participants if
-                                       x.current_user.id == self.current_user['id'] and x != self]
-                self.broadcast_from_server(self.participants.difference(spammy_participants + [self]),
+                spammy_participants = [x for x in self.participants if x.current_user.id == self.current_user['id']]
+                self.broadcast_from_server(self.participants.difference(spammy_participants),
                                            "{} has been blocked for spamming!!".format(self.username))
                 for participant in spammy_participants:
                     participant.you_are_spammy()
