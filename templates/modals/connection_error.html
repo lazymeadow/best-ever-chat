@@ -1,11 +1,12 @@
 <div class="modal" id="connectError">
-    <button class="close" type="button" onclick="toggleModal('connectError')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">Connection Error</span>
+    <div class="modal-header">
+        <span class="modal-title">Connection Error</span>
+        <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
+    </div>
     <div class="modal-content">
         Error connecting to the server.
-        <hr/>
+    </div>
+    <div class="modal-footer">
         <button type="button" class="modal-submit" onclick="attempt_reconnect()">
             Retry
         </button>

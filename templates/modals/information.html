@@ -1,8 +1,8 @@
 <div class="modal" id="information">
-    <button class="close" type="button" onclick="toggleModal('information')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">Important Information</span>
+    <div class="modal-header">
+        <span class="modal-title">Important Information</span>
+        <i class="fa fa-close" onclick="dismissInformation()"></i>
+    </div>
     <div class="modal-content">
         <h3>Now you can see who's been idle for a while! It's like magic!!</h3>
         <p>
@@ -10,7 +10,8 @@
             go change your settings.
         </p>
         <h3>You can also adjust the volume!</h3>
-        <hr/>
+    </div>
+    <div class="modal-footer">
         <button type="button" class="modal-submit" onclick="dismissInformation()">
             That's pretty neat
         </button>

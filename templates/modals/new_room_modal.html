@@ -1,25 +1,26 @@
 {% set modalName = 'newRoom' %}
 
 <div id="{{ modalName }}" class="modal">
-    <button class="close" type="button" onclick="toggleModal('{{ modalName }}')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">Create Room</span>
-    <div class="modal-content">
-        <form id="create-room" action="">
+    <form id="create-room" action="">
+        <div class="modal-header">
+            <span class="modal-title">Create Room</span>
+            <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
+        </div>
+        <div class="modal-content">
             <div class="form-group">
                 <label for="name">Room name:</label>
                 <input type="text" name="name" id="name"
                        placeholder="Room name"/>
             </div>
+        </div>
+        <div class="modal-footer">
             {{ xsrf_form_html() }}
-            <hr/>
             <button class="modal-cancel" type="button" onclick="toggleModal('{{ modalName }}')">
                 Cancel
             </button>
             <button class="modal-submit" type="submit">
                 Submit
             </button>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>

@@ -1,12 +1,12 @@
 {% set modalName = 'userSettings' %}
 
 <div id="{{ modalName }}" class="modal">
-    <button class="close" type="button" onclick="toggleModal('{{ modalName }}')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">User preferences</span>
-    <div class="modal-content">
-        <form id="update-user" action="">
+    <form id="update-user" action="">
+        <div class="modal-header">
+            <span class="modal-title">User preferences</span>
+            <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
+        </div>
+        <div class="modal-content">
             <div class="form-group">
                 <label for="set_name">Display name:</label>
                 <input type="text" name="set_name" id="set_name"
@@ -47,13 +47,14 @@
                 </label>
             </div>
             {{ xsrf_form_html() }}
-            <hr/>
+        </div>
+        <div class="modal-footer">
             <button class="modal-cancel" type="button" onclick="toggleModal('{{ modalName }}')">
                 Cancel
             </button>
             <button class="modal-submit" type="submit">
                 Save changes
             </button>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>

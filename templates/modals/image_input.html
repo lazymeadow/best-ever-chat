@@ -1,13 +1,14 @@
 <div class="modal" id="imageInput">
-    <button class="close" type="button" onclick="toggleModal('imageInput')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">Enter URL:</span>
+    <div class="modal-header">
+        <span class="modal-title">Enter URL:</span>
+        <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
+    </div>
     <div class="modal-content">
         <div class="modal-body">
             <input type="url" id="img_url"/>
         </div>
-        <hr/>
+    </div>
+    <div class="modal-footer">
         <button type="button" class="modal-submit" onclick="imageChat()">
             Send
         </button>
