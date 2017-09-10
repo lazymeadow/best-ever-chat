@@ -1,3 +1,8 @@
+.colorpicker {
+    /*eight squares with margins*/
+    width: 328px;
+}
+
 .color-block {
     width: 25px;
     height: 25px;

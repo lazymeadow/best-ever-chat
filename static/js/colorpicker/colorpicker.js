@@ -4,19 +4,20 @@ function bestColorPicker(element) {
         '#555555',
         '#ff5555',
         '#ee7733',
-        '#44cc44',
+        '#0fba0f',
+        '#10b1c9',
         '#5555ff',
-        '#aa77cc',
-        '#ffabbc',
+        '#bc84e0',
+        '#f27e95',
         '#775634',
         '#991111',
         '#aa3300',
         '#118822',
-        '#111188',
-        '#663388'
+        '#186f7d',
+        '#18187d',
+        '#663388',
+        '#b51ba6'
     ];
-
-    var value = colors[0];
 
     colorpickerElement.setColor = function (color) {
         if ($.inArray(color, colors)) {
@@ -31,8 +32,10 @@ function bestColorPicker(element) {
         colorpickerElement.val($(event.target).attr('value'));
     };
 
-    for (var color in colors) {
-        var colorBlock = $('<span/>').addClass('color-block').css('background-color', colors[color]).click(colorpickerElement.selectColor).attr('value', colors[color]);
+    colorpickerElement.addClass('colorpicker');
+
+    for (var i=0; i < colors.length; i++) {
+        var colorBlock = $('<span/>').addClass('color-block').css('background-color', colors[i]).click(colorpickerElement.selectColor).attr('value', colors[i]);
         colorpickerElement.append(colorBlock);
     }
 
