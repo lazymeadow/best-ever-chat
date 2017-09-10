@@ -140,13 +140,13 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         elif json_message['type'] == 'password_change':
             self.change_user_password(json_message['user'], json_message['data'])
         elif json_message['type'] == 'newRoom':
-            self.create_room(json_message['user'], json_message['data'])
+            self.create_room(json_message['data'])
         elif json_message['type'] == 'joinRoom':
             self.join_room(json_message['user'], json_message['data'])
         elif json_message['type'] == 'leaveRoom':
-            self.leave_room(json_message['user'], json_message['data'])
+            self.leave_room(json_message['data'])
         elif json_message['type'] == 'deleteRoom':
-            self.delete_room(json_message['user'], json_message['data'])
+            self.delete_room(json_message['data'])
 
     def on_close(self):
         """
@@ -189,7 +189,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                        'time': time.time(),
                        'room': room_id}})
 
-    def broadcast_from_server(self, send_to, message, message_type='chatMessage', data=None, room_id=None, rooms=None):
+    def broadcast_from_server(self, send_to, message, message_type='chatMessage', data=None, room_id=None, rooms=None,
+                              save_history=False):
         """
         Broadcast a message to given participants.
         :param send_to: participants to receive broadcast message
@@ -221,6 +222,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         """
         Broadcasts user list. If room_id is specified, broadcast only to that room. Otherwise, broadcast user list to
         all participants that share a room with the current participant.
+        :param room_id: room to broadcast to
         """
         if room_id is not None:
             room_participants = rooms[room_id]['participants']
@@ -242,6 +244,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast(self.participants, {'type': 'userList', 'data': {'users': room_users, 'room': room}})
 
     def broadcast_private_message(self, recipient, recipient_username, message):
+        """
+        Broadcast private message to the appropriate users. The sender is the current user.
+        :param recipient: the recipient of the message
+        :param recipient_username: the recipient's username
+        :param message: the message to send
+        """
         sender_participants = get_matching_participants(self.participants, self.current_user['id'])
         recipient_participants = get_matching_participants(self.participants, recipient)
         for participant in recipient_participants:
@@ -258,6 +266,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         users[self.username]['private_history'].append(new_message)
 
     def spammy_check_callback(self):
+        """
+        Callback for count down to spam ban lifting.
+        """
         # decerement limit counter
         self.limited -= 1
         # check if 0 - set to false and send update
@@ -274,23 +285,36 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             )
 
     def clear_spammy_warning_callback(self):
+        """
+        Callback for limiting times a user can trigger a spam ban warning when trying to send a message.
+        """
         self.spammy_timeout = None
 
     def you_are_spammy(self):
-        # reset the message count every second.
+        """
+        Trigger the spam ban. The user cannot send messages for 10 seconds. The warning is sent to tell the user they
+        have 10 seconds before they can speak again.
+        """
         self.limited = 10
-        # unlimit the user in 3 seconds.
+        # reset the message count every second.
         ioloop.IOLoop.instance().add_timeout(
             timedelta(seconds=1),
             self.spammy_check_callback
         )
         self.send_from_server('Wow, you are sending messages way too fast. Slow down, turbo.')
-        if not self.spammy_timeout:
+        if not self.spammy_timeout:  # check in case the user has already triggered the warning
             self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
             self.spammy_timeout = ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1),
                                                                        self.clear_spammy_warning_callback)
 
     def broadcast_chat_message(self, user, message, room_id):
+        """
+        Broadcast chat message to all users in the specified room. Triggers the spam ban if the user is sending too many
+        messages too quickly.
+        :param user: user sending the message
+        :param message: message to be sent
+        :param room_id: room receiving the message
+        """
         if self.limited:
             if not self.spammy_timeout:
                 self.send_from_server('Wait {} seconds to speak.'.format(self.limited))
@@ -317,6 +341,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                    'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id):
+        """
+        Broadcast an image message to the given room. Stores the image in the s3 bucket, if available, setting the img
+        tag's src to the cache. If s3 is unavailable, the img src is the original url. Images are wrapping in an a tag
+        with the original url as the href.
+        :param user: user sending the message
+        :param image_url: url of the image
+        :param room_id: room receiving the message
+        """
         image_src_url = retrieve_image_in_s3(image_url, self.bucket)
 
         new_message = {'user': user,
@@ -330,6 +362,19 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                            'data': new_message})
 
     def update_user_settings(self, settings):
+        """
+        Update the user's settings (in the map and in the database) and broadcast updates appropriately.
+        Settings allowed:
+            newSounds -> sounds
+            newSoundSet -> soundSet
+            newColor -> color
+            newEmail -> email
+            newFaction -> faction
+            newUser -> username
+        newUser requires that oldUser be sent for validation checking. Validation failure will not change the setting.
+        Username changes are broadcast to all users in the appropriate rooms.
+        :param settings: map of settings to change.
+        """
         updating_participants = get_matching_participants(self.participants, self.current_user['id'])
 
         should_broadcast_users = False
@@ -393,6 +438,15 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user['id'])
 
     def update_user_status(self, user, json_status):
+        """
+`       Update the user's status and broadcast the change to all appropriate rooms.
+        Status changes available:
+            idle: boolean (global)
+            typing: {room: boolean} (per user's given room)
+        :param user: the user with the status change
+        :param json_status: status information
+        :return: for exiting when information is not available
+        """
         if user != self.username or not json_status:
             return
 
@@ -433,6 +487,13 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
     @gen.coroutine
     def change_user_password(self, user, password_list):
+        """
+        Update a user's password to the given value. Requires that the value be sent with a confirmation entry (two
+        identical values)
+        :param user: user with the password change
+        :param password_list: list containing password and confirmation
+        :return: for exiting if necessary information is not available
+        """
         if user != self.username or not password_list or len(password_list) != 2 or password_list[0] != password_list[
             1]:
             return
@@ -449,9 +510,18 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.broadcast_from_server(updating_participants, 'PASSWORD CHANGED! I hope that\'s what you wanted.')
 
     def parse_command(self, json_message):
+        """
+        Parse a command message (beginning with a '/') and do the appropriate action.
+        Available commands:
+            /t, /tell
+            /rt, /retell
+            /r, /reply
+            /h, /help
+        :param json_message: message to parse
+        """
         message = json_message['message']
         command, _, command_args = message[1:].partition(' ')
-        if command == 'help':
+        if command == 'help' or command == 'h':
             self.send_from_server('Okay, fine, this is what you can do:<table>' +
                                   '<tr>' +
                                   '<td>/tell &lt;username&gt;</td>' +
@@ -512,6 +582,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.send_from_server('Invalid command \'{}\''.format(command))
 
     def send_room_information(self, room_id=None):
+        """
+        Send room information to the current user. If room_id is specified, send only that room. Otherwise, send all
+        rooms the user is currently in.
+        :param room_id: room to send
+        """
         if room_id is not None:
             room_data = rooms[room_id].copy()
             room_data.pop('participants')
@@ -529,8 +604,15 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 current_rooms.append(room_data)
             self.send({'type': 'room_data', 'data': current_rooms})
 
-    def create_room(self, user, room_data):
-        if user != self.username or 'name' not in room_data.keys():
+    def create_room(self, room_data):
+        """
+        Create a new room in the chat. The current user will be the owner of the room.
+        Room settings available on creation:
+            name
+        :param room_data: initial room settings
+        :return: if necessary data is not provided
+        """
+        if 'name' not in room_data.keys():
             return
         # create room in db
         room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner_id) VALUES (%s, %s)", room_data['name'],
@@ -554,10 +636,21 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.send_from_server("Created room {}.".format(room_data['name']))
 
     def join_room(self, param, param1):
+        """
+        Join a room.
+        :param param:
+        :param param1:
+        """
         pass
 
-    def leave_room(self, user, room_id):
-        if user != self.username or room_id is None:
+    def leave_room(self, room_id):
+        """
+        Remove the current user from the given room. This does NOT delete the room, and does NOT revoke the user's
+        access to the room.
+        :param room_id: room to leave
+        :return: if room_id is not provided
+        """
+        if room_id is None:
             return
         self.http_server.db.execute("UPDATE room_access SET in_room=FALSE WHERE parasite_id=%s",
                                     self.current_user['id'])
@@ -569,12 +662,17 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # broadcast room information to members
         self.broadcast_from_server(rooms[room_id]['participants'], '{} has left the room.'.format(self.username),
                                    room_id=room_id)
-        self.broadcast_room_user_list(room_id)
+        self.broadcast_user_list(room_id=room_id)
 
         # broadcast leave confirmation to client
         self.send_from_server('You have left {}.'.format(rooms[room_id]['name']))
 
     def delete_room(self, param, param1):
+        """
+        Delete the room. Remove all current users from it, revoke access, and remove the room from all history.
+        :param param:
+        :param param1:
+        """
         pass
 
 
