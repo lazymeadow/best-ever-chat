@@ -82,6 +82,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             rooms[room]['participants'].add(self)
 
         def spam_callback():
+            """
+            Callback for resetting spam counter every second
+            """
             self.messageCount = 0
 
         PeriodicCallback(
@@ -136,7 +139,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         elif json_message['type'] == 'userSettings':
             self.update_user_settings(json_message['settings'])
         elif json_message['type'] == 'userStatus':
-            self.update_user_status(json_message['user'], json_message['status'])
+            self.update_user_status(json_message['status'])
         elif json_message['type'] == 'password_change':
             self.change_user_password(json_message['user'], json_message['data'])
         elif json_message['type'] == 'newRoom':
@@ -437,17 +440,18 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.current_user.color, self.current_user.username, self.current_user.sound,
             self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user['id'])
 
-    def update_user_status(self, user, json_status):
+    def update_user_status(self, json_status):
         """
 `       Update the user's status and broadcast the change to all appropriate rooms.
         Status changes available:
             idle: boolean (global)
-            typing: {room: boolean} (per user's given room)
+            typing: boolean (requires room)
+            room: integer
         :param user: the user with the status change
         :param json_status: status information
         :return: for exiting when information is not available
         """
-        if user != self.username or not json_status:
+        if not json_status:
             return
 
         if 'idle' in json_status:

@@ -29,7 +29,6 @@ $(document).ready(function () {
         if (sock) {
             sock.send(JSON.stringify({
                 'type': 'userStatus',
-                'user': Cookies.get('username'),
                 'status': {
                     'idle': false
                 }
@@ -39,7 +38,6 @@ $(document).ready(function () {
             if (sock) {
                 sock.send(JSON.stringify({
                     'type': 'userStatus',
-                    'user': Cookies.get('username'),
                     'status': {
                         'idle': true
                     }
@@ -115,7 +113,6 @@ function updateTypingStatus(newStatus) {
         currentMessage = $('#chat_text').val();
         sock.send(JSON.stringify({
             'type': 'userStatus',
-            'user': Cookies.get('username'),
             'status': {
                 'typing': currentMessage.length > 0,
                 'currentMessage': currentMessage,
@@ -126,7 +123,6 @@ function updateTypingStatus(newStatus) {
     else {
         sock.send(JSON.stringify({
             'type': 'userStatus',
-            'user': Cookies.get('username'),
             'status': {
                 'typing': newStatus,
                 'room': active_room
@@ -467,10 +463,18 @@ function toggleModal(modalId) {
 
 function setActiveTab(event) {
     updateTypingStatus(false);  // set typing to false in current room
-    active_room = event.target.room_id;
+    var selectedTab;
+    if (event) {
+        active_room = event.target.room_id;
+        selectedTab = $(event.target);
+    }
+    else {
+        active_room = 0;
+        selectedTab = $('#room_0');
+    }
     updateTypingStatus();  // updating to whatever typing status is current in new room
     $('.tab.active').removeClass('active');
-    $(event.target).addClass('active');
+    selectedTab.addClass('active');
     $('#log').empty();
     print_message_history(active_room);
     updateUserList(rooms[active_room].users);
@@ -484,7 +488,7 @@ function setActiveTab(event) {
 function removeTab(event) {
     var room_id = event.target.room_id;
     if (active_room === room_id) {
-        setActiveTab(0);
+        setActiveTab();
     }
     $('#room_' + room_id).remove();
 
