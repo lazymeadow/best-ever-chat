@@ -1,50 +1,104 @@
 import re
-from random import randrange
-
+from random import choice, randrange
 
 class ProfamityFilter(object):
-    fuck_finder = 'f+u[fuck]+[ck]+'
-    motherfucker_regex = re.compile('\bm+o+t+h+e+r+[ -]?' + fuck_finder + 'e+r*', re.IGNORECASE)
-    motherfucker_replacements = ['mf-er', 'fire trucker', 'mofo']
-    motherfucking_regex = re.compile('\bm+o+t+h+e+r+[ -]?' + fuck_finder + 'i+n+g*', re.IGNORECASE)
-    motherfucking_replacements = ['mf-ing', 'fire trucking']
-    fucking_regex = re.compile('\b' + fuck_finder + 'i+n+g*\b', re.IGNORECASE)
-    fucking_replacements = ['f-wording', 'frigging', 'fricking', 'flipping', 'farting', 'forking']
-    fuck_regex = re.compile('\b' + fuck_finder + '\b', re.IGNORECASE)
-    fuck_replacements = ['f-word', 'fridge', 'frig', 'frick', 'fudge', 'flip', 'fart', 'fork', 'joder']
+    fuck_finder = 'f+u[fuck]*[ck]+'
+    profamity_regexes = []
 
-    cock_regex = ''
-    cock_replacements = []
+    # motherfucker
+    profamity_regexes.append({
+        'regex': re.compile('m+o+t+h+e+r+[ -]?' + fuck_finder + 'e+r*', re.IGNORECASE),
+        'replacements': ['motherfudger', 'mf-er', 'fire trucker', 'mofo', 'mother father', 'muhfugha', 'fothermucker']
+    })
+    # motherfucking
+    profamity_regexes.append({
+        'regex': re.compile('m+o+t+h+e+r+[ -]?' + fuck_finder + 'i+n+g*', re.IGNORECASE),
+        'replacements': ['motherfudging', 'mf-ing', 'fire trucking', 'monkey fighting', 'fothermucking']
+    })
+    # fucking
+    profamity_regexes.append({
+        'regex': re.compile(fuck_finder + 'i+n+g*', re.IGNORECASE),
+        'replacements': ['f-wording', 'frigging', 'fricking', 'flipping', 'farting', 'forking']
+    })
+    # fuck
+    profamity_regexes.append({
+        'regex': re.compile(fuck_finder, re.IGNORECASE),
+        'replacements': ['duck', 'feck', 'f-word', 'fridge', 'frig', 'frick', 'fudge', 'flip', 'fart', 'fork', 'joder']
+    })
 
-    piss_regex = ''
-    piss_replacements = []
+    # cock/dick
+    profamity_regexes.append({
+        'regex': re.compile('(c+o+c?k+)|(d+i+c?k+)', re.IGNORECASE),
+        'replacements': ['nether regions', 'rooster', 'peepee', 'peen', 'cork', 'member', 'stick', 'anaconda']
+    })
 
-    tits_regex = ''
-    tits_replacements = []
+    # shit
+    profamity_regexes.append({
+        'regex': re.compile('s+h+[iey]*i+t+e*', re.IGNORECASE),
+        'replacements': ['crap', 'crud', 'shiznit', 'waesucks', 'suck', 'sugar', 's-word', 'shoot', 'snap', 'poop', 'snot', 'shirt', 'turd', 'merde', 'mierda', 'shucks']
+    })
 
-    twat_regex = ''
-    twat_replacements = []
+    # damnit
+    profamity_regexes.append({
+        'regex': re.compile('d+a+m+[mn]+[ ]?i+t+', re.IGNORECASE),
+        'replacements': ['dagnabit', 'zooterkins', 'consarn it', 'woo lad']
+    })
 
-    shit_regex = re.compile('s+h+[iey]*i+t+e*', re.IGNORECASE)
-    shit_replacements = ['s-word', 'shoot', 'snap', 'poop', 'snot', 'shirt', 'turd', 'merde', 'mierda']
+    # damn
+    profamity_regexes.append({
+        'regex': re.compile('d+a+m+n+', re.IGNORECASE),
+        'replacements': ['d-word', 'darn', 'dang', 'doom']
+    })
 
-    ass_regex = re.compile('a+s+s+', re.IGNORECASE)
-    ass_replacements = ['a-word', 'butt', 'bum', 'backside', 'behind']
+    #asshole
+    profamity_regexes.append({
+        'regex': re.compile('a+s+s?h+o+l+e?', re.IGNORECASE),
+        'replacements': ['poophole', 'chilihole', 'butthole', 'bumhole', 'tushiehole']
+    })
 
-    bitch_regex = re.compile('b+i+t+c+h+', re.IGNORECASE)
-    bitch_replacements = ['b-word', 'witch']
+    #dumbass
+    profamity_regexes.append({
+        'regex': re.compile('d+u+m+b?a+s+s?', re.IGNORECASE),
+        'replacements': ['dumdum', 'dummy', 'fopdoodle', 'stupidhead', 'dotard']
+    })
 
-    damn_regex = re.compile('d+a+m+n+', re.IGNORECASE)
-    damn_replacements = ['d-word', 'darn', 'dang', 'dagnabit', '']
+    # ass
+    profamity_regexes.append({
+        'regex': re.compile('a+s+s+', re.IGNORECASE),
+        'replacements': ['a-word', 'butt', 'bum', 'backside', 'behind', 'angus', 'pooper', 'buttocks', 'tushie', 'tushy', 'tush', 'bumbum']
+    })
 
-    god_regex = re.compile('g+o+d+', re.IGNORECASE)
-    god_replacements = ['gosh', 'golly', 'mon dieu']
+    # jesus christ
+    profamity_regexes.append({
+        'regex': re.compile('j+e+s+u+s+[ ]+c+h?r+i+s+t+', re.IGNORECASE),
+        'replacements': ['cheese and rice', 'jeez', 'jeez louise', 'hail satan']
+    })
 
-    whore_regex = re.compile('(w+h+o+r+e+)|(h+o+o+k+e+r+)', re.IGNORECASE)
-    whore_replacements = ['lady of the night', 'prostitute', 'ho', 'hobag', 'harlot', 'trollop']
+    # bitch
+    profamity_regexes.append({
+        'regex': re.compile('b+i+t+c+h+', re.IGNORECASE),
+        'replacements': ['beach', 'beech', 'b-word', 'witch', 'witch with a capital B', 'bisnitch', 'betch', 'batch', 'bench']
+    })
 
-    cunt_regex = re.compile('c+u+n+t+')
-    cunt_replacements = []
+    # god
+    profamity_regexes.append({
+        'regex': re.compile('g+o+d+', re.IGNORECASE),
+        'replacements': ['zeus', 'ra', 'gosh', 'golly', 'mon dieu', 'heaven', 'goodness', 'dog', 'allah', 'jehovah', 'yahweh', "buddha"]
+    })
+
+    # whore
+    profamity_regexes.append({
+        'regex': re.compile('(w+h+o+r+e+)|(h+o+o+k+e+r+)|(s+l+u+t+)', re.IGNORECASE),
+        'replacements': ['succubus', 'siren', 'enchantress', 'wench', 'lady of the night', 'prostitute', 'bucket', 'sloot', 'ho', 'hobag', 'harlot', 'trollop']
+    })
+
+    # cunt/twat
+    profamity_regexes.append({
+        'regex': re.compile('(c+u+n+t+)|(t+w+a+t+)'),
+        'replacements': ['front butt', 'lady parts', 'girly bits', 'lady garden', 'nether regions', 'cooch', 'hooha', 'coochie', 'bajango', 'vajayjay', 'v', 'peach', 'beaver', 'coozie', 'muff', 'cooter', 'fud', 'purse', 'snatch']
+    })
 
     def scan_for_fucks(self, text):
-        return re.sub(self.fuck_regex, self.fuck_replacements[randrange(len(self.fuck_replacements))], text)
+        for profamity in self.profamity_regexes:
+            text = re.sub(profamity['regex'], choice(profamity['replacements']), text)
+        return text
