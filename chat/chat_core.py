@@ -15,6 +15,7 @@ from tornado.escape import to_unicode, linkify, xhtml_escape
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor, BaseHandler
+from chat.profamity_filter import ProfamityFilter
 from emoji.emojipy import Emoji
 
 users = {}
@@ -25,11 +26,10 @@ history = deque(maxlen=MAX_DEQUE_LENGTH)
 emoji = Emoji()
 profamity_filter = ProfamityFilter()
 
-client_version = 50
-update_message = "<h3>Now you can see who's been idle for a while! It's like magic!!</h3>" \
-                 "<p>Yeah, the icons are Star Wars factions. If you really want to join the Empire, go " \
-                 "change your settings.</p>" \
-                 "<h3>You can also adjust the volume!</h3>"
+client_version = 51
+update_message = "<h3>Stop spamming</h3>" \
+                 "<p>If you send too many messages, you're going to be temporarily banned. And everyone will know it.</p>" \
+                 "<h3>Also some of the ascii emojis actually work now.</h3>"
 
 
 class ValidateHandler(BaseHandler):
@@ -219,7 +219,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                                            self.clear_spammy_warning_callback)
         else:
             self.messageCount += 1
-            if self.messageCount > 5:
+            if self.messageCount > 3:
                 spammy_participants = [x for x in self.participants if x.current_user.id == self.current_user['id']]
                 self.broadcast_from_server(self.participants.difference(spammy_participants),
                                            "{} has been blocked for spamming!!".format(self.username))
@@ -228,10 +228,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 # first linkify
                 message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
-                # last find shortcode emojis
-                message_text = emoji.shortcode_to_unicode(message_text)
+                # make things PG
+                message_text = profamity_filter.scan_for_fucks(message_text)
                 # then find ascii emojis
                 message_text = emoji.ascii_to_unicode(message_text)
+                # last find shortcode emojis
+                message_text = emoji.shortcode_to_unicode(message_text)
 
                 new_message = {'user': user,
                                'color': users[user]['color'],
