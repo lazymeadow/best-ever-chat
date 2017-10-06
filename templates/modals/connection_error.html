@@ -1,14 +1,5 @@
-<div class="modal" id="connectError">
-    <div class="modal-header">
-        <span class="modal-title">Connection Error</span>
-        <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
-    </div>
-    <div class="modal-content">
-        Error connecting to the server.
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="modal-submit" onclick="attempt_reconnect()">
-            Retry
-        </button>
-    </div>
-</div>
+{% from 'modals/modal_template.html' import modal %}
+
+{% set content_html = 'Error connecting to the server.' %}
+
+{{ modal('connectError', '', 'Connection Error', content_html, 'Retry', 'attempt_reconnect()', 'button', False) }}

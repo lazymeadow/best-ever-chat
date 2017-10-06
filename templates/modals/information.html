@@ -1,19 +1,10 @@
-<div class="modal" id="information">
-    <div class="modal-header">
-        <span class="modal-title">Important Information</span>
-        <i class="fa fa-close" onclick="dismissInformation()"></i>
-    </div>
-    <div class="modal-content">
-        <h3>Now you can see who's been idle for a while! It's like magic!!</h3>
+{% from 'modals/modal_template.html' import modal %}
+
+{% set content_html = '''<h3>Now you can see who\'s been idle for a while! It\'s like magic!!</h3>
         <p>
             Yeah, the icons are Star Wars factions. If you really want to join the Empire,
             go change your settings.
         </p>
-        <h3>You can also adjust the volume!</h3>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="modal-submit" onclick="dismissInformation()">
-            That's pretty neat
-        </button>
-    </div>
-</div>
+        <h3>You can also adjust the volume!</h3>''' %}
+
+{{ modal('information', '', 'Important Information', content_html, 'That\'s pretty neat', 'dismissInformation()', show_cancel=False) }}

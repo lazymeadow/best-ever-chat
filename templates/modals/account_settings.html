@@ -1,13 +1,6 @@
-{% set modalName = 'accountSettings' %}
+{% from 'modals/modal_template.html' import modal %}
 
-<div id="{{ modalName }}" class="modal">
-    <form id="update-account" action="">
-        <div class="modal-header">
-            <span class="modal-title">Account Settings</span>
-            <i class="fa fa-close" onclick="toggleModal('{{ modalName }}')"></i>
-        </div>
-        <div class="modal-content">
-            <div class="form-group">
+{% set content_html = '''<div class="form-group">
                 <label for="email">Change email:</label>
                 <input type="email" name="email" id="email"
                        placeholder="Email" value=" "/>
@@ -20,16 +13,7 @@
             <div class="form-group">
                 <label for="new_password2">Confirm password:</label>
                 <input type="password" name="new_password2" id="new_password2"/>
-            </div>
-        </div>
-        <div class="modal-footer">
-            {{ xsrf_form_html() }}
-            <button class="modal-cancel" type="button" onclick="toggleModal('{{ modalName }}')">
-                Cancel
-            </button>
-            <button class="modal-submit" type="submit">
-                Save changes
-            </button>
-        </div>
-    </form>
-</div>
+            </div>'''
+            + xsrf_form_html() %}
+
+{{ modal('accountSettings', 'update-account', 'Account Settings', content_html, 'Save changes') }}
