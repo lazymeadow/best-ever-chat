@@ -11,8 +11,8 @@
 @lightBackgroundColor: #C9C9C9;
 @lightest: #FCFCFC;
 @buttonHoverColor: darken(@lightButtonColor, 15%);
-@headerHeight: 30px;
-@tabHeight: 25px;
+@headerHeight: 35px;
+@tabHeight: 30px;
 @chatBarHeight: 45px;
 @rightBarWidth: 200px;
 @elementPadding: 5px;
@@ -64,7 +64,7 @@ div.login {
 	border-left: @lightBackgroundColor 1px solid;
 	border-radius: 0 3px 3px 0;
 	background: @lightest;
-	top: @headerHeight + @elementPadding + @tabHeight;
+	top: @headerHeight + @elementPadding;
 	position: fixed;
 	margin: 0 0 @elementPadding 0;
 	right: @elementPadding;
@@ -73,7 +73,7 @@ div.login {
 
 	div {
 		padding: @elementPadding;
-		i {
+		span {
 			&:not(.typing) {
 				padding-right: 5px;
 			}
@@ -102,9 +102,14 @@ div.login {
 	padding: @elementPadding;
 	top: 0;
 	left: 0;
-	right: @rightBarWidth;
+	right: 0;
 	height: @headerHeight;
 	color: @lightest;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+
 	h1 {
 		font-size: 1.3em;
 		font-weight: bold;
@@ -113,19 +118,26 @@ div.login {
 		display: inline;
 		vertical-align: text-bottom;
 	}
-	i {
+	span {
+		&#menu-button {
+			order: 1;
+			flex: 0 1 auto;
+			padding: 0 5px;
+			align-self: flex-start;
+		}
 		cursor: pointer;
 	}
 }
 
 .tabs {
-	position: fixed;
-	top: @headerHeight;
 	padding: 0;
 	margin: @elementPadding 0 0;
 	display: flex;
 	align-items: stretch;
 	height: @tabHeight;
+	flex: 0 1 auto;
+	order: 0;
+	align-self: flex-end;
 
 	#add-room {
 		color: @lightest;
@@ -133,7 +145,7 @@ div.login {
 		padding: @elementPadding;
 	}
 
-	i {
+	span {
 		cursor: pointer;
 		color: @lightest;
 		line-height: @tabHeight;
@@ -141,14 +153,20 @@ div.login {
 	}
 
 	.tab {
+		color: @bodyColor;
 		flex: 0 0 auto;
 		background: @lightButtonColor;
-		padding: 0 @elementPadding;
+		padding: 0 @elementPadding * 2;
 		border: solid 1px @borderColor;
 		margin: 0 -1px 0 0;
 		border-top-left-radius: 3px;
 		border-top-right-radius: 3px;
 		line-height: @tabHeight;
+
+		span {
+			margin-right: -@elementPadding * 2;
+			color: @bodyColor;
+		}
 
 		&.active {
 			background: @lightest;
@@ -170,7 +188,7 @@ div.login {
 	border-radius: 3px 0 0 3px;
 	margin: 0 0 @elementPadding 0;
 	padding: @elementPadding;
-	top: @headerHeight + @elementPadding  + @tabHeight;
+	top: @headerHeight + @elementPadding;
 	bottom: @chatBarHeight;
 	right: @rightBarWidth + @elementPadding;
 	left: @elementPadding;
@@ -210,7 +228,7 @@ div.login {
 
 .right_bar {
 	position: fixed;
-	top: @headerHeight + @elementPadding + @tabHeight;
+	top: @headerHeight + @elementPadding;
 	right: @elementPadding;
 	bottom: @chatBarHeight;
 	width: @rightBarWidth;
@@ -225,8 +243,8 @@ div.login {
 
 #menu {
 	position: absolute;
-	top: @headerHeight + @elementPadding;
-	left: 0;
+	top: @headerHeight;
+	right: 0;
 	margin: 0 @elementPadding;
 	background: @lightBackgroundColor;
 	border: solid 1px @borderColor;
@@ -283,6 +301,9 @@ div.login {
 		justify-content: center;
 		.fa {
 			font-size: 1.5em;
+		}
+		&#toggle-emojis img {
+			height: 75%;
 		}
 	}
 	.first {
@@ -395,7 +416,7 @@ button, .button {
 				font-weight: bold;
 			}
 
-			i {
+			span {
 				float: right;
 				width: 20px;
 				height: 100%;
@@ -542,7 +563,7 @@ button, .button {
 	}
 }
 
-img.emoji {
+img.emojspan {
 	height: 1.1em;
 	width: 1.1em;
 	margin: 0 .05em 0 .1em;

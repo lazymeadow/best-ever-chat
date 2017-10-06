@@ -19,12 +19,10 @@
 
 
     <div class="header">
-        <i class="fa fa-2x fa-fw fa-bars" onclick="toggleMenu()"></i>
-        <h1>Best Evar Chat 2.0</h1>
-    </div>
-
-    <div class="tabs">
-        <i class="fa fa-fw fa-plus" id="create-room-button" onclick="toggleModal('newRoom')"></i>
+        <span class="fa fa-2x fa-fw fa-bars" id="menu-button" onclick="toggleMenu()"></span>
+        <div class="tabs">
+            <span class="fa fa-fw fa-plus" id="create-room-button" onclick="toggleModal('newRoom')"></span>
+        </div>
     </div>
 
     <div id="log"></div>
@@ -43,7 +41,7 @@
             😃
         </div>
         <div class="button last" onclick="showImageInput()">
-            <i class="fa fa-picture-o"></i>
+            <span class="fa fa-picture-o"></span>
         </div>
     </div>
 
@@ -63,23 +61,23 @@
 
     <div id="menu">
         <span class="menu-item" onclick="toggleMenu(); setUsername()">
-            <i class="fa fa-fw fa-user-circle-o"></i>
+            <span class="fa fa-fw fa-user-circle-o"></span>
             User Settings
         </span>
         <span class="menu-item" onclick="toggleMenu(); toggleModal('accountSettings')">
-            <i class="fa fa-fw fa-cogs"></i>
+            <span class="fa fa-fw fa-cogs"></span>
             Account Settings
         </span>
         <span class="menu-item disabled" id="room-settings-menu" onclick="toggleMenu(); toggleModal('roomSettings')">
-            <i class="fa fa-fw fa-users"></i>
+            <span class="fa fa-fw fa-users"></span>
             Room Settings
         </span>
         <span class="menu-item" onclick="toggleMenu(); toggleModal('information')">
-            <i class="fa fa-fw fa-question"></i>
+            <span class="fa fa-fw fa-question"></span>
             About
         </span>
         <span class="menu-item" onclick="logout()">
-            <i class="fa fa-fw fa-sign-out"></i>
+            <span class="fa fa-fw fa-sign-out"></span>
             Log out
         </span>
     </div>

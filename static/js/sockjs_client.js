@@ -236,7 +236,7 @@ function connect() {
                         .prop('room_id', room['id'])
                         .click(setActiveTab);
                     if (room['id'] > 0) {
-                        newTab.append($('<i>').addClass('fa fa-fw fa-times')
+                        newTab.append($('<span>').addClass('fa fa-fw fa-times')
                             .prop('room_id', room['id'])
                             .click(removeTab));
                     }
@@ -331,9 +331,9 @@ function updateUserList() {
         if (newList.hasOwnProperty(user)) {
             var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
             if (newList[user]['typing']) {
-                userDiv.append($('<i>').addClass('typing fa fa-fw fa-commenting-o'));
+                userDiv.append($('<span>').addClass('typing fa fa-fw fa-commenting-o'));
             }
-            var activeIcon = $('<i>').addClass('fa fa-fw').addClass('fa-' + newList[user].faction);
+            var activeIcon = $('<span>').addClass('fa fa-fw').addClass('fa-' + newList[user].faction);
             activeIcon.addClass(newList[user]['idle'] ? 'idle' : 'active');
             userDiv.prepend(activeIcon);
             userList.append(userDiv);
