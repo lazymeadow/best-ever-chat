@@ -257,7 +257,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         recipient_participants = get_matching_participants(self.participants, recipient)
         for participant in recipient_participants:
             participant.reply_to = self.current_user['id']
-        recipients = sender_participants + recipient_participants
+        recipients = set(sender_participants + recipient_participants)
 
         new_message = {'sender': sender_participants[0].username,
                        'recipient': recipient_participants[0].username,
@@ -548,7 +548,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             user = None
             if len(matching_users) > 0:
                 user = max(matching_users)
-                message = command_args.replace(user, '')
+                message = command_args.replace(user, '', 1)
 
             if user in users.keys():
                 self_participants = get_matching_participants(self.participants, self.username, 'username')
