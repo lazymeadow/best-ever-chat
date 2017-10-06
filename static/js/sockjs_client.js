@@ -132,12 +132,12 @@ function updateTypingStatus(newStatus) {
 }
 
 function submitChat(event) {
-    if (event.keyCode === 38) {
+    if (event.which === 38) {
         if (Cookies.get('last_message') !== undefined) {
             $('#chat_text').val(Cookies.get('last_message'));
         }
     }
-    if (event.keyCode === 13) {
+    if (event.which === 13) {
         var chatText = $('#chat_text');
         sock.send(JSON.stringify({
             'type': 'chatMessage',
