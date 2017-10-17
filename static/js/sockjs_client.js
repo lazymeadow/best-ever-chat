@@ -105,6 +105,7 @@ function imageChat() {
             'type': 'imageMessage',
             'user': Cookies.get('username'),
             'url': imgUrl.val(),
+            'nsfw_flag': $('#nsfw_flag').is(':checked'),
             'room': active_room
         }));
         imgUrl.val('');
@@ -390,6 +391,18 @@ function print_private_message(msg) {
 }
 
 function print_message(msg, ignoreCount) {
+    if (!msg.hasOwnProperty('message') && msg.hasOwnProperty('image_url')) {
+        msg.message = $('<div>').addClass('image-wrapper')
+            .append($('<span>').text('show image' + (msg.nsfw_flag ? ' -- NSFW!' : '')).click(function (event) {
+                var image_element = $(event.target).next();
+                image_element.toggle();
+                $(event.target).text((image_element.is(':visible') ? 'hide' : 'show') + ' image ' + (msg.nsfw_flag ? '-- NSFW!' : ''))
+            }))
+            .append($('<a>').prop('href', msg.image_url).prop('target', '_blank')
+                .append($('<img>').prop('src', msg.image_src_url))
+                .hide());
+    }
+
     var chatLog = $('#log');
     var messageContainer = $('<div>').addClass('chat-message');
     var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));

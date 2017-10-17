@@ -211,9 +211,21 @@ div.login {
 			}
 		}
 
-		& img {
-			max-width: 300px;
-			max-height: 300px;
+		& .image-wrapper {
+			display: inline-block;
+			background-color:  darken(@lightest, 5%);
+			padding: @elementPadding;
+			margin-bottom: @elementPadding;
+			border-radius: 3px;
+
+			& span {
+				display: block;
+			}
+
+			& img {
+				max-width: 300px;
+				max-height: 300px;
+			}
 		}
 	}
 }

@@ -1,5 +1,12 @@
 {% from 'modals/modal_template.html' import modal %}
 
-{% set content_html = '<input type="url" id="img_url"/>' %}
+{% set content_html = '''<div class="form-group">
+                <input type="url" id="img_url"/>
+            </div>
+            <div class="form-group">
+                <label for="nsfw_flag">NSFW?</label>
+                <input type="checkbox" id="nsfw_flag" />
+            </div>
+''' %}
 
-{{ modal('imageInput', '', 'Enter URL', content_html, 'Submit', 'imageChat()') }}
+{{ modal('imageInput', '', 'Enter URL', content_html, 'Submit', 'imageChat()', submit_button_type='button') }}

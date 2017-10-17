@@ -138,7 +138,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             elif json_message['client_version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
         elif json_message['type'] == 'imageMessage':
-            self.broadcast_image(json_message['user'], json_message['url'], json_message['room'])
+            self.broadcast_image(json_message['user'], json_message['url'], json_message['room'], json_message['nsfw_flag'])
         elif json_message['type'] == 'userSettings':
             self.update_user_settings(json_message['settings'])
         elif json_message['type'] == 'userStatus':
@@ -346,7 +346,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast(self.participants, {'type': 'chatMessage',
                                                    'data': new_message})
 
-    def broadcast_image(self, user, image_url, room_id):
+    def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """
         Broadcast an image message to the given room. Stores the image in the s3 bucket, if available, setting the img
         tag's src to the cache. If s3 is unavailable, the img src is the original url. Images are wrapping in an a tag
@@ -359,8 +359,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         new_message = {'user': user,
                        'color': users[user]['color'],
-                       'message': "<a href=\"{}\" target=\"_blank\"><img src=\"{}\" /></a>".format(
-                           xhtml_escape(image_url), xhtml_escape(image_src_url)),
+                       'image_url': xhtml_escape(image_url),
+                       'image_src_url': xhtml_escape(image_src_url),
+                       'nsfw_flag': nsfw_flag,
+                       # 'message': "<a href=\"{}\" target=\"_blank\"><img src=\"{}\" /></a>".format(
+                       #     xhtml_escape(image_url), xhtml_escape(image_src_url)),
                        'time': time.time(),
                        'room': room_id}
         rooms[room_id]['history'].append(new_message)
