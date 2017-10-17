@@ -346,21 +346,11 @@ function updateUserList() {
     });
 }
 
-function setUsername() {
-    var username_cookie = Cookies.get("username");
-    if (username_cookie)
-        $("#set_name").val(username_cookie);
-
-    toggleModal('userSettings');
-}
-
 function showUsername() {
     var username = Cookies.get("username");
     if (username) {
         $("#username_display").text(" " + username + ":");
     }
-    else
-        setUsername();
 }
 
 var numMessages = 0;

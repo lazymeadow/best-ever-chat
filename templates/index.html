@@ -32,7 +32,7 @@
     </div>
 
     <div class="chat-bar">
-        <div class="button first" id="username" onclick="setUsername()">
+        <div class="button first" id="username" onclick="toggleModal('userSettings')">
             <span id="username_display"> you:</span>
         </div>
         <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..."
@@ -60,7 +60,7 @@
     </div>
 
     <div id="menu">
-        <span class="menu-item" onclick="toggleMenu(); setUsername()">
+        <span class="menu-item" onclick="toggleMenu(); toggleModal('userSettings')">
             <span class="fa fa-fw fa-user-circle-o"></span>
             User Settings
         </span>
