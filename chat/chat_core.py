@@ -93,6 +93,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         ).start()
 
         # Add client to the clients list
+        send_updates = False
         self.participants.add(self)
         if self.username not in users.keys():
             users[self.username] = {'color': self.current_user['color'] or '',
@@ -103,13 +104,15 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     'private_history': deque(maxlen=MAX_DEQUE_LENGTH)}
             for room in self.joined_rooms:
                 users[self.username]['typing'][room] = False
+            send_updates = True
+
+        # wait until after user is initialized to send room data
+        self.send_room_information()
+        if send_updates:
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
                                        self.username + ' has connected', rooms=self.joined_rooms)
             self.broadcast_user_list()
-
-        # wait until after user is initialized to send room data
-        self.send_room_information()
 
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
 
