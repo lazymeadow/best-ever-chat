@@ -243,7 +243,7 @@ div.login {
 	top: @headerHeight;
 	right: 0;
 	margin: 0 @elementPadding;
-	background: @lightBackgroundColor;
+	background: @lightest;
 	border: solid 1px @borderColor;
 	border-radius: 3px;
 	min-width: 100px;
@@ -251,7 +251,8 @@ div.login {
 	span.menu-item {
 		cursor: pointer;
 		display: block;
-		padding: 10px;
+		padding: 0 @elementPadding;
+		margin: @elementPadding 0;
 
 		&:not(.disabled):hover {
 			background: @lightButtonColor;
@@ -260,9 +261,6 @@ div.login {
 			color: lighten(@bodyColor, 45%);
 			cursor: default;
 		}
-	}
-	& > span:nth-of-type(odd) {
-		background: lighten(@lightBackgroundColor, 15%);
 	}
 }
 
