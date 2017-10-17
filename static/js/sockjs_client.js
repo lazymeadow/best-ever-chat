@@ -518,6 +518,6 @@ function print_message_history(room) {
         }
     }
     $('audio').each(function (_, element) {
-        element.muted = false;
+        element.muted = JSON.parse(Cookies.get('muted'));
     });
 }
