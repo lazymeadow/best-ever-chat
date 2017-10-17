@@ -56,6 +56,11 @@ var userSettings = {
         if (faction !== Cookies.get('faction')) {
             data.newFaction = faction;
         }
+        var fontSize = $('#font-size').val();
+        if (fontSize !== Cookies.get('fontSize')) {
+            Cookies.set('fontSize', fontSize);
+            $('body').css({fontSize: fontSize});
+        }
 
         if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds) {
             if (!sock) connect();

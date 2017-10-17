@@ -79,6 +79,10 @@ $(document).ready(function () {
     colorPicker = bestColorPicker($('#color'));
     colorPicker.setColor(Cookies.get('color'));
 
+    var fontSize = Cookies.get('fontSize') || '14px';
+    $('#font-size').val(fontSize);
+    $('body').css({fontSize: fontSize});
+
     showUsername();
 
     timeout = window.setTimeout(connect, 500);
@@ -349,7 +353,8 @@ function updateUserList() {
 function showUsername() {
     var username = Cookies.get("username");
     if (username) {
-        $("#username_display").text(" " + username + ":");
+        $("#username_display").text(username + ":");
+        $("#set_name").val(username);
     }
 }
 
