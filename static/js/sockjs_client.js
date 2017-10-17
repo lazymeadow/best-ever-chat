@@ -214,7 +214,11 @@ function connect() {
             if (type === 'userList') {
                 var room_num = data.room;
                 if (rooms.hasOwnProperty(room_num)) {
-                    rooms[room_num].users = data.users;
+                    rooms[room_num].users = [];
+                    $.each(data.users, function (username, user) {
+                        user.username = username;
+                        rooms[room_num].users.push(user);
+                    });
                     if (room_num === active_room)
                         updateUserList();
                 }
@@ -228,10 +232,10 @@ function connect() {
                     toggleModal('information');
                 }
             }
-            if (type === 'room_data'){
+            if (type === 'room_data') {
                 for (var i = 0; i < data.length; i++) {
-                    var room =data[i];
-                        var newTab = $('<div>').addClass('tab').text(room['name'])
+                    var room = data[i];
+                    var newTab = $('<div>').addClass('tab').text(room['name'])
                         .prop('id', 'room_' + room['id'])
                         .prop('room_id', room['id'])
                         .click(setActiveTab);
@@ -269,13 +273,6 @@ function connect() {
                 }
                 print_private_message(data);
             }
-            twemoji.parse(document.body, {
-                base: '/static/',
-                folder: 'emojione/assets/',
-                attributes: function (icon, variant) {
-                    return {title: icon + variant};
-                }
-            });
         };
         sock.onclose = function () {
             print_message({
@@ -292,6 +289,16 @@ function connect() {
             }
         };
     }
+}
+
+function parse_emojis(element) {
+    twemoji.parse(element || document.body, {
+        base: '/static/',
+        folder: 'emojione/assets/',
+        attributes: function (icon, variant) {
+            return {title: icon + variant};
+        }
+    });
 }
 
 function attempt_reconnect() {
@@ -327,18 +334,16 @@ function updateUserList() {
     var userList = $('#user_list');
     userList.empty();
 
-    for (var user in newList) {
-        if (newList.hasOwnProperty(user)) {
-            var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
-            if (newList[user]['typing']) {
-                userDiv.append($('<span>').addClass('typing fa fa-fw fa-commenting-o'));
-            }
-            var activeIcon = $('<span>').addClass('fa fa-fw').addClass('fa-' + newList[user].faction);
-            activeIcon.addClass(newList[user]['idle'] ? 'idle' : 'active');
-            userDiv.prepend(activeIcon);
-            userList.append(userDiv);
+    $.each(newList, function (index, user) {
+        var userDiv = $('<div/>').text(user['username']).attr('title', user['real_name']);
+        if (user['typing']) {
+            userDiv.append($('<span>').addClass('typing fa fa-fw fa-commenting-o'));
         }
-    }
+        var activeIcon = $('<span>').addClass('fa fa-fw').addClass('fa-' + user.faction);
+        activeIcon.addClass(user['idle'] ? 'idle' : 'active');
+        userDiv.prepend(activeIcon);
+        userList.append(userDiv);
+    });
 }
 
 function setUsername() {
@@ -386,6 +391,7 @@ function print_private_message(msg) {
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
+    parse_emojis(messageContainer[0]);
 }
 
 function print_message(msg, ignoreCount) {
@@ -424,6 +430,7 @@ function print_message(msg, ignoreCount) {
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
+    parse_emojis(messageContainer[0]);
 }
 
 function toggleMenu() {
@@ -482,6 +489,7 @@ function setActiveTab(event) {
         $('#room-settings-menu').removeClass('disabled');
     else
         $('#room-settings-menu').addClass('disabled');
+    parse_emojis();
 
 }
 
