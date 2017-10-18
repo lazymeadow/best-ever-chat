@@ -150,7 +150,7 @@ div.login {
 		background: @lightButtonColor;
 		padding: 0 @elementPadding * 2;
 		border: solid 1px @borderColor;
-		margin: 0 -1px 0 0;
+		margin: 0 2px 0 0;
 		border-top-left-radius: 3px;
 		border-top-right-radius: 3px;
 		line-height: @tabHeight;
@@ -170,6 +170,12 @@ div.login {
 			background: @buttonHoverColor;
 		}
 	}
+}
+
+.tab-content {
+	display: block;
+	border-top: solid 1px lightgrey;
+	margin: -1px;
 }
 
 #log {
@@ -213,7 +219,7 @@ div.login {
 
 		& .image-wrapper {
 			display: inline-block;
-			background-color:  darken(@lightest, 5%);
+			background-color: darken(@lightest, 5%);
 			padding: @elementPadding;
 			margin-bottom: @elementPadding;
 			border-radius: 3px;
@@ -238,17 +244,20 @@ div.login {
 	width: @rightBarWidth;
 }
 
-#menu {
-	position: absolute;
-	top: @headerHeight;
-	right: 0;
+.menu {
+	&#main_menu {
+		right: 0;
+		position: absolute;
+		top: @headerHeight;
+	}
+
 	margin: 0 @elementPadding;
 	background: @lightest;
 	border: solid 1px @borderColor;
 	border-radius: 3px;
-	min-width: 100px;
+	min-width: 150px;
 
-	span.menu-item {
+	& span.menu-item {
 		cursor: pointer;
 		display: block;
 		padding: 0 @elementPadding;
@@ -376,6 +385,10 @@ button, .button {
 	background: @overlayColor;
 	align-items: center;
 	justify-content: center;
+
+	& #settings .modal-content {
+		min-height: 375px;
+	}
 
 	.modal {
 		display: flex;

@@ -1,10 +1,9 @@
 $(document).ready(function () {
-    $('#update-user').validate(userSettings);
-    $('#update-account').validate(accountSettings);
+    $('#settings_form').validate(validation_settings);
     $('#create-room').validate(newRoomSettings);
 });
 
-var userSettings = {
+var validation_settings = {
     rules: {
         set_name: {
             required: true,
@@ -25,7 +24,18 @@ var userSettings = {
         },
         color: {
             required: true
+        },
+        new_password: {
+            required: false,
+            minlength: 3
+        },
+        new_password2: {
+            equalTo: '#new_password'
+        },
+        email: {
+            required: false
         }
+
     },
     messages: {
         set_name: {
@@ -62,44 +72,6 @@ var userSettings = {
             $('body').css({fontSize: fontSize});
         }
 
-        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds) {
-            if (!sock) connect();
-            sock.send(JSON.stringify({
-                'type': 'userSettings',
-                'settings': data,
-                'user': username
-            }));
-        }
-        else {
-            print_message({
-                user: "Client",
-                message: "No changes made",
-                time: moment().unix()
-            });
-        }
-
-        toggleModal('userSettings');
-    }
-};
-
-
-var accountSettings = {
-    rules: {
-        new_password: {
-            required: false,
-            minlength: 3
-        },
-        new_password2: {
-            equalTo: '#new_password'
-        },
-        email: {
-            required: false
-        }
-    },
-    submitHandler: function () {
-        var username = Cookies.get("username");
-        var data = {};
-
         var email = $('#email').val();
         if (email !== '' && email !== Cookies.get('email')) {
             data.newEmail = email;
@@ -117,7 +89,7 @@ var accountSettings = {
             newPassword2.val('');
         }
 
-        if (data.newEmail) {
+        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',
@@ -133,7 +105,7 @@ var accountSettings = {
             });
         }
 
-        toggleModal('accountSettings');
+        toggleModal('settings');
     }
 };
 

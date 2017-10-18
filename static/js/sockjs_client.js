@@ -14,14 +14,14 @@ var autoScroll = true;
 $(document).ready(function () {
     // initial hiding of elements
     $('#emoji-list').hide();
-    $('#menu').hide();
-    $('#userSettings').hide();
-    $('#accountSettings').hide();
+    $('#main_menu').hide();
     $('#newRoom').hide();
     $('#connectError').hide();
     $('#imageInput').hide();
     $('#information').hide();
     $('#overlay').hide();
+    $('#settings').hide();
+    changeSettingsTab(0);
 
     // set idle listeners
     function resetIdleTimeout() {
@@ -245,7 +245,7 @@ function connect() {
                         .prop('room_id', room['id'])
                         .click(setActiveTab);
                     if (room['id'] > 0) {
-                        newTab.append($('<span>').addClass('fa fa-fw fa-times')
+                        newTab.append($('<span>').addClass('fa fa-fw fa-ellipsis-h')
                             .prop('room_id', room['id'])
                             .click(removeTab));
                     }
@@ -441,8 +441,8 @@ function print_message(msg, ignoreCount) {
     parse_emojis(messageContainer[0]);
 }
 
-function toggleMenu() {
-    var menu = $('#menu');
+function toggleMenu(whichOne) {
+    var menu = $('#' + whichOne);
     if (menu.is(':visible'))
         menu.hide();
     else
@@ -488,7 +488,7 @@ function setActiveTab(event) {
         selectedTab = $('#room_0');
     }
     updateTypingStatus();  // updating to whatever typing status is current in new room
-    $('.tab.active').removeClass('active');
+    $('#room_tabs .tab.active').removeClass('active');
     selectedTab.addClass('active');
     $('#log').empty();
     print_message_history(active_room);
@@ -533,4 +533,11 @@ function print_message_history(room) {
     $('audio').each(function (_, element) {
         element.muted = JSON.parse(Cookies.get('muted'));
     });
+}
+
+function changeSettingsTab(tabNum) {
+    $('#settings_tabs .tab.active').removeClass('active');
+    $('#settings_' + tabNum).addClass('active');
+    $('#settings .tab-content').hide();
+    $('#settings_' + tabNum + '_content').show();
 }

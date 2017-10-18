@@ -19,8 +19,8 @@
 
 
     <div class="header">
-        <span class="fa fa-2x fa-fw fa-bars" id="menu-button" onclick="toggleMenu()"></span>
-        <div class="tabs">
+        <span class="fa fa-2x fa-fw fa-bars" id="menu-button" onclick="toggleMenu('main_menu')"></span>
+        <div class="tabs" id="room_tabs">
             <span class="fa fa-fw fa-plus" id="create-room-button" onclick="toggleModal('newRoom')"></span>
         </div>
     </div>
@@ -59,20 +59,12 @@
         </table>
     </div>
 
-    <div id="menu">
-        <span class="menu-item" onclick="toggleMenu(); toggleModal('userSettings')">
+    <div id="main_menu" class="menu">
+        <span class="menu-item" onclick="toggleMenu('main_menu'); toggleModal('settings')">
             <span class="fa fa-fw fa-user-circle-o"></span>
-            User Settings
+            Settings
         </span>
-        <span class="menu-item" onclick="toggleMenu(); toggleModal('accountSettings')">
-            <span class="fa fa-fw fa-cogs"></span>
-            Account Settings
-        </span>
-        <span class="menu-item disabled" id="room-settings-menu" onclick="toggleMenu(); toggleModal('roomSettings')">
-            <span class="fa fa-fw fa-users"></span>
-            Room Settings
-        </span>
-        <span class="menu-item" onclick="toggleMenu(); toggleModal('information')">
+        <span class="menu-item" onclick="toggleMenu('main_menu'); toggleModal('information')">
             <span class="fa fa-fw fa-question"></span>
             About
         </span>
@@ -84,9 +76,7 @@
 
     <!-- Modals -->
     <div id="overlay">
-        {% include 'modals/user_settings.html' %}
-
-        {% include 'modals/account_settings.html' %}
+        {% include 'modals/settings.html' %}
 
         {% include 'modals/connection_error.html' %}
 

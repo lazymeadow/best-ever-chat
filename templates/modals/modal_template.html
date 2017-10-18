@@ -1,4 +1,4 @@
-{% macro modal(name, form_id, title, content_html, submit_button_text, submit_button_handler, submit_button_type='submit', show_cancel=True) -%}
+{% macro modal(name, form_id, title, content_html, submit_button_text, submit_button_handler, submit_button_type='button', show_cancel=True) -%}
 <div id="{{ name }}" class="modal">
     <form id="{{ form_id }}" action="">
         <div class="modal-header">
