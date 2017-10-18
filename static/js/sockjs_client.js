@@ -83,6 +83,8 @@ $(document).ready(function () {
     $('#font-size').val(fontSize);
     $('body').css({fontSize: fontSize});
 
+    $('#hidden_images').prop('checked', true);
+
     showUsername();
 
     timeout = window.setTimeout(connect, 500);
@@ -392,15 +394,17 @@ function print_private_message(msg) {
 
 function print_message(msg, ignoreCount) {
     if (!msg.hasOwnProperty('message') && msg.hasOwnProperty('image_url')) {
+        var imageElement = $('<a>').prop('href', msg.image_url).prop('target', '_blank')
+                .append($('<img>').prop('src', msg.image_src_url));
+        var hide_images = JSON.parse(Cookies.get('hideImages') || 'true');
+        hide_images ? imageElement.hide() : imageElement.show();
         msg.message = $('<div>').addClass('image-wrapper')
-            .append($('<span>').text('show image' + (msg.nsfw_flag ? ' -- NSFW!' : '')).click(function (event) {
+            .append($('<span>').text((hide_images ? 'show' : 'hide') + ' image' + (msg.nsfw_flag ? ' -- NSFW!' : '')).click(function (event) {
                 var image_element = $(event.target).next();
                 image_element.toggle();
                 $(event.target).text((image_element.is(':visible') ? 'hide' : 'show') + ' image ' + (msg.nsfw_flag ? '-- NSFW!' : ''))
             }))
-            .append($('<a>').prop('href', msg.image_url).prop('target', '_blank')
-                .append($('<img>').prop('src', msg.image_src_url))
-                .hide());
+            .append(imageElement);
     }
 
     var chatLog = $('#log');

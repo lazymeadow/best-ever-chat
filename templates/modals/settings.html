@@ -9,7 +9,7 @@
         <div class="tabs" id="settings_tabs">
             <div class="tab active" id="settings_0" onclick="changeSettingsTab(0)">User Settings</div>
             <div class="tab" id="settings_1" onclick="changeSettingsTab(1)">Account Settings</div>
-            <div class="tab" id="settings_2" onclick="changeSettingsTab(2)">Local Settings</div>
+            <div class="tab" id="settings_2" onclick="changeSettingsTab(2)">Client Settings</div>
         </div>
 
         <div class="tab-content" id="settings_0_content">
@@ -75,7 +75,10 @@
 
         <div class="tab-content" id="settings_2_content">
             <div class="form-group">
-                <label for="tab_title">Tab title:</label>
+                These settings will only apply to your current browser!
+            </div>
+            <div class="form-group">
+                <label for="tab_title">Browser tab title:</label>
                 <input name="tab_title" id="tab_title"
                        placeholder="Tab title" value="Best Evar Chat! 2.0!"/>
             </div>

@@ -66,15 +66,20 @@ var validation_settings = {
         if (faction !== Cookies.get('faction')) {
             data.newFaction = faction;
         }
+
+        var email = $('#email').val();
+        if (email !== '' && email !== Cookies.get('email')) {
+            data.newEmail = email;
+        }
+
         var fontSize = $('#font-size').val();
         if (fontSize !== Cookies.get('fontSize')) {
             Cookies.set('fontSize', fontSize);
             $('body').css({fontSize: fontSize});
         }
-
-        var email = $('#email').val();
-        if (email !== '' && email !== Cookies.get('email')) {
-            data.newEmail = email;
+        var hide_images = $('#hidden_images').is(':checked');
+        if (hide_images !== Cookies.get('hideImages')) {
+            Cookies.set('hideImages', hide_images);
         }
 
         var newPassword = $("#new_password");
