@@ -31,10 +31,12 @@ function setSoundVolume(value) {
     });
 
     var btn = $('#volume-button');
-    if (value > 33)
-        btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
-    else
-        btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    if (!JSON.parse(Cookies.get('muted'))) {
+        if (value > 33)
+            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
+        else
+            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    }
 }
 
 // functions
