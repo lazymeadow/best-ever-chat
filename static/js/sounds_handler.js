@@ -31,7 +31,7 @@ function setSoundVolume(value) {
     });
 
     var btn = $('#volume-button');
-    if (!JSON.parse(Cookies.get('muted'))) {
+    if (!JSON.parse(Cookies.get('muted') || 'false')) {
         if (value > 33)
             btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
         else
@@ -71,7 +71,7 @@ $(document).ready(function () {
     $('body').append(activate_sound);
 
     setSoundVolume(volumeSlider.val());
-    setMute(JSON.parse(Cookies.get('muted')));
+    setMute(JSON.parse(Cookies.get('muted') || 'false'));
     update_audio_tags();
 });
 

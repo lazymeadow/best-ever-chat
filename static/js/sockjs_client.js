@@ -535,7 +535,7 @@ function print_message_history(room) {
         }
     }
     $('audio').each(function (_, element) {
-        element.muted = JSON.parse(Cookies.get('muted'));
+        element.muted = JSON.parse(Cookies.get('muted') || 'false');
     });
 }
 
