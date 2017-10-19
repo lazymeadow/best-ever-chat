@@ -1,6 +1,14 @@
 // sounds
 var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
 
+function getMuteIconHTML() {
+    return '<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>';
+}
+
+function getVolumeIconHTML(value) {
+    return value > 33 ? '<i class="fa fa-volume-up fa-stack-2x"></i>' : '<i class="fa fa-volume-down fa-stack-2x"></i>';
+}
+
 
 function setMute(value) {
     var btn = $('#volume-button');
@@ -8,16 +16,13 @@ function setMute(value) {
     if (value) {
         audio_elements.prop('muted', true);
         Cookies.set('muted', true);
-        btn.find('span').html('<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>');
+        btn.find('span').html(getMuteIconHTML());
     }
     else {
         audio_elements.prop('muted', false);
         Cookies.set('muted', false);
         var volume_slider = $('#volume-slider');
-        if (volume_slider.val() > 33)
-            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
-        else
-            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+        btn.find('span').html(getVolumeIconHTML(value));
     }
 }
 
@@ -26,10 +31,7 @@ function setSoundVolume(value) {
 
     var btn = $('#volume-button');
     if (!JSON.parse(Cookies.get('muted') || 'false')) {
-        if (value > 33)
-            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
-        else
-            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+        btn.find('span').html(getVolumeIconHTML(value));
     }
 }
 
