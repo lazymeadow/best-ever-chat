@@ -138,7 +138,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             elif json_message['client_version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
         elif json_message['type'] == 'imageMessage':
-            self.broadcast_image(json_message['user'], json_message['url'], json_message['room'], json_message['nsfw_flag'])
+            self.broadcast_image(json_message['user'], json_message['url'], json_message['room'],
+                                 json_message['nsfw_flag'])
         elif json_message['type'] == 'userSettings':
             self.update_user_settings(json_message['settings'])
         elif json_message['type'] == 'userStatus':
@@ -147,8 +148,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.change_user_password(json_message['user'], json_message['data'])
         elif json_message['type'] == 'newRoom':
             self.create_room(json_message['data'])
+        elif json_message['type'] == 'roomInvitation':
+            self.send_invitation(json_message['room_id'], json_message['invitees'])
         elif json_message['type'] == 'joinRoom':
-            self.join_room(json_message['user'], json_message['data'])
+            self.join_room(json_message['room_id'])
         elif json_message['type'] == 'leaveRoom':
             self.leave_room(json_message['data'])
         elif json_message['type'] == 'deleteRoom':
@@ -343,7 +346,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                'time': time.time(),
                                'room': room_id}
                 rooms[room_id]['history'].append(new_message)
-                self.broadcast(self.participants, {'type': 'chatMessage',
+                self.broadcast(rooms[room_id]['participants'], {'type': 'chatMessage',
                                                    'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
@@ -625,12 +628,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if 'name' not in room_data.keys():
             return
         # create room in db
-        room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner_id) VALUES (%s, %s)", room_data['name'],
-                                             self.current_user['id'])
+        room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner_id) VALUES (%s, %s)",
+                                             room_data['name'], self.current_user['id'])
         # add room to owner user
         self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, %s)",
-                                    room_id,
-                                    self.current_user['id'], True)
+                                    room_id, self.current_user['id'], True)
         self.joined_rooms.append(room_id)
         # add room to list
         rooms[room_id] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room_id)
@@ -643,15 +645,48 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         # broadcast room information to owner
         self.send_room_information(room_id=room_id)
+        self.broadcast_user_list(room_id=room_id)
         self.send_from_server("Created room {}.".format(room_data['name']))
 
-    def join_room(self, param, param1):
+    def send_invitation(self, room_id, invitees):
         """
         Join a room.
-        :param param:
-        :param param1:
+        :param room_id: the room to invite users to
+        :param invitees: the usernames to send invitations to
         """
-        pass
+        invited_participants = []
+        [invited_participants.extend(get_matching_participants(self.participants, x, match_attr='username')) for x in
+         invitees]
+        self.broadcast(invited_participants, {'type': 'invitation',
+                                              'data': {'room_id': room_id,
+                                                       'room_name': rooms[room_id]['name'],
+                                                       'sender': self.username}})
+
+    def join_room(self, room_id):
+        """
+        Join a room.
+        :param room_id:
+        """
+        if room_id not in rooms.keys():
+            self.send_from_server('That room does not exist. Maybe somebody is playing a joke on you?')
+        else:
+            own_participants = get_matching_participants(self.participants, self.current_user['id'])
+            # join room in database
+            self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, %s)",
+                                        room_id, self.current_user['id'], True)
+            # add self to room
+            self.joined_rooms.append(room_id)
+            rooms[room_id]['participants'].update(own_participants)
+            users[self.username]['typing'][room_id] = False
+            # broadcast presence to the other room members
+            self.broadcast_from_server(rooms[room_id]['participants'].difference(own_participants),
+                                       '{} has entered the room.'.format(self.username),
+                                       room_id=room_id)
+            # broadcast room user list
+            self.broadcast_user_list(room_id=room_id)
+            self.send_room_information(room_id=room_id)
+            # broadcast success to self
+            self.send_from_server('You have entered {}.'.format(rooms[room_id]['name']))
 
     def leave_room(self, room_id):
         """

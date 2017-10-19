@@ -242,6 +242,19 @@ function connect() {
                     toggleModal('information');
                 }
             }
+            if (type === 'invitation') {
+                dynamic_modal('You\'ve been invited to a room!',
+                    $('<div>')
+                        .append($('<div>').text('User ' + data['sender'] + ' is inviting you to join the room ' + data['room_name'] + '.'))
+                        .append($('<div>').text('Would you like to join?')),
+                    function () {
+                        sock.send(JSON.stringify({
+                            'type': 'joinRoom',
+                            'room_id': data['room_id'],
+                            'user': Cookies.get('username')
+                        }));
+                    });
+            }
             if (type === 'room_data') {
                 for (var i = 0; i < data.length; i++) {
                     var room = data[i];
@@ -251,30 +264,92 @@ function connect() {
                         .prop('title', room['name'])
                         .click(setActiveTab);
                     if (room['id'] > 0) {
-                        var menuId = 'tab_menu_' + room['id'];
                         newTab.append($('<span>').addClass('fa fa-fw fa-ellipsis-h')
                             .prop('room_id', room['id'])
                             .click(function (event) {
-                                toggleMenu(menuId);
+                                toggleMenu('tab_menu_' + event.target.room_id);
                             }))
-                            .append($('<div>').prop('id', menuId)
+                            .append($('<div>').prop('id', 'tab_menu_' + room['id'])
                                 .addClass('menu')
-                                .append($('<span>').addClass('menu-item')
-                                    .append($('<span>').addClass('fa fa-fw fa-users'))
-                                    .append('\nRoom Settings')
-                                    .click())
                                 .append($('<span>').addClass('menu-item')
                                     .append($('<span>').addClass('fa fa-fw fa-user-plus'))
                                     .append('\nInvite Users')
-                                    .click())
+                                    .click(function () {
+                                        toggleMenu($(event.target).parents('.menu').prop('id'));
+                                        var room_id = $(event.target).parents('.tab').prop('room_id');
+                                        dynamic_modal('Invite Users', $('<div>').addClass('form-group')
+                                                .append($('<label>').text('Which users?'))
+                                                .append(function () {
+                                                    // create a list of users that are NOT currently in the room
+                                                    var currentUsers = rooms[room_id]['users'].map(function (user) {
+                                                        return user['username'];
+                                                    });
+                                                    var eligibleUsers = rooms[0]['users'].map(function (user) {
+                                                        return user['username'];
+                                                    }).filter(function (username) {
+                                                        return !currentUsers.includes(username);
+                                                    });
+                                                    // add a checkbox for each user
+                                                    var userCheckboxes = [];
+                                                    $.each(eligibleUsers, function (_, username) {
+                                                        userCheckboxes.push($('<div>').addClass('form-group')
+                                                            .append($('<span>').addClass('label').text(username))
+                                                            .append($('<input>').prop('type', 'checkbox')
+                                                                .prop('id', username)
+                                                                .prop('value', username)
+                                                                .prop('name', 'invitee'))
+                                                            .append($('<label>').addClass('check-box').prop('for', username)))
+                                                    });
+                                                    return userCheckboxes;
+                                                }),
+                                            function () {
+                                                sock.send(JSON.stringify({
+                                                    'type': 'roomInvitation',
+                                                    'room_id': room_id,
+                                                    'user': Cookies.get('username'),
+                                                    'invitees': $('input[name="invitee"]:checked').map(function () {
+                                                        return this.value;
+                                                    }).get()
+                                                }));
+                                            });
+                                    }))
                                 .append($('<span>').addClass('menu-item')
                                     .append($('<span>').addClass('fa fa-fw fa-window-close-o'))
                                     .append('\nLeave Room')
-                                    .click(removeTab))
+                                    .click(function (event) {
+                                        toggleMenu($(event.target).parents('.menu').prop('id'));
+                                        var room_id = $(event.target).parents('.tab').prop('room_id');
+                                        removeTab(event);
+                                        sock.send(JSON.stringify({
+                                            'type': 'leaveRoom',
+                                            'data': room_id,
+                                            'user': Cookies.get('username')
+                                        }));
+                                    }))
                                 .append($('<span>').addClass('menu-item')
                                     .append($('<span>').addClass('fa fa-fw fa-volume-off'))
                                     .append('\nMute Room')
-                                    .click())
+                                    .click(function (event) {
+                                        toggleMenu($(event.target).parents('.menu').prop('id'));
+                                        console.log('muting room', $(event.target).parents('.tab').prop('room_id'));
+                                        // TODO mute the room
+                                    }))
+                                .append($('<span>').addClass('menu-item')
+                                    .addClass(room['owner_id'] === Cookies.get('id') ? '' : 'disabled')
+                                    .append($('<span>').addClass('fa fa-fw fa-trash'))
+                                    .append('\nDelete Room')
+                                    .click(function () {
+                                        toggleMenu($(event.target).parents('.menu').prop('id'));
+                                        var room_id = $(event.target).parents('.tab').prop('room_id');
+                                        dynamic_modal('Delete Room', $('<div>')
+                                                .append($('<div>').text('Are you sure you want to delete \'' + rooms[room_id]['name'] + '\'?'))
+                                                .append($('<div>').text('All users will be kicked out and all history will be lost.'))
+                                                .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
+                                            function () {
+                                                // TODO delete the room on the server (inform users of room's demise), remove the tab on the client
+                                                console.log('deleting room', room_id);
+                                            });
+                                    }))
                                 .hide());
                     }
                     $('#create-room-button').before(newTab);
@@ -477,6 +552,7 @@ function toggleMenu(whichOne) {
         menu.hide();
     else
         menu.show();
+    $('.menu:not(#' + whichOne + ')').hide();
 }
 
 function toggleEmojiList() {
@@ -523,10 +599,6 @@ function setActiveTab(event) {
     selectedTab.addClass('active');
     $('#log').empty();
     updateUserList(rooms[active_room].users);
-    if (rooms[active_room]['owner_id'] === Cookies.get('id'))
-        $('#room-settings-menu').removeClass('disabled');
-    else
-        $('#room-settings-menu').addClass('disabled');
     print_message_history(active_room);
     parse_emojis();
 }
@@ -537,12 +609,6 @@ function removeTab(event) {
         setActiveTab();
     }
     $('#room_' + room_id).remove();
-
-    sock.send(JSON.stringify({
-        'type': 'leaveRoom',
-        'data': room_id,
-        'user': Cookies.get('username')
-    }));
 }
 
 function print_message_history(room) {
@@ -566,4 +632,38 @@ function changeSettingsTab(tabNum) {
     $('#settings_' + tabNum).addClass('active');
     $('#settings .tab-content').hide();
     $('#settings_' + tabNum + '_content').show();
+}
+
+function dynamic_modal(title, content, callback) {
+    var newModal = $('<div>').addClass('modal')
+        .prop('id', 'dynamic_modal')
+        .append($('<div>').addClass('modal-header')
+            .append($('<span>').addClass('modal-title')
+                .text(title))
+            .append($('<span>').addClass('close-icon fa fa-close')
+                .click(function () {
+                    toggleModal('dynamic_modal');
+                    newModal.remove();
+                })))
+        .append($('<div>').addClass('modal-content')
+            .append(content))
+        .append($('<div>').addClass('modal-footer')
+            .append($('<button>').addClass('modal-cancel')
+                .prop('type', 'button')
+                .text('Cancel')
+                .click(function () {
+                    toggleModal('dynamic_modal');
+                    newModal.remove();
+                }))
+            .append($('<button>').addClass('modal-submit')
+                .prop('type', 'button')
+                .text('Submit')
+                .click(function () {
+                    toggleModal('dynamic_modal');
+                    callback();
+                    newModal.remove();
+                })))
+        .hide();
+    $('#overlay').append(newModal);
+    toggleModal('dynamic_modal');
 }
