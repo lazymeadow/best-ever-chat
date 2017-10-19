@@ -138,7 +138,7 @@ div.login {
     padding: @elementPadding;
   }
 
-  span {
+  span#create-room-button {
     cursor: pointer;
     color: @lightest;
     line-height: @tabHeight;
@@ -156,8 +156,7 @@ div.login {
     border-top-right-radius: 3px;
     line-height: @tabHeight;
 
-    span {
-      margin-right: -@elementPadding * 2;
+    span.fa {
       color: @bodyColor;
     }
 
@@ -246,10 +245,11 @@ div.login {
 }
 
 .menu {
+  position: absolute;
+  top: @headerHeight;
+
   &#main_menu {
     right: 0;
-    position: absolute;
-    top: @headerHeight;
   }
 
   margin: 0 @elementPadding;
@@ -263,6 +263,7 @@ div.login {
     display: block;
     padding: 0 @elementPadding;
     margin: @elementPadding 0;
+    line-height: 1.5em;
 
     &:not(.disabled):hover {
       background: @lightButtonColor;

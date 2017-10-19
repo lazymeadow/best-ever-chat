@@ -174,6 +174,9 @@ function connect() {
             window.clearTimeout(timeout);
             timeout = null;
             reconnect_count = 0;
+
+            $('#room_tabs .tab').remove();
+
             sock.send(JSON.stringify({'type': 'version', 'client_version': client_version}));
         };
 
@@ -245,11 +248,34 @@ function connect() {
                     var newTab = $('<div>').addClass('tab').text(room['name'])
                         .prop('id', 'room_' + room['id'])
                         .prop('room_id', room['id'])
+                        .prop('title', room['name'])
                         .click(setActiveTab);
                     if (room['id'] > 0) {
+                        var menuId = 'tab_menu_' + room['id'];
                         newTab.append($('<span>').addClass('fa fa-fw fa-ellipsis-h')
                             .prop('room_id', room['id'])
-                            .click(removeTab));
+                            .click(function (event) {
+                                toggleMenu(menuId);
+                            }))
+                            .append($('<div>').prop('id', menuId)
+                                .addClass('menu')
+                                .append($('<span>').addClass('menu-item')
+                                    .append($('<span>').addClass('fa fa-fw fa-users'))
+                                    .append('\nRoom Settings')
+                                    .click())
+                                .append($('<span>').addClass('menu-item')
+                                    .append($('<span>').addClass('fa fa-fw fa-user-plus'))
+                                    .append('\nInvite Users')
+                                    .click())
+                                .append($('<span>').addClass('menu-item')
+                                    .append($('<span>').addClass('fa fa-fw fa-window-close-o'))
+                                    .append('\nLeave Room')
+                                    .click(removeTab))
+                                .append($('<span>').addClass('menu-item')
+                                    .append($('<span>').addClass('fa fa-fw fa-volume-off'))
+                                    .append('\nMute Room')
+                                    .click())
+                                .hide());
                     }
                     $('#create-room-button').before(newTab);
                     rooms[room['id']] = room;
@@ -395,7 +421,7 @@ function print_private_message(msg) {
 function print_message(msg, ignoreCount) {
     if (!msg.hasOwnProperty('message') && msg.hasOwnProperty('image_url')) {
         var imageElement = $('<a>').prop('href', msg.image_url).prop('target', '_blank')
-                .append($('<img>').prop('src', msg.image_src_url));
+            .append($('<img>').prop('src', msg.image_src_url));
         var hide_images = JSON.parse(Cookies.get('hideImages') || 'true');
         hide_images ? imageElement.hide() : imageElement.show();
         msg.message = $('<div>').addClass('image-wrapper')
@@ -484,6 +510,7 @@ function setActiveTab(event) {
     updateTypingStatus(false);  // set typing to false in current room
     var selectedTab;
     if (event) {
+        if (!$(event.target).hasClass('tab')) return;
         active_room = event.target.room_id;
         selectedTab = $(event.target);
     }
@@ -495,18 +522,17 @@ function setActiveTab(event) {
     $('#room_tabs .tab.active').removeClass('active');
     selectedTab.addClass('active');
     $('#log').empty();
-    print_message_history(active_room);
     updateUserList(rooms[active_room].users);
     if (rooms[active_room]['owner_id'] === Cookies.get('id'))
         $('#room-settings-menu').removeClass('disabled');
     else
         $('#room-settings-menu').addClass('disabled');
+    print_message_history(active_room);
     parse_emojis();
-
 }
 
 function removeTab(event) {
-    var room_id = event.target.room_id;
+    var room_id = $(event.target).parents('.tab').prop('room_id');
     if (active_room === room_id) {
         setActiveTab();
     }
@@ -521,9 +547,7 @@ function removeTab(event) {
 
 function print_message_history(room) {
     var history = rooms[room].history;
-    $('audio').each(function (_, element) {
-        element.muted = true;
-    });
+    $('audio').prop('muted', true);
     for (var message in history) {
         if (history.hasOwnProperty(message)) {
             if (history[message].type === 'privateMessage') {
@@ -534,9 +558,7 @@ function print_message_history(room) {
             }
         }
     }
-    $('audio').each(function (_, element) {
-        element.muted = JSON.parse(Cookies.get('muted') || 'false');
-    });
+    $('audio').prop('muted', JSON.parse(Cookies.get('muted') || 'false'));
 }
 
 function changeSettingsTab(tabNum) {
