@@ -19,581 +19,586 @@
 
 @import url('https://fonts.googleapis.com/css?family=Amiko');
 @import 'input-range';
+@import 'checkboxes';
 
 body {
-	background: @backgroundColor;
-	font: 14px 'Amiko', san-serif;
-	color: @bodyColor;
+  background: @backgroundColor;
+  font: 14px 'Amiko', san-serif;
+  color: @bodyColor;
 }
 
 div.login {
-	text-align: right;
-	width: 500px;
-	padding: 5px;
-	margin-left: auto;
-	margin-right: auto;
-	background: @lightest;
-	border: solid 1px @borderColor;
-	border-radius: 3px;
-	min-height: 100px;
-	overflow-y: auto;
+  text-align: right;
+  width: 500px;
+  padding: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  background: @lightest;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+  min-height: 100px;
+  overflow-y: auto;
 
-	a {
-		float: left;
-		padding: 10px;
-	}
+  a {
+    float: left;
+    padding: 10px;
+  }
 
-	label {
-		min-width: 150px;
-	}
+  label {
+    min-width: 150px;
+  }
 
-	button.primary {
-		float: right;
-		min-width: 100px;
-	}
+  button.primary {
+    float: right;
+    min-width: 100px;
+  }
 
-	button.secondary {
-		float: left;
-		min-width: 100px;
-	}
+  button.secondary {
+    float: left;
+    min-width: 100px;
+  }
 }
 
 #user_list {
-	bottom: @chatBarHeight;
-	border: @borderColor 1px none;
-	border-left: @lightBackgroundColor 1px solid;
-	border-radius: 0 3px 3px 0;
-	background: @lightest;
-	top: @headerHeight + @elementPadding;
-	position: fixed;
-	margin: 0 0 @elementPadding 0;
-	right: @elementPadding;
-	width: @rightBarWidth - 1px; // for border
-	overflow-y: auto;
+  bottom: @chatBarHeight;
+  border: @borderColor 1px none;
+  border-left: @lightBackgroundColor 1px solid;
+  border-radius: 0 3px 3px 0;
+  background: @lightest;
+  top: @headerHeight + @elementPadding;
+  position: fixed;
+  margin: 0 0 @elementPadding 0;
+  right: @elementPadding;
+  width: @rightBarWidth - 1px; // for border
+  overflow-y: auto;
 
-	div {
-		padding: @elementPadding;
-		span {
-			&:not(.typing) {
-				padding-right: 5px;
-			}
-			&.typing {
-				float: right;
-				opacity: 0.55;
-			}
-			&.active {
-				color: #57a848;
-			}
-			&.idle {
-				opacity: .25;
-			}
-		}
-		&:nth-of-type(odd) {
-			background: darken(@lightest, 5%);
-		}
-	}
+  div {
+    padding: @elementPadding;
+    span {
+      &:not(.typing) {
+        padding-right: 5px;
+      }
+      &.typing {
+        float: right;
+        opacity: 0.55;
+      }
+      &.active {
+        color: #57a848;
+      }
+      &.idle {
+        opacity: .25;
+      }
+    }
+    &:nth-of-type(odd) {
+      background: darken(@lightest, 5%);
+    }
+  }
 
 }
 
 .header {
-	position: fixed;
-	width: 100%;
-	z-index: 50;
-	padding: @elementPadding;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: @headerHeight;
-	color: @lightest;
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-	align-items: center;
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+  padding: @elementPadding;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: @headerHeight;
+  color: @lightest;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
 
-	span {
-		&#menu-button {
-			order: 1;
-			flex: 0 1 auto;
-			padding: 0 5px;
-			align-self: flex-start;
-		}
-		cursor: pointer;
-	}
+  span {
+    &#menu-button {
+      order: 1;
+      flex: 0 1 auto;
+      padding: 0 5px;
+      align-self: flex-start;
+    }
+    cursor: pointer;
+  }
 }
 
 .tabs {
-	padding: 0;
-	margin: @elementPadding 0 0;
-	display: flex;
-	align-items: stretch;
-	height: @tabHeight;
-	flex: 0 1 auto;
-	order: 0;
-	align-self: flex-end;
+  padding: 0;
+  margin: @elementPadding 0 0;
+  display: flex;
+  align-items: stretch;
+  height: @tabHeight;
+  flex: 0 1 auto;
+  order: 0;
+  align-self: flex-end;
 
-	#add-room {
-		color: @lightest;
-		cursor: pointer;
-		padding: @elementPadding;
-	}
+  #add-room {
+    color: @lightest;
+    cursor: pointer;
+    padding: @elementPadding;
+  }
 
-	span {
-		cursor: pointer;
-		color: @lightest;
-		line-height: @tabHeight;
-		padding: 0 @elementPadding;
-	}
+  span {
+    cursor: pointer;
+    color: @lightest;
+    line-height: @tabHeight;
+    padding: 0 @elementPadding;
+  }
 
-	.tab {
-		color: @bodyColor;
-		flex: 0 0 auto;
-		background: @lightButtonColor;
-		padding: 0 @elementPadding * 2;
-		border: solid 1px @borderColor;
-		margin: 0 2px 0 0;
-		border-top-left-radius: 3px;
-		border-top-right-radius: 3px;
-		line-height: @tabHeight;
+  .tab {
+    color: @bodyColor;
+    flex: 0 0 auto;
+    background: @lightButtonColor;
+    padding: 0 @elementPadding * 2;
+    border: solid 1px @borderColor;
+    margin: 0 2px 0 0;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    line-height: @tabHeight;
 
-		span {
-			margin-right: -@elementPadding * 2;
-			color: @bodyColor;
-		}
+    span {
+      margin-right: -@elementPadding * 2;
+      color: @bodyColor;
+    }
 
-		&.active {
-			background: @lightest;
-			border-color: @lightBackgroundColor;
-		}
+    &.active {
+      background: @lightest;
+      border-color: @lightBackgroundColor;
+    }
 
-		&:not(.active):hover {
-			cursor: pointer;
-			background: @buttonHoverColor;
-		}
-	}
+    &:not(.active):hover {
+      cursor: pointer;
+      background: @buttonHoverColor;
+    }
+  }
 }
 
 .tab-content {
-	display: block;
-	border-top: solid 1px lightgrey;
-	margin: -1px;
+  display: block;
+  border-top: solid 1px lightgrey;
+  margin: -1px;
 }
 
 #log {
-	position: fixed;
-	background: @lightest;
-	overflow-y: auto;
-	border: none 1px @borderColor;
-	border-radius: 3px 0 0 3px;
-	margin: 0 0 @elementPadding 0;
-	padding: @elementPadding;
-	top: @headerHeight + @elementPadding;
-	bottom: @chatBarHeight;
-	right: @rightBarWidth + @elementPadding;
-	left: @elementPadding;
-	.chat-message {
-		display: flex;
+  position: fixed;
+  background: @lightest;
+  overflow-y: auto;
+  border: none 1px @borderColor;
+  border-radius: 3px 0 0 3px;
+  margin: 0 0 @elementPadding 0;
+  padding: @elementPadding;
+  top: @headerHeight + @elementPadding;
+  bottom: @chatBarHeight;
+  right: @rightBarWidth + @elementPadding;
+  left: @elementPadding;
+  .chat-message {
+    display: flex;
 
-		& .time {
-			flex: 0 0 auto;
-			padding-right: 5px;
-		}
+    & .time {
+      flex: 0 0 auto;
+      padding-right: 5px;
+    }
 
-		& .message {
-			flex: 1 1 auto;
-			& strong {
-				vertical-align: top;
-			}
-			&.client-message {
-				color: @clientColor;
-			}
+    & .message {
+      flex: 1 1 auto;
+      & strong {
+        vertical-align: top;
+      }
+      &.client-message {
+        color: @clientColor;
+      }
 
-			&.server-message {
-				color: @serverColor;
-			}
+      &.server-message {
+        color: @serverColor;
+      }
 
-			&.private-message {
-				font-style: italic;
-				color: @privateMessageColor;
-			}
-		}
+      &.private-message {
+        font-style: italic;
+        color: @privateMessageColor;
+      }
+    }
 
-		& .image-wrapper {
-			display: inline-block;
-			background-color: darken(@lightest, 5%);
-			padding: 0 @elementPadding;
-			border-radius: 3px;
-			min-width: 150px;
+    & .image-wrapper {
+      display: inline-block;
+      background-color: darken(@lightest, 5%);
+      padding: 0 @elementPadding;
+      border-radius: 3px;
+      min-width: 150px;
 
-			& span {
-				display: block;
-			}
+      & span {
+        display: block;
+      }
 
-			& img {
-				max-width: 300px;
-				max-height: 300px;
-			}
-		}
-	}
+      & img {
+        max-width: 300px;
+        max-height: 300px;
+      }
+    }
+  }
 }
 
 .right_bar {
-	position: fixed;
-	top: @headerHeight + @elementPadding;
-	right: @elementPadding;
-	bottom: @chatBarHeight;
-	width: @rightBarWidth;
+  position: fixed;
+  top: @headerHeight + @elementPadding;
+  right: @elementPadding;
+  bottom: @chatBarHeight;
+  width: @rightBarWidth;
 }
 
 .menu {
-	&#main_menu {
-		right: 0;
-		position: absolute;
-		top: @headerHeight;
-	}
+  &#main_menu {
+    right: 0;
+    position: absolute;
+    top: @headerHeight;
+  }
 
-	margin: 0 @elementPadding;
-	background: @lightest;
-	border: solid 1px @borderColor;
-	border-radius: 3px;
-	min-width: 150px;
+  margin: 0 @elementPadding;
+  background: @lightest;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+  min-width: 150px;
 
-	& span.menu-item {
-		cursor: pointer;
-		display: block;
-		padding: 0 @elementPadding;
-		margin: @elementPadding 0;
+  & span.menu-item {
+    cursor: pointer;
+    display: block;
+    padding: 0 @elementPadding;
+    margin: @elementPadding 0;
 
-		&:not(.disabled):hover {
-			background: @lightButtonColor;
-		}
-		&.disabled {
-			color: lighten(@bodyColor, 45%);
-			cursor: default;
-		}
-	}
+    &:not(.disabled):hover {
+      background: @lightButtonColor;
+    }
+    &.disabled {
+      color: lighten(@bodyColor, 45%);
+      cursor: default;
+    }
+  }
 }
 
 #emoji-list {
-	position: absolute;
-	bottom: @chatBarHeight - @elementPadding;
-	right: 0;
-	margin: 0 @elementPadding;
-	background: @lightBackgroundColor;
-	border: solid 1px @borderColor;
-	border-radius: 3px;
-	img {
-		height: 1.2em;
-		width: 1.2em;
-		//font-size: 1.2em;
-		cursor: pointer;
-	}
+  position: absolute;
+  bottom: @chatBarHeight - @elementPadding;
+  right: 0;
+  margin: 0 @elementPadding;
+  background: @lightBackgroundColor;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+  img {
+    height: 1.2em;
+    width: 1.2em;
+    //font-size: 1.2em;
+    cursor: pointer;
+  }
 }
 
 .chat-bar {
-	position: fixed;
-	height: @chatBarHeight;
-	padding: @elementPadding;
-	display: flex;
-	align-items: flex-end;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	.button {
-		flex: 0 0 auto;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		.fa {
-			//font-size: 1.5em;
-		}
-	}
-	.first {
-		border-radius: 3px 0 0 3px;
-	}
-	.not-first {
-		border-left: none;
-		border-radius: 0;
-	}
-	.last {
-		border-left: none;
-		border-radius: 0 3px 3px 0;
-	}
-	input {
-		flex: 1 0 auto;
-	}
+  position: fixed;
+  height: @chatBarHeight;
+  padding: @elementPadding;
+  display: flex;
+  align-items: flex-end;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  .button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .fa {
+      //font-size: 1.5em;
+    }
+  }
+  .first {
+    border-radius: 3px 0 0 3px;
+  }
+  .not-first {
+    border-left: none;
+    border-radius: 0;
+  }
+  .last {
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+  }
+  input {
+    flex: 1 0 auto;
+  }
 }
 
 input {
-	font: 1em 'Amiko', sans-serif;
-	padding: @elementPadding;
-	background: @lightest;
-	height: 25px;
-	border: @borderColor 1px solid;
-	border-radius: 3px;
+  font: 1em 'Amiko', sans-serif;
+  padding: @elementPadding;
+  background: @lightest;
+  height: 25px;
+  border: @borderColor 1px solid;
+  border-radius: 3px;
 }
 
 .primary-button() {
-	float: right;
-	background: @backgroundColor;
-	color: @lightest;
-	&:hover {
-		background: darken(@backgroundColor, 10%);
-	}
+  float: right;
+  background: @backgroundColor;
+  color: @lightest;
+  &:hover {
+    background: darken(@backgroundColor, 10%);
+  }
 }
 
 .cancel-button() {
-	background: lighten(@lightBackgroundColor, 10%);
-	color: darken(@lightBackgroundColor, 25%);
-	float: left;
-	&:hover {
-		background: @lightBackgroundColor;
-		color: darken(@lightBackgroundColor, 35%);
-	}
+  background: lighten(@lightBackgroundColor, 10%);
+  color: darken(@lightBackgroundColor, 25%);
+  float: left;
+  &:hover {
+    background: @lightBackgroundColor;
+    color: darken(@lightBackgroundColor, 35%);
+  }
 }
 
 button, .button {
-	padding: 0 5px;
-	min-width: 35px;
-	height: 35px;
-	font-family: 'Amiko', sans-serif;
-	border: @borderColor 1px solid;
-	border-radius: 3px;
-	cursor: pointer;
-	background: @lightButtonColor;
-	color: darken(@backgroundColor, 50%);
-	&:hover {
-		background: @buttonHoverColor;
-	}
+  padding: 0 5px;
+  min-width: 35px;
+  height: 35px;
+  font-family: 'Amiko', sans-serif;
+  border: @borderColor 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  background: @lightButtonColor;
+  color: darken(@backgroundColor, 50%);
+  &:hover {
+    background: @buttonHoverColor;
+  }
 
-	&.primary {
-		.primary-button;
-	}
+  &.primary {
+    .primary-button;
+  }
 
-	&.cancel {
-		.cancel-button;
-	}
+  &.cancel {
+    .cancel-button;
+  }
 }
 
 #overlay {
-	display: flex;
-	z-index: 99;
-	position: fixed;
-	width: 100vw;
-	height: 100vh;
-	top: 0;
-	left: 0;
-	background: @overlayColor;
-	align-items: center;
-	justify-content: center;
+  display: flex;
+  z-index: 99;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background: @overlayColor;
+  align-items: center;
+  justify-content: center;
 
-	& #settings .modal-content {
-		min-height: 375px;
-	}
+  & #settings .modal-content {
+    min-height: 375px;
+  }
 
-	.modal {
-		display: flex;
-		z-index: 100;
-		width: 500px;
-		padding: @elementPadding 0;
-		background: @lightest;
-		border: solid 1px @borderColor;
-		border-radius: 3px;
-		flex: 0 1 auto;
-		overflow-y: hidden;
-		flex-direction: column;
+  .modal {
+    display: flex;
+    z-index: 100;
+    width: 500px;
+    padding: @elementPadding 0;
+    background: @lightest;
+    border: solid 1px @borderColor;
+    border-radius: 3px;
+    flex: 0 1 auto;
+    overflow-y: hidden;
+    flex-direction: column;
 
-		.close {
-			float: right;
-			border: none;
-			padding: 0;
-			margin: 0;
-			color: @backgroundColor;
-			background: @lightest;
-		}
+    .close {
+      float: right;
+      border: none;
+      padding: 0;
+      margin: 0;
+      color: @backgroundColor;
+      background: @lightest;
+    }
 
-		.modal-header {
-			flex: 0 0 auto;
-			padding: @elementPadding;
-			margin: 0;
+    .modal-header {
+      flex: 0 0 auto;
+      padding: @elementPadding;
+      margin: 0;
 
-			.modal-title {
-				font-size: 1.5em;
-				font-weight: bold;
-			}
+      .modal-title {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
 
-			span.close-icon {
-				float: right;
-				width: 20px;
-				height: 100%;
-				color: @lightBackgroundColor;
-				cursor: pointer;
-			}
-		}
+      span.close-icon {
+        float: right;
+        width: 20px;
+        height: 100%;
+        color: @lightBackgroundColor;
+        cursor: pointer;
+      }
+    }
 
-		.modal-content {
-			border-top: 1px solid @lightBackgroundColor;
-			border-bottom: 1px solid @lightBackgroundColor;
-			max-height: 50vh;
-			flex: 1 0 auto;
-			padding: @elementPadding;
-			margin: 0;
-			overflow-y: auto;
-		}
+    .modal-content {
+      border-top: 1px solid @lightBackgroundColor;
+      border-bottom: 1px solid @lightBackgroundColor;
+      max-height: 50vh;
+      flex: 1 0 auto;
+      padding: @elementPadding;
+      margin: 0;
+      overflow-y: auto;
+    }
 
-		.modal-footer {
-			flex: 0 0 auto;
-			padding: @elementPadding;
+    .modal-footer {
+      flex: 0 0 auto;
+      padding: @elementPadding;
 
-			button {
-				min-width: 100px;
-				border: none;
-			}
+      button {
+        min-width: 100px;
+        border: none;
+      }
 
-			.modal-submit {
-				float: right;
-				.primary-button;
-			}
+      .modal-submit {
+        float: right;
+        .primary-button;
+      }
 
-			.modal-cancel {
-				float: left;
-				.cancel-button;
-			}
-		}
-	}
+      .modal-cancel {
+        float: left;
+        .cancel-button;
+      }
+    }
+  }
 }
 
 .form-group {
-	padding: @elementPadding;
-	display: table;
+  padding: @elementPadding;
+  display: table;
 
-	.form-element {
-		display: table-row;
+  .form-element {
+    display: table-row;
 
-		div {
-			display: table-cell;
-		}
+    div {
+      display: table-cell;
+    }
 
-		.toggle {
-			margin: 10px;
-			vertical-align: middle;
-		}
-	}
+    .toggle {
+      margin: 10px;
+      vertical-align: middle;
+    }
+  }
 
-	label, input {
-		display: table-cell;
-		margin: 10px 25px;
-		&[type="radio"] {
-			margin: 10px;
-			vertical-align: middle;
-		}
-	}
+  label, input {
+    display: table-cell;
+    margin: 10px 25px;
+    &[type="radio"] {
+      margin: 10px;
+      vertical-align: middle;
+    }
+  }
+
+  input[type=checkbox] {
+    display: none;
+  }
 }
 
 .toggle {
-	display: inline-block;
-	position: relative;
-	width: 50px;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
+  display: inline-block;
+  position: relative;
+  width: 50px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 
-	.toggle-checkbox {
-		display: none;
-		margin: 0;
-	}
+  .toggle-checkbox {
+    display: none;
+    margin: 0;
+  }
 
-	.toggle-label {
-		display: block;
-		overflow: hidden;
-		cursor: pointer;
-		border: @borderColor 1px solid;
-		border-radius: 3px;
-		margin: 0;
-	}
+  .toggle-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: @borderColor 1px solid;
+    border-radius: 3px;
+    margin: 0;
+  }
 
-	.toggle-inner {
-		display: block;
-		width: 200%;
-		margin-left: -100%;
-		transition: margin 0.3s ease-in 0s;
-	}
+  .toggle-inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+  }
 
-	.toggle-inner:before, .toggle-inner:after {
-		display: block;
-		float: left;
-		width: 50%;
-		height: 30px;
-		padding: 0;
-		line-height: 30px;
-		font-size: 14px;
-		color: white;
-		box-sizing: border-box;
-	}
+  .toggle-inner:before, .toggle-inner:after {
+    display: block;
+    float: left;
+    width: 50%;
+    height: 30px;
+    padding: 0;
+    line-height: 30px;
+    font-size: 14px;
+    color: white;
+    box-sizing: border-box;
+  }
 
-	.toggle-inner:before {
-		content: "\f028";
-		padding-left: 10px;
-		background-color: #43753A;
-		color: #FFFFFF;
-	}
+  .toggle-inner:before {
+    content: "\f028";
+    padding-left: 10px;
+    background-color: #43753A;
+    color: #FFFFFF;
+  }
 
-	.toggle-inner:after {
-		content: "\f026";
-		padding-right: 15px;
-		background-color: #A31A1A;
-		color: #FFFFFF;
-		text-align: right;
-	}
+  .toggle-inner:after {
+    content: "\f026";
+    padding-right: 15px;
+    background-color: #A31A1A;
+    color: #FFFFFF;
+    text-align: right;
+  }
 
-	.toggle-switch {
-		display: block;
-		width: 10px;
-		margin: 0;
-		background: @lightBackgroundColor;
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		right: 38px;
-		border: @borderColor 1px solid;
-		border-radius: 3px;
-		transition: all 0.3s ease-in 0s;
-	}
+  .toggle-switch {
+    display: block;
+    width: 10px;
+    margin: 0;
+    background: @lightBackgroundColor;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 38px;
+    border: @borderColor 1px solid;
+    border-radius: 3px;
+    transition: all 0.3s ease-in 0s;
+  }
 
-	.toggle-checkbox:checked + .toggle-label .toggle-inner {
-		margin-left: 0;
-	}
+  .toggle-checkbox:checked + .toggle-label .toggle-inner {
+    margin-left: 0;
+  }
 
-	.toggle-checkbox:checked + .toggle-label .toggle-switch {
-		right: 0;
-	}
+  .toggle-checkbox:checked + .toggle-label .toggle-switch {
+    right: 0;
+  }
 }
 
 img.emoji {
-	height: 1.1em;
-	width: 1.1em;
-	margin: 0 .05em 0 .1em;
-	vertical-align: -0.1em;
+  height: 1.1em;
+  width: 1.1em;
+  margin: 0 .05em 0 .1em;
+  vertical-align: -0.1em;
 }
 
 #volume-button {
-	display: inline;
-	&:hover {
-		cursor: pointer;
-	}
+  display: inline;
+  &:hover {
+    cursor: pointer;
+  }
 
 }
 
 #volume-slider {
-	width: 100px;
-	padding: 0;
-	margin: 0;
-	vertical-align: middle;
+  width: 100px;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
 }
 
 .text-danger {
-	color: #A31A1A;
+  color: #A31A1A;
 }
 
 .text-muted {
-	opacity: .5;
+  opacity: .5;
 }
