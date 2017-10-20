@@ -16,7 +16,6 @@ $(document).ready(function () {
     $('#emoji-list').hide();
     $('#main_menu').hide();
     $('#newRoom').hide();
-    $('#connectError').hide();
     $('#imageInput').hide();
     $('#information').hide();
     $('#overlay').hide();
@@ -266,17 +265,21 @@ function connect() {
                 }
             }
             if (type === 'invitation') {
-                dynamic_modal('You\'ve been invited to a room!',
-                    $('<div>')
+                dynamic_modal({
+                    title: 'You\'ve been invited to a room!',
+                    content: $('<div>')
                         .append($('<div>').text('User ' + data['sender'] + ' is inviting you to join the room ' + data['room_name'] + '.'))
                         .append($('<div>').text('Would you like to join?')),
-                    function () {
+                    callback: function () {
                         sock.send(JSON.stringify({
                             'type': 'joinRoom',
                             'room_id': data['room_id'],
                             'user': Cookies.get('username')
                         }));
-                    });
+                    },
+                    submitText: 'Yes!',
+                    cancelText: 'No!'
+                });
             }
             if (type === 'deleteRoom') {
                 var room_id = data.data.room_id;
@@ -307,7 +310,9 @@ function connect() {
                                         callback: function () {
                                             toggleMenu($(event.target).parents('.menu').prop('id'));
                                             var room_id = $(event.target).parents('.tab').prop('room_id');
-                                            dynamic_modal('Invite Users', $('<div>').addClass('form-group')
+                                            dynamic_modal({
+                                                title: 'Invite Users',
+                                                content: $('<div>').addClass('form-group')
                                                     .append($('<label>').text('Which users?'))
                                                     .append(function () {
                                                         // create a list of users that are NOT currently in the room
@@ -332,7 +337,7 @@ function connect() {
                                                         });
                                                         return userCheckboxes;
                                                     }),
-                                                function () {
+                                                callback: function () {
                                                     sock.send(JSON.stringify({
                                                         'type': 'roomInvitation',
                                                         'room_id': room_id,
@@ -341,7 +346,9 @@ function connect() {
                                                             return this.value;
                                                         }).get()
                                                     }));
-                                                });
+                                                },
+                                                submitText: 'Send invitations'
+                                            });
                                         }
                                     },
                                     {
@@ -375,17 +382,21 @@ function connect() {
                                         callback: function () {
                                             toggleMenu($(event.target).parents('.menu').prop('id'));
                                             var room_id = $(event.target).parents('.tab').prop('room_id');
-                                            dynamic_modal('Delete Room', $('<div>')
+                                            dynamic_modal({
+                                                title: 'Delete Room',
+                                                content: $('<div>')
                                                     .append($('<div>').text('Are you sure you want to delete \'' + rooms[room_id]['name'] + '\'?'))
                                                     .append($('<div>').text('All users will be kicked out and all history will be lost.'))
                                                     .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
-                                                function () {
+                                                callback: function () {
                                                     sock.send(JSON.stringify({
                                                         'type': 'deleteRoom',
                                                         'data': room_id,
                                                         'user': Cookies.get('username')
                                                     }));
-                                                });
+                                                },
+                                                submitText: 'Delete it!'
+                                            });
                                         }
                                     }
                                 ]
@@ -429,7 +440,13 @@ function connect() {
             });
 
             if (reconnect_count === 0) {
-                toggleModal('connectError');
+                dynamic_modal({
+                    title: 'Connection Error',
+                    content: 'There was an error connecting to the server.',
+                    callback: attempt_reconnect,
+                    showCancel: false,
+                    submitText: 'Retry'
+                });
             }
             else {
                 attempt_reconnect();
@@ -449,9 +466,15 @@ function parse_emojis(element) {
 }
 
 function attempt_reconnect() {
-    if (reconnect_count === 0) {
-        toggleModal('connectError');
-    }
+    // if (reconnect_count === 0) {
+    //     dynamic_modal({
+    //         title: 'Connection Error',
+    //         content: 'There was an error connecting to the server.',
+    //         callback: attempt_reconnect,
+    //         showCancel: false,
+    //         submitText: 'Retry'
+    //     });
+    // }
     window.clearTimeout(timeout);
     if (reconnect_count < MAX_RETRIES)
         timeout = window.setTimeout(reconnect, 1000);
@@ -461,7 +484,13 @@ function attempt_reconnect() {
             time: moment().unix(),
             message: 'Reconnect failed.'
         });
-        toggleModal('connectError');
+        dynamic_modal({
+            title: 'Connection Error',
+            content: 'There was an error connecting to the server.',
+            callback: attempt_reconnect,
+            showCancel: false,
+            submitText: 'Retry'
+        });
         reconnect_count = 0;
     }
 }
