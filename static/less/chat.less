@@ -202,10 +202,19 @@ div.login {
   background: @lightBackgroundColor;
   border: solid 1px @borderColor;
   border-radius: 3px;
+
+  & td {
+    background-color: @lightest;
+    border-radius: 3px;
+
+    &:hover {
+      background-color: @lightButtonColor;
+    }
+  }
+
   img {
-    height: 1.2em;
-    width: 1.2em;
-    //font-size: 1.2em;
+    height: 1.5em;
+    width: 1.5em;
     cursor: pointer;
   }
 }
