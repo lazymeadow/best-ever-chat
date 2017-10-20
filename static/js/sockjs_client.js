@@ -229,6 +229,29 @@ function connect() {
                         user.username = username;
                         rooms[room_num].users.push(user);
                     });
+                    rooms[room_num].users.sort(function (a, b) {
+                        var nameA = a.username.toUpperCase();  // ignore upper and lowercase
+                        var nameB = b.username.toUpperCase();  // ignore upper and lowercase
+                        if (nameA < nameB) {
+                            return -1;
+                        }
+                        if (nameA > nameB) {
+                            return 1;
+                        }
+                        // names must be equal
+                        return 0;
+                    });
+                    // if the user list contains all connected users, then disable the invite item
+                    if ((rooms[room_num].users.length === rooms[0].users.length) &&
+                        rooms[room_num].users.every(function (element, index) {
+                            return element.username === rooms[0].users[index].username;
+                        })
+                    ) {
+                        $('#invite_' + room_num).addClass('disabled');
+                    }
+                    else {
+                        $('#invite_' + room_num).removeClass('disabled');
+                    }
                     if (room_num === active_room)
                         updateUserList();
                 }
@@ -336,15 +359,15 @@ function connect() {
                                             }));
                                         }
                                     },
-                                    {
-                                        iconClass: 'fa fa-fw fa-volume-off',
-                                        name: 'Mute Room',
-                                        callback: function (event) {
-                                            toggleMenu($(event.target).parents('.menu').prop('id'));
-                                            console.log('muting room', $(event.target).parents('.tab').prop('room_id'));
-                                            // TODO mute the room
-                                        }
-                                    },
+                                    // {
+                                    //     iconClass: 'fa fa-fw fa-volume-off',
+                                    //     name: 'Mute Room',
+                                    //     callback: function (event) {
+                                    //         toggleMenu($(event.target).parents('.menu').prop('id'));
+                                    //         console.log('muting room', $(event.target).parents('.tab').prop('room_id'));
+                                    //         // TODO mute the room
+                                    //     }
+                                    // },
                                     {
                                         iconClass: 'fa fa-fw fa-trash',
                                         name: 'Delete Room',
@@ -454,18 +477,7 @@ function reconnect() {
 }
 
 function updateUserList() {
-    var newList = rooms[active_room].users.sort(function (a, b) {
-        var nameA = a.username.toUpperCase();  // ignore upper and lowercase
-        var nameB = b.username.toUpperCase();  // ignore upper and lowercase
-        if (nameA < nameB) {
-            return -1;
-        }
-        if (nameA > nameB) {
-            return 1;
-        }
-        // names must be equal
-        return 0;
-    });
+    var newList = rooms[active_room].users;
     var userList = $('#user_list');
     userList.empty();
 
