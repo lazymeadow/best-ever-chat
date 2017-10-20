@@ -371,7 +371,7 @@ function connect() {
                                     {
                                         iconClass: 'fa fa-fw fa-trash',
                                         name: 'Delete Room',
-                                        disabled: room['owner'] === Cookies.get('id'),
+                                        disabled: room['owner'] !== Cookies.get('id'),
                                         callback: function () {
                                             toggleMenu($(event.target).parents('.menu').prop('id'));
                                             var room_id = $(event.target).parents('.tab').prop('room_id');
@@ -394,7 +394,7 @@ function connect() {
                     $('#create-room-button').before(newTab);
                     rooms[room['id']] = room;
                 }
-                $('#room_0').click();
+                $('#room_' + active_room).click();
             }
             if (type === 'chatMessage') {
                 var roomNum = data.room;

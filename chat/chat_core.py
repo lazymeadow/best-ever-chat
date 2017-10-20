@@ -639,7 +639,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         rooms[room_id] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room_id)
         rooms[room_id]['participants'] = set()
         rooms[room_id]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
-        rooms[room_id]['owner'] = self.username
+        rooms[room_id]['owner'] = self.current_user['id']
         # set user in room
         rooms[room_id]['participants'].update(get_matching_participants(self.participants, self.current_user['id']))
         users[self.username]['typing'][room_id] = False
@@ -684,8 +684,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                        '{} has entered the room.'.format(self.username),
                                        room_id=room_id)
             # broadcast room user list
-            self.broadcast_user_list(room_id=room_id)
             self.send_room_information(room_id=room_id)
+            self.broadcast_user_list(room_id=room_id)
             # broadcast success to self
             self.send_from_server('You have entered {}.'.format(rooms[room_id]['name']))
 

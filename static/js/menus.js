@@ -31,7 +31,7 @@ function menu(parentElement, options) {
                         .append('\n' + menuItem.name)
                         .click(function (event) {
                             if (!$(event.target).hasClass('disabled')) {
-                                menuItem.callback();
+                                menuItem.callback(event);
                             }
                         })
                         .addClass(menuItem.disabled ? 'disabled' : ''));
