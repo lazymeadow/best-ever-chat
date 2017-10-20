@@ -1,0 +1,34 @@
+.menu {
+  position: absolute;
+  top: @headerHeight;
+
+  &#main_menu {
+    right: 0;
+  }
+
+  margin: 0 @elementPadding;
+  background: @lightest;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+  min-width: 150px;
+
+  & span.menu-item {
+    cursor: pointer;
+    display: block;
+    padding: 0 @elementPadding;
+    margin: @elementPadding 0;
+    line-height: 1.5em;
+
+    &:not(.disabled):hover {
+      background: @lightButtonColor;
+    }
+    &.disabled {
+      color: lighten(@bodyColor, 45%);
+      cursor: default;
+
+      & span {
+        color: lighten(@bodyColor, 45%);
+      }
+    }
+  }
+}

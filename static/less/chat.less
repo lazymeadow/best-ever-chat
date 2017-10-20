@@ -18,6 +18,10 @@
 @elementPadding: 5px;
 
 @import url('https://fonts.googleapis.com/css?family=Amiko');
+@import 'modal';
+@import 'tabs';
+@import 'menu';
+@import 'toggle';
 @import 'input-range';
 @import 'checkboxes';
 
@@ -122,62 +126,6 @@ div.login {
   }
 }
 
-.tabs {
-  padding: 0;
-  margin: @elementPadding 0 0;
-  display: flex;
-  align-items: stretch;
-  height: @tabHeight;
-  flex: 0 1 auto;
-  order: 0;
-  align-self: flex-end;
-
-  #add-room {
-    color: @lightest;
-    cursor: pointer;
-    padding: @elementPadding;
-  }
-
-  span#create-room-button {
-    cursor: pointer;
-    color: @lightest;
-    line-height: @tabHeight;
-    padding: 0 @elementPadding;
-  }
-
-  .tab {
-    color: @bodyColor;
-    flex: 0 0 auto;
-    background: @lightButtonColor;
-    padding: 0 @elementPadding * 2;
-    border: solid 1px @borderColor;
-    margin: 0 2px 0 0;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    line-height: @tabHeight;
-
-    span.fa {
-      color: @bodyColor;
-    }
-
-    &.active {
-      background: @lightest;
-      border-color: @lightBackgroundColor;
-    }
-
-    &:not(.active):hover {
-      cursor: pointer;
-      background: @buttonHoverColor;
-    }
-  }
-}
-
-.tab-content {
-  display: block;
-  border-top: solid 1px lightgrey;
-  margin: -1px;
-}
-
 #log {
   position: fixed;
   background: @lightest;
@@ -220,6 +168,8 @@ div.login {
     & .image-wrapper {
       display: inline-block;
       background-color: darken(@lightest, 5%);
+      color: @backgroundColor;
+      font-weight: bold;
       padding: 0 @elementPadding;
       border-radius: 3px;
       min-width: 150px;
@@ -242,41 +192,6 @@ div.login {
   right: @elementPadding;
   bottom: @chatBarHeight;
   width: @rightBarWidth;
-}
-
-.menu {
-  position: absolute;
-  top: @headerHeight;
-
-  &#main_menu {
-    right: 0;
-  }
-
-  margin: 0 @elementPadding;
-  background: @lightest;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  min-width: 150px;
-
-  & span.menu-item {
-    cursor: pointer;
-    display: block;
-    padding: 0 @elementPadding;
-    margin: @elementPadding 0;
-    line-height: 1.5em;
-
-    &:not(.disabled):hover {
-      background: @lightButtonColor;
-    }
-    &.disabled {
-      color: lighten(@bodyColor, 45%);
-      cursor: default;
-
-      & span {
-        color: lighten(@bodyColor, 45%);
-      }
-    }
-  }
 }
 
 #emoji-list {
@@ -380,94 +295,6 @@ button, .button {
   }
 }
 
-#overlay {
-  display: flex;
-  z-index: 99;
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  background: @overlayColor;
-  align-items: center;
-  justify-content: center;
-
-  & #settings .modal-content {
-    min-height: 375px;
-  }
-
-  .modal {
-    display: flex;
-    z-index: 100;
-    width: 500px;
-    padding: @elementPadding 0;
-    background: @lightest;
-    border: solid 1px @borderColor;
-    border-radius: 3px;
-    flex: 0 1 auto;
-    overflow-y: hidden;
-    flex-direction: column;
-
-    .close {
-      float: right;
-      border: none;
-      padding: 0;
-      margin: 0;
-      color: @backgroundColor;
-      background: @lightest;
-    }
-
-    .modal-header {
-      flex: 0 0 auto;
-      padding: @elementPadding;
-      margin: 0;
-
-      .modal-title {
-        font-size: 1.5em;
-        font-weight: bold;
-      }
-
-      span.close-icon {
-        float: right;
-        width: 20px;
-        height: 100%;
-        color: @lightBackgroundColor;
-        cursor: pointer;
-      }
-    }
-
-    .modal-content {
-      border-top: 1px solid @lightBackgroundColor;
-      border-bottom: 1px solid @lightBackgroundColor;
-      max-height: 50vh;
-      flex: 1 0 auto;
-      padding: @elementPadding;
-      margin: 0;
-      overflow-y: auto;
-    }
-
-    .modal-footer {
-      flex: 0 0 auto;
-      padding: @elementPadding;
-
-      button {
-        min-width: 100px;
-        border: none;
-      }
-
-      .modal-submit {
-        float: right;
-        .primary-button;
-      }
-
-      .modal-cancel {
-        float: left;
-        .cancel-button;
-      }
-    }
-  }
-}
-
 .form-group {
   padding: @elementPadding;
   display: table;
@@ -496,85 +323,6 @@ button, .button {
 
   input[type=checkbox] {
     display: none;
-  }
-}
-
-.toggle {
-  display: inline-block;
-  position: relative;
-  width: 50px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-
-  .toggle-checkbox {
-    display: none;
-    margin: 0;
-  }
-
-  .toggle-label {
-    display: block;
-    overflow: hidden;
-    cursor: pointer;
-    border: @borderColor 1px solid;
-    border-radius: 3px;
-    margin: 0;
-  }
-
-  .toggle-inner {
-    display: block;
-    width: 200%;
-    margin-left: -100%;
-    transition: margin 0.3s ease-in 0s;
-  }
-
-  .toggle-inner:before, .toggle-inner:after {
-    display: block;
-    float: left;
-    width: 50%;
-    height: 30px;
-    padding: 0;
-    line-height: 30px;
-    font-size: 14px;
-    color: white;
-    box-sizing: border-box;
-  }
-
-  .toggle-inner:before {
-    content: "\f028";
-    padding-left: 10px;
-    background-color: #43753A;
-    color: #FFFFFF;
-  }
-
-  .toggle-inner:after {
-    content: "\f026";
-    padding-right: 15px;
-    background-color: #A31A1A;
-    color: #FFFFFF;
-    text-align: right;
-  }
-
-  .toggle-switch {
-    display: block;
-    width: 10px;
-    margin: 0;
-    background: @lightBackgroundColor;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 38px;
-    border: @borderColor 1px solid;
-    border-radius: 3px;
-    transition: all 0.3s ease-in 0s;
-  }
-
-  .toggle-checkbox:checked + .toggle-label .toggle-inner {
-    margin-left: 0;
-  }
-
-  .toggle-checkbox:checked + .toggle-label .toggle-switch {
-    right: 0;
   }
 }
 

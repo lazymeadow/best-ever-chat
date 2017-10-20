@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `bestchat` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `bestchat`;
 -- MySQL dump 10.13  Distrib 5.6.24, for Win64 (x86_64)
 --
 -- Host: localhost    Database: bestchat
@@ -19,23 +21,25 @@
 -- Table structure for table `parasite`
 --
 
-DROP TABLE IF EXISTS `parasite`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `parasite` (
-  `id` varchar(128) NOT NULL,
-  `password` varchar(64) NOT NULL,
-  `color` varchar(7) DEFAULT NULL,
-  `sound` int(11) DEFAULT NULL,
-  `username` varchar(32) DEFAULT NULL,
-  `soundSet` varchar(3) DEFAULT NULL,
-  `email` varchar(128) DEFAULT NULL,
-  `reset_token` varchar(64) DEFAULT NULL,
-  `faction` varchar(16) NOT NULL DEFAULT 'rebel',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `parasite_id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
+# !!! uncomment if you are creating a new database
+
+# DROP TABLE IF EXISTS `parasite`;
+# /*!40101 SET @saved_cs_client     = @@character_set_client */;
+# /*!40101 SET character_set_client = utf8 */;
+# CREATE TABLE `parasite` (
+#   `id` varchar(128) NOT NULL,
+#   `password` varchar(64) NOT NULL,
+#   `color` varchar(7) DEFAULT '#555555',
+#   `sound` int(11) DEFAULT NULL,
+#   `username` varchar(32) DEFAULT NULL,
+#   `soundSet` varchar(3) DEFAULT NULL,
+#   `email` varchar(128) DEFAULT NULL,
+#   `reset_token` varchar(64) DEFAULT NULL,
+#   `faction` varchar(16) NOT NULL DEFAULT 'rebel',
+#   PRIMARY KEY (`id`),
+#   UNIQUE KEY `parasite_id_UNIQUE` (`id`)
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+# /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `room_access`
@@ -83,4 +87,4 @@ CREATE TABLE `rooms` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-20 11:21:39
+-- Dump completed on 2017-10-20 11:46:32

@@ -1,0 +1,87 @@
+#overlay {
+  display: flex;
+  z-index: 99;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background: @overlayColor;
+  align-items: center;
+  justify-content: center;
+
+  & #settings .modal-content {
+    min-height: 375px;
+  }
+
+  .modal {
+    display: flex;
+    z-index: 100;
+    width: 500px;
+    padding: @elementPadding 0;
+    background: @lightest;
+    border: solid 1px @borderColor;
+    border-radius: 3px;
+    flex: 0 1 auto;
+    overflow-y: hidden;
+    flex-direction: column;
+
+    .close {
+      float: right;
+      border: none;
+      padding: 0;
+      margin: 0;
+      color: @backgroundColor;
+      background: @lightest;
+    }
+
+    .modal-header {
+      flex: 0 0 auto;
+      padding: @elementPadding;
+      margin: 0;
+
+      .modal-title {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+
+      span.close-icon {
+        float: right;
+        width: 20px;
+        height: 100%;
+        color: @lightBackgroundColor;
+        cursor: pointer;
+      }
+    }
+
+    .modal-content {
+      border-top: 1px solid @lightBackgroundColor;
+      border-bottom: 1px solid @lightBackgroundColor;
+      max-height: 50vh;
+      flex: 1 0 auto;
+      padding: @elementPadding;
+      margin: 0;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      flex: 0 0 auto;
+      padding: @elementPadding;
+
+      button {
+        min-width: 100px;
+        border: none;
+      }
+
+      .modal-submit {
+        float: right;
+        .primary-button;
+      }
+
+      .modal-cancel {
+        float: left;
+        .cancel-button;
+      }
+    }
+  }
+}
