@@ -77,6 +77,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         for room in self.joined_rooms:
             if room not in rooms.keys():
                 rooms[room] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room)
+
                 rooms[room]['participants'] = set()
                 rooms[room]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
             rooms[room]['participants'].add(self)
@@ -347,7 +348,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                'room': room_id}
                 rooms[room_id]['history'].append(new_message)
                 self.broadcast(rooms[room_id]['participants'], {'type': 'chatMessage',
-                                                   'data': new_message})
+                                                                'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """
@@ -628,7 +629,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if 'name' not in room_data.keys():
             return
         # create room in db
-        room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner_id) VALUES (%s, %s)",
+        room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner) VALUES (%s, %s)",
                                              room_data['name'], self.current_user['id'])
         # add room to owner user
         self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, %s)",
@@ -712,13 +713,26 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # broadcast leave confirmation to client
         self.send_from_server('You have left {}.'.format(rooms[room_id]['name']))
 
-    def delete_room(self, param, param1):
+    def delete_room(self, room_id):
         """
         Delete the room. Remove all current users from it, revoke access, and remove the room from all history.
-        :param param:
-        :param param1:
+        :param room_id:
         """
-        pass
+        if room_id not in rooms.keys():
+            self.send_from_server('That room does not exist. Why would you delete a room that doesn\'t exist?')
+        elif rooms[room_id]['owner'] != self.current_user['id']:
+            self.send_from_server('Nice try. You can\'t delete a room if you\'re not the owner!')
+        else:
+            # remove all room_access rows for the room from database
+            self.http_server.db.execute("DELETE FROM room_access WHERE room_id = %s", room_id)
+            # remove the room from database
+            self.http_server.db.execute("DELETE FROM rooms WHERE id = %s", room_id)
+            # send message to inform all clients that the room is gone and remove the tab
+            self.broadcast_from_server(rooms[room_id]['participants'],
+                                       'Room \'{}\' has been deleted by the owner.'.format(rooms[room_id]['name']),
+                                       message_type='deleteRoom', data={'room_id': room_id})
+            # remove the room from the list
+            removed_room = rooms.pop(room_id, None)
 
 
 chat_router = sockjs.tornado.SockJSRouter(MultiRoomChatConnection, '/chat', {

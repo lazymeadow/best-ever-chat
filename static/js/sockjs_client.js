@@ -255,6 +255,12 @@ function connect() {
                         }));
                     });
             }
+            if (type === 'deleteRoom') {
+                var room_id = data.data.room_id;
+                removeTab(room_id);
+                delete rooms[room_id];
+                print_message(data)
+            }
             if (type === 'room_data') {
                 for (var i = 0; i < data.length; i++) {
                     var room = data[i];
@@ -272,6 +278,7 @@ function connect() {
                             .append($('<div>').prop('id', 'tab_menu_' + room['id'])
                                 .addClass('menu')
                                 .append($('<span>').addClass('menu-item')
+                                    .prop('id', 'invite_' + room['id'])
                                     .append($('<span>').addClass('fa fa-fw fa-user-plus'))
                                     .append('\nInvite Users')
                                     .click(function () {
@@ -319,7 +326,8 @@ function connect() {
                                     .click(function (event) {
                                         toggleMenu($(event.target).parents('.menu').prop('id'));
                                         var room_id = $(event.target).parents('.tab').prop('room_id');
-                                        removeTab(event);
+                                        removeTab(room_id);
+                                        delete rooms[room_id];
                                         sock.send(JSON.stringify({
                                             'type': 'leaveRoom',
                                             'data': room_id,
@@ -346,8 +354,11 @@ function connect() {
                                                 .append($('<div>').text('All users will be kicked out and all history will be lost.'))
                                                 .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
                                             function () {
-                                                // TODO delete the room on the server (inform users of room's demise), remove the tab on the client
-                                                console.log('deleting room', room_id);
+                                                sock.send(JSON.stringify({
+                                                    'type': 'deleteRoom',
+                                                    'data': room_id,
+                                                    'user': Cookies.get('username')
+                                                }));
                                             });
                                     }))
                                 .hide());
@@ -438,7 +449,18 @@ function reconnect() {
 }
 
 function updateUserList() {
-    var newList = rooms[active_room].users;
+    var newList = rooms[active_room].users.sort(function (a, b) {
+        var nameA = a.username.toUpperCase();  // ignore upper and lowercase
+        var nameB = b.username.toUpperCase();  // ignore upper and lowercase
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+        // names must be equal
+        return 0;
+    });
     var userList = $('#user_list');
     userList.empty();
 
@@ -598,13 +620,13 @@ function setActiveTab(event) {
     $('#room_tabs .tab.active').removeClass('active');
     selectedTab.addClass('active');
     $('#log').empty();
-    updateUserList(rooms[active_room].users);
+    if (rooms[active_room].users)
+        updateUserList(rooms[active_room].users);
     print_message_history(active_room);
     parse_emojis();
 }
 
-function removeTab(event) {
-    var room_id = $(event.target).parents('.tab').prop('room_id');
+function removeTab(room_id) {
     if (active_room === room_id) {
         setActiveTab();
     }
