@@ -101,7 +101,14 @@ function showImageInput() {
             .append($('<input>').prop('type', 'url')
                 .prop('id', 'image_url')))
             .append($('<div>').addClass('form-group')
-                .append('<span class="label">NSFW?</span><input type="checkbox" id="nsfw_flag" /><label for ="nsfw_flag" class="check-box"></label>')
+                .append($('<span>').addClass('label').text('NSFW?'))
+                .append($('<input>').prop('type', 'checkbox').prop('id', 'nsfw_flag'))
+                .append($('<label>').addClass('check-box')
+                    .click(function () {
+                        $('#nsfw_flag').click().is(':checked') ? $(this).addClass('checked') : $(this).removeClass('checked');
+                        return false;
+                    })
+                )
             ),
         callback: function () {
             var imgUrl = $('#img_url').val();
