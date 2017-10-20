@@ -1,5 +1,0 @@
-{% from 'modals/modal_template.html' import modal %}
-
-{% set content_html = 'Error connecting to the server.' %}
-
-{{ modal('connectError', '', 'Connection Error', content_html, 'Retry', 'attempt_reconnect()', 'button', False) }}

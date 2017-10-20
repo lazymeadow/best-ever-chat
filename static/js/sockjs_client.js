@@ -78,11 +78,11 @@ $(document).ready(function () {
     colorPicker = bestColorPicker($('#color'));
     colorPicker.setColor(Cookies.get('color'));
 
-    var fontSize = Cookies.get('fontSize') || '14px';
+    var fontSize = localStorage.getItem('fontSize') || '14px';
     $('#font-size').val(fontSize);
     $('body').css({fontSize: fontSize});
 
-    $('#hidden_images').prop('checked', true);
+    $('#hidden_images').prop('checked', localStorage.getItem('hideImages'));
 
     showUsername();
 
@@ -95,23 +95,28 @@ function addEmoji(emoji) {
 }
 
 function showImageInput() {
-    toggleModal('imageInput');
-}
-
-function imageChat() {
-    var imgUrl = $('#img_url');
-    if (imgUrl.val()) {
-        toggleModal('imageInput');
-        sock.send(JSON.stringify({
-            'type': 'imageMessage',
-            'user': Cookies.get('username'),
-            'url': imgUrl.val(),
-            'nsfw_flag': $('#nsfw_flag').is(':checked'),
-            'room': active_room
-        }));
-        imgUrl.val('');
-        $('#chat_text').focus();
-    }
+    dynamic_modal({
+        title: 'Enter Image URL',
+        content: $('<div>').append($('<div>').addClass('form-group')
+            .append($('<input>').prop('type', 'url')
+                .prop('id', 'image_url')))
+            .append($('<div>').addClass('form-group')
+                .append('<span class="label">NSFW?</span><input type="checkbox" id="nsfw_flag" /><label for ="nsfw_flag" class="check-box"></label>')
+            ),
+        callback: function () {
+            var imgUrl = $('#img_url').val();
+            if (imgUrl) {
+                sock.send(JSON.stringify({
+                    'type': 'imageMessage',
+                    'user': Cookies.get('username'),
+                    'url': imgUrl,
+                    'nsfw_flag': $('#nsfw_flag').is(':checked'),
+                    'room': active_room
+                }));
+                $('#chat_text').focus();
+            }
+        }
+    })
 }
 
 function updateTypingStatus(newStatus) {
@@ -139,8 +144,8 @@ function updateTypingStatus(newStatus) {
 
 function submitChat(event) {
     if (event.which === 38) {
-        if (Cookies.get('last_message') !== undefined) {
-            $('#chat_text').val(Cookies.get('last_message'));
+        if (localStorage.getItem('last_message') !== undefined) {
+            $('#chat_text').val(localStorage.getItem('last_message'));
         }
     }
     if (event.which === 13) {
@@ -151,7 +156,7 @@ function submitChat(event) {
             'message': chatText.val(),
             'room': active_room
         }));
-        Cookies.set('last_message', chatText.val());
+        localStorage.setItem('last_message', chatText.val());
         chatText.val('');
         chatText.focus();
     }
@@ -565,7 +570,7 @@ function print_message(msg, ignoreCount) {
     if (!msg.hasOwnProperty('message') && msg.hasOwnProperty('image_url')) {
         var imageElement = $('<a>').prop('href', msg.image_url).prop('target', '_blank')
             .append($('<img>').prop('src', msg.image_src_url));
-        var hide_images = JSON.parse(Cookies.get('hideImages') || 'true');
+        var hide_images = JSON.parse(localStorage.getItem('hideImages') || 'true');
         hide_images ? imageElement.hide() : imageElement.show();
         msg.message = $('<div>').addClass('image-wrapper')
             .append($('<span>').text((hide_images ? 'show' : 'hide') + ' image' + (msg.nsfw_flag ? ' -- NSFW!' : '')).click(function (event) {
@@ -683,7 +688,7 @@ function print_message_history(room) {
             }
         }
     }
-    $('audio').prop('muted', JSON.parse(Cookies.get('muted') || 'false'));
+    $('audio').prop('muted', JSON.parse(localStorage.getItem('muted') || 'false'));
 }
 
 function changeSettingsTab(tabNum) {

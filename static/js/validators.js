@@ -73,13 +73,13 @@ var validation_settings = {
         }
 
         var fontSize = $('#font-size').val();
-        if (fontSize !== Cookies.get('fontSize')) {
-            Cookies.set('fontSize', fontSize);
+        if (fontSize !== localStorage.getItem('fontSize')) {
+            localStorage.setItem('fontSize', fontSize);
             $('body').css({fontSize: fontSize});
         }
         var hide_images = $('#hidden_images').is(':checked');
-        if (hide_images !== Cookies.get('hideImages')) {
-            Cookies.set('hideImages', hide_images);
+        if (hide_images !== localStorage.getItem('hideImages')) {
+            localStorage.setItem('hideImages', hide_images);
         }
 
         var newPassword = $("#new_password");
