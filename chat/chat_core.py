@@ -69,14 +69,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         self.joined_rooms = [0]
         current_rooms = self.http_server.db.query(
-            "SELECT room_id FROM room_access WHERE parasite_id=%s AND in_room IS TRUE", parasite)
+            "SELECT room_id FROM room_access WHERE parasite_id = %s AND in_room IS TRUE", parasite)
         if len(current_rooms) != 0:
             self.joined_rooms.extend(
                 filter(lambda x: x not in self.joined_rooms, map(lambda x: x['room_id'], current_rooms)))
         self.username = self.current_user.username
         for room in self.joined_rooms:
             if room not in rooms.keys():
-                rooms[room] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room)
+                rooms[room] = self.http_server.db.get("SELECT * FROM rooms WHERE id = %s", room)
 
                 rooms[room]['participants'] = set()
                 rooms[room]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
@@ -632,11 +632,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         room_id = self.http_server.db.insert("INSERT INTO rooms (name, owner) VALUES (%s, %s)",
                                              room_data['name'], self.current_user['id'])
         # add room to owner user
-        self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, %s)",
-                                    room_id, self.current_user['id'], True)
+        self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE)",
+                                    room_id, self.current_user['id'])
         self.joined_rooms.append(room_id)
         # add room to list
-        rooms[room_id] = self.http_server.db.get("SELECT * FROM rooms WHERE id=%s", room_id)
+        rooms[room_id] = self.http_server.db.get("SELECT * FROM rooms WHERE id = %s", room_id)
         rooms[room_id]['participants'] = set()
         rooms[room_id]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
         rooms[room_id]['owner'] = self.current_user['id']
@@ -658,6 +658,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         invited_participants = []
         [invited_participants.extend(get_matching_participants(self.participants, x, match_attr='username')) for x in
          invitees]
+        # add access row in database for invitees
+        [self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) "
+                                     "ON DUPLICATE KEY UPDATE in_room = FALSE",
+                                     room_id, x)
+         for x in list(set([x.current_user['id'] for x in invited_participants]))]
+        # send the invitation
         self.broadcast(invited_participants, {'type': 'invitation',
                                               'data': {'room_id': room_id,
                                                        'room_name': rooms[room_id]['name'],
@@ -673,8 +679,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         else:
             own_participants = get_matching_participants(self.participants, self.current_user['id'])
             # join room in database
-            self.http_server.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, %s)",
-                                        room_id, self.current_user['id'], True)
+            self.http_server.db.execute("UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s",
+                                        self.current_user['id'])
             # add self to room
             self.joined_rooms.append(room_id)
             rooms[room_id]['participants'].update(own_participants)
@@ -698,7 +704,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         """
         if room_id is None:
             return
-        self.http_server.db.execute("UPDATE room_access SET in_room=FALSE WHERE parasite_id=%s",
+        self.http_server.db.execute("UPDATE room_access SET in_room = FALSE WHERE parasite_id = %s",
                                     self.current_user['id'])
         self.joined_rooms.remove(room_id)
         # remove self from room
