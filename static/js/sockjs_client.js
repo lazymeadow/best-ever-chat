@@ -20,7 +20,8 @@ $(document).ready(function () {
     $('#information').hide();
     $('#overlay').hide();
     $('#settings').hide();
-    changeSettingsTab(0);
+    changeTab('settings', 0);
+    changeTab('information', 0);
 
     // set idle listeners
     function resetIdleTimeout() {
@@ -698,10 +699,10 @@ function print_message_history(room) {
     $('audio').prop('muted', JSON.parse(localStorage.getItem('muted') || 'false'));
 }
 
-function changeSettingsTab(tabNum) {
-    $('#settings_tabs .tab.active').removeClass('active');
-    $('#settings_' + tabNum).addClass('active');
-    $('#settings .tab-content').hide();
-    $('#settings_' + tabNum + '_content').show();
+function changeTab(tabSet, tabNum) {
+    $('#' + tabSet + '_tabs .tab.active').removeClass('active');
+    $('#' + tabSet + '_' + tabNum).addClass('active');
+    $('#' + tabSet + ' .tab-content').hide();
+    $('#' + tabSet + '_' + tabNum + '_content').show();
 }
 
