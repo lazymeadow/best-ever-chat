@@ -683,7 +683,7 @@ function changeTab(tabSet, tabNum) {
 }
 
 function getFormattedTimestamp(timestamp) {
-    var timestamps = localStorage.getItem('timestamps');
+    var timestamps = localStorage.getItem('timestamps') || 'date_time';
     if (timestamps === 'off') {
         return;
     }
