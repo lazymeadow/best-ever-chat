@@ -21,8 +21,8 @@ class Emoji(object):
     unicode_regexp = "(" + '|'.join(
         [re.escape(x.decode("utf-8")) for x in sorted(unicode_replace.keys(), key=len, reverse=True)]) + ")"
     shortcode_regexp = ':([-+\\w]+):'
-    ascii_regexp = r"(((&gt;)|(&#39;)|[>\'O0])?[;\*X:=8B\#%]((&#39;)|\')?-?[\)\]D\*/\\\(\[\$|\#PpboO0SX@L])|" \
-                   r"([oO-]_+[oO-])|(((&gt;)|>)\.?((&lt;)|<))|([\(\[D]-?[:=])|(((&lt;)|<)[\\/]?3)"
+    ascii_regexp = r"\B(((&gt;)|(&#39;)|[>\'O0])?[;\*X:=8B\#%]((&#39;)|\')?-?[\)\]D\*/\\\(\[\$|\#PpboO0SX@L])|" \
+                   r"([oO-]_+[oO-])|(((&gt;)|>)\.?((&lt;)|<))|([\(\[D]-?[:=])|(((&lt;)|<)[\\/]?3)\B"
     shortcode_compiled = re.compile(ignored_regexp + "|(" + shortcode_regexp + ")",
                                     re.IGNORECASE)
     unicode_compiled = re.compile(ignored_regexp + "|(" + unicode_regexp + ")",
