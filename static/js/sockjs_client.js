@@ -13,7 +13,7 @@ var active_room = localStorage.getItem('active_room') || 0;
 var autoScroll = true;
 
 $(document).ready(function () {
-    window.document.title = localStorage.getItem('tab_title') || "Best evar chat 2.0!";
+    window.document.title = getPageTitle();
     // initial hiding of elements
     $('#emoji-list').hide();
     $('#main_menu').hide();
@@ -57,7 +57,7 @@ $(document).ready(function () {
     // page stuff
     $(window).focus(function () {
         numMessages = 0;
-        window.document.title = localStorage.getItem('tab_title') || "Best evar chat 2.0!";
+        window.document.title = getPageTitle();
         window_focus = true;
 
         $('#chat_text').focus();
@@ -547,7 +547,7 @@ function print_private_message(msg) {
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
             numMessages++;
-            window.document.title = "(" + numMessages + ") Best ever chat!";
+            window.document.title = "(" + numMessages + ") " + getPageTitle();
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
@@ -602,7 +602,7 @@ function print_message(msg, ignoreCount) {
         if (msg.user !== 'Client') play_receive();
         if (!window_focus) {
             numMessages++;
-            window.document.title = "(" + numMessages + ") Best ever chat!";
+            window.document.title = "(" + numMessages + ") " + getPageTitle();
             $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
@@ -748,4 +748,8 @@ function createRoom() {
         },
         submitText: 'Create it!'
     });
+}
+
+function getPageTitle() {
+    return localStorage.getItem('tab_title') || "Best evar chat 2.0!";
 }
