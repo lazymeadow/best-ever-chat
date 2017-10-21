@@ -84,6 +84,7 @@ $(document).ready(function () {
     var fontSize = localStorage.getItem('fontSize') || '14px';
     $('#font-size').val(fontSize);
     $('body').css({fontSize: fontSize});
+    $('#tab_title').val(getPageTitle());
     $('input:radio[name=timestamps]').filter('[value={}]'.replace('{}', localStorage.getItem('timestamps'))).prop('checked', true);
     $('#hidden_images').prop('checked', JSON.parse(localStorage.getItem('hideImages') || 'true'));
 

@@ -71,30 +71,62 @@ var validation_settings = {
             data.newEmail = email;
         }
 
-        var fontSize = $('#font-size').val();
-        if (fontSize !== localStorage.getItem('fontSize')) {
-            localStorage.setItem('fontSize', fontSize);
-            $('body').css({fontSize: fontSize});
-        }
-        var hideImages = $('#hidden_images').is(':checked');
-        if (hideImages !== localStorage.getItem('hideImages')) {
-            localStorage.setItem('hideImages', hideImages);
-        }
-        var newTitle = $('#tab_title').val();
-        if (!newTitle) {
-            localStorage.removeItem('tab_title');
-        }
-        else if (newTitle !== localStorage.getItem('tab_title')) {
-            localStorage.setItem('tab_title', newTitle);
-        }
-        window.document.title = localStorage.getItem('tab_title') || "Best evar chat 2.0!";
+        var localChangesMade = false;
         var newTimestamps = $('input[name="timestamps"]:checked').val();
         if (newTimestamps !== localStorage.getItem('timestamps')) {
             localStorage.setItem('timestamps', newTimestamps);
             // empty and reload the chat log
             $('#log').empty();
             print_message_history(active_room);
+            localChangesMade = true;
+            print_message({
+                user: "Client",
+                message: "Timestamp settings updated.",
+                time: moment().unix()
+            });
         }
+        var fontSize = $('#font-size').val();
+        if (fontSize !== localStorage.getItem('fontSize')) {
+            localStorage.setItem('fontSize', fontSize);
+            $('body').css({fontSize: fontSize});
+            localChangesMade = true;
+            print_message({
+                user: "Client",
+                message: "Changed font size to {}.".replace('{}', fontSize),
+                time: moment().unix()
+            });
+        }
+        var hideImages = $('#hidden_images').is(':checked');
+        if (hideImages !== JSON.parse(localStorage.getItem('hideImages'))) {
+            localStorage.setItem('hideImages', hideImages);
+            localChangesMade = true;
+            print_message({
+                user: "Client",
+                message: "Received images are now {}.".replace('{}', hideImages ? 'hidden' : 'visible'),
+                time: moment().unix()
+            });
+        }
+        // TODO profamity filter settings
+        var newTitle = $('#tab_title').val();
+        if (!newTitle) {
+            localStorage.removeItem('tab_title');
+            localChangesMade = true;
+            print_message({
+                user: "Client",
+                message: "Tab title set to '{}'. You are no longer being discreet.".replace('{}', newTitle),
+                time: moment().unix()
+            });
+        }
+        else if (newTitle !== localStorage.getItem('tab_title')) {
+            localStorage.setItem('tab_title', newTitle);
+            localChangesMade = true;
+            print_message({
+                user: "Client",
+                message: "Tab title set to '{}'. No one will ever know that this is Best Evar Chat 2.0!".replace('{}', newTitle),
+                time: moment().unix()
+            });
+        }
+        window.document.title = getPageTitle();
 
         var newPassword = $("#new_password");
         var newPassword2 = $("#new_password2");
@@ -108,7 +140,7 @@ var validation_settings = {
             newPassword2.val('');
         }
 
-        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail) {
+        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail || !localChangesMade) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',
