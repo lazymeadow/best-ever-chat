@@ -379,15 +379,6 @@ function connect() {
                                             }));
                                         }
                                     },
-                                    // {
-                                    //     iconClass: 'fa fa-fw fa-volume-off',
-                                    //     name: 'Mute Room',
-                                    //     callback: function (event) {
-                                    //         toggleMenu($(event.target).parents('.menu').prop('id'));
-                                    //         console.log('muting room', $(event.target).parents('.tab').prop('room_id'));
-                                    //         // TODO mute the room
-                                    //     }
-                                    // },
                                     {
                                         iconClass: 'fa fa-fw fa-trash',
                                         name: 'Delete Room',
@@ -451,19 +442,7 @@ function connect() {
                 time: moment().unix(),
                 message: 'Connection lost!!'
             });
-
-            if (reconnect_count === 0) {
-                dynamic_modal({
-                    title: 'Connection Error',
-                    content: 'There was an error connecting to the server.',
-                    callback: attempt_reconnect,
-                    showCancel: false,
-                    submitText: 'Retry'
-                });
-            }
-            else {
-                attempt_reconnect();
-            }
+            attempt_reconnect();
         };
     }
 }
@@ -479,15 +458,6 @@ function parse_emojis(element) {
 }
 
 function attempt_reconnect() {
-    // if (reconnect_count === 0) {
-    //     dynamic_modal({
-    //         title: 'Connection Error',
-    //         content: 'There was an error connecting to the server.',
-    //         callback: attempt_reconnect,
-    //         showCancel: false,
-    //         submitText: 'Retry'
-    //     });
-    // }
     window.clearTimeout(timeout);
     if (reconnect_count < MAX_RETRIES)
         timeout = window.setTimeout(reconnect, 1000);
