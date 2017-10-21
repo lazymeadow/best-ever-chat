@@ -87,6 +87,7 @@ $(document).ready(function () {
     $('#tab_title').val(getPageTitle());
     $('input:radio[name=timestamps]').filter('[value={}]'.replace('{}', localStorage.getItem('timestamps'))).prop('checked', true);
     $('#hidden_images').prop('checked', JSON.parse(localStorage.getItem('hideImages') || 'true'));
+    $('#profamity_filter').prop('checked', JSON.parse(Cookies.get('profamity_filter') || 'false'));
 
     showUsername();
 

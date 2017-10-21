@@ -48,6 +48,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     limited = False
     messageCount = 0
     spammy_timeout = None
+    filter_profamity = False
 
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
@@ -65,6 +66,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             parasite)
         if not self.current_user:
             self.current_user = {}
+
+        profamity_cookie = self.session.handler.get_cookie('profamity_filter')
+        self.filter_profamity = json.loads(profamity_cookie) if profamity_cookie is not None else False
 
         self.joined_rooms = [0]
         current_rooms = self.http_server.db.query(
@@ -101,10 +105,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     'idle': self.idle,
                                     'faction': self.current_user['faction'],
                                     'real_name': self.current_user['id'],
-                                    'private_history': deque(maxlen=MAX_DEQUE_LENGTH)}
+                                    'private_history': deque(maxlen=MAX_DEQUE_LENGTH),
+                                    'connected': True}
             for room in self.joined_rooms:
                 users[self.username]['typing'][room] = False
             send_updates = True
+        elif users[self.username]['connected'] is False:
+            send_updates = True
+            users[self.username]['connected'] = True
 
         # wait until after user is initialized to send room data
         self.send_room_information()
@@ -112,8 +120,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
                                        self.username + ' has connected', rooms=self.joined_rooms)
-            self.broadcast_user_list()
 
+        self.broadcast_user_list()
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
 
     def on_message(self, message):
@@ -166,7 +174,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             rooms[room]['participants'].remove(self)
         # if this was the last open socket for the user, the user left the chat.
         if len(get_matching_participants(self.participants, self.username, 'username')) == 0:
-            users.pop(self.username, None)
+            # users.pop(self.username, None)
+            users[self.username]['connected'] = False
             self.broadcast_from_server(self.participants, self.username + " left.", rooms=self.joined_rooms)
             self.broadcast_user_list()
 
@@ -236,7 +245,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if room_id is not None:
             room_participants = rooms[room_id]['participants']
             room_users = {}
-            for user_key in map(lambda x: x.username, room_participants):
+            for user_key in [x.username for x in list(room_participants) if users[x.username]['connected'] is True]:
                 room_users[user_key] = users[user_key].copy()
                 room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
                 room_users[user_key].pop('private_history')
@@ -246,7 +255,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 # get the users that line up with the participants for the room
                 room_participants = rooms[room]['participants']
                 room_users = {}
-                for user_key in map(lambda x: x.username, room_participants):
+                for user_key in [x.username for x in list(room_participants) if users[x.username]['connected'] is True]:
                     room_users[user_key] = users[user_key].copy()
                     room_users[user_key]['typing'] = users[user_key]['typing'][room]
                     room_users[user_key].pop('private_history')
@@ -264,15 +273,26 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         for participant in recipient_participants:
             participant.reply_to = self.current_user['id']
         recipients = set(sender_participants + recipient_participants)
+        # get participants who have a filter on and participants who don't
+        prudish_participants = [x for x in recipients if x.filter_profamity is True]
+        recipients = recipients.difference(prudish_participants)
 
-        new_message = {'sender': sender_participants[0].username,
-                       'recipient': recipient_participants[0].username,
-                       'message': preprocess_message(message, emoji, profamity_filter),
-                       'time': time.time()}
+        # get the filtered message separately from the profane message
+        original_message = preprocess_message(message, emoji)
+        filtered_message = profamity_filter.scan_for_fucks(original_message)
+
+        # send the unfiltered message
+        new_message = {'sender': sender_participants[0].username, 'recipient': recipient_participants[0].username,
+                       'time': time.time(), 'message': original_message}
         self.broadcast(recipients, {'type': 'privateMessage', 'data': new_message})
+        # save unfiltered message in history
         new_message['type'] = 'privateMessage'
-        users[recipient_username]['private_history'].append(new_message)
-        users[self.username]['private_history'].append(new_message)
+        users[recipient_username]['private_history'].append(new_message.copy())
+        if recipient_username != self.username:
+            users[self.username]['private_history'].append(new_message.copy())
+        # send the filtered message
+        new_message['message'] = filtered_message
+        self.broadcast(prudish_participants, {'type': 'privateMessage', 'data': new_message})
 
     def spammy_check_callback(self):
         """
@@ -338,14 +358,26 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 for participant in spammy_participants:
                     participant.you_are_spammy()
             else:
+                # get room participants who have a filter on and participants who don't
+                prudish_participants = [x for x in rooms[room_id]['participants'] if x.filter_profamity is True]
+                recipients = rooms[room_id]['participants'].difference(prudish_participants)
+
+                # get the filtered message separately from the profane message
+                original_message = preprocess_message(message, emoji)
+                filtered_message = profamity_filter.scan_for_fucks(original_message)
+
+                # send the unfiltered message
                 new_message = {'user': user,
                                'color': users[user]['color'],
-                               'message': preprocess_message(message, emoji, profamity_filter),
+                               'message': original_message,
                                'time': time.time(),
                                'room': room_id}
-                rooms[room_id]['history'].append(new_message)
-                self.broadcast(rooms[room_id]['participants'], {'type': 'chatMessage',
-                                                                'data': new_message})
+                self.broadcast(recipients, {'type': 'chatMessage', 'data': new_message})
+                # save unfiltered message in history
+                rooms[room_id]['history'].append(new_message.copy())
+                # send the filtered message
+                new_message['message'] = filtered_message
+                self.broadcast(prudish_participants, {'type': 'chatMessage', 'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """
@@ -438,6 +470,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_from_server(updating_participants, "Name changed to {}.".format(self.username),
                                            message_type='update', data={'username': self.username})
                 should_broadcast_users = True
+
+        if 'newProfamity' in settings.keys():
+            self.filter_profamity = settings['newProfamity']
+            self.send_from_server('Profamity filter enabled. Watch yo profamity!' if self.filter_profamity
+                                  else 'Profamity filter disabled.')
 
         if should_broadcast_users:
             self.broadcast_user_list()
@@ -602,17 +639,26 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if room_id is not None:
             room_data = rooms[room_id].copy()
             room_data.pop('participants')
-            room_data['history'] = sorted(list(room_data['history']) + list(users[self.username]['private_history']),
+            room_data['history'] = sorted([x.copy() for x in room_data['history']] +
+                                          [x.copy() for x in users[self.username]['private_history']],
                                           key=lambda x: x['time'])
+            # for the messages in the history apply the profamity filter
+            if self.filter_profamity:
+                for item in room_data['history']:
+                    item['message'] = profamity_filter.scan_for_fucks(item['message'])
             self.send({'type': 'room_data', 'data': [room_data]})
         else:
             current_rooms = []
             for room in self.joined_rooms:
                 room_data = rooms[room].copy()
                 room_data.pop('participants')
-                room_data['history'] = sorted(
-                    list(room_data['history']) + list(users[self.username]['private_history']),
-                    key=lambda x: x['time'])
+                room_data['history'] = sorted([x.copy() for x in room_data['history']] +
+                                              [x.copy() for x in users[self.username]['private_history']],
+                                              key=lambda x: x['time'])
+                # for the messages in the history apply the profamity filter
+                if self.filter_profamity:
+                    for item in room_data['history']:
+                        item['message'] = profamity_filter.scan_for_fucks(item['message'])
                 current_rooms.append(room_data)
             self.send({'type': 'room_data', 'data': current_rooms})
 

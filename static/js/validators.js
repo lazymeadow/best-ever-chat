@@ -71,6 +71,12 @@ var validation_settings = {
             data.newEmail = email;
         }
 
+        var newProfamity = $('#profamity_filter').is(':checked');
+        if (newProfamity !== JSON.parse(Cookies.get('profamity_filter') || 'false')) {
+            Cookies.set('profamity_filter', newProfamity);
+            data.newProfamity = newProfamity;
+        }
+
         var localChangesMade = false;
         var newTimestamps = $('input[name="timestamps"]:checked').val();
         if (newTimestamps !== localStorage.getItem('timestamps')) {
@@ -106,7 +112,6 @@ var validation_settings = {
                 time: moment().unix()
             });
         }
-        // TODO profamity filter settings
         var newTitle = $('#tab_title').val();
         if (!newTitle) {
             localStorage.removeItem('tab_title');
@@ -140,7 +145,8 @@ var validation_settings = {
             newPassword2.val('');
         }
 
-        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail || !localChangesMade) {
+        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail ||
+            data.newProfamity || !localChangesMade) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',

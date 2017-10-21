@@ -5,15 +5,13 @@ from requests import get
 from tornado.escape import linkify, to_unicode
 
 
-def preprocess_message(message, emoji_processor, profamity_filter):
+def preprocess_message(message, emoji_processor):
     # first linkify
     message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
     # last find shortcode emojis
     message_text = emoji_processor.shortcode_to_unicode(message_text)
     # then find ascii emojis
     message_text = emoji_processor.ascii_to_unicode(message_text)
-
-    message_text = profamity_filter.scan_for_fucks(message_text)
 
     return message_text
 
