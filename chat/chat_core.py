@@ -13,6 +13,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor
 from chat.lib import get_matching_participants, retrieve_image_in_s3, preprocess_message
+from chat.profamity_filter import ProfamityFilter
 from emoji.emojipy import Emoji
 
 MAX_DEQUE_LENGTH = 75
@@ -29,6 +30,7 @@ rooms = {
 }
 
 emoji = Emoji()
+profamity_filter = ProfamityFilter()
 
 client_version = '2.0'
 
@@ -329,13 +331,20 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                                            self.clear_spammy_warning_callback)
         else:
             self.messageCount += 1
-            if self.messageCount > 5:
+            if self.messageCount > 3:
                 spammy_participants = [x for x in self.participants if x.current_user.id == self.current_user['id']]
                 self.broadcast_from_server(self.participants.difference(spammy_participants),
                                            "{} has been blocked for spamming!!".format(self.username))
                 for participant in spammy_participants:
                     participant.you_are_spammy()
             else:
+                # first linkify
+                message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
+                # last find shortcode emojis
+                message_text = emoji.shortcode_to_unicode(message_text)
+                # then find ascii emojis
+                message_text = emoji.ascii_to_unicode(message_text)
+
                 new_message = {'user': user,
                                'color': users[user]['color'],
                                'message': preprocess_message(message, emoji),
