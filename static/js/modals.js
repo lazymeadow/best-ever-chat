@@ -42,3 +42,17 @@ function dynamic_modal(options) {
     $('#overlay').append(newModal);
     toggleModal('dynamic_modal');
 }
+
+function toggleModal(modalId) {
+    var modal = $('#' + modalId);
+    if (modal.is(':visible')) {
+        modal.hide();
+        if (!$('.modal').is(':visible')) {  // no other modals are open
+            $('#overlay').hide();
+        }
+    }
+    else {
+        modal.show();
+        $('#overlay').show();
+    }
+}
