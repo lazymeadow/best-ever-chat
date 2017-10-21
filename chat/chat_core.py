@@ -495,7 +495,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 typing_status = json_status['typing']
 
-            if users[self.username]['typing'][room_id] is not typing_status:
+            if room_id in users[self.username]['typing'] and users[self.username]['typing'][room_id] is not typing_status:
                 users[self.username]['typing'][room_id] = typing_status
                 self.broadcast_user_list(room_id=room_id)
 
