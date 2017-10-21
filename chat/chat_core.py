@@ -265,7 +265,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         new_message = {'sender': sender_participants[0].username,
                        'recipient': recipient_participants[0].username,
-                       'message': message,
+                       'message': preprocess_message(message, emoji),
                        'time': time.time()}
         self.broadcast(recipients, {'type': 'privateMessage', 'data': new_message})
         new_message['type'] = 'privateMessage'
@@ -336,11 +336,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 for participant in spammy_participants:
                     participant.you_are_spammy()
             else:
-                message_text = preprocess_message(message, emoji)
-
                 new_message = {'user': user,
                                'color': users[user]['color'],
-                               'message': message_text,
+                               'message': preprocess_message(message, emoji),
                                'time': time.time(),
                                'room': room_id}
                 rooms[room_id]['history'].append(new_message)
