@@ -20,11 +20,12 @@
     flex: 0 0 auto;
     background: @lightButtonColor;
     padding: 0 @elementPadding * 2;
-    border: solid 1px @borderColor;
-    margin: 0 2px 0 0;
+    border: solid 1px transparent;
+    margin: 0 2px 1px 0;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     line-height: @tabHeight;
+    border-bottom: none;
 
     span.fa {
       color: @bodyColor;
@@ -32,7 +33,9 @@
 
     &.active {
       background: @lightest;
-      border-color: @lightBackgroundColor;
+      border-color: @borderColor;
+      margin-bottom: 0;
+      margin-top: -1px;
     }
 
     &:not(.active):hover {
@@ -44,6 +47,7 @@
 
 .tab-content {
   display: block;
-  border-top: solid 1px lightgrey;
+  border-top: solid 1px @borderColor;
   margin: -1px;
+  z-index: 1;
 }
