@@ -647,6 +647,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.broadcast_user_list(room_id=room_id)
         self.send_from_server("Created room {}.".format(room_data['name']))
 
+        if 'invitees' in room_data.keys():
+            self.send_invitation(room_id, room_data['invitees'])
+
     def send_invitation(self, room_id, invitees):
         """
         Join a room.

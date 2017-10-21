@@ -134,7 +134,7 @@ function showImageInput() {
                 });
             }
         }
-    })
+    });
 }
 
 function updateTypingStatus(newStatus) {
@@ -698,4 +698,54 @@ function getFormattedTimestamp(timestamp) {
     if (timestamps === 'date_time')
         format = "MM/DD/YY " + format;
     return moment.unix(timestamp).format(format);
+}
+
+function createRoom() {
+    dynamic_modal({
+        title: 'Create Room',
+        content: $('<div>')
+            .append($('<div>').addClass('form-group')
+                .append($('<label>').prop('for', 'room_name'))
+                .append($('<input>').prop('id', 'room_name').prop('placeholder', 'Room name')))
+            .append($('<div>').addClass('form-group')
+                .append(function () {
+                    // create a list of all users
+                    var eligibleUsers = rooms[0]['users'].map(function (user) {
+                        return user['username'];
+                    }).filter(function (element) {
+                        return element !== Cookies.get('username');
+                    });
+
+                    if (eligibleUsers.length === 0)
+                        return;
+
+                    // add a checkbox for each user
+                    var userCheckboxes = [];
+                    $.each(eligibleUsers, function (_, username) {
+                        userCheckboxes.push($('<div>').addClass('form-group')
+                            .append($('<span>').addClass('label').text(username))
+                            .append($('<input>').prop('type', 'checkbox')
+                                .prop('id', username)
+                                .prop('value', username)
+                                .prop('name', 'invitee'))
+                            .append($('<label>').addClass('check-box').prop('for', username)))
+                    });
+                    return $('<label>').text('Which users?').append(userCheckboxes);
+                })
+            ),
+        callback: function () {
+            var data = {};
+            data.name = $('#room_name').val();
+            data.invitees = $('input[name="invitee"]:checked').map(function () {
+                return this.value;
+            }).get();
+
+            sock.send(JSON.stringify({
+                'type': 'newRoom',
+                'data': data,
+                'user': Cookies.get('username')
+            }));
+        },
+        submitText: 'Create it!'
+    });
 }
