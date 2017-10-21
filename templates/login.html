@@ -1,6 +1,8 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% set title = 'Login to Best evar Chat 2.0!' %}
+
+{% block content %}
 {% if error %}
 <span style="color: red">Error: {{ error }}</span><p>
     {% endif %}
@@ -24,5 +26,4 @@
         </div>
     </form>
 </div>
-
 {% endblock %}

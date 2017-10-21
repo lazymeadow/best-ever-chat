@@ -88,7 +88,7 @@ var validation_settings = {
         else if (newTitle !== localStorage.getItem('tab_title')) {
             localStorage.setItem('tab_title', newTitle);
         }
-        window.document.title = localStorage.getItem('tab_title') || "Best evar chat!";
+        window.document.title = localStorage.getItem('tab_title') || "Best evar chat 2.0!";
 
         var newPassword = $("#new_password");
         var newPassword2 = $("#new_password2");
