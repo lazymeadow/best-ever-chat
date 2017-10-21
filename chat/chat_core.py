@@ -8,7 +8,7 @@ import sockjs.tornado
 import tornado.web
 from boto3 import resource
 from tornado import gen, ioloop
-from tornado.escape import xhtml_escape
+from tornado.escape import xhtml_escape, linkify, to_unicode
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor
@@ -267,7 +267,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         new_message = {'sender': sender_participants[0].username,
                        'recipient': recipient_participants[0].username,
-                       'message': preprocess_message(message, emoji),
+                       'message': preprocess_message(message, emoji, profamity_filter),
                        'time': time.time()}
         self.broadcast(recipients, {'type': 'privateMessage', 'data': new_message})
         new_message['type'] = 'privateMessage'
@@ -338,16 +338,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 for participant in spammy_participants:
                     participant.you_are_spammy()
             else:
-                # first linkify
-                message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
-                # last find shortcode emojis
-                message_text = emoji.shortcode_to_unicode(message_text)
-                # then find ascii emojis
-                message_text = emoji.ascii_to_unicode(message_text)
-
                 new_message = {'user': user,
                                'color': users[user]['color'],
-                               'message': preprocess_message(message, emoji),
+                               'message': preprocess_message(message, emoji, profamity_filter),
                                'time': time.time(),
                                'room': room_id}
                 rooms[room_id]['history'].append(new_message)

@@ -99,6 +99,9 @@ class ProfamityFilter(object):
     })
 
     def scan_for_fucks(self, text):
+        def replace_word(match):
+            return choice(profamity['replacements'])
+
         for profamity in self.profamity_regexes:
-            text = re.sub(profamity['regex'], choice(profamity['replacements']), text)
+            text = re.sub(profamity['regex'], replace_word, text)
         return text
