@@ -77,10 +77,18 @@ var validation_settings = {
             localStorage.setItem('fontSize', fontSize);
             $('body').css({fontSize: fontSize});
         }
-        var hide_images = $('#hidden_images').is(':checked');
-        if (hide_images !== localStorage.getItem('hideImages')) {
-            localStorage.setItem('hideImages', hide_images);
+        var hideImages = $('#hidden_images').is(':checked');
+        if (hideImages !== localStorage.getItem('hideImages')) {
+            localStorage.setItem('hideImages', hideImages);
         }
+        var newTitle = $('#tab_title').val();
+        if (!newTitle) {
+            localStorage.removeItem('tab_title');
+        }
+        else if (newTitle !== localStorage.getItem('tab_title')) {
+            localStorage.setItem('tab_title', newTitle);
+        }
+        window.document.title = localStorage.getItem('tab_title') || "Best evar chat!";
 
         var newPassword = $("#new_password");
         var newPassword2 = $("#new_password2");
