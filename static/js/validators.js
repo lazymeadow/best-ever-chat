@@ -89,6 +89,13 @@ var validation_settings = {
             localStorage.setItem('tab_title', newTitle);
         }
         window.document.title = localStorage.getItem('tab_title') || "Best evar chat 2.0!";
+        var newTimestamps = $('input[name="timestamps"]:checked').val();
+        if (newTimestamps !== localStorage.getItem('timestamps')) {
+            localStorage.setItem('timestamps', newTimestamps);
+            // empty and reload the chat log
+            $('#log').empty();
+            print_message_history(active_room);
+        }
 
         var newPassword = $("#new_password");
         var newPassword2 = $("#new_password2");

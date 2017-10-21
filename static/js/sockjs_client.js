@@ -81,10 +81,11 @@ $(document).ready(function () {
     colorPicker = bestColorPicker($('#color'));
     colorPicker.setColor(Cookies.get('color'));
 
+    // local settings
     var fontSize = localStorage.getItem('fontSize') || '14px';
     $('#font-size').val(fontSize);
     $('body').css({fontSize: fontSize});
-
+    $('input:radio[name=timestamps]').filter('[value={}]'.replace('{}', localStorage.getItem('timestamps'))).prop('checked', true);
     $('#hidden_images').prop('checked', localStorage.getItem('hideImages'));
 
     showUsername();
@@ -518,7 +519,9 @@ var numMessages = 0;
 function print_private_message(msg) {
     var chatLog = $('#log');
     var messageContainer = $('<div>').addClass('chat-message');
-    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
+    var formatTimestamp = getFormattedTimestamp(msg.time);
+    if (formatTimestamp)
+        var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', formatTimestamp));
     var salutation = 'message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + ': ';
     var message = $('<div>').addClass('message private-message')
         .append($('<strong />').text(salutation))
@@ -561,7 +564,9 @@ function print_message(msg, ignoreCount) {
 
     var chatLog = $('#log');
     var messageContainer = $('<div>').addClass('chat-message');
-    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
+    var formatTimestamp = getFormattedTimestamp(msg.time);
+    if (formatTimestamp)
+        var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', formatTimestamp));
     var message = $('<div>').addClass('message').append($('<strong />').text(msg.user + ': ')).append($('<span />').html(msg.message));
     if (msg.color)
         message.css('color', msg.color);
@@ -677,3 +682,13 @@ function changeTab(tabSet, tabNum) {
     $('#' + tabSet + '_' + tabNum + '_content').show();
 }
 
+function getFormattedTimestamp(timestamp) {
+    var timestamps = localStorage.getItem('timestamps');
+    if (timestamps === 'off') {
+        return;
+    }
+    var format = 'HH:mm:ss';
+    if (timestamps === 'date_time')
+        format = "MM/DD/YY " + format;
+    return moment.unix(timestamp).format(format);
+}
