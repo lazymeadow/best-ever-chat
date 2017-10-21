@@ -1,4 +1,5 @@
 var client_version = '2.0';
+var HOST = 'pink-toaster:9696'
 
 var sock, colorPicker;
 
@@ -8,7 +9,7 @@ var reconnect_count = 0;
 var MAX_RETRIES = 3;
 var window_focus = document.hasFocus();
 var rooms = {};
-var active_room = 0;
+var active_room = localStorage.getItem('active_room') || 0;
 var autoScroll = true;
 
 $(document).ready(function () {
@@ -178,9 +179,7 @@ function logout() {
 function connect() {
     if (Cookies.get('username')) {
 
-        // socket stuff
-        //sock = new SockJS('http://chat.applepeacock.com/chat/');
-        sock = new SockJS('http://localhost:6969/chat/');
+        sock = new SockJS('http://' + HOST + '/chat/');
 
         sock.onopen = function () {
             window.clearTimeout(timeout);
@@ -636,6 +635,7 @@ function setActiveTab(event) {
         active_room = 0;
         selectedTab = $('#room_0');
     }
+    localStorage.setItem('active_room', active_room);
     updateTypingStatus();  // updating to whatever typing status is current in new room
     $('#room_tabs .tab.active').removeClass('active');
     selectedTab.addClass('active');
