@@ -31,9 +31,6 @@ rooms = {
 emoji = Emoji()
 
 client_version = '2.0'
-update_message = "<h3>Stop spamming</h3>" \
-                 "<p>If you send too many messages, you're going to be temporarily banned. And everyone will know it.</p>" \
-                 "<h3>Also some of the ascii emojis actually work now.</h3>"
 
 
 class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
@@ -495,7 +492,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 typing_status = json_status['typing']
 
-            if room_id in users[self.username]['typing'] and users[self.username]['typing'][room_id] is not typing_status:
+            if room_id in users[self.username]['typing'] and users[self.username]['typing'][
+                room_id] is not typing_status:
                 users[self.username]['typing'][room_id] = typing_status
                 self.broadcast_user_list(room_id=room_id)
 

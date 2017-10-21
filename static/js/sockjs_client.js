@@ -1,5 +1,5 @@
 var client_version = '2.0';
-var HOST = 'pink-toaster:9696'
+var HOST = 'pink-toaster:9696';
 
 var sock, colorPicker;
 
