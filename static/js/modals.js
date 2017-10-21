@@ -8,7 +8,6 @@ options: {
     cancelText: str
 }
  */
-
 function dynamic_modal(options) {
     var newModal = $('<div>').addClass('modal')
         .prop('id', 'dynamic_modal')

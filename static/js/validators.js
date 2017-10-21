@@ -1,6 +1,5 @@
 $(document).ready(function () {
     $('#settings_form').validate(validation_settings);
-    $('#create-room').validate(newRoomSettings);
 });
 
 var validation_settings = {
@@ -126,25 +125,5 @@ var validation_settings = {
         }
 
         toggleModal('settings');
-    }
-};
-
-var newRoomSettings = {
-    rules: {
-        name: {
-            required: true,
-            minlength: 3
-        }
-    },
-    submitHandler: function () {
-        var data = {};
-        data.name = $('#name').val();
-
-        sock.send(JSON.stringify({
-            'type': 'newRoom',
-            'data': data,
-            'user': Cookies.get('username')
-        }));
-        toggleModal('newRoom');
     }
 };
