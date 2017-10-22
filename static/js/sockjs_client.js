@@ -1,5 +1,5 @@
 var client_version = '2.0';
-var HOST = 'pink-toaster:9696';
+var HOST = 'localhost:6969';
 var DEFAULT_TITLE = "Best evar chat 2.0!";
 
 var sock, colorPicker;
@@ -250,11 +250,16 @@ function connect() {
                 else {
                     if (rooms.hasOwnProperty(roomNum)) {
                         rooms[roomNum].history.push(data);
+                        $('#room_' + roomNum + ':not(.active) .indicator').show();
                         if (roomNum === active_room) {
                             print_message(data);
                         }
                     }
+                    if (data.user !== Cookies.get('username')) {
+                        updateMessageCount();
+                    }
                 }
+
             }
             if (type === 'privateMessage') {
                 data.type = 'privateMessage';

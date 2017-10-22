@@ -28,6 +28,7 @@ function setActiveTab(event) {
     updateTypingStatus();  // updating to whatever typing status is current in new room
     $('#room_tabs .tab.active').removeClass('active');
     selectedTab.addClass('active');
+    selectedTab.children('.indicator').hide();
     $('#log').empty();
     if (rooms[active_room].users)
         updateUserList(rooms[active_room].users);
@@ -40,7 +41,8 @@ function createNewTab(room) {
         .prop('id', 'room_' + room['id'])
         .prop('room_id', room['id'])
         .prop('title', room['name'])
-        .click(setActiveTab);
+        .click(setActiveTab)
+        .append($('<div>').addClass('indicator fa fa-star').hide());
     if (room['id'] > 0) {
         var menuButton = $('<span>').addClass('fa fa-fw fa-ellipsis-h')
             .prop('room_id', room['id']);

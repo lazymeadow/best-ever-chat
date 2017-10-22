@@ -68,11 +68,6 @@ function print_message(msg, ignoreCount) {
     }
     else if (!ignoreCount) {
         if (msg.user !== 'Client') play_receive();
-        if (!window_focus) {
-            numMessages++;
-            window.document.title = "(" + numMessages + ") " + getPageTitle();
-            $("#favicon").attr("href", "/static/favicon2.png");
-        }
     }
     parse_emojis(messageContainer[0]);
 }
@@ -99,11 +94,6 @@ function print_private_message(msg) {
     }
     else {
         if (msg.user !== 'Client') play_receive();
-        if (!window_focus) {
-            numMessages++;
-            window.document.title = "(" + numMessages + ") " + getPageTitle();
-            $("#favicon").attr("href", "/static/favicon2.png");
-        }
     }
     parse_emojis(messageContainer[0]);
 }
@@ -122,4 +112,12 @@ function print_message_history(room) {
         }
     }
     $('audio').prop('muted', JSON.parse(localStorage.getItem('muted') || 'false'));
+}
+
+function updateMessageCount() {
+    if (!window_focus) {
+        numMessages++;
+        window.document.title = "(" + numMessages + ") " + getPageTitle();
+        $("#favicon").attr("href", "/static/favicon2.png");
+    }
 }
