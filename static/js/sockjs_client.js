@@ -72,7 +72,6 @@ $(document).ready(function () {
         var log = $(event.target);
         var scrollThreshold = 100;  // approximately five lines
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
-        console.log(autoScroll, log[0].scrollHeight);
     });
 
     $('#email').val(Cookies.get('email'));
