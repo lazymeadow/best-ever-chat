@@ -119,7 +119,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if send_updates:
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
-                                       self.username + ' has connected', rooms=self.joined_rooms)
+                                       self.username + ' has connected', rooms_to_send=self.joined_rooms,
+                                       save_history=True)
 
         self.broadcast_user_list()
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
@@ -176,7 +177,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if len(get_matching_participants(self.participants, self.username, 'username')) == 0:
             # users.pop(self.username, None)
             users[self.username]['connected'] = False
-            self.broadcast_from_server(self.participants, self.username + " left.", rooms=self.joined_rooms)
+            self.broadcast_from_server(self.participants, self.username + " left.", rooms_to_send=self.joined_rooms,
+                                       save_history=True)
             self.broadcast_user_list()
 
         # Close the socket.
@@ -207,8 +209,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                        'time': time.time(),
                        'room': room_id}})
 
-    def broadcast_from_server(self, send_to, message, message_type='chatMessage', data=None, room_id=None, rooms=None,
-                              save_history=False):
+    def broadcast_from_server(self, send_to, message, message_type='chatMessage', data=None, room_id=None,
+                              rooms_to_send=None, save_history=False):
         """
         Broadcast a message to given participants.
         :param send_to: participants to receive broadcast message
@@ -216,15 +218,17 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         :param message_type: type of message
         :param data: data to send with message
         :param room_id: room to associate with message. ignored if rooms is defined
-        :param rooms: rooms to associate message with. if defined, room_id is ignored
+        :param rooms_to_send: rooms to associate message with. if defined, room_id is ignored
         """
-        if rooms is not None:
-            for room in rooms:
+        if rooms_to_send is not None:
+            for room in rooms_to_send:
                 new_message = {'user': 'Server',
                                'message': message,
                                'time': time.time(),
                                'data': data,
                                'room': room}
+                if save_history is True:
+                    rooms[room]['history'].append(new_message)
                 self.broadcast(send_to, {'type': message_type,
                                          'data': new_message})
         else:
@@ -233,6 +237,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                            'time': time.time(),
                            'data': data,
                            'room': room_id}
+            if save_history is True:
+                rooms[room_id]['history'].append(new_message)
             self.broadcast(send_to, {'type': message_type,
                                      'data': new_message})
 
@@ -472,7 +478,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self_set = {self}
 
                 self.broadcast_from_server(self.participants.difference(self_set),
-                                           user + " is now " + self.username, rooms=self.joined_rooms)
+                                           user + " is now " + self.username, rooms_to_send=self.joined_rooms)
                 self.broadcast_from_server(updating_participants, "Name changed to {}.".format(self.username),
                                            message_type='update', data={'username': self.username})
                 should_broadcast_users = True
@@ -783,8 +789,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.http_server.db.execute("DELETE FROM rooms WHERE id = %s", room_id)
             # send message to inform all clients that the room is gone and remove the tab
             self.broadcast_from_server(rooms[room_id]['participants'],
-                                       'Room \'{}\' has been deleted by the owner.'.format(rooms[room_id]['name']),
-                                       message_type='deleteRoom', data={'room_id': room_id})
+                                       'Room \'{}\' has been deleted by {}.'.format(rooms[room_id]['name'],
+                                                                                    rooms[room_id]['owner']),
+                                       message_type='deleteRoom', data={'room_id': room_id},
+                                       save_history=True, room_id=0)
             # remove the room from the list
             removed_room = rooms.pop(room_id, None)
 
