@@ -653,7 +653,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             if self.filter_profamity:
                 for item in room_data['history']:
                     item['message'] = profamity_filter.scan_for_fucks(item['message'])
-            self.send({'type': 'room_data', 'data': [room_data]})
+            self.send({'type': 'room_data', 'data': {'rooms': [room_data]}})
         else:
             current_rooms = []
             for room in self.joined_rooms:
@@ -667,7 +667,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                     for item in room_data['history']:
                         item['message'] = profamity_filter.scan_for_fucks(item['message'])
                 current_rooms.append(room_data)
-            self.send({'type': 'room_data', 'data': current_rooms})
+            self.send({'type': 'room_data', 'data': {'all': room_id is None, 'rooms': current_rooms}})
 
     def create_room(self, room_data):
         """

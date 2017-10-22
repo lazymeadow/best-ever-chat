@@ -141,5 +141,9 @@ function createNewTab(room) {
             });
     }
     $('#create-room-button').before(newTab);
+    var currentUsers;
+    if (rooms.hasOwnProperty(room['id']))
+        currentUsers = rooms[room['id']]['users'];
     rooms[room['id']] = room;
+    rooms[room['id']]['users'] = currentUsers;
 }

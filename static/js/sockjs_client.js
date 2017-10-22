@@ -228,8 +228,10 @@ function connect() {
                 print_message(data);
             }
             if (type === 'room_data') {
-                for (var i = 0; i < data.length; i++) {
-                    var room = data[i];
+                if (data.all)
+                    $('#room_tabs .tab').remove();
+                for (var i = 0; i < data.rooms.length; i++) {
+                    var room = data.rooms[i];
                     createNewTab(room);
                 }
                 if (!Object.keys(rooms).includes(active_room)) {
