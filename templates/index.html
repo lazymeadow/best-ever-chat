@@ -1,47 +1,54 @@
 {% extends "base.html" %}
+
+{% set title = 'Loading...' %}
+
 {% block includes %}
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
+    <link rel="stylesheet" href="static/js/colorpicker/colorpicker.css" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
     <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
     <script src="//twemoji.maxcdn.com/2/twemoji.min.js?2.3.0"></script>
-    <script src="https://use.fontawesome.com/b02b7d5ab5.js"></script>
-    <script type="text/javascript" src="static/js/colorpicker/colorpicker.js"></script>
-    <script type="text/javascript" src="/static/js/sounds_handler.js"></script>
-    <script type="text/javascript" src="/static/js/sockjs_client.js"></script>
 
-    <link rel="stylesheet" href="static/js/colorpicker/colorpicker.css" type="text/css"/>
+    <script type="text/javascript" src="static/js/colorpicker/colorpicker.js"></script>
+    <script type="text/javascript" src="/static/js/modals.js"></script>
+    <script type="text/javascript" src="/static/js/menus.js"></script>
+    <script type="text/javascript" src="/static/js/messages.js"></script>
+    <script type="text/javascript" src="/static/js/tabs.js"></script>
+    <script type="text/javascript" src="/static/js/sounds_handler.js"></script>
+    <script type="text/javascript" src="/static/js/validators.js"></script>
+    <script type="text/javascript" src="/static/js/sockjs_client.js"></script>
 {% endblock %}
 
 {% block content %}
 
 
     <div class="header">
-        <h1>Best Evar Chat!!1!</h1>
+        <span class="fa fa-2x fa-fw fa-bars" id="menu-button" onclick="toggleMenu('main_menu')"></span>
+        <div class="tabs" id="room_tabs">
+            <span class="fa fa-fw fa-plus" id="create-room-button" onclick="createRoom()"></span>
+        </div>
     </div>
 
     <div id="log"></div>
 
     <div class="right_bar">
-        <h3>Online Users:</h3>
         <div id="user_list"></div>
     </div>
 
     <div class="chat-bar">
-        <div class="button first" id="username" onclick="toggleMenu()">
-            <i class="fa fa-fw fa-bars"></i>&nbsp;
+        <div class="button first" id="username" onclick="changeTab('settings', 0) ; toggleModal('settings')">
             <span id="username_display"> you:</span>
         </div>
         <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..."
-               onkeydown="submitChat(event)" onkeyup="updateTypingStatus(event)"
-               autocomplete="off" onfocus="$('#emoji-list').hide(); $('#menu').hide();"/>
+               onkeydown="submitChat(event)" autocomplete="off" onfocus="$('#emoji-list').hide(); $('#menu').hide();"/>
         <div class="button not-first" id="toggle-emojis" onclick="toggleEmojiList()">
             😃
         </div>
         <div class="button last" onclick="showImageInput()">
-            <i class="fa fa-picture-o"></i>
+            <span class="fa fa-picture-o"></span>
         </div>
     </div>
 
@@ -59,24 +66,32 @@
         </table>
     </div>
 
-    <div id="menu">
-    <span class="menu-item" onclick="toggleMenu(); setUsername()">
-        <i class="fa fa-fw fa-cog"></i>
-        Settings
-    </span>
+    <div id="main_menu" class="menu">
+        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 0); toggleModal('settings')">
+            <span class="fa fa-fw fa-user-circle-o"></span>
+            User Settings
+        </span>
+        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 1); toggleModal('settings')">
+            <span class="fa fa-fw fa-cogs"></span>
+            Account Settings
+        </span>
+        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 2); toggleModal('settings')">
+            <span class="fa fa-fw fa-desktop"></span>
+            Client Settings
+        </span>
+        <span class="menu-item" onclick="toggleMenu('main_menu'); toggleModal('information')">
+            <span class="fa fa-fw fa-question"></span>
+            About
+        </span>
         <span class="menu-item" onclick="logout()">
-        <i class="fa fa-fw fa-sign-out"></i>
-        Log out
-    </span>
+            <span class="fa fa-fw fa-sign-out"></span>
+            Log out
+        </span>
     </div>
 
     <!-- Modals -->
     <div id="overlay">
         {% include 'modals/settings.html' %}
-
-        {% include 'modals/connection_error.html' %}
-
-        {% include 'modals/image_input.html' %}
 
         {% include 'modals/information.html' %}
     </div>

@@ -1,71 +1,134 @@
-<div id="userStats" class="modal">
-    <button class="close" type="button" onclick="toggleModal('userStats')">
-        <i class="fa fa-close"></i>
-    </button>
-    <span class="modal-title">User preferences</span>
-    <div class="modal-content">
-        <form id="update-user" action="">
-            <div class="form-group">
-                <label>Sound:</label>
-                <div class="form-element">
-                    <div title="Volume" id="volume-button">
-                                <span class="fa-stack fa">
-                                    <i class="fa fa-volume-up fa-stack-2x"></i>
-                                </span>
+<form id="settings_form" action="">
+    <div id="settings" class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Settings</span>
+            <span class="close-icon fa fa-close" onclick="toggleModal('settings')"></span>
+        </div>
+
+        <div class="modal-content">
+            <div class="tabs" id="settings_tabs">
+                <div class="tab active" id="settings_0" onclick="changeTab('settings', 0)">User Settings</div>
+                <div class="tab" id="settings_1" onclick="changeTab('settings', 1)">Account Settings</div>
+                <div class="tab" id="settings_2" onclick="changeTab('settings', 2)">Client Settings</div>
+            </div>
+
+            <div class="tab-content" id="settings_0_content">
+                <div class="form-group">
+                    <label for="set_name">Display name:</label>
+                    <input type="text" name="set_name" id="set_name"
+                           placeholder="Username"/>
+                </div>
+                <div class="form-group">
+                    <label>Sound:</label>
+                    <div class="form-element">
+                        <div title="Volume" id="volume-button">
+                        <span class="fa-stack fa">
+                            <i class="fa fa-volume-up fa-stack-2x"></i>
+                        </span>
+                        </div>
+                        <div>
+                            <input id="volume-slider" type="range" title="volume"/>
+                        </div>
+                        <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
+                        <label for="aimSounds">
+                            AIM
+                        </label>
+                        <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
+                        <label for="msnSounds">
+                            MSN
+                        </label>
                     </div>
-                    <input id="volume-slider" type="range" title="volume"/>
-                    <input type="radio" name="sounds-radios" id="aimSounds" value="AIM" checked>
-                    <label for="aimSounds">
-                        AIM
+                </div>
+                <div class="form-group">
+                    <label for="color">Color:</label>
+                    <div name="color" id="color"></div>
+                </div>
+                <div class="form-group">
+                    <label>Faction:</label>
+                    <input type="radio" name="faction" id="rebelFaction" value="rebel" checked>
+                    <label for="rebelFaction">
+                        Rebel Alliance
                     </label>
-                    <input type="radio" name="sounds-radios" id="msnSounds" value="MSN">
-                    <label for="msnSounds">
-                        MSN
+                    <input type="radio" name="faction" id="empireFaction" value="empire">
+                    <label for="empireFaction">
+                        Galactic Empire
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="set_name">Display name:</label>
-                <input type="text" name="set_name" id="set_name"
-                       placeholder="Username"/>
+
+            <div class="tab-content" id="settings_1_content">
+                <div class="form-group">
+                    <label for="email">Change email:</label>
+                    <input type="email" name="email" id="email"
+                           placeholder="Email" value=" "/>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none"/>
+                    <label for="new_password">Change password:</label>
+                    <input type="password" name="new_password" id="new_password" autocomplete="off"/>
+                </div>
+                <div class="form-group">
+                    <label for="new_password2">Confirm password:</label>
+                    <input type="password" name="new_password2" id="new_password2"/>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="color">Color:</label>
-                <div name="color" id="color"></div>
+
+            <div class="tab-content" id="settings_2_content">
+                <div class="form-group">
+                    These settings will only apply to your current browser!
+                </div>
+                <div class="form-group">
+                    <label for="tab_title">Browser tab title:</label>
+                    <input name="tab_title" id="tab_title"
+                           placeholder="Best Evar Chat! 2.0!"/>
+                </div>
+                <div class="form-group">
+                    <label for="font-size">Font size:</label>
+                    <select id="font-size">
+                        <option value="14px">14px</option>
+                        <option value="16px">16px</option>
+                        <option value="18px">18px</option>
+                        <option value="20px">20px</option>
+                        <option value="22px">22px</option>
+                        <option value="24px">24px</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <span class="label">Hide images by default:</span>
+                    <input type="checkbox" id="hidden_images"/>
+                    <label for="hidden_images" class="check-box"></label>
+                </div>
+                <div class="form-group">
+                    <label>Timestamps:</label>
+                    <input type="radio" name="timestamps" id="date_time" value="date_time" checked>
+                    <label for="date_time">
+                        Date & Time
+                    </label>
+                    <input type="radio" name="timestamps" id="just_time" value="just_time">
+                    <label for="just_time">
+                        Just Time
+                    </label>
+                    <input type="radio" name="timestamps" id="timestamps_off" value="off">
+                    <label for="timestamps_off">
+                        Off
+                    </label>
+                </div>
+                <div class="form-group">
+                    <span class="label">Enable profamity filter:</span>
+                    <input type="checkbox" id="profamity_filter"/>
+                    <label for="profamity_filter" class="check-box"></label>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="email">Change email:</label>
-                <input type="email" name="email" id="email"
-                       placeholder="Email" value=" "/>
-            </div>
-            <div class="form-group">
-                <label>Faction:</label>
-                <input type="radio" name="faction" id="rebelFaction" value="rebel" checked>
-                <label for="rebelFaction">
-                    Rebel Alliance
-                </label>
-                <input type="radio" name="faction" id="empireFaction" value="empire">
-                <label for="empireFaction">
-                    Galactic Empire
-                </label>
-            </div>
+        </div>
+
+        <div class="modal-footer">
             {{ xsrf_form_html() }}
-            <input type="password" name="to_prevent_unecessary_autocomplete" style="display: none"/>
-            <div class="form-group">
-                <label for="new_password">Change password:</label>
-                <input type="password" name="new_password" id="new_password" autocomplete="off"/>
-            </div>
-            <div class="form-group">
-                <label for="new_password2">Confirm password:</label>
-                <input type="password" name="new_password2" id="new_password2"/>
-            </div>
-            <hr/>
-            <button class="modal-cancel" type="button" onclick="toggleModal('userStats')">
+            <button class="modal-cancel" type="button" onclick="toggleModal('settings')">
                 Cancel
             </button>
             <button class="modal-submit" type="submit">
                 Save changes
             </button>
-        </form>
+        </div>
     </div>
-</div>
+</form>

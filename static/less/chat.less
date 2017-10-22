@@ -1,0 +1,374 @@
+@serverColor: #000;
+@clientColor: #000;
+@privateMessageColor: #567f8c;
+
+@dark: #4A4A4A;
+@bodyColor: #222222;
+@lightButtonColor: #C6E2EB;
+@overlayColor: fade(@dark, 75%);
+@borderColor: @dark;
+@backgroundColor: #25687D;
+@lightBackgroundColor: #C9C9C9;
+@lightest: #FCFCFC;
+@buttonHoverColor: darken(@lightButtonColor, 15%);
+@headerHeight: 30px;
+@tabHeight: 30px;
+@chatBarHeight: 45px;
+@rightBarWidth: 200px;
+@elementPadding: 5px;
+
+@import url('https://fonts.googleapis.com/css?family=Amiko');
+@import 'modal';
+@import 'tabs';
+@import 'menu';
+@import 'toggle';
+@import 'input-range';
+@import 'checkboxes';
+
+body {
+  background: @backgroundColor;
+  font: 14px 'Amiko', san-serif;
+  color: @bodyColor;
+  padding: 0;
+  margin: 0;
+}
+
+div.login {
+  text-align: right;
+  width: 500px;
+  padding: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  background: @lightest;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+  min-height: 100px;
+  overflow-y: auto;
+
+  a {
+    float: left;
+    padding: 10px;
+  }
+
+  label {
+    min-width: 150px;
+  }
+
+  button {
+    min-width: 100px;
+
+    &.primary {
+      float: right;
+    }
+
+    &.secondary {
+      float: left;
+    }
+  }
+}
+
+#user_list {
+  bottom: @chatBarHeight;
+  border: @borderColor 1px none;
+  border-left: @lightBackgroundColor 1px solid;
+  border-radius: 0 3px 3px 0;
+  background: @lightest;
+  top: @headerHeight + @elementPadding;
+  position: fixed;
+  margin: 0 0 @elementPadding 0;
+  right: @elementPadding;
+  width: @rightBarWidth - 1px; // for border
+  overflow-y: auto;
+
+  div {
+    padding: @elementPadding;
+    span {
+      &:not(.typing) {
+        padding-right: @elementPadding;
+      }
+      &.typing {
+        float: right;
+        opacity: 0.55;
+      }
+      &.active {
+        color: #57a848;
+      }
+      &.idle {
+        opacity: .25;
+      }
+    }
+    &:nth-of-type(odd) {
+      background: darken(@lightest, 5%);
+    }
+  }
+
+}
+
+.header {
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+  padding: @elementPadding;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: @headerHeight;
+  color: @lightest;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    &#menu-button {
+      order: 1;
+      flex: 0 1 auto;
+      padding: 0 @elementPadding;
+      align-self: flex-start;
+    }
+    cursor: pointer;
+  }
+}
+
+#log {
+  position: fixed;
+  background: @lightest;
+  overflow-y: auto;
+  border: none 1px @borderColor;
+  border-radius: 3px 0 0 3px;
+  margin: 0 0 @elementPadding 0;
+  padding: @elementPadding;
+  top: @headerHeight + @elementPadding;
+  bottom: @chatBarHeight;
+  right: @rightBarWidth + @elementPadding;
+  left: @elementPadding;
+
+  .chat-message {
+    display: flex;
+
+    & .time {
+      flex: 0 0 auto;
+      padding-right: @elementPadding;
+    }
+
+    & .message {
+      flex: 1 1 auto;
+      & strong {
+        vertical-align: top;
+      }
+      &.client-message {
+        color: @clientColor;
+      }
+
+      &.server-message {
+        color: @serverColor;
+      }
+
+      &.private-message {
+        font-style: italic;
+        color: @privateMessageColor;
+      }
+    }
+
+    & .image-wrapper {
+      display: inline-block;
+      background-color: darken(@lightest, 5%);
+      color: @backgroundColor;
+      font-weight: bold;
+      padding: 0 @elementPadding;
+      border-radius: 3px;
+      min-width: 150px;
+      margin-bottom: @elementPadding;
+
+      & span {
+        display: block;
+      }
+
+      & img {
+        max-width: 300px;
+        max-height: 300px;
+      }
+    }
+  }
+}
+
+.right_bar {
+  position: fixed;
+  top: @headerHeight + @elementPadding;
+  right: @elementPadding;
+  bottom: @chatBarHeight;
+  width: @rightBarWidth;
+}
+
+#emoji-list {
+  position: absolute;
+  bottom: @chatBarHeight - @elementPadding;
+  right: 0;
+  margin: 0 @elementPadding;
+  background: @lightBackgroundColor;
+  border: solid 1px @borderColor;
+  border-radius: 3px;
+
+  & td {
+    background-color: @lightest;
+    border-radius: 3px;
+
+    &:hover {
+      background-color: @lightButtonColor;
+    }
+  }
+
+  img {
+    height: 1.5em;
+    width: 1.5em;
+    cursor: pointer;
+  }
+}
+
+.chat-bar {
+  position: fixed;
+  height: @chatBarHeight;
+  padding: @elementPadding;
+  display: flex;
+  align-items: flex-end;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  .button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .fa {
+      font-size: 1.5em;
+    }
+  }
+  .first {
+    border-radius: 3px 0 0 3px;
+  }
+  .not-first {
+    border-left: none;
+    border-radius: 0;
+  }
+  .last {
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+  }
+  input {
+    flex: 1 0 auto;
+  }
+}
+
+input {
+  font: 1em 'Amiko', sans-serif;
+  padding: @elementPadding;
+  background: @lightest;
+  height: 25px;
+  border: @borderColor 1px solid;
+  border-radius: 3px;
+}
+
+.primary-button() {
+  float: right;
+  background: @backgroundColor;
+  color: @lightest;
+  &:hover {
+    background: darken(@backgroundColor, 10%);
+  }
+}
+
+.cancel-button() {
+  background: lighten(@lightBackgroundColor, 10%);
+  color: darken(@lightBackgroundColor, 25%);
+  float: left;
+  &:hover {
+    background: @lightBackgroundColor;
+    color: darken(@lightBackgroundColor, 35%);
+  }
+}
+
+button, .button {
+  padding: 0 @elementPadding;
+  min-width: 35px;
+  height: 35px;
+  font-family: 'Amiko', sans-serif;
+  border: @borderColor 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  background: @lightButtonColor;
+  color: darken(@backgroundColor, 50%);
+  &:hover {
+    background: @buttonHoverColor;
+  }
+
+  &.primary {
+    .primary-button;
+  }
+
+  &.cancel {
+    .cancel-button;
+  }
+}
+
+.form-group {
+  padding: @elementPadding;
+  display: table;
+
+  .form-element {
+    display: table-row;
+
+    div {
+      display: table-cell;
+    }
+
+    .toggle {
+      margin: 10px;
+      vertical-align: middle;
+    }
+  }
+
+  label:not(.check-box), input {
+    display: table-cell;
+    margin: 10px 25px;
+    &[type="radio"] {
+      margin: 10px;
+      vertical-align: middle;
+    }
+  }
+
+  input[type=checkbox] {
+    display: none;
+  }
+}
+
+img.emoji {
+  height: 1.1em;
+  width: 1.1em;
+  margin: 0 .05em 0 .1em;
+  vertical-align: -0.1em;
+}
+
+#volume-button {
+  display: inline;
+  &:hover {
+    cursor: pointer;
+  }
+
+}
+
+#volume-slider {
+  width: 100px;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.text-danger {
+  color: #A31A1A;
+}
+
+.text-muted {
+  opacity: .5;
+}
+
+@import 'mobile';

@@ -1,4 +1,6 @@
-var client_version = 51;
+var client_version = '2.0';
+var HOST = 'pink-toaster:9696';
+var DEFAULT_TITLE = "Best evar chat 2.0!";
 
 var sock, colorPicker;
 
@@ -7,17 +9,21 @@ var idleTimeout = null;
 var reconnect_count = 0;
 var MAX_RETRIES = 3;
 var window_focus = document.hasFocus();
-var autoScroll = true;
+var rooms = {};
+var active_room = localStorage.getItem('active_room') || 0;
 
 $(document).ready(function () {
+    window.document.title = getPageTitle();
     // initial hiding of elements
     $('#emoji-list').hide();
-    $('#menu').hide();
-    $('#userStats').hide();
-    $('#connectError').hide();
+    $('#main_menu').hide();
+    $('#newRoom').hide();
     $('#imageInput').hide();
     $('#information').hide();
     $('#overlay').hide();
+    $('#settings').hide();
+    changeTab('settings', 0);
+    changeTab('information', 0);
 
     // set idle listeners
     function resetIdleTimeout() {
@@ -25,7 +31,6 @@ $(document).ready(function () {
         if (sock) {
             sock.send(JSON.stringify({
                 'type': 'userStatus',
-                'user': Cookies.get('username'),
                 'status': {
                     'idle': false
                 }
@@ -35,7 +40,6 @@ $(document).ready(function () {
             if (sock) {
                 sock.send(JSON.stringify({
                     'type': 'userStatus',
-                    'user': Cookies.get('username'),
                     'status': {
                         'idle': true
                     }
@@ -53,7 +57,7 @@ $(document).ready(function () {
     // page stuff
     $(window).focus(function () {
         numMessages = 0;
-        window.document.title = "Best evar chat!";
+        window.document.title = getPageTitle();
         window_focus = true;
 
         $('#chat_text').focus();
@@ -68,7 +72,6 @@ $(document).ready(function () {
         var log = $(event.target);
         var scrollThreshold = 100;  // approximately five lines
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
-        console.log(autoScroll, log[0].scrollHeight);
     });
 
     $('#email').val(Cookies.get('email'));
@@ -77,82 +80,22 @@ $(document).ready(function () {
     colorPicker = bestColorPicker($('#color'));
     colorPicker.setColor(Cookies.get('color'));
 
-    $('#update-user').validate(updateSettings);
+    // local settings
+    var fontSize = localStorage.getItem('fontSize') || '14px';
+    $('#font-size').val(fontSize);
+    $('body').css({fontSize: fontSize});
+    $('#tab_title').val(getPageTitle());
+    $('input:radio[name=timestamps]').filter('[value={}]'.replace('{}', localStorage.getItem('timestamps'))).prop('checked', true);
+    $('#hidden_images').prop('checked', JSON.parse(localStorage.getItem('hideImages') || 'true'));
+    $('#profamity_filter').prop('checked', JSON.parse(Cookies.get('profamity_filter') || 'false'));
 
     showUsername();
 
     timeout = window.setTimeout(connect, 500);
 });
 
-function addEmoji(emoji) {
-    var chatText = $('#chat_text');
-    chatText.val(chatText.val() + emoji);
-}
-
-function showImageInput() {
-    toggleModal('imageInput');
-}
-
-function imageChat() {
-    var imgUrl = $('#img_url');
-    if (imgUrl.val()) {
-        toggleModal('imageInput');
-        sock.send(JSON.stringify({
-            'type': 'imageMessage',
-            'user': Cookies.get('username'),
-            'url': imgUrl.val()
-        }));
-        imgUrl.val('');
-        $('#chat_text').focus();
-    }
-}
-
-var typingStatus, typingTimeout;
-
-function updateTypingStatus(newStatus) {
-    typingStatus = newStatus || $('#chat_text').val().length > 0;
-
-    if (!typingTimeout) {
-        sendTypingStatus();
-        typingTimeout = window.setTimeout(function () {
-            window.clearTimeout(typingTimeout);
-            typingTimeout = false;
-            if (typingStatus) {
-                updateTypingStatus();
-            }
-        }, 500);
-    }
-
-    function sendTypingStatus() {
-        sock.send(JSON.stringify({
-            'type': 'userStatus',
-            'user': Cookies.get('username'),
-            'status': {
-                'typing': typingStatus,
-                'currentMessage': $('#chat_text').val()
-            }
-        }));
-    }
-}
-
-function submitChat(event) {
-    if (event.keyCode === 38) {
-        if (Cookies.get('last_message') !== undefined) {
-            $('#chat_text').val(Cookies.get('last_message'));
-        }
-    }
-    if (event.keyCode === 13) {
-        var chatText = $('#chat_text');
-        updateTypingStatus(false);
-        sock.send(JSON.stringify({
-            'type': 'chatMessage',
-            'user': Cookies.get('username'),
-            'message': chatText.val()
-        }));
-        Cookies.set('last_message', chatText.val());
-        chatText.val('');
-        chatText.focus();
-    }
+function getPageTitle() {
+    return localStorage.getItem('tab_title') || DEFAULT_TITLE;
 }
 
 function logout() {
@@ -162,14 +105,15 @@ function logout() {
 function connect() {
     if (Cookies.get('username')) {
 
-        // socket stuff
-        //sock = new SockJS('http://chat.applepeacock.com/chat/');
-        sock = new SockJS('http://localhost:6969/chat/');
+        sock = new SockJS('http://' + HOST + '/chat/');
 
         sock.onopen = function () {
             window.clearTimeout(timeout);
             timeout = null;
             reconnect_count = 0;
+
+            $('#room_tabs .tab').remove();
+
             sock.send(JSON.stringify({'type': 'version', 'client_version': client_version}));
         };
 
@@ -178,11 +122,7 @@ function connect() {
             var data = e.data.data;
             // handle all the damn message types
             if (type === 'auth_fail') {
-                print_message(data);
-
-                window.setTimeout(function () {
-                    location.reload();
-                }, 500);
+                location.reload();
             }
             if (type === 'update') {
                 for (var updateKey in data.data) {
@@ -211,10 +151,46 @@ function connect() {
                         }
                     }
                 }
+                // update messages can go in all rooms
+                for (key in rooms) {
+                    rooms[key].history.push(data);
+                }
                 print_message(data);
             }
             if (type === 'userList') {
-                updateUserList(data);
+                var room_num = data.room;
+                if (rooms.hasOwnProperty(room_num)) {
+                    rooms[room_num].users = [];
+                    $.each(data.users, function (username, user) {
+                        user.username = username;
+                        rooms[room_num].users.push(user);
+                    });
+                    rooms[room_num].users.sort(function (a, b) {
+                        var nameA = a.username.toUpperCase();  // ignore upper and lowercase
+                        var nameB = b.username.toUpperCase();  // ignore upper and lowercase
+                        if (nameA < nameB) {
+                            return -1;
+                        }
+                        if (nameA > nameB) {
+                            return 1;
+                        }
+                        // names must be equal
+                        return 0;
+                    });
+                    // if the user list contains all connected users, then disable the invite item
+                    if ((rooms[room_num].users.length === rooms[0].users.length) &&
+                        rooms[room_num].users.every(function (element, index) {
+                            return element.username === rooms[0].users[index].username;
+                        })
+                    ) {
+                        $('#invite_' + room_num).addClass('disabled');
+                    }
+                    else {
+                        $('#invite_' + room_num).removeClass('disabled');
+                    }
+                    if (room_num === active_room)
+                        updateUserList();
+                }
             }
             if (type === 'versionUpdate') {
                 Cookies.remove('info_read');
@@ -225,53 +201,82 @@ function connect() {
                     toggleModal('information');
                 }
             }
-            if (type === 'history') {
-                $('audio').each(function (_, element) {
-                    element.muted = true;
-                });
-                for (var message in data) {
-                    if (data.hasOwnProperty(message))
-                        print_message(data[message], true);
-                }
-                $('audio').each(function (_, element) {
-                    element.muted = false;
+            if (type === 'invitation') {
+                dynamic_modal({
+                    modalId: 'invitation',
+                    title: 'You\'ve been invited to a room!',
+                    content: $('<div>')
+                        .append($('<div>').text('User ' + data['sender'] + ' is inviting you to join the room ' + data['room_name'] + '.'))
+                        .append($('<div>').text('Would you like to join?')),
+                    callback: function () {
+                        sock.send(JSON.stringify({
+                            'type': 'joinRoom',
+                            'room_id': data['room_id'],
+                            'user': Cookies.get('username')
+                        }));
+                    },
+                    submitText: 'Yes!',
+                    cancelText: 'No!'
                 });
             }
-            if (type === 'chatMessage') {
+            if (type === 'deleteRoom') {
+                var room_id = data.data.room_id;
+                removeTab(room_id);
+                delete rooms[room_id];
+                rooms[0].history.push(data);
                 print_message(data);
             }
+            if (type === 'room_data') {
+                if (data.all)
+                    $('#room_tabs .tab').remove();
+                for (var i = 0; i < data.rooms.length; i++) {
+                    var room = data.rooms[i];
+                    createNewTab(room);
+                }
+                if (!Object.keys(rooms).includes(active_room)) {
+                    active_room = 0;
+                    localStorage.setItem('active_room', 0);
+                }
+                $('#room_' + active_room).click();
+            }
+            if (type === 'chatMessage') {
+                var roomNum = data.room;
+                if (roomNum === null) {
+                    for (var key in rooms) {
+                        rooms[key].history.push(data);
+                    }
+                    print_message(data);
+                }
+                else {
+                    if (rooms.hasOwnProperty(roomNum)) {
+                        rooms[roomNum].history.push(data);
+                        if (roomNum === active_room) {
+                            print_message(data);
+                        }
+                    }
+                }
+            }
             if (type === 'privateMessage') {
+                data.type = 'privateMessage';
+                for (var id in rooms) {
+                    rooms[id].history.push(data);
+                }
                 print_private_message(data);
             }
-            twemoji.parse(document.body, {
-                base: '/static/',
-                folder: 'emojione/assets/',
-                attributes: function (icon, variant) {
-                    return {title: icon + variant};
-                }
-            });
         };
+
         sock.onclose = function () {
             print_message({
                 user: 'Client',
                 time: moment().unix(),
                 message: 'Connection lost!!'
             });
-
-            if (reconnect_count === 0) {
-                toggleModal('connectError');
-            }
-            else {
-                attempt_reconnect();
-            }
+            attempt_reconnect();
         };
     }
 }
 
 function attempt_reconnect() {
-    if (reconnect_count === 0) {
-        toggleModal('connectError');
-    }
     window.clearTimeout(timeout);
     if (reconnect_count < MAX_RETRIES)
         timeout = window.setTimeout(reconnect, 1000);
@@ -281,7 +286,14 @@ function attempt_reconnect() {
             time: moment().unix(),
             message: 'Reconnect failed.'
         });
-        toggleModal('connectError');
+        dynamic_modal({
+            modalId: 'connect_error',
+            title: 'Connection Error',
+            content: 'There was an error connecting to the server.',
+            callback: attempt_reconnect,
+            showCancel: false,
+            submitText: 'Retry'
+        });
         reconnect_count = 0;
     }
 }
@@ -296,214 +308,119 @@ function reconnect() {
     });
 }
 
-function updateUserList(newList) {
-    var userList = $('#user_list');
-    userList.empty();
-    for (var user in newList) {
-        if (newList.hasOwnProperty(user)) {
-            var userDiv = $('<div/>').text(user).attr('title', newList[user]['real_name']);
-            if (newList[user]['typing']) {
-                userDiv.append($('<i>').addClass('typing fa fa-fw fa-commenting-o'));
+function addEmoji(emoji) {
+    var chatText = $('#chat_text');
+    chatText.val(chatText.val() + emoji);
+}
+
+function updateTypingStatus(newStatus) {
+    if (newStatus === undefined) {
+        currentMessage = $('#chat_text').val();
+        sock.send(JSON.stringify({
+            'type': 'userStatus',
+            'status': {
+                'typing': currentMessage.length > 0,
+                'currentMessage': currentMessage,
+                'room': active_room
             }
-            var activeIcon = $('<i>').addClass('fa fa-fw').addClass('fa-' + newList[user].faction);
-            activeIcon.addClass(newList[user]['idle'] ? 'idle' : 'active');
-            userDiv.prepend(activeIcon);
-            userList.append(userDiv);
-        }
+        }));
+    }
+    else {
+        sock.send(JSON.stringify({
+            'type': 'userStatus',
+            'status': {
+                'typing': newStatus,
+                'room': active_room
+            }
+        }));
     }
 }
 
-function setUsername() {
-    var username_cookie = Cookies.get("username");
-    if (username_cookie)
-        $("#set_name").val(username_cookie);
+function submitChat(event) {
+    if (event.which === 38) {
+        if (localStorage.getItem('last_message') !== undefined) {
+            $('#chat_text').val(localStorage.getItem('last_message'));
+        }
+    }
+    if (event.which === 13) {
+        var chatText = $('#chat_text');
+        sock.send(JSON.stringify({
+            'type': 'chatMessage',
+            'user': Cookies.get('username'),
+            'message': chatText.val(),
+            'room': active_room
+        }));
+        localStorage.setItem('last_message', chatText.val());
+        chatText.val('');
+        chatText.focus();
+    }
+    updateTypingStatus();
+}
 
-    toggleModal('userStats');
+function showImageInput() {
+    dynamic_modal({
+        modalId: 'image_chat',
+        title: 'Enter Image URL',
+        content: $('<div>').append($('<div>').addClass('form-group')
+            .append($('<input>').prop('type', 'url')
+                .prop('id', 'image_url')))
+            .append($('<div>').addClass('form-group')
+                .append($('<span>').addClass('label').text('NSFW?'))
+                .append($('<input>').prop('type', 'checkbox').prop('id', 'nsfw_flag'))
+                .append($('<label>').addClass('check-box')
+                    .click(function () {
+                        $('#nsfw_flag').click().is(':checked') ? $(this).addClass('checked') : $(this).removeClass('checked');
+                        return false;
+                    })
+                )
+            ),
+        callback: function () {
+            var imgUrl = $('#image_url').val();
+            if (imgUrl) {
+                sock.send(JSON.stringify({
+                    'type': 'imageMessage',
+                    'user': Cookies.get('username'),
+                    'url': imgUrl,
+                    'nsfw_flag': $('#nsfw_flag').is(':checked'),
+                    'room': active_room
+                }));
+                $('#chat_text').focus();
+            }
+            else {
+                print_message({
+                    user: 'Client',
+                    time: moment().unix(),
+                    message: 'No image sent.'
+                });
+            }
+        }
+    });
+}
+
+function updateUserList() {
+    var newList = rooms[active_room].users;
+    var userList = $('#user_list');
+    userList.empty();
+
+    $.each(newList, function (index, user) {
+        var userDiv = $('<div/>').attr('title', user['real_name']);
+        if (user['typing']) {
+            userDiv.append($('<span>').addClass('typing fa fa-fw fa-commenting-o'));
+        }
+        userDiv.append(user['username']);
+        var activeIcon = $('<span>').addClass('fa fa-fw').addClass('fa-' + user.faction);
+        activeIcon.addClass(user['idle'] ? 'idle' : 'active');
+        userDiv.prepend(activeIcon);
+        userList.append(userDiv);
+    });
 }
 
 function showUsername() {
     var username = Cookies.get("username");
     if (username) {
-        $("#username_display").text(" " + username + ":");
+        $("#username_display").text(username + ":");
+        $("#set_name").val(username);
     }
-    else
-        setUsername();
-}
-
-var updateSettings = {
-    rules: {
-        set_name: {
-            required: true,
-            remote: {
-                url: '/validate_username',
-                type: 'post',
-                data: {
-                    username: function () {
-                        return Cookies.get('username');
-                    },
-                    _xsrf: function () {
-                        return Cookies.get('_xsrf');
-                    }
-                }
-            },
-            minlength: 1,
-            maxlength: 16
-        },
-        color: {
-            required: true
-        },
-        new_password: {
-            required: false,
-            minlength: 3
-        },
-        new_password2: {
-            equalTo: '#new_password'
-        },
-        email: {
-            required: false
-        }
-    },
-    messages: {
-        set_name: {
-            remote: "Invalid name."
-        }
-    },
-    submitHandler: function () {
-        var username = Cookies.get("username");
-        var data = {};
-        var setName = $("#set_name");
-        if (setName.val() !== '' && setName.val() !== username) {
-            data.newUser = setName.val();
-            data.oldUser = Cookies.get('username');
-        }
-        var color = Cookies.get("color");
-        if (colorPicker.val() !== color) {
-            data.newColor = $("#color").val();
-        }
-        var sounds = $('#volume-slider').val();
-        if (sounds !== Cookies.get('sounds')) {
-            data.newSounds = sounds;
-        }
-        var soundSet = $('input[name="sounds-radios"]:checked').val();
-        if (soundSet !== Cookies.get('sound_set')) {
-            data.newSoundSet = soundSet;
-        }
-        var faction = $('input[name="faction"]:checked').val();
-        if (faction !== Cookies.get('faction')) {
-            data.newFaction = faction;
-        }
-        var email = $('#email').val();
-        if (email !== '' && email !== Cookies.get('email')) {
-            data.newEmail = email;
-        }
-
-        var newPassword = $("#new_password");
-        var newPassword2 = $("#new_password2");
-        if (newPassword.val() !== '' && newPassword.val() === newPassword2.val()) {
-            sock.send(JSON.stringify({
-                'type': 'password_change',
-                'data': [newPassword.val(), newPassword.val()],
-                'user': username
-            }));
-            newPassword.val('');
-            newPassword2.val('');
-        }
-
-        if (data.newUser || data.newEmail || data.newFaction || data.newColor || data.newSoundSet || data.newSounds) {
-            if (!sock) connect();
-            sock.send(JSON.stringify({
-                'type': 'userSettings',
-                'settings': data,
-                'user': username
-            }));
-        }
-        else {
-            print_message({
-                user: "Client",
-                message: "No changes made",
-                time: moment().unix()
-            });
-        }
-
-        toggleModal('userStats');
-    }
-};
-
-
-var numMessages = 0;
-
-function print_private_message(msg) {
-    var chatLog = $('#log');
-    var messageContainer = $('<div>').addClass('chat-message');
-    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
-    var salutation = 'message ' + (msg.sender === Cookies.get('username') ? 'to ' + msg.recipient : 'from ' + msg.sender) + ': ';
-    var message = $('<div>').addClass('message private-message')
-        .append($('<strong />').text(salutation))
-        .append($('<span />').html(msg.message));
-
-    chatLog.append(messageContainer.append(date).append(message));
-    messageContainer.imagesLoaded(function () {
-        if (autoScroll) {
-            chatLog.scrollTop(document.getElementById('log').scrollHeight);
-        }
-    });
-    if (msg.user === Cookies.get('username')) {
-        play_send();
-    }
-    else {
-        if (msg.user !== 'Client') play_receive();
-        if (!window_focus) {
-            numMessages++;
-            window.document.title = "(" + numMessages + ") Best ever chat!";
-            $("#favicon").attr("href", "/static/favicon2.png");
-        }
-    }
-}
-
-function print_message(msg, ignoreCount) {
-    var chatLog = $('#log');
-    var messageContainer = $('<div>').addClass('chat-message');
-    var date = $('<div>').addClass('time text-muted').text('[{}]'.replace('{}', moment.unix(msg.time).format("MM/DD/YY HH:mm:ss")));
-    var message = $('<div>').addClass('message').append($('<strong />').text(msg.user + ': ')).append($('<span />').html(msg.message));
-    if (msg.color)
-        message.css('color', msg.color);
-    if (msg.user === 'Server') {
-        message.addClass('server-message');
-    }
-    if (msg.user === 'Client') {
-        message.addClass('client-message');
-    }
-    chatLog.append(messageContainer.append(date).append(message));
-    messageContainer.imagesLoaded(function () {
-        if (autoScroll) {
-            chatLog.scrollTop(chatLog[0].scrollHeight);
-        }
-    });
-    if (msg.user === 'Server') {
-        if (msg.message.includes('disconnected')) play_disconnect();
-        else if (msg.message.includes('connected') && !msg.message.includes(Cookies.get('username'))) {
-            play_connect();
-        }
-    }
-    else if (msg.user === Cookies.get('username')) {
-        play_send();
-    }
-    else if (!ignoreCount) {
-        if (msg.user !== 'Client') play_receive();
-        if (!window_focus) {
-            numMessages++;
-            window.document.title = "(" + numMessages + ") Best ever chat!";
-            $("#favicon").attr("href", "/static/favicon2.png");
-        }
-    }
-}
-
-function toggleMenu() {
-    var menu = $('#menu');
-    if (menu.is(':visible'))
-        menu.hide();
-    else
-        menu.show();
 }
 
 function toggleEmojiList() {
@@ -514,21 +431,53 @@ function toggleEmojiList() {
         emojiList.show();
 }
 
-function dismissInformation() {
-    Cookies.set('info_read', true);
-    toggleModal('information');
-}
+function createRoom() {
+    dynamic_modal({
+        modalId: 'new_room',
+        title: 'Create Room',
+        content: $('<div>')
+            .append($('<div>').addClass('form-group')
+                .append($('<label>').prop('for', 'room_name'))
+                .append($('<input>').prop('id', 'room_name').prop('placeholder', 'Room name')))
+            .append($('<div>').addClass('form-group')
+                .append(function () {
+                    // create a list of all users
+                    var eligibleUsers = rooms[0]['users'].map(function (user) {
+                        return user['username'];
+                    }).filter(function (element) {
+                        return element !== Cookies.get('username');
+                    });
 
-function toggleModal(modalId) {
-    var modal = $('#' + modalId);
-    if (modal.is(':visible')) {
-        modal.hide();
-        if (!$('.modal').is(':visible')) {  // no other modals are open
-            $('#overlay').hide();
-        }
-    }
-    else {
-        modal.show();
-        $('#overlay').show();
-    }
+                    if (eligibleUsers.length === 0)
+                        return;
+
+                    // add a checkbox for each user
+                    var userCheckboxes = [];
+                    $.each(eligibleUsers, function (_, username) {
+                        userCheckboxes.push($('<div>').addClass('form-group')
+                            .append($('<input>').prop('type', 'checkbox')
+                                .prop('id', username)
+                                .prop('value', username)
+                                .prop('name', 'invitee'))
+                            .append($('<label>').addClass('check-box').prop('for', username))
+                            .append($('<span>').addClass('label').text(username)))
+                    });
+                    return $('<label>').text('Which users?').append(userCheckboxes);
+                })
+            ),
+        callback: function () {
+            var data = {};
+            data.name = $('#room_name').val();
+            data.invitees = $('input[name="invitee"]:checked').map(function () {
+                return this.value;
+            }).get();
+
+            sock.send(JSON.stringify({
+                'type': 'newRoom',
+                'data': data,
+                'user': Cookies.get('username')
+            }));
+        },
+        submitText: 'Create it!'
+    });
 }

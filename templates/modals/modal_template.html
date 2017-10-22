@@ -1,0 +1,25 @@
+{% macro modal(name, form_id, title, content_html, submit_button_text, submit_button_handler, submit_button_type='button', show_cancel=True) -%}
+<div id="{{ name }}" class="modal">
+    <form id="{{ form_id }}" action="">
+        <div class="modal-header">
+            <span class="modal-title">{{ title }}</span>
+            <span class="close-icon fa fa-close" onclick="toggleModal('{{ name }}')"></span>
+        </div>
+        <div class="modal-content">
+            {{ content_html }}
+        </div>
+        <div class="modal-footer">
+            {% if show_cancel %}
+            <button class="modal-cancel" type="button" onclick="toggleModal('{{ name }}')">
+                Cancel
+            </button>
+            {% endif %}
+            <button class="modal-submit"
+                    type="{{ submit_button_type }}"
+                    {% if submit_button_handler %}onclick="{{ submit_button_handler }}"{% endif %}>
+                {{ submit_button_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{%- endmacro %}

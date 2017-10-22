@@ -1,46 +1,37 @@
 // sounds
-var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound, unmute_volume;
+var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
+
+function getMuteIconHTML() {
+    return '<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>';
+}
+
+function getVolumeIconHTML(value) {
+    return value > 33 ? '<i class="fa fa-volume-up fa-stack-2x"></i>' : '<i class="fa fa-volume-down fa-stack-2x"></i>';
+}
 
 
-function toggleMute() {
+function setMute(value) {
     var btn = $('#volume-button');
     var audio_elements = $('audio');
-    var volume_slider = $('#volume-slider');
-    if (audio_elements[0].muted) {
-        volume_slider.val(unmute_volume);
-        audio_elements.each(function (_, element) {
-            element.muted = false;
-        });
-        if (volume_slider.val() > 33)
-            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
-        else
-            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    if (value) {
+        audio_elements.prop('muted', true);
+        localStorage.setItem('muted', true);
+        btn.find('span').html(getMuteIconHTML());
     }
     else {
-        unmute_volume = volume_slider.val();
-        volume_slider.val(0);
-        audio_elements.each(function (_, element) {
-            element.muted = true;
-        });
-        btn.find('span').html('<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>');
+        audio_elements.prop('muted', false);
+        localStorage.setItem('muted', false);
+        var volume_slider = $('#volume-slider');
+        btn.find('span').html(getVolumeIconHTML(value));
     }
 }
 
 function setSoundVolume(value) {
-    if (value == 0) {
-        toggleMute();
-    }
-    else {
-        $('audio').each(function (_, element) {
-            element.muted = false;
-            element.volume = value / 100;
-        });
+    $('audio').prop('volume', value / 100);
 
-        var btn = $('#volume-button');
-        if (value > 33)
-            btn.find('span').html('<i class="fa fa-volume-up fa-stack-2x"></i>');
-        else
-            btn.find('span').html('<i class="fa fa-volume-down fa-stack-2x"></i>');
+    var btn = $('#volume-button');
+    if (!JSON.parse(localStorage.getItem('muted') || 'false')) {
+        btn.find('span').html(getVolumeIconHTML(value));
     }
 }
 
@@ -53,9 +44,8 @@ $(document).ready(function () {
     });
 
     $('#volume-button').click(function () {
-        toggleMute();
-        if (!$('audio')[0].muted)
-            play_activate();
+        setMute(!JSON.parse(localStorage.getItem('muted')));
+        play_activate();
     });
 
     volumeSlider.val(Cookies.get('sounds'));
@@ -75,9 +65,10 @@ $(document).ready(function () {
     $('body').append(disconnect_sound);
     activate_sound = $('<audio>').attr('type', 'audio/mpeg');
     $('body').append(activate_sound);
-    update_audio_tags();
 
     setSoundVolume(volumeSlider.val());
+    setMute(JSON.parse(localStorage.getItem('muted') || 'false'));
+    update_audio_tags();
 });
 
 function chooseSoundSet() {
@@ -95,26 +86,26 @@ function update_audio_tags() {
 }
 
 function play_receive() {
-    if (JSON.parse(Cookies.get('sounds')))
+    if (!receive_sound.prop('muted'))
         receive_sound[0].play();
 }
 
 function play_send() {
-    if (JSON.parse(Cookies.get('sounds')))
+    if (!send_sound.prop('muted'))
         send_sound[0].play();
 }
 
 function play_connect() {
-    if (JSON.parse(Cookies.get('sounds')))
+    if (!connect_sound.prop('muted'))
         connect_sound[0].play();
 }
 
 function play_disconnect() {
-    if (JSON.parse(Cookies.get('sounds')))
+    if (!disconnect_sound.prop('muted'))
         disconnect_sound[0].play();
 }
 
 function play_activate() {
-    if (JSON.parse(Cookies.get('sounds')))
+    if (!activate_sound.prop('muted'))
         activate_sound[0].play();
 }

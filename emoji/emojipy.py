@@ -7,27 +7,27 @@ import struct
 
 from tornado.escape import xhtml_unescape
 
-from ruleset import unicode_replace,\
+from ruleset import unicode_replace, \
     shortcode_replace, ascii_replace, category_replace
 
 chr = unichr
 
 
 class Emoji(object):
-
     ascii = False
     unicode_alt = True
     sprites = False
     ignored_regexp = '<(?:object|embed|svg|img|div|span|p|a)[^>]*>.*?<\/(?:object|embed|svg|img|div|span|p|a)>'
-    unicode_regexp = "(" + '|'.join([re.escape(x.decode("utf-8")) for x in sorted(unicode_replace.keys(), key=len, reverse=True)]) + ")"
+    unicode_regexp = "(" + '|'.join(
+        [re.escape(x.decode("utf-8")) for x in sorted(unicode_replace.keys(), key=len, reverse=True)]) + ")"
     shortcode_regexp = ':([-+\\w]+):'
-    ascii_regexp = r"(((&gt;)|(&#39;)|[>\'O0])?[;\*X:=8B\#%]((&#39;)|\')?-?[\)\]D\*/\\\(\[\$|\#PpboO0SX@L])|" \
-                   r"([oO-]_+[oO-])|(((&gt;)|>)\.?((&lt;)|<))|([\(\[D]-?[:=])|(((&lt;)|<)[\\/]?3)"
-    shortcode_compiled = re.compile(ignored_regexp+"|("+shortcode_regexp+")",
+    ascii_regexp = r"\B(((&gt;)|(&#39;)|[>\'O0])?[;\*X:=8B\#%]((&#39;)|\')?-?[\)\]D\*/\\\(\[\$|\#PpboO0SX@L])|" \
+                   r"([oO-]_+[oO-])|(((&gt;)|>)\.?((&lt;)|<))|([\(\[D]-?[:=])|(((&lt;)|<)[\\/]?3)\B"
+    shortcode_compiled = re.compile(ignored_regexp + "|(" + shortcode_regexp + ")",
                                     re.IGNORECASE)
-    unicode_compiled = re.compile(ignored_regexp+"|("+unicode_regexp+")",
+    unicode_compiled = re.compile(ignored_regexp + "|(" + unicode_regexp + ")",
                                   re.UNICODE)
-    ascii_compiled = re.compile(ignored_regexp+"|("+ascii_regexp+")")
+    ascii_compiled = re.compile(ignored_regexp + "|(" + ascii_regexp + ")")
 
     @classmethod
     def shortcode_to_unicode(cls, text):
@@ -39,6 +39,7 @@ class Emoji(object):
             if shortcode in flipped_unicode_replace:
                 return flipped_unicode_replace[shortcode].decode('utf8')
             return shortcode
+
         text = re.sub(cls.shortcode_compiled, replace_shortcode, text)
         if cls.ascii:
             return cls.ascii_to_unicode(text)
@@ -48,10 +49,12 @@ class Emoji(object):
     def ascii_to_unicode(cls, text):
         def replace_ascii(match):
             ascii = text[match.start():match.end()]
-            ascii = xhtml_unescape(ascii).encode('ascii', 'ignore').strip()  # convert escaped HTML entities back to original chars
+            ascii = ascii.encode('ascii', 'ignore').strip()  # convert escaped HTML entities back to original chars
             if not ascii or ascii not in ascii_replace:
                 return ascii
             return cls.convert(ascii_replace[ascii])
+
+        text = xhtml_unescape(text)
         return re.sub(cls.ascii_compiled, replace_ascii, text)
 
     @classmethod

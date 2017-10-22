@@ -1,0 +1,53 @@
+.tabs {
+  padding: 0;
+  margin: @elementPadding 0 0;
+  display: flex;
+  align-items: stretch;
+  height: @tabHeight;
+  flex: 0 1 auto;
+  order: 0;
+  align-self: flex-end;
+
+  span#create-room-button {
+    cursor: pointer;
+    color: @lightest;
+    line-height: @tabHeight;
+    padding: 0 @elementPadding;
+  }
+
+  .tab {
+    color: @bodyColor;
+    flex: 0 0 auto;
+    background: @lightButtonColor;
+    padding: 0 @elementPadding * 2;
+    border: solid 1px transparent;
+    margin: 0 2px 1px 0;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    line-height: @tabHeight;
+    border-bottom: none;
+
+    span.fa {
+      color: @bodyColor;
+    }
+
+    &.active {
+      background: @lightest;
+      border-color: @lightBackgroundColor;
+      margin-bottom: 0;
+      margin-top: -1px;
+    }
+
+    &:not(.active):hover {
+      cursor: pointer;
+      background: @buttonHoverColor;
+    }
+  }
+}
+
+.tab-content {
+  display: block;
+  border-top: solid 1px @lightBackgroundColor;
+  margin: -1px;
+  z-index: 1;
+}

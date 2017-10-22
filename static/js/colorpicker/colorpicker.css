@@ -1,3 +1,8 @@
+.colorpicker {
+    /*eight squares with margins*/
+    width: 328px;
+}
+
 .color-block {
     width: 25px;
     height: 25px;
@@ -11,5 +16,21 @@
     border: black 3px solid;
     width: 19px;
     height: 19px;
+}
+
+@media screen and (max-device-width: 480px) {
+    .colorpicker {
+        width: 100%;
+    }
+
+    .color-block {
+        width: 75px;
+        height: 75px;
+    }
+
+    .selected-color {
+        width: 69px;
+        height: 69px;
+    }
 }
 
