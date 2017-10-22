@@ -4,11 +4,11 @@
 @mobileChatBarHeight: 100px;
 
 @media screen and (max-device-width: 768px) {
-  // chat.less overrides
-  body {
-    font-size: 2em !important; // this won't work because of the way the settings are applied
+  .content {
+    font-size: 2.5em;
   }
 
+  // chat.less overrides
   .header {
     height: @mobileHeaderHeight;
     padding: @mobileElementPadding;
@@ -76,6 +76,10 @@
 
     .first {
       display: none;
+    }
+
+    input {
+      width: 400px;
     }
   }
 
@@ -165,6 +169,7 @@
         flex: 100 0 auto;
         order: 1;
         height: calc(100% - @mobileHeaderHeight * 2 - @mobileTabHeight);
+        font-size: 1em;
       }
 
       .modal-header {
