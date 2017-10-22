@@ -111,7 +111,7 @@ var validation_settings = {
             localChangesMade = true;
             print_message({
                 user: "Client",
-                message: "Received images are now {}.".replace('{}', hideImages ? 'hidden' : 'visible'),
+                message: "Received images will be {}.".replace('{}', hideImages ? 'hidden' : 'visible'),
                 time: moment().unix()
             });
         }
