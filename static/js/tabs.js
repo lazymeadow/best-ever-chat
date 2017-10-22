@@ -53,13 +53,12 @@ function createNewTab(room) {
                         iconClass: 'fa fa-fw fa-user-plus',
                         name: 'Invite Users',
                         id: 'invite_' + room['id'],
-                        callback: function () {
+                        callback: function (event) {
                             toggleMenu($(event.target).parents('.menu').prop('id'));
                             var room_id = $(event.target).parents('.tab').prop('room_id');
                             dynamic_modal({
                                 title: 'Invite Users',
                                 content: $('<div>').addClass('form-group')
-                                    .append($('<label>').text('Which users?'))
                                     .append(function () {
                                         // create a list of users that are NOT currently in the room
                                         var currentUsers = rooms[room_id]['users'].map(function (user) {
@@ -74,14 +73,14 @@ function createNewTab(room) {
                                         var userCheckboxes = [];
                                         $.each(eligibleUsers, function (_, username) {
                                             userCheckboxes.push($('<div>').addClass('form-group')
-                                                .append($('<span>').addClass('label').text(username))
                                                 .append($('<input>').prop('type', 'checkbox')
                                                     .prop('id', username)
                                                     .prop('value', username)
                                                     .prop('name', 'invitee'))
-                                                .append($('<label>').addClass('check-box').prop('for', username)))
+                                                .append($('<label>').addClass('check-box').prop('for', username))
+                                                .append($('<span>').addClass('label').text(username)))
                                         });
-                                        return userCheckboxes;
+                                        return $('<label>').text('Which users?').append(userCheckboxes);
                                     }),
                                 callback: function () {
                                     sock.send(JSON.stringify({

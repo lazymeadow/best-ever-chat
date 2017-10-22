@@ -11,7 +11,7 @@
 @lightBackgroundColor: #C9C9C9;
 @lightest: #FCFCFC;
 @buttonHoverColor: darken(@lightButtonColor, 15%);
-@headerHeight: 35px;
+@headerHeight: 30px;
 @tabHeight: 30px;
 @chatBarHeight: 45px;
 @rightBarWidth: 200px;
@@ -29,6 +29,8 @@ body {
   background: @backgroundColor;
   font: 14px 'Amiko', san-serif;
   color: @bodyColor;
+  padding: 0;
+  margin: 0;
 }
 
 div.login {
@@ -52,14 +54,16 @@ div.login {
     min-width: 150px;
   }
 
-  button.primary {
-    float: right;
+  button {
     min-width: 100px;
-  }
 
-  button.secondary {
-    float: left;
-    min-width: 100px;
+    &.primary {
+      float: right;
+    }
+
+    &.secondary {
+      float: left;
+    }
   }
 }
 
@@ -80,7 +84,7 @@ div.login {
     padding: @elementPadding;
     span {
       &:not(.typing) {
-        padding-right: 5px;
+        padding-right: @elementPadding;
       }
       &.typing {
         float: right;
@@ -119,7 +123,7 @@ div.login {
     &#menu-button {
       order: 1;
       flex: 0 1 auto;
-      padding: 0 5px;
+      padding: 0 @elementPadding;
       align-self: flex-start;
     }
     cursor: pointer;
@@ -138,12 +142,13 @@ div.login {
   bottom: @chatBarHeight;
   right: @rightBarWidth + @elementPadding;
   left: @elementPadding;
+
   .chat-message {
     display: flex;
 
     & .time {
       flex: 0 0 auto;
-      padding-right: 5px;
+      padding-right: @elementPadding;
     }
 
     & .message {
@@ -235,7 +240,7 @@ div.login {
     align-items: center;
     justify-content: center;
     .fa {
-      //font-size: 1.5em;
+      font-size: 1.5em;
     }
   }
   .first {
@@ -283,7 +288,7 @@ input {
 }
 
 button, .button {
-  padding: 0 5px;
+  padding: 0 @elementPadding;
   min-width: 35px;
   height: 35px;
   font-family: 'Amiko', sans-serif;
@@ -322,7 +327,7 @@ button, .button {
     }
   }
 
-  label, input {
+  label:not(.check-box), input {
     display: table-cell;
     margin: 10px 25px;
     &[type="radio"] {
@@ -365,3 +370,5 @@ img.emoji {
 .text-muted {
   opacity: .5;
 }
+
+@import 'mobile';

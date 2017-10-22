@@ -18,3 +18,19 @@
     height: 19px;
 }
 
+@media screen and (max-device-width: 480px) {
+    .colorpicker {
+        width: 100%;
+    }
+
+    .color-block {
+        width: 75px;
+        height: 75px;
+    }
+
+    .selected-color {
+        width: 69px;
+        height: 69px;
+    }
+}
+
