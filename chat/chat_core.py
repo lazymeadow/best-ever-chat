@@ -105,14 +105,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     'idle': self.idle,
                                     'faction': self.current_user['faction'],
                                     'real_name': self.current_user['id'],
-                                    'private_history': deque(maxlen=MAX_DEQUE_LENGTH),
-                                    'connected': True}
+                                    'private_history': deque(maxlen=MAX_DEQUE_LENGTH)}
             for room in self.joined_rooms:
                 users[self.username]['typing'][room] = False
             send_updates = True
-        elif users[self.username]['connected'] is False:
-            send_updates = True
-            users[self.username]['connected'] = True
 
         # wait until after user is initialized to send room data
         self.send_room_information()
@@ -175,8 +171,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             rooms[room]['participants'].remove(self)
         # if this was the last open socket for the user, the user left the chat.
         if len(get_matching_participants(self.participants, self.username, 'username')) == 0:
-            # users.pop(self.username, None)
-            users[self.username]['connected'] = False
+            users.pop(self.username, None)
             self.broadcast_from_server(self.participants, self.username + " left.", rooms_to_send=self.joined_rooms,
                                        save_history=True)
             self.broadcast_user_list()
@@ -251,7 +246,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if room_id is not None:
             room_participants = rooms[room_id]['participants']
             room_users = {}
-            for user_key in [x.username for x in list(room_participants) if users[x.username]['connected'] is True]:
+            for user_key in [x.username for x in list(room_participants)]:
                 room_users[user_key] = users[user_key].copy()
                 room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
                 room_users[user_key].pop('private_history')
@@ -261,7 +256,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 # get the users that line up with the participants for the room
                 room_participants = rooms[room]['participants']
                 room_users = {}
-                for user_key in [x.username for x in list(room_participants) if users[x.username]['connected'] is True]:
+                for user_key in [x.username for x in list(room_participants)]:
                     room_users[user_key] = users[user_key].copy()
                     room_users[user_key]['typing'] = users[user_key]['typing'][room]
                     room_users[user_key].pop('private_history')
@@ -524,7 +519,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                     should_update = True
                     for participant in updating_participants:
                         should_update = should_update and participant.idle
-                    if should_update:
+                    # if we should update, do so. otherwise, do it anyway if the user is idle.
+                    if should_update or users[self.username]['idle'] is True:
                         users[self.username]['idle'] = False
                         self.broadcast_user_list()
                     self.idle = False  # set after check
