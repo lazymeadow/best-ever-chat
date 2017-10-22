@@ -225,6 +225,7 @@ function connect() {
                 print_message(data)
             }
             if (type === 'room_data') {
+                $('.tab').remove();
                 for (var i = 0; i < data.length; i++) {
                     var room = data[i];
                     createNewTab(room);

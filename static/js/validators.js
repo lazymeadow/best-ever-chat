@@ -75,6 +75,9 @@ var validation_settings = {
         if (newProfamity !== JSON.parse(Cookies.get('profamity_filter') || 'false')) {
             Cookies.set('profamity_filter', newProfamity);
             data.newProfamity = newProfamity;
+            sock.send(JSON.stringify({
+                'type': 'historyRequest'
+            }));
         }
 
         var localChangesMade = false;

@@ -164,6 +164,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.leave_room(json_message['data'])
         elif json_message['type'] == 'deleteRoom':
             self.delete_room(json_message['data'])
+        elif json_message['type'] == 'historyRequest':
+            self.send_room_information()
 
     def on_close(self):
         """
