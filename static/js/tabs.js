@@ -57,6 +57,7 @@ function createNewTab(room) {
                             toggleMenu($(event.target).parents('.menu').prop('id'));
                             var room_id = $(event.target).parents('.tab').prop('room_id');
                             dynamic_modal({
+                                modalId: 'invite_users',
                                 title: 'Invite Users',
                                 content: $('<div>').addClass('form-group')
                                     .append(function () {
@@ -119,6 +120,7 @@ function createNewTab(room) {
                             toggleMenu($(event.target).parents('.menu').prop('id'));
                             var room_id = $(event.target).parents('.tab').prop('room_id');
                             dynamic_modal({
+                                modalId: 'delete_room',
                                 title: 'Delete Room',
                                 content: $('<div>')
                                     .append($('<div>').text('Are you sure you want to delete \'' + rooms[room_id]['name'] + '\'?'))

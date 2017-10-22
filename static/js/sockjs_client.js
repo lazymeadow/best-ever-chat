@@ -1,5 +1,6 @@
 var client_version = '2.0';
 var HOST = 'pink-toaster:9696';
+var DEFAULT_TITLE = "Best evar chat 2.0!";
 
 var sock, colorPicker;
 
@@ -95,7 +96,7 @@ $(document).ready(function () {
 });
 
 function getPageTitle() {
-    return localStorage.getItem('tab_title') || "Best evar chat 2.0!";
+    return localStorage.getItem('tab_title') || DEFAULT_TITLE;
 }
 
 function logout() {
@@ -203,6 +204,7 @@ function connect() {
             }
             if (type === 'invitation') {
                 dynamic_modal({
+                    modalId: 'invitation',
                     title: 'You\'ve been invited to a room!',
                     content: $('<div>')
                         .append($('<div>').text('User ' + data['sender'] + ' is inviting you to join the room ' + data['room_name'] + '.'))
@@ -222,13 +224,17 @@ function connect() {
                 var room_id = data.data.room_id;
                 removeTab(room_id);
                 delete rooms[room_id];
-                print_message(data)
+                rooms[0].history.push(data);
+                print_message(data);
             }
             if (type === 'room_data') {
-                $('.tab').remove();
                 for (var i = 0; i < data.length; i++) {
                     var room = data[i];
                     createNewTab(room);
+                }
+                if (!Object.keys(rooms).includes(active_room)) {
+                    active_room = 0;
+                    localStorage.setItem('active_room', 0);
                 }
                 $('#room_' + active_room).click();
             }
@@ -280,6 +286,7 @@ function attempt_reconnect() {
             message: 'Reconnect failed.'
         });
         dynamic_modal({
+            modalId: 'connect_error',
             title: 'Connection Error',
             content: 'There was an error connecting to the server.',
             callback: attempt_reconnect,
@@ -351,6 +358,7 @@ function submitChat(event) {
 
 function showImageInput() {
     dynamic_modal({
+        modalId: 'image_chat',
         title: 'Enter Image URL',
         content: $('<div>').append($('<div>').addClass('form-group')
             .append($('<input>').prop('type', 'url')
@@ -424,6 +432,7 @@ function toggleEmojiList() {
 
 function createRoom() {
     dynamic_modal({
+        modalId: 'new_room',
         title: 'Create Room',
         content: $('<div>')
             .append($('<div>').addClass('form-group')

@@ -116,24 +116,28 @@ var validation_settings = {
             });
         }
         var newTitle = $('#tab_title').val();
-        if (!newTitle) {
-            localStorage.removeItem('tab_title');
+        // if the box is empty and the page title is not default
+        // if the box is default and the saved value isn't
+        if ((!newTitle && getPageTitle() !== DEFAULT_TITLE) || (newTitle === DEFAULT_TITLE && localStorage.getItem('tab_title') !== DEFAULT_TITLE)) {
+            localStorage.setItem('tab_title', DEFAULT_TITLE);
             localChangesMade = true;
             print_message({
                 user: "Client",
-                message: "Tab title set to '{}'. You are no longer being discreet.".replace('{}', newTitle),
+                message: "Tab title set to '{}'. You are no longer being discreet.".replace('{}', getPageTitle()),
                 time: moment().unix()
             });
         }
-        else if (newTitle !== localStorage.getItem('tab_title')) {
+        // if the current value is not empty or default and the value doesn't match the title
+        else if (newTitle && newTitle !== DEFAULT_TITLE && newTitle !== localStorage.getItem('tab_title')) {
             localStorage.setItem('tab_title', newTitle);
             localChangesMade = true;
             print_message({
                 user: "Client",
-                message: "Tab title set to '{}'. No one will ever know that this is Best Evar Chat 2.0!".replace('{}', newTitle),
+                message: "Tab title set to '{}'. No one will ever know that this is Best Evar Chat 2.0!".replace('{}', getPageTitle()),
                 time: moment().unix()
             });
         }
+        $('#tab_title').val(getPageTitle());
         window.document.title = getPageTitle();
 
         var newPassword = $("#new_password");
@@ -148,8 +152,8 @@ var validation_settings = {
             newPassword2.val('');
         }
 
-        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail ||
-            data.newProfamity || !localChangesMade) {
+        if (data.newUser || data.newFaction || data.newColor || data.newSoundSet || data.newSounds || data.newEmail
+            || Object.keys(data).includes('newProfamity')) {
             if (!sock) connect();
             sock.send(JSON.stringify({
                 'type': 'userSettings',
@@ -157,7 +161,7 @@ var validation_settings = {
                 'user': username
             }));
         }
-        else {
+        else if (!localChangesMade) {
             print_message({
                 user: "Client",
                 message: "No changes made",

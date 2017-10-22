@@ -164,8 +164,6 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.leave_room(json_message['data'])
         elif json_message['type'] == 'deleteRoom':
             self.delete_room(json_message['data'])
-        elif json_message['type'] == 'historyRequest':
-            self.send_room_information()
 
     def on_close(self):
         """
@@ -423,6 +421,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         should_broadcast_users = False
 
+        if 'newProfamity' in settings.keys():
+            self.filter_profamity = settings['newProfamity']
+            self.send_room_information()
+            self.send_from_server('Profamity filter enabled. Watch yo profamity!' if self.filter_profamity
+                                  else 'Profamity filter disabled.')
+
         if 'newSounds' in settings.keys():
             self.current_user.sound = settings['newSounds']
             self.broadcast_from_server(updating_participants,
@@ -472,11 +476,6 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_from_server(updating_participants, "Name changed to {}.".format(self.username),
                                            message_type='update', data={'username': self.username})
                 should_broadcast_users = True
-
-        if 'newProfamity' in settings.keys():
-            self.filter_profamity = settings['newProfamity']
-            self.send_from_server('Profamity filter enabled. Watch yo profamity!' if self.filter_profamity
-                                  else 'Profamity filter disabled.')
 
         if should_broadcast_users:
             self.broadcast_user_list()

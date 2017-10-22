@@ -1,5 +1,6 @@
 /*
 options: {
+    modalId: str,
     title: str,
     content: jquery element or str,
     callback: function on submit,
@@ -10,13 +11,13 @@ options: {
  */
 function dynamic_modal(options) {
     var newModal = $('<div>').addClass('modal')
-        .prop('id', 'dynamic_modal')
+        .prop('id', options.modalId)
         .append($('<div>').addClass('modal-header')
             .append($('<span>').addClass('modal-title')
                 .text(options.title || ''))
             .append($('<span>').addClass('close-icon fa fa-close')
                 .click(function () {
-                    toggleModal('dynamic_modal');
+                    toggleModal(options.modalId);
                     newModal.remove();
                 })))
         .append($('<div>').addClass('modal-content')
@@ -26,20 +27,20 @@ function dynamic_modal(options) {
                 .prop('type', 'button')
                 .text(options.cancelText || 'Cancel')
                 .click(function () {
-                    toggleModal('dynamic_modal');
+                    toggleModal(options.modalId);
                     newModal.remove();
                 }) : undefined)
             .append($('<button>').addClass('modal-submit')
                 .prop('type', 'button')
                 .text(options.submitText || 'Submit')
                 .click(function () {
-                    toggleModal('dynamic_modal');
+                    toggleModal(options.modalId);
                     options.callback();
                     newModal.remove();
                 })))
         .hide();
     $('#overlay').append(newModal);
-    toggleModal('dynamic_modal');
+    toggleModal(options.modalId);
 }
 
 function toggleModal(modalId) {
