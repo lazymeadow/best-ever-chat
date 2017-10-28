@@ -115,8 +115,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if send_updates:
             # Send that someone joined
             self.broadcast_from_server([x for x in self.participants if x.username != self.username],
-                                       self.username + ' has connected', rooms_to_send=self.joined_rooms,
-                                       save_history=True)
+                                       self.username + ' has connected', rooms_to_send=self.joined_rooms)
 
         self.broadcast_user_list()
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
@@ -172,8 +171,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # if this was the last open socket for the user, the user left the chat.
         if len(get_matching_participants(self.participants, self.username, 'username')) == 0:
             users.pop(self.username, None)
-            self.broadcast_from_server(self.participants, self.username + " left.", rooms_to_send=self.joined_rooms,
-                                       save_history=True)
+            self.broadcast_from_server(self.participants, self.username + " left.", rooms_to_send=self.joined_rooms)
             self.broadcast_user_list()
 
         # Close the socket.
@@ -789,7 +787,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                                                     rooms[room_id]['owner']),
                                        message_type='deleteRoom', data={'room_id': room_id},
                                        save_history=True, room_id=0)
-            # remove the room from the list
+            # remove the room from the list of rooms and self
+            self.joined_rooms.remove(room_id)
             removed_room = rooms.pop(room_id, None)
 
 

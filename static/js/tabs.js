@@ -118,7 +118,7 @@ function createNewTab(room) {
                         iconClass: 'fa fa-fw fa-trash',
                         name: 'Delete Room',
                         disabled: room['owner'] !== Cookies.get('id'),
-                        callback: function () {
+                        callback: function (event) {
                             toggleMenu($(event.target).parents('.menu').prop('id'));
                             var room_id = $(event.target).parents('.tab').prop('room_id');
                             dynamic_modal({
