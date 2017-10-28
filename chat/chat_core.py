@@ -690,9 +690,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         users[self.username]['typing'][room_id] = False
 
         # broadcast room information to owner
-        self.send_room_information(room_id=room_id)
+        # need to send the room information to ALL of the owners connections, not just this one
+        [participant.send_room_information(room_id=room_id) for participant in list(rooms[room_id]['participants'])]
         self.broadcast_user_list(room_id=room_id)
-        self.send_from_server("Created room {}.".format(room_data['name']))
+        self.broadcast_from_server(rooms[room_id]['participants'], "Created room {}.".format(room_data['name']))
 
         if 'invitees' in room_data.keys():
             self.send_invitation(room_id, room_data['invitees'])
@@ -727,10 +728,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         else:
             own_participants = get_matching_participants(self.participants, self.current_user['id'])
             # join room in database
-            self.http_server.db.execute("UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s",
-                                        self.current_user['id'])
+            self.http_server.db.execute("UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s AND room_id = %s",
+                                        self.current_user['id'], room_id)
             # add self to room
-            self.joined_rooms.append(room_id)
+            [participant.joined_rooms.append(room_id) for participant in own_participants]
             rooms[room_id]['participants'].update(own_participants)
             users[self.username]['typing'][room_id] = False
             # broadcast presence to the other room members
@@ -738,10 +739,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                        '{} has entered the room.'.format(self.username),
                                        room_id=room_id)
             # broadcast room user list
-            self.send_room_information(room_id=room_id)
+            [participant.send_room_information(room_id=room_id) for participant in own_participants]
             self.broadcast_user_list(room_id=room_id)
             # broadcast success to self
-            self.send_from_server('You have entered {}.'.format(rooms[room_id]['name']))
+            self.broadcast_from_server(own_participants, 'You have joined the room \'{}\'.'.format(rooms[room_id]['name']))
 
     def leave_room(self, room_id):
         """
@@ -752,12 +753,15 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         """
         if room_id is None:
             return
-        self.http_server.db.execute("UPDATE room_access SET in_room = FALSE WHERE parasite_id = %s",
-                                    self.current_user['id'])
-        self.joined_rooms.remove(room_id)
-        # remove self from room
-        rooms[room_id]['participants'].difference_update(
-            get_matching_participants(self.participants, self.current_user['id']))
+        self.http_server.db.execute("UPDATE room_access SET in_room = FALSE WHERE parasite_id = %s AND room_id = %s",
+                                    self.current_user['id'], room_id)
+        own_participants = get_matching_participants(self.participants, self.current_user['id'])
+        # remove room from participants
+        [participant.joined_rooms.remove(room_id) for participant in own_participants if room_id in participant.joined_rooms]
+        # remove participants from room
+        rooms[room_id]['participants'].difference_update(own_participants)
+        # update participant room info
+        [participant.send_room_information() for participant in own_participants]
 
         # broadcast room information to members
         self.broadcast_from_server(rooms[room_id]['participants'], '{} has left the room.'.format(self.username),
@@ -765,7 +769,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.broadcast_user_list(room_id=room_id)
 
         # broadcast leave confirmation to client
-        self.send_from_server('You have left {}.'.format(rooms[room_id]['name']))
+        self.broadcast_from_server(own_participants, 'You have left {}.'.format(rooms[room_id]['name']))
 
     def delete_room(self, room_id):
         """
@@ -785,11 +789,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_from_server(rooms[room_id]['participants'],
                                        'Room \'{}\' has been deleted by {}.'.format(rooms[room_id]['name'],
                                                                                     rooms[room_id]['owner']),
-                                       message_type='deleteRoom', data={'room_id': room_id},
-                                       save_history=True, room_id=0)
-            # remove the room from the list of rooms and self
-            self.joined_rooms.remove(room_id)
-            removed_room = rooms.pop(room_id, None)
+                                       message_type='deleteRoom', data={'room_id': room_id}, room_id=0)
+            # remove the room from the list of rooms and participant lists
+            [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if room_id in participant.joined_rooms]
+            rooms.pop(room_id, None)
 
 
 chat_router = sockjs.tornado.SockJSRouter(MultiRoomChatConnection, '/chat', {
