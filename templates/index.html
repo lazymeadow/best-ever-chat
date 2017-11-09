@@ -43,7 +43,7 @@
             <span id="username_display"> you:</span>
         </div>
         <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..."
-               onkeydown="submitChat(event)" autocomplete="off" onfocus="$('#emoji-list').hide(); $('#menu').hide();"/>
+               onkeyup="submitChat(event)" autocomplete="off" onfocus="$('#emoji-list').hide(); $('#menu').hide();"/>
         <div class="button not-first" id="toggle-emojis" onclick="toggleEmojiList()">
             😃
         </div>
