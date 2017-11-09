@@ -23,7 +23,7 @@ function getFormattedTimestamp(timestamp) {
 }
 
 function print_message(msg, ignoreCount) {
-    if (!msg.hasOwnProperty('message') && msg.hasOwnProperty('image_url')) {
+    if (msg.hasOwnProperty('image_url')) {
         var imageElement = $('<a>').prop('href', msg.image_url).prop('target', '_blank')
             .append($('<img>').prop('src', msg.image_src_url));
         var hideImage = JSON.parse(localStorage.getItem('hideImages') || 'true') || msg.nsfw_flag;
