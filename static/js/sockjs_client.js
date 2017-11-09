@@ -233,7 +233,7 @@ function connect() {
                     var room = data.rooms[i];
                     createNewTab(room);
                 }
-                if (!Object.keys(rooms).includes(active_room)) {
+                if (!rooms.hasOwnProperty(active_room)) {
                     active_room = 0;
                     localStorage.setItem('active_room', 0);
                 }
