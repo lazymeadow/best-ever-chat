@@ -219,9 +219,16 @@ div {
         overflow: auto;
         height: ~"calc(100% - 45px)";
         padding: 5px;
+        display: flex;
+        flex-direction: column;
 
         & .chat-message {
           display: flex;
+          flex: 0 0 auto;
+
+          &:first-child {
+            margin-top: auto;
+          }
 
           & .timestamp {
             flex: 0 0 auto;
