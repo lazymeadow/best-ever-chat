@@ -10,7 +10,7 @@ import torndb
 
 from chat.chat_core import chat_router
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
-    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
+    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, TempPageHandler
 from emoji.emoji_curation import curated_emojis
 
 SECRET_KEY = ''.join(
@@ -52,7 +52,8 @@ if __name__ == "__main__":
                    (r"/forgot_password", AuthPasswordResetRequestHandler),
                    (r"/reset_password", AuthPasswordResetHandler),
                    (r'/static/(.*)', {'path': settings['static_path']}),
-                   ('/validate_username', ValidateHandler)
+                   ('/validate_username', ValidateHandler),
+                   (r"/new_index", TempPageHandler)
                ] + chat_router.urls
 
     http_server = Application(handlers, settings)
@@ -60,4 +61,5 @@ if __name__ == "__main__":
 
     chat_router.get_connection_class().http_server = http_server
 
+    logging.info('Server starting.')
     tornado.ioloop.IOLoop.instance().start()

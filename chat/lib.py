@@ -1,5 +1,6 @@
 import logging
-from _sha256 import sha256
+#from _sha256 import sha256
+from hashlib import sha256
 
 from requests import get
 from tornado.escape import linkify, to_unicode

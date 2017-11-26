@@ -32,7 +32,7 @@ rooms = {
 emoji = Emoji()
 profamity_filter = ProfamityFilter()
 
-client_version = '2.0'
+client_version = '3.0'
 
 
 class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
@@ -130,35 +130,35 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         json_message = json.loads(message)
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self.send_auth_fail()
-        if json_message['type'] == 'chatMessage':
+        if json_message['type'] == 'chat message':
             if json_message['message'] and json_message['message'][0] == '/':
                 self.parse_command(json_message)
             else:
                 self.broadcast_chat_message(json_message['user'], json_message['message'], json_message['room'])
         elif json_message['type'] == 'version':
-            if json_message['client_version'] < client_version:
+            if json_message['client version'] < client_version:
                 self.send_from_server('Your client is out of date. You\'d better refresh your page!')
-                self.send({'type': 'versionUpdate'})
-            elif json_message['client_version'] > client_version:
+                self.send({'type': 'version update'})
+            elif json_message['client version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
-        elif json_message['type'] == 'imageMessage':
+        elif json_message['type'] == 'image message':
             self.broadcast_image(json_message['user'], json_message['url'], json_message['room'],
                                  json_message['nsfw_flag'])
-        elif json_message['type'] == 'userSettings':
+        elif json_message['type'] == 'user settings':
             self.update_user_settings(json_message['settings'])
-        elif json_message['type'] == 'userStatus':
+        elif json_message['type'] == 'user status':
             self.update_user_status(json_message['status'])
-        elif json_message['type'] == 'password_change':
+        elif json_message['type'] == 'password change':
             self.change_user_password(json_message['user'], json_message['data'])
-        elif json_message['type'] == 'newRoom':
+        elif json_message['type'] == 'new room':
             self.create_room(json_message['data'])
-        elif json_message['type'] == 'roomInvitation':
+        elif json_message['type'] == 'room invitation':
             self.send_invitation(json_message['room_id'], json_message['invitees'])
-        elif json_message['type'] == 'joinRoom':
+        elif json_message['type'] == 'join room':
             self.join_room(json_message['room_id'])
-        elif json_message['type'] == 'leaveRoom':
+        elif json_message['type'] == 'leave room':
             self.leave_room(json_message['data'])
-        elif json_message['type'] == 'deleteRoom':
+        elif json_message['type'] == 'delete room':
             self.delete_room(json_message['data'])
 
     def on_close(self):
@@ -181,7 +181,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         """
         Authentication failed, send a message to the client to log out.
         """
-        self.send({'type': 'auth_fail',
+        self.send({'type': 'auth fail',
                    'data': {
                        'user': 'Server',
                        'message': 'You really messed something up. Please standby while I clean it up...',
@@ -195,14 +195,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         :param message: message to send
         :param room_id: room to associate with message
         """
-        self.send({'type': 'chatMessage',
+        self.send({'type': 'chat message',
                    'data': {
                        'user': 'Server',
                        'message': message,
                        'time': time.time(),
                        'room': room_id}})
 
-    def broadcast_from_server(self, send_to, message, message_type='chatMessage', data=None, room_id=None,
+    def broadcast_from_server(self, send_to, message, message_type='chat message', data=None, room_id=None,
                               rooms_to_send=None, save_history=False):
         """
         Broadcast a message to given participants.
@@ -371,12 +371,12 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                'message': original_message,
                                'time': time.time(),
                                'room': room_id}
-                self.broadcast(recipients, {'type': 'chatMessage', 'data': new_message})
+                self.broadcast(recipients, {'type': 'chat message', 'data': new_message})
                 # save unfiltered message in history
                 rooms[room_id]['history'].append(new_message.copy())
                 # send the filtered message
                 new_message['message'] = filtered_message
-                self.broadcast(prudish_participants, {'type': 'chatMessage', 'data': new_message})
+                self.broadcast(prudish_participants, {'type': 'chat message', 'data': new_message})
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """
@@ -399,7 +399,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                        'time': time.time(),
                        'room': room_id}
         rooms[room_id]['history'].append(new_message)
-        self.broadcast(self.participants, {'type': 'chatMessage',
+        self.broadcast(self.participants, {'type': 'chat message',
                                            'data': new_message})
 
     def update_user_settings(self, settings):
@@ -647,7 +647,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             if self.filter_profamity:
                 for item in room_data['history']:
                     item['message'] = profamity_filter.scan_for_fucks(item['message'])
-            self.send({'type': 'room_data', 'data': {'rooms': [room_data]}})
+            self.send({'type': 'room data', 'data': {'rooms': [room_data]}})
         else:
             current_rooms = []
             for room in self.joined_rooms:
@@ -661,7 +661,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                     for item in room_data['history']:
                         item['message'] = profamity_filter.scan_for_fucks(item['message'])
                 current_rooms.append(room_data)
-            self.send({'type': 'room_data', 'data': {'all': room_id is None, 'rooms': current_rooms}})
+            self.send({'type': 'room data', 'data': {'all': room_id is None, 'rooms': current_rooms}})
 
     def create_room(self, room_data):
         """
@@ -789,7 +789,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_from_server(rooms[room_id]['participants'],
                                        'Room \'{}\' has been deleted by {}.'.format(rooms[room_id]['name'],
                                                                                     rooms[room_id]['owner']),
-                                       message_type='deleteRoom', data={'room_id': room_id}, room_id=0)
+                                       message_type='delete room', data={'room_id': room_id}, room_id=0)
             # remove the room from the list of rooms and participant lists
             [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if room_id in participant.joined_rooms]
             rooms.pop(room_id, None)

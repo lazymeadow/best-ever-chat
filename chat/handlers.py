@@ -10,6 +10,10 @@ from tornado import escape, gen
 from chat.chat_core import users
 from chat.custom_render import BaseHandler, executor
 
+class TempPageHandler(BaseHandler):
+    def get(self):
+        self.render2('new_index.html', emoji_list=self.settings['emojis'])
+
 
 class PageHandler(BaseHandler):
     """Regular HTTP handler to serve the chatroom page"""
