@@ -10,7 +10,7 @@ import torndb
 
 from chat.chat_core import chat_router
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
-    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, TempPageHandler
+    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
 from emoji.emoji_curation import curated_emojis
 
 SECRET_KEY = ''.join(
@@ -52,8 +52,7 @@ if __name__ == "__main__":
                    (r"/forgot_password", AuthPasswordResetRequestHandler),
                    (r"/reset_password", AuthPasswordResetHandler),
                    (r'/static/(.*)', {'path': settings['static_path']}),
-                   ('/validate_username', ValidateHandler),
-                   (r"/new_index", TempPageHandler)
+                   ('/validate_username', ValidateHandler)
                ] + chat_router.urls
 
     http_server = Application(handlers, settings)

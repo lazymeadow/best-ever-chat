@@ -119,6 +119,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         self.broadcast_user_list()
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
+        self.send({'type': 'alert',
+                   'data': {
+                       'message': 'Connection successful!'}})
 
     def on_message(self, message):
         """
@@ -377,6 +380,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 # send the filtered message
                 new_message['message'] = filtered_message
                 self.broadcast(prudish_participants, {'type': 'chat message', 'data': new_message})
+
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """

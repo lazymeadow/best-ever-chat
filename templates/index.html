@@ -1,100 +1,107 @@
-{% extends "base.html" %}
-
-{% set title = 'Loading...' %}
+{% extends 'base.html' %}
 
 {% block includes %}
-    <link rel="stylesheet" href="static/js/colorpicker/colorpicker.css" type="text/css"/>
-
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
-    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
-    <script src="//twemoji.maxcdn.com/2/twemoji.min.js?2.3.0"></script>
-
-    <script type="text/javascript" src="static/js/colorpicker/colorpicker.js"></script>
-    <script type="text/javascript" src="/static/js/modals.js"></script>
-    <script type="text/javascript" src="/static/js/menus.js"></script>
-    <script type="text/javascript" src="/static/js/messages.js"></script>
-    <script type="text/javascript" src="/static/js/tabs.js"></script>
-    <script type="text/javascript" src="/static/js/sounds_handler.js"></script>
-    <script type="text/javascript" src="/static/js/validators.js"></script>
-    <script type="text/javascript" src="/static/js/sockjs_client.js"></script>
+<!-- external scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
+<script src="//twemoji.maxcdn.com/2/twemoji.min.js?2.3.0"></script>
+<!-- internal scripts -->
+<script src="/static/dist/client.js"></script>
 {% endblock %}
 
 {% block content %}
+<div id="alerts"></div>
 
-
-    <div class="header">
-        <span class="fa fa-2x fa-fw fa-bars" id="menu-button" onclick="toggleMenu('main_menu')"></span>
-        <div class="tabs" id="room_tabs">
-            <span class="fa fa-fw fa-plus" id="create-room-button" onclick="createRoom()"></span>
+<div class="left">
+    <div class="current-user active">
+        <span class="online-status fa fa-fw fa-ra"></span>
+        <span class="my-username">audrey</span>
+        <span>
+            <span class="fa fa-fw fa-caret-down"></span>
+                <div class="popout-menu">
+                    <span class="menu-item"><span class="fa fa-fw fa-user-circle-o"></span>User Settings</span>
+                    <span class="menu-item"><span class="fa fa-fw fa-cogs"></span>Account Settings</span>
+                    <span class="menu-item"><span class="fa fa-fw fa-desktop"></span>Client Settings</span>
+                    <span class="menu-item"><span class="fa fa-fw fa-question"></span>About</span>
+                    <span class="menu-item"><span class="fa fa-fw fa-sign-out"></span>Log Out</span>
+                </div>
+        </span>
+    </div>
+    <div id="user-list">
+        <div class="active">
+            <div>
+                <span class="online-status fa fa-fw fa-ra"></span>
+                <span class="list-content">A-Tron</span>
+                <span class="typing-status fa fa-fw fa-commenting-o"></span>
+            </div>
+        </div>
+        <div class="is-typing active">
+            <div>
+                <span class="online-status fa fa-fw fa-ge"></span>
+                <span class="list-content">Aaron</span>
+                <span class="typing-status fa fa-fw fa-commenting-o"></span>
+            </div>
+        </div>
+        <div class="idle">
+            <div>
+                <span class="online-status fa fa-fw fa-ge"></span>
+                <span class="list-content">LANH</span>
+                <span class="typing-status fa fa-fw fa-commenting-o"></span>
+            </div>
+        </div>
+        <div class="active">
+            <div>
+                <span class="online-status fa fa-fw fa-ge"></span>
+                <span class="list-content">SARAH</span>
+                <span class="typing-status fa fa-fw fa-commenting-o"></span>
+            </div>
+        </div>
+        <div class="offline">
+            <div>
+                <span class="online-status fa fa-fw fa-ra"></span>
+                <span class="list-content">jon</span>
+                <span class="typing-status fa fa-fw fa-commenting-o"></span>
+            </div>
         </div>
     </div>
-
+    <div id="room-list"></div>
+</div>
+<div class="right">
     <div id="log"></div>
 
-    <div class="right_bar">
-        <div id="user_list"></div>
-    </div>
-
     <div class="chat-bar">
-        <div class="button first" id="username" onclick="changeTab('settings', 0) ; toggleModal('settings')">
-            <span id="username_display"> you:</span>
-        </div>
-        <input class="not-first" type="text" name="chat_text" id="chat_text" placeholder="..."
-               onkeyup="submitChat(event)" autocomplete="off" onfocus="$('#emoji-list').hide(); $('#menu').hide();"/>
-        <div class="button not-first" id="toggle-emojis" onclick="toggleEmojiList()">
+        <input type="text" placeholder="..." tabindex="0"/>
+        <div class="button">
             😃
-        </div>
-        <div class="button last" onclick="showImageInput()">
-            <span class="fa fa-picture-o"></span>
-        </div>
-    </div>
-
-    <div id="emoji-list">
-        <table>
-            {% for emojis in emoji_list | batch(12) %}
-                <tr>
-                    {% for emoji in emojis %}
+            <div class="popout-option">
+                <table>
+                    {% for emojis in emoji_list | batch(12) %}
+                    <tr>
+                        {% for emoji in emojis %}
                         <td>
-                            <span onclick="toggleEmojiList(); addEmoji('{{ emoji }}')">{{ emoji }}</span>
+                            <span>{{ emoji }}</span>
                         </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
+                </table>
+                <div class="popout-indicator"></div>
+            </div>
+        </div>
+        <div class="button">
+            <span class="fa fa-fw fa-picture-o"></span>
+            <div class="popout-option">
+                <div class="form-group">
+                    <label>Image url:</label>
+                    <input type="url"/>
+                    <button type="button">Send</button>
+                </div>
+                <div class="popout-indicator"></div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div id="main_menu" class="menu">
-        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 0); toggleModal('settings')">
-            <span class="fa fa-fw fa-user-circle-o"></span>
-            User Settings
-        </span>
-        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 1); toggleModal('settings')">
-            <span class="fa fa-fw fa-cogs"></span>
-            Account Settings
-        </span>
-        <span class="menu-item" onclick="toggleMenu('main_menu'); changeTab('settings', 2); toggleModal('settings')">
-            <span class="fa fa-fw fa-desktop"></span>
-            Client Settings
-        </span>
-        <span class="menu-item" onclick="toggleMenu('main_menu'); toggleModal('information')">
-            <span class="fa fa-fw fa-question"></span>
-            About
-        </span>
-        <span class="menu-item" onclick="logout()">
-            <span class="fa fa-fw fa-sign-out"></span>
-            Log out
-        </span>
-    </div>
-
-    <!-- Modals -->
-    <div id="overlay">
-        {% include 'modals/settings.html' %}
-
-        {% include 'modals/information.html' %}
-    </div>
-
-
+<div class="overlay"></div>
 {% endblock %}

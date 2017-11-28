@@ -53,13 +53,16 @@ class BestEvarChatClient {
             this._receivedUpdate(messageData);
         }
         else if (messageType === 'chat message') {
-            this._receivedChatMessage(messageData);
+            this._roomManager.addMessage(messageData, messageData.room);
         }
         else if (messageType === 'private message') {
             this._receivedPrivateMessage(messageData);
         }
         else if (messageType === 'delete room') {
             this._receivedDeleteRoom(messageData);
+        }
+        else if (messageType === 'alert') {
+            this._receivedAlert(messageData);
         }
     }
 
@@ -79,10 +82,6 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _receivedChatMessage(messageData) {
-        this._roomManager.addMessage(messageData, messageData.room);
-    }
-
     _receivedPrivateMessage(messageData) {
         console.log(messageData);
     }
@@ -93,5 +92,30 @@ class BestEvarChatClient {
 
     _receivedDeleteRoom(messageData) {
         console.log(messageData);
+    }
+
+    _receivedAlert(messageData) {
+        console.log(messageData);
+        // create hidden alert
+        let newAlert = $('<div>').text(messageData['message']).hide();
+        // append hidden alert
+        let alertsBox = $('#alerts');
+        alertsBox.prepend(newAlert);
+        // slideDown alert
+        newAlert.slideDown(500);
+        // if previously empty, slideDown alerts box
+        if (newAlert.is(':last-child')) {
+            alertsBox.slideDown(500);
+        }
+
+        // after timeout, slideUp alert. if empty, slide up box.
+        window.setTimeout(() => {
+            newAlert.slideUp(500, () => {
+                newAlert.remove();
+                if (alertsBox.is(':empty')) {
+                    alertsBox.slideUp(500);
+                }
+            });
+        }, 3500);
     }
 }
