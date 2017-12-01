@@ -34,6 +34,7 @@ function setActiveTab(event) {
         updateUserList(rooms[active_room].users);
     print_message_history(active_room);
     parse_emojis();
+    $('#chat_text').focus();
 }
 
 function createNewTab(room) {
