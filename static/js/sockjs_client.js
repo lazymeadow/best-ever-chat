@@ -400,6 +400,7 @@ function showImageInput() {
             }
         }
     });
+    $('#image_url').focus();
 }
 
 function updateUserList() {
