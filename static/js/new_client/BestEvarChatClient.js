@@ -3,6 +3,7 @@ class BestEvarChatClient {
         this._hostname = hostname;
         this._routingPath = routingPath;
         this._roomManager = new RoomManager();
+        this._userManager = new UserManager();
 
         this.connect();
     }
@@ -19,6 +20,8 @@ class BestEvarChatClient {
         this._sock.onclose = () => {
             console.log('Bye!');
         };
+
+        Logger.set_socket(this._sock);
     }
 
     sendChat(messageText) {
@@ -74,8 +77,9 @@ class BestEvarChatClient {
         this._roomManager.addRooms(rooms, all);
     }
 
-    _receivedUserList(messageData) {
-        console.log(messageData);
+    _receivedUserList({users}) {
+        console.log('user list:', users);
+        this._userManager.updateUserList(users);
     }
 
     _receivedUpdate(messageData) {
@@ -94,10 +98,9 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _receivedAlert(messageData) {
-        console.log(messageData);
+    _receivedAlert({message}) {
         // create hidden alert
-        let newAlert = $('<div>').text(messageData['message']).hide();
+        let newAlert = $('<div>').text(message).hide();
         // append hidden alert
         let alertsBox = $('#alerts');
         alertsBox.prepend(newAlert);

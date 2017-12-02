@@ -1,5 +1,6 @@
-class RoomManager {
+class RoomManager extends LoggingClass {
     constructor() {
+        super();
         this._soundManager = new SoundManager();
         this._messageLog = new MessageLog(); // TODO move this into the room handler
         this._roomDataMap = new Map();
@@ -15,6 +16,7 @@ class RoomManager {
      * @param allRooms flag to rebuild list
      */
     addRooms(rooms, allRooms = false) {
+        super.debug('Updating rooms...');
         // clear the list if necessary
         if (allRooms) {
             this._roomListElement.empty();
@@ -27,6 +29,7 @@ class RoomManager {
             Settings.activeRoom = 0;
         }
         this._roomDataMap.get(Settings.activeRoom).selectThisRoom();
+        super.debug('Rooms updated.');
     }
 
     removeRoom(roomId) {
@@ -65,6 +68,7 @@ class RoomManager {
     setActiveRoom(roomId) {
         Settings.activeRoom = roomId;
         this._messageLog.printMessages(this._roomDataMap.get(roomId).messageHistory);
+        super.debug(`Active room set to ${roomId}.`);
     }
 
     // Private functions

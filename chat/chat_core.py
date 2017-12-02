@@ -8,11 +8,11 @@ import sockjs.tornado
 import tornado.web
 from boto3 import resource
 from tornado import gen, ioloop
-from tornado.escape import xhtml_escape, linkify, to_unicode
+from tornado.escape import xhtml_escape
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor
-from chat.lib import get_matching_participants, retrieve_image_in_s3, preprocess_message
+from chat.lib import get_matching_participants, retrieve_image_in_s3, preprocess_message, log_from_client
 from chat.profamity_filter import ProfamityFilter
 from emoji.emojipy import Emoji
 
@@ -114,14 +114,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         self.send_room_information()
         if send_updates:
             # Send that someone joined
-            self.broadcast_from_server([x for x in self.participants if x.username != self.username],
-                                       self.username + ' has connected', rooms_to_send=self.joined_rooms)
+            self.broadcast([x for x in self.participants if x.username != self.username],
+                           {'type': 'alert', 'data': {'message': self.username + ' is online.'}})
 
         self.broadcast_user_list()
-        self.send_from_server('Connection successful. Type /help or /h for available commands.')
-        self.send({'type': 'alert',
-                   'data': {
-                       'message': 'Connection successful!'}})
+        self.send_from_server('Connection successful.')
 
     def on_message(self, message):
         """
@@ -163,6 +160,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.leave_room(json_message['data'])
         elif json_message['type'] == 'delete room':
             self.delete_room(json_message['data'])
+        elif json_message['type'] == 'client log':
+            log_from_client(json_message['level'], json_message['log'], self.current_user['id'], self.session.session_id)
 
     def on_close(self):
         """
@@ -174,7 +173,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         # if this was the last open socket for the user, the user left the chat.
         if len(get_matching_participants(self.participants, self.username, 'username')) == 0:
             users.pop(self.username, None)
-            self.broadcast_from_server(self.participants, self.username + " left.", rooms_to_send=self.joined_rooms)
+            self.broadcast(self.participants, {'type': 'alert', 'data': {'message': self.username + " left."}})
             self.broadcast_user_list()
 
         # Close the socket.
@@ -244,24 +243,41 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         all participants that share a room with the current participant.
         :param room_id: room to broadcast to
         """
-        if room_id is not None:
-            room_participants = rooms[room_id]['participants']
-            room_users = {}
-            for user_key in [x.username for x in list(room_participants)]:
-                room_users[user_key] = users[user_key].copy()
-                room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
-                room_users[user_key].pop('private_history')
-            self.broadcast(room_participants, {'type': 'userList', 'data': {'users': room_users, 'room': room_id}})
-        else:
-            for room in self.joined_rooms:
-                # get the users that line up with the participants for the room
-                room_participants = rooms[room]['participants']
-                room_users = {}
-                for user_key in [x.username for x in list(room_participants)]:
-                    room_users[user_key] = users[user_key].copy()
-                    room_users[user_key]['typing'] = users[user_key]['typing'][room]
-                    room_users[user_key].pop('private_history')
-                self.broadcast(self.participants, {'type': 'userList', 'data': {'users': room_users, 'room': room}})
+        # broadcast the entire userlist to everyone for changes i guess
+        user_list = []
+        for user_key in users.keys():
+            next_user = users[user_key].copy()
+            next_user.pop('private_history')
+            next_user['username'] = user_key
+            user_list.append(next_user)
+        self.broadcast(self.participants, {'type': 'user list',
+                                           'data': {
+                                               'users': user_list
+                                           }})
+        # if room_id is not None:
+        #     room_participants = rooms[room_id]['participants']
+        #     # room_users = {}
+        #     room_users = []
+        #     for user_key in [x.username for x in list(room_participants)]:
+        #         next_user = users[user_key].copy()
+        #         next_user['typing'] = users[user_key]['typing'][room_id]
+        #         next_user.pop('private_history')
+        #
+        #         room_users.append(next_user)
+        #     self.broadcast(room_participants, {'type': 'user list', 'data': {'users': room_users, 'room': room_id}})
+        # else:
+        #     for room in self.joined_rooms:
+        #         # get the users that line up with the participants for the room
+        #         room_participants = rooms[room]['participants']
+        #         # room_users = {}
+        #         room_users = []
+        #         for user_key in [x.username for x in list(room_participants)]:
+        #             next_user = users[user_key].copy()
+        #             next_user['typing'] = users[user_key]['typing'][room_id]
+        #             next_user.pop('private_history')
+        #
+        #             room_users.append(next_user)
+        #         self.broadcast(self.participants, {'type': 'user list', 'data': {'users': room_users, 'room': room}})
 
     def broadcast_private_message(self, recipient, recipient_username, message):
         """
@@ -380,7 +396,6 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 # send the filtered message
                 new_message['message'] = filtered_message
                 self.broadcast(prudish_participants, {'type': 'chat message', 'data': new_message})
-
 
     def broadcast_image(self, user, image_url, room_id, nsfw_flag=False):
         """
@@ -746,7 +761,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             [participant.send_room_information(room_id=room_id) for participant in own_participants]
             self.broadcast_user_list(room_id=room_id)
             # broadcast success to self
-            self.broadcast_from_server(own_participants, 'You have joined the room \'{}\'.'.format(rooms[room_id]['name']))
+            self.broadcast_from_server(own_participants,
+                                       'You have joined the room \'{}\'.'.format(rooms[room_id]['name']))
 
     def leave_room(self, room_id):
         """
@@ -761,7 +777,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     self.current_user['id'], room_id)
         own_participants = get_matching_participants(self.participants, self.current_user['id'])
         # remove room from participants
-        [participant.joined_rooms.remove(room_id) for participant in own_participants if room_id in participant.joined_rooms]
+        [participant.joined_rooms.remove(room_id) for participant in own_participants if
+         room_id in participant.joined_rooms]
         # remove participants from room
         rooms[room_id]['participants'].difference_update(own_participants)
         # update participant room info
@@ -795,7 +812,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                                                     rooms[room_id]['owner']),
                                        message_type='delete room', data={'room_id': room_id}, room_id=0)
             # remove the room from the list of rooms and participant lists
-            [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if room_id in participant.joined_rooms]
+            [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if
+             room_id in participant.joined_rooms]
             rooms.pop(room_id, None)
 
 

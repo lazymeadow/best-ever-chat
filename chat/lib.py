@@ -1,9 +1,31 @@
 import logging
-#from _sha256 import sha256
+# from _sha256 import sha256
 from hashlib import sha256
 
 from requests import get
 from tornado.escape import linkify, to_unicode
+
+client_log = logging.getLogger('bestevarchat.client')
+client_log.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler('log/client.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+client_log.addHandler(file_handler)
+
+
+def log_from_client(level, message, parasite_id, session_id):
+    level = level.upper()
+    log_message = '({}:{}) {}'.format(parasite_id, session_id, message)
+    if level == 'DEBUG':
+        client_log.debug(log_message)
+    elif level == 'INFO':
+        client_log.info(log_message)
+    elif level == 'WARNING':
+        client_log.warning(log_message)
+    elif level == 'ERROR':
+        client_log.error(log_message)
+    elif level == 'CRITICAL':
+        client_log.critical(log_message)
 
 
 def preprocess_message(message, emoji_processor):

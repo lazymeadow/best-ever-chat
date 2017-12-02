@@ -1,5 +1,6 @@
-class MessageLog {
+class MessageLog extends LoggingClass {
     constructor() {
+        super();
         this._logElement = $('#log');
     }
 
@@ -80,6 +81,7 @@ class MessageLog {
         // }
 
         this._parseEmojis(messageContainer[0]);
+        super.debug('Added message to log.');
     }
 
     /**
@@ -88,8 +90,10 @@ class MessageLog {
      * @param messages an array of messages to print
      */
     printMessages(messages) {
+        super.debug('Printing message log...');
         this._logElement.empty();
         messages.forEach((item) => this.printMessage(item));
+        super.debug('Message log printed.');
     }
 
     /**

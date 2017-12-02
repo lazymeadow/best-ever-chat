@@ -1,51 +1,28 @@
-class UserManager {
+class UserManager extends LoggingClass {
     constructor() {
+        super();
         this._userListElement = $('#user-list');
         this._userDataMap = new Map();
     }
 
-    updateUserList() {
-
+    updateUserList(newUsers) {
+        newUsers.forEach((userData) => {
+            if (userData['real_name'] !== Settings.userId) {
+                this._addUser(userData)
+            }
+        });
     }
-}
 
-class User {
-    constructor(username, {color, faction, idle, typing, real_name: id}) {
-        this.username = username;
-        this.color = color;
-        this.faction = faction;
-        this.idle = idle;
-        this.typing = typing;
-        this.id = id;
-
-        if (this.id !== Settings.userId) {
-            this._userElement = $('<div>').append($('<div>')
-                .append($('<span>').addClass(`online-status fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`))
-                .append($('<span>').addClass('list-content').text(this.username))
-                .append($('<span>').addClass('typing-status fa fa-fw fa-commenting-o')));
+    _addUser(userData) {
+        if (this._userDataMap.has(userData['real_name'])) {
+            // if it's already in the map, update it
+            this._userDataMap.get(userData['real_name']).updateUser(userData);
+        }
+        else {
+            // otherwise, add a new user
+            let user = new User(userData);
+            this._userDataMap.set(userData['real_name'], user);
+            this._userListElement.append(user.template);
         }
     }
-
-    get template() {
-        return this._userElement;
-    }
-
-
-    // Public functions
-
-    updateUser(username, {color, faction, idle, typing, real_name: id}) {
-        if (username !== this.username) {
-            this.username = username;
-            this._userElement.children('.list-content').text(this.username);
-        }
-
-    }
-
-
-    // Private functions
-
-    _setUserIdle(idleStatus) {
-        this._userElement.removeClass().addClass(idleStatus ? 'idle' : 'active');
-    }
-
 }
