@@ -8,7 +8,7 @@ class Logger {
             this._sock.send(JSON.stringify({
                 'type': 'client log',
                 'level': level,
-                'log': `${loggedFrom.constructor.name.padEnd(15)} - ${message}`
+                'log': `${loggedFrom.constructor.name.padEnd(15)} ${message}`
             }))
         }
     }

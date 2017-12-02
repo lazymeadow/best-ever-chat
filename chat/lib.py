@@ -8,7 +8,7 @@ from tornado.escape import linkify, to_unicode
 client_log = logging.getLogger('bestevarchat.client')
 client_log.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('log/client.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
 file_handler.setFormatter(formatter)
 client_log.addHandler(file_handler)
 
