@@ -13,12 +13,18 @@ class User {
                 .append($('<span>').addClass(`online-status fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`))
                 .append($('<span>').addClass('list-content').text(this.username))
                 .append($('<span>').addClass('typing-status fa fa-fw fa-commenting-o')))
-                .removeClass().addClass(idle ? 'idle' : 'active');
+                .removeClass().addClass(this.idle ? 'idle' : 'active');
+        }
+        else {
+            this._userElement = $('.current-user');
+            this._userElement.children('.list-content').text(this.username);
+            this._userElement.children('.online-status').addClass(`fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`);
+            this._userElement.addClass(this.idle ? 'idle' : 'active');
         }
     }
 
     get template() {
-        return this._userElement;
+        return this.id !== Settings.userId ? this._userElement : undefined;
     }
 
 

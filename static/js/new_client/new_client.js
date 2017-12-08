@@ -59,6 +59,8 @@ $(function () {
         }
     });
 
+    $('.my-username').text(Settings.username);
+
     let client = new BestEvarChatClient();
 });
 

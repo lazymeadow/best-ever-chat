@@ -7,9 +7,9 @@ class UserManager extends LoggingClass {
 
     updateUserList(newUsers) {
         newUsers.forEach((userData) => {
-            if (userData['real_name'] !== Settings.userId) {
+            // if (userData['real_name'] !== Settings.userId) {
                 this._addUser(userData)
-            }
+            // }
         });
     }
 
