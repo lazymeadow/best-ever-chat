@@ -11,6 +11,8 @@ import torndb
 from chat.chat_core import chat_router
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
+from chat.new_chat_connection import new_chat_router
+from chat.users import UserList
 from emoji.emoji_curation import curated_emojis
 
 SECRET_KEY = ''.join(
@@ -29,6 +31,11 @@ class Application(tornado.web.Application):
             user='bestChat',
             password='a5e625568329d8c2216631da90efc030121400bde3bde2300fd089b738568717'
         )
+
+        # user list
+        self.user_list = UserList(self.db)
+
+        # room list
 
 
 if __name__ == "__main__":
@@ -53,12 +60,14 @@ if __name__ == "__main__":
                    (r"/reset_password", AuthPasswordResetHandler),
                    (r'/static/(.*)', {'path': settings['static_path']}),
                    ('/validate_username', ValidateHandler)
-               ] + chat_router.urls
+               ] + new_chat_router.urls
+    # ] + chat_router.urls
 
     http_server = Application(handlers, settings)
+
     http_server.listen(6969, no_keep_alive=True)
 
-    chat_router.get_connection_class().http_server = http_server
+    new_chat_router.get_connection_class().http_server = http_server
 
     logging.info('Server starting.')
     tornado.ioloop.IOLoop.instance().start()

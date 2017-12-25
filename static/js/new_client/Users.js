@@ -6,23 +6,24 @@ class UserManager extends LoggingClass {
     }
 
     updateUserList(newUsers) {
+        this._userListElement.empty();
         newUsers.forEach((userData) => {
-            // if (userData['real_name'] !== Settings.userId) {
-                this._addUser(userData)
-            // }
+            this._addUser(userData)
         });
     }
 
     _addUser(userData) {
-        if (this._userDataMap.has(userData['real_name'])) {
+        let user;
+        if (this._userDataMap.has(userData['id'])) {
             // if it's already in the map, update it
-            this._userDataMap.get(userData['real_name']).updateUser(userData);
+            user = this._userDataMap.get(userData['id']);
+            user.updateUser(userData);
         }
         else {
             // otherwise, add a new user
-            let user = new User(userData);
-            this._userDataMap.set(userData['real_name'], user);
-            this._userListElement.append(user.template);
+            user = new User(userData);
+            this._userDataMap.set(userData['id'], user);
         }
+        this._userListElement.append(user.template);
     }
 }

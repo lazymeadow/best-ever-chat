@@ -49,6 +49,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
     messageCount = 0
     spammy_timeout = None
     filter_profamity = False
+    joined_rooms = []
+    user_list = None
 
     bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
@@ -57,10 +59,14 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         Fires on initial connection. Add user to list and appropriate rooms, then broadcast connection.
         :return:
         """
+
+
         parasite = self.session.handler.get_secure_cookie('parasite')
         if parasite is None:
             self.send_auth_fail()
             return False
+        self.user_list = self.http_server.user_list
+        print self.user_list
         self.current_user = self.http_server.db.get(
             "SELECT id, password, username, color, sound, soundSet, email, faction FROM parasite WHERE id = %s",
             parasite)

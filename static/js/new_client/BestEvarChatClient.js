@@ -1,5 +1,5 @@
 class BestEvarChatClient {
-    constructor(hostname = 'localhost:6969', routingPath = 'chat') {
+    constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
         this._roomManager = new RoomManager();

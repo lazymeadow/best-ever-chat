@@ -1,10 +1,10 @@
 
 class User {
-    constructor({username, color, faction, idle, typing, real_name: id}) {
+    constructor({username, color, faction, status, typing, id}) {
         this.username = username;
         this.color = color;
         this.faction = faction;
-        this.idle = idle;
+        this.status = status;
         this.typing = typing;
         this.id = id;
 
@@ -13,13 +13,13 @@ class User {
                 .append($('<span>').addClass(`online-status fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`))
                 .append($('<span>').addClass('list-content').text(this.username))
                 .append($('<span>').addClass('typing-status fa fa-fw fa-commenting-o')))
-                .removeClass().addClass(this.idle ? 'idle' : 'active');
+                .removeClass().addClass(this.status);
         }
         else {
-            this._userElement = $('.current-user');
+            this._userElement = $('#current-user');
             this._userElement.children('.list-content').text(this.username);
             this._userElement.children('.online-status').addClass(`fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`);
-            this._userElement.addClass(this.idle ? 'idle' : 'active');
+            this._userElement.addClass(this.status);
         }
     }
 
@@ -30,7 +30,7 @@ class User {
 
     // Public functions
 
-    updateUser({username, color, faction, idle, typing, real_name: id}) {
+    updateUser({username, color, faction, status, typing, id}) {
         if (username !== this.username) {
             this.username = username;
             this._userElement.children('.list-content').text(this.username);
@@ -39,7 +39,7 @@ class User {
             this.faction = faction;
             this._userElement.children('.online-status').toggleClass('fa-ge fa-ra');
         }
-        this._userElement.removeClass().addClass(idle ? 'idle' : 'active');
+        this._userElement.removeClass().addClass(status);
         this.color = color;
 
     }
