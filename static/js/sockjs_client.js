@@ -243,10 +243,10 @@ function connect() {
                 var roomData = data.room;
                 if ($.isArray(roomData) && data.user === 'Server') {
                     for (var roomNum in roomData) {
-                        if (rooms.hasOwnProperty(roomNum)) {
-                            rooms[roomNum].history.push(data);
-                            $('#room_' + roomNum + ':not(.active) .indicator').show();
-                            if (parseInt(roomNum) === active_room) {
+                        if (rooms.hasOwnProperty(roomData[roomNum])) {
+                            rooms[roomData[roomNum]].history.push(data);
+                            $('#room_' + roomData[roomNum] + ':not(.active) .indicator').show();
+                            if (parseInt(roomData[roomNum]) === active_room) {
                                 print_message(data);
                             }
                         }
