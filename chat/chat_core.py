@@ -32,7 +32,7 @@ rooms = {
 emoji = Emoji()
 profamity_filter = ProfamityFilter()
 
-client_version = '2.0'
+client_version = '2.0.1'
 
 
 class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
@@ -137,7 +137,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.broadcast_chat_message(json_message['user'], json_message['message'], json_message['room'])
         elif json_message['type'] == 'version':
             if json_message['client_version'] < client_version:
-                self.send_from_server('Your client is out of date. You\'d better refresh your page!')
+                self.send_from_server(
+                    'Best Evar Chat client has been updated to {}, please refresh your page.'.format(client_version))
                 self.send({'type': 'versionUpdate'})
             elif json_message['client_version'] > client_version:
                 self.send_from_server('How did you mess up a perfectly good client version number?')
@@ -206,6 +207,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                               rooms_to_send=None, save_history=False):
         """
         Broadcast a message to given participants.
+        :param save_history: boolean flag to save to server history
         :param send_to: participants to receive broadcast message
         :param message: display message to send
         :param message_type: type of message
@@ -214,16 +216,16 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         :param rooms_to_send: rooms to associate message with. if defined, room_id is ignored
         """
         if rooms_to_send is not None:
+            new_message = {'user': 'Server',
+                           'message': message,
+                           'time': time.time(),
+                           'data': data,
+                           'room': rooms_to_send}
             for room in rooms_to_send:
-                new_message = {'user': 'Server',
-                               'message': message,
-                               'time': time.time(),
-                               'data': data,
-                               'room': room}
                 if save_history is True:
                     rooms[room]['history'].append(new_message)
-                self.broadcast(send_to, {'type': message_type,
-                                         'data': new_message})
+            self.broadcast(send_to, {'type': message_type,
+                                     'data': new_message})
         else:
             new_message = {'user': 'Server',
                            'message': message,
@@ -742,7 +744,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             [participant.send_room_information(room_id=room_id) for participant in own_participants]
             self.broadcast_user_list(room_id=room_id)
             # broadcast success to self
-            self.broadcast_from_server(own_participants, 'You have joined the room \'{}\'.'.format(rooms[room_id]['name']))
+            self.broadcast_from_server(own_participants,
+                                       'You have joined the room \'{}\'.'.format(rooms[room_id]['name']))
 
     def leave_room(self, room_id):
         """
@@ -757,7 +760,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                     self.current_user['id'], room_id)
         own_participants = get_matching_participants(self.participants, self.current_user['id'])
         # remove room from participants
-        [participant.joined_rooms.remove(room_id) for participant in own_participants if room_id in participant.joined_rooms]
+        [participant.joined_rooms.remove(room_id) for participant in own_participants if
+         room_id in participant.joined_rooms]
         # remove participants from room
         rooms[room_id]['participants'].difference_update(own_participants)
         # update participant room info
@@ -791,7 +795,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                                                     rooms[room_id]['owner']),
                                        message_type='deleteRoom', data={'room_id': room_id}, room_id=0)
             # remove the room from the list of rooms and participant lists
-            [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if room_id in participant.joined_rooms]
+            [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if
+             room_id in participant.joined_rooms]
             rooms.pop(room_id, None)
 
 

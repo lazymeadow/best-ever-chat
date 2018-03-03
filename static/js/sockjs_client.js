@@ -1,4 +1,4 @@
-var client_version = '2.0';
+var client_version = '2.0.1';
 var HOST = 'localhost:6969';
 var DEFAULT_TITLE = "Best evar chat 2.0!";
 
@@ -240,18 +240,30 @@ function connect() {
                 $('#room_' + active_room).click();
             }
             if (type === 'chatMessage') {
-                var roomNum = data.room;
-                if (roomNum === null) {
+                var roomData = data.room;
+                if ($.isArray(roomData) && data.user === 'Server') {
+                    for (var roomNum in roomData) {
+                        if (rooms.hasOwnProperty(roomNum)) {
+                            rooms[roomNum].history.push(data);
+                            $('#room_' + roomNum + ':not(.active) .indicator').show();
+                            if (parseInt(roomNum) === active_room) {
+                                print_message(data);
+                            }
+                        }
+                    }
+                    updateMessageCount();
+                }
+                else if (roomData === null) {
                     for (var key in rooms) {
                         rooms[key].history.push(data);
                     }
                     print_message(data);
                 }
                 else {
-                    if (rooms.hasOwnProperty(roomNum)) {
-                        rooms[roomNum].history.push(data);
-                        $('#room_' + roomNum + ':not(.active) .indicator').show();
-                        if (roomNum === active_room) {
+                    if (rooms.hasOwnProperty(roomData)) {
+                        rooms[roomData].history.push(data);
+                        $('#room_' + roomData + ':not(.active) .indicator').show();
+                        if (roomData === active_room) {
                             print_message(data);
                         }
                     }
