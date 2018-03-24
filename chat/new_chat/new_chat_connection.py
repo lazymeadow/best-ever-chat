@@ -5,7 +5,6 @@ from sockjs.tornado import SockJSConnection, SockJSRouter
 
 from chat.lib import log_from_client
 
-
 CLIENT_VERSION = '3.0'
 
 
@@ -40,6 +39,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self.broadcast_user_list()
         self.send_room_list()
+        self.broadcast_alert('{} is online.'.format(self.current_user.username))
 
         self.send_from_server('Connection successful.')
 
@@ -64,6 +64,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         print 'close'
         self.user_list.update_user_status(self.current_user.id, 'offline')
         self.broadcast_user_list()
+        self.broadcast_alert('{} is offline.'.format(self.current_user.username))
 
     def broadcast_chat_message(self, user_id, message, room_id):
         """
@@ -108,6 +109,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
                        'time': time()
                    }})
 
+    def broadcast_alert(self, message, room_id=None, alert_type='fade'):
+        participants = self.user_list.get_all_participants(
+            exclude=self.current_user['id']) if room_id is None else self.room_list.get_room_participants(
+            room_id)
+        self.broadcast(participants, {'type': 'alert',
+                                      'data': {
+                                          'message': message,
+                                          'alert_type': alert_type}})
+
     def send_alert(self, message, alert_type='fade'):
         """
 
@@ -117,7 +127,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         """
         self.send({'type': 'alert',
                    'data': {'message': message,
-                            'type': alert_type}})
+                            'alert_type': alert_type}})
 
     def send_from_server(self, message, room_id=None):
         """

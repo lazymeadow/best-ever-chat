@@ -58,7 +58,9 @@ class UserList:
     def add_participant(self, participant):
         self.participants.add(participant)
 
-    def get_all_participants(self):
+    def get_all_participants(self, exclude=None):
+        if exclude is not None:
+            return [x for x in self.participants if x.current_user['id'] != exclude]
         return self.participants
 
     def get_user_participants(self, user_id):
