@@ -98,7 +98,7 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _receivedAlert({message}) {
+    _receivedAlert({message, alert_type}) {
         // create hidden alert
         let newAlert = $('<div>').text(message).hide();
         // append hidden alert
@@ -111,14 +111,19 @@ class BestEvarChatClient {
             alertsBox.slideDown(500);
         }
 
-        // after timeout, slideUp alert. if empty, slide up box.
-        window.setTimeout(() => {
-            newAlert.slideUp(500, () => {
-                newAlert.remove();
-                if (alertsBox.is(':empty')) {
-                    alertsBox.slideUp(500);
-                }
-            });
-        }, 3500);
+        if (alert_type === 'fade') {
+            // after timeout, slideUp alert. if empty, slide up box.
+            window.setTimeout(() => {
+                newAlert.slideUp(500, () => {
+                    newAlert.remove();
+                    if (alertsBox.is(':empty')) {
+                        alertsBox.slideUp(500);
+                    }
+                });
+            }, 3500);
+        }
+        else if (alert_type === 'dismiss') {
+            // add a dismiss button
+        }
     }
 }

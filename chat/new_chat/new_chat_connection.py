@@ -6,6 +6,9 @@ from sockjs.tornado import SockJSConnection, SockJSRouter
 from chat.lib import log_from_client
 
 
+CLIENT_VERSION = '3.0'
+
+
 class NewMultiRoomChatConnection(SockJSConnection):
     current_user = None
     http_server = None
@@ -48,6 +51,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         if json_message['type'] == 'chat message':
             self.broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room'])
+        elif json_message['type'] == 'version':
+            if json_message['client version'] < CLIENT_VERSION:
+                self.send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')
+            elif json_message['client version'] > CLIENT_VERSION:
+                self.send_alert('How did you mess up a perfectly good client version number?', 'permanent')
         elif json_message['type'] == 'client log':
             log_from_client(json_message['level'], json_message['log'], self.current_user['id'],
                             self.session.session_id)
@@ -99,6 +107,17 @@ class NewMultiRoomChatConnection(SockJSConnection):
                        'message': 'Wow, you are not authenticated! Not even a little bit. Go fix that.',
                        'time': time()
                    }})
+
+    def send_alert(self, message, alert_type='fade'):
+        """
+
+        :param message:
+        :param alert_type: 'fade', 'dismiss', 'permanent
+        :return:
+        """
+        self.send({'type': 'alert',
+                   'data': {'message': message,
+                            'type': alert_type}})
 
     def send_from_server(self, message, room_id=None):
         """
