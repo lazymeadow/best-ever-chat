@@ -40,9 +40,12 @@ class Room {
             .append($('<span>').addClass('list-content').text(room.name));
 
         if (room.id > 0) {
-            let menu = $('<div>').addClass('inline-menu')
-                .append($('<span>').addClass('menu-item')
-                    .text('Delete Room').prepend($('<span>').addClass('fa fa-fw fa-trash-o'))).hide();
+            let menu = $('<div>').addClass('inline-menu');
+            let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fa fa-fw fa-user-plus'));
+            let removeItem = room.isMine ?
+                $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('fa fa-fw fa-trash-o')) :
+                $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('fa fa-fw fa-window-close-o'));
+            menu.append(inviteItem).append(removeItem).hide();
 
             let menuButton = $('<span>').addClass('fa fa-fw fa-caret-down')
                 .click((event) => {
