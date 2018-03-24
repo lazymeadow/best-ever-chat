@@ -8,11 +8,11 @@ import string
 import tornado.web
 import torndb
 
-from chat.chat_core import chat_router
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
-from chat.new_chat_connection import new_chat_router
-from chat.users import UserList
+from chat.new_chat.new_chat_connection import new_chat_router
+from chat.new_chat.rooms import RoomList
+from chat.new_chat.users import UserList
 from emoji.emoji_curation import curated_emojis
 
 SECRET_KEY = ''.join(
@@ -36,6 +36,7 @@ class Application(tornado.web.Application):
         self.user_list = UserList(self.db)
 
         # room list
+        self.room_list = RoomList(self.db, self.user_list)
 
 
 if __name__ == "__main__":
