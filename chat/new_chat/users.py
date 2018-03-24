@@ -1,5 +1,4 @@
 import json
-from json import JSONEncoder
 
 
 class UserList:
@@ -26,7 +25,7 @@ class UserList:
         :param str user_id: parasite id
         :return dict: user info
         """
-        self.user_map.get(user_id, None)
+        return self.user_map.get(user_id, None)
 
     def add_user(self, user):
         """

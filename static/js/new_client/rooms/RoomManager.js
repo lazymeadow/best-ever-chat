@@ -36,10 +36,6 @@ class RoomManager extends LoggingClass {
 
     }
 
-    selectRoom(roomId) {
-
-    }
-
     /**
      * Add a message to room history. If the roomId is not provided, it will be treated as a global message and added
      * to all rooms.

@@ -27,7 +27,7 @@ class BestEvarChatClient {
     sendChat(messageText) {
         this._send({
             'type': 'chat message',
-            'user': Settings.username,
+            'user id': Settings.userId,
             'message': messageText,
             'room': Settings.activeRoom
         });

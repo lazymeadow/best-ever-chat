@@ -46,7 +46,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self.send_auth_fail()
 
-        if json_message['type'] == 'client log':
+        if json_message['type'] == 'chat message':
+            self.broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room'])
+        elif json_message['type'] == 'client log':
             log_from_client(json_message['level'], json_message['log'], self.current_user['id'],
                             self.session.session_id)
 
@@ -54,6 +56,25 @@ class NewMultiRoomChatConnection(SockJSConnection):
         print 'close'
         self.user_list.update_user_status(self.current_user.id, 'offline')
         self.broadcast_user_list()
+
+    def broadcast_chat_message(self, user_id, message, room_id):
+        """
+        Broadcast chat message to all users in the specified room. Triggers the spam ban if the user is sending too many
+        messages too quickly.
+        :param user_id: user sending the message
+        :param message: message to be sent
+        :param room_id: room receiving the message
+        """
+        user = self.user_list.get_user(user_id)
+        # send the unfiltered message
+        new_message = {'username': user['username'],
+                       'color': user['color'],
+                       'message': message,
+                       'time': time(),
+                       'room': room_id}
+        self.broadcast(self.room_list.get_room_participants(room_id), {'type': 'chat message', 'data': new_message})
+        # save unfiltered message in history
+        self.room_list.add_message_to_history(room_id, new_message.copy())
 
     def broadcast_user_list(self):
         self.broadcast(self.user_list.get_all_participants(), {'type': 'user list',
@@ -74,7 +95,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         """
         self.send({'type': 'auth fail',
                    'data': {
-                       'user': 'Server',
+                       'username': 'Server',
                        'message': 'Wow, you are not authenticated! Not even a little bit. Go fix that.',
                        'time': time()
                    }})
@@ -88,7 +109,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         """
         self.send({'type': 'chat message',
                    'data': {
-                       'user': 'Server',
+                       'username': 'Server',
                        'message': message,
                        'time': time(),
                        'room': room_id}})

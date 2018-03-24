@@ -58,5 +58,13 @@ class RoomList:
                        for item in self.room_map if user_id in self.room_map[item]['members']],
                       key=lambda room: room['name'])
 
+    def get_room_participants(self, room_id):
+        participant_list = []
+        [participant_list.extend(self.user_list.get_user_participants(user_id)) for user_id in self.room_map[room_id]['members']]
+        return participant_list
+
+    def add_message_to_history(self, room_id, message_data):
+        self.room_map[room_id]['history'].append(message_data.copy())
+
     def __str__(self):
         return json.dumps(self.get_room_list())

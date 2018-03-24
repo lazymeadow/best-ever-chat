@@ -15,22 +15,22 @@ class MessageLog extends LoggingClass {
      * </div>
      *
      * @param time message time
-     * @param user sender
+     * @param username sender
      * @param color message color
      * @param message message body
      * @param image_url image url
      * @param image_src_url image src url
      * @param nsfw_flag image is nsfw
      */
-    printMessage({time, user, color, message, image_url, image_src_url, nsfw_flag}) {
+    printMessage({time, username, color, message, image_url, image_src_url, nsfw_flag}) {
         let messageContainer = $('<div>').addClass('chat-message');
         // set the message color
         if (color)
             messageContainer.css('color', color);
-        if (user === 'Server') {
+        if (username === 'Server') {
             messageContainer.addClass('server-message');
         }
-        if (user === 'Client') {
+        if (username === 'Client') {
             messageContainer.addClass('client-message');
         }
 
@@ -55,7 +55,7 @@ class MessageLog extends LoggingClass {
 
         // add the message body
         let messageElement = $('<div>').addClass('message')
-            .append($('<span>').addClass('username').text(user + ': '))
+            .append($('<span>').addClass('username').text(username + ': '))
             .append($('<span>').html(message));
 
         this._logElement.append(messageContainer.append(messageElement));
@@ -67,17 +67,17 @@ class MessageLog extends LoggingClass {
         // });
 
         // TODO move this into the room handler
-        // if (user === 'Server') {
+        // if (username === 'Server') {
         //     if (includes('disconnected')) play_disconnect();
         //     else if (includes('connected') && !includes(Cookies.get('username'))) {
         //         SoundManager.playConnected();
         //     }
         // }
-        // else if (user === Cookies.get('username')) {
+        // else if (username === Cookies.get('username')) {
         //     SoundManager.playSent();
         // }
         // else if (!ignoreCount) {
-        //     if (user !== 'Client') SoundManager.playReceived();
+        //     if (username !== 'Client') SoundManager.playReceived();
         // }
 
         this._parseEmojis(messageContainer[0]);
