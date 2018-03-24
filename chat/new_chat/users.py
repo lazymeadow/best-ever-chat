@@ -21,6 +21,12 @@ class UserList:
             new_user.update(user)
             self._user_map[user.id] = new_user
 
+    def is_existing_user(self, user_id):
+        return user_id in self._user_map.keys()
+
+    def get_username(self, user_id):
+        return self._user_map[user_id]['username']
+
     def get_user(self, user_id):
         """
         Retrieve user info from current map

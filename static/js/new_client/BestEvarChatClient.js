@@ -56,16 +56,16 @@ class BestEvarChatClient {
             this._receivedUpdate(messageData);
         }
         else if (messageType === 'chat message') {
-            this._roomManager.addMessage(messageData, messageData.room);
+            this._roomManager.addMessage(messageData, messageData['room id']);
         }
         else if (messageType === 'private message') {
             this._receivedPrivateMessage(messageData);
         }
-        else if (messageType === 'delete room') {
-            this._receivedDeleteRoom(messageData);
-        }
         else if (messageType === 'alert') {
             this._receivedAlert(messageData);
+        }
+        else if (messageType === 'invitation') {
+            this._receivedInvitation(messageData);
         }
     }
 
@@ -89,11 +89,7 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _received_invitation(messageData) {
-        console.log(messageData);
-    }
-
-    _receivedDeleteRoom(messageData) {
+    _receivedInvitation(messageData) {
         console.log(messageData);
     }
 

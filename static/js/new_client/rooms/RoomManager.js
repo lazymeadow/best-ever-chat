@@ -19,7 +19,7 @@ class RoomManager extends LoggingClass {
         super.debug('Updating rooms...');
         // clear the list if necessary
         if (allRooms) {
-            this._roomListElement.empty();
+            this._roomListElement.children(':not(.rooms-header)').remove();
             this._roomDataMap.clear();
         }
         // add the room data to the list
