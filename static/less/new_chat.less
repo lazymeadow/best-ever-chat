@@ -229,8 +229,12 @@ body {
           opacity: .8;
         }
 
-        & > .has-messages .message-indicator {
-          visibility: visible;
+        & > .has-messages {
+          font-weight: bold;
+
+          & .message-indicator {
+            visibility: visible;
+          }
         }
 
         & .current {
