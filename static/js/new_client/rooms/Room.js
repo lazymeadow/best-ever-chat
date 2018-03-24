@@ -19,8 +19,11 @@ class Room {
         return this._roomElement;
     }
 
-    addMessage(messageData) {
+    addMessage(messageData, show_indicator = true) {
         this._messageHistory.push(messageData);
+        if (show_indicator && Settings.activeRoom !== this.id) {
+            this._roomElement.addClass('has-messages');
+        }
     }
 
     selectThisRoom() {
@@ -74,6 +77,7 @@ class Room {
             .click(() => {
                 $('.current').removeClass('current');
                 roomElement.addClass('current');
+                roomElement.removeClass('has-messages');
                 room._roomManager.setActiveRoom(room.id);
             });
     }

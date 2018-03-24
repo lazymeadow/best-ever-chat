@@ -45,14 +45,14 @@ class RoomManager extends LoggingClass {
     addMessage(messageData, roomId = null) {
         if (roomId === null) {
             this._roomDataMap.forEach((room) => {
-                room.addMessage(messageData);
+                room.addMessage(messageData, false);
             });
-            this._messageLog.printMessage(messageData);
+            this._messageLog.printMessage(messageData, false);
         }
         else {
             this._roomDataMap.get(roomId).addMessage(messageData);
             if (Settings.activeRoom === roomId) {
-                this._messageLog.printMessage(messageData);
+                this._messageLog.printMessage(messageData, true);
             }
         }
     }
