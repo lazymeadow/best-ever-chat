@@ -174,6 +174,12 @@ body {
               opacity: .85;
               padding: 7px 3px 7px 23px;
               display: block;
+              cursor: pointer;
+
+              &:not(:last-child) {
+                padding-bottom: 4px;
+                margin-bottom: 4px;
+              }
 
               & > .fa {
                 padding-right: 3px;
@@ -186,7 +192,6 @@ body {
 
       & #user-list {
         border-bottom: 2px solid darken(@backgroundColor, 3%);
-        flex: 1 1 auto;
         .panel();
 
         & .typing-status {
@@ -222,7 +227,24 @@ body {
 
       & #room-list {
         .panel();
-        flex: 3 1 auto;
+
+        & .rooms-header {
+          border-bottom: 2px solid darken(@backgroundColor, 3%);
+          padding: 15px 10px 7px;
+          display: flex;
+          width: ~"calc(100% - 20px)";
+
+          & span {
+            padding-right: 3px;
+            flex: 1 1 auto;
+
+            &#add-room {
+              flex: 0 0 auto;
+              padding-right: 10px;
+              cursor: pointer;
+            }
+          }
+        }
 
         & .message-indicator {
           visibility: hidden;
@@ -411,6 +433,28 @@ body {
   position: fixed;
   height: 100vh;
   width: 100vw;
-  z-index: 100;
+  display: flex;
+  z-index: 99;
   background-color: fade(#4A4A5A, 35%);
+  align-items: center;
+  justify-content: center;
+
+  & > .modal {
+    background-color: white;
+    min-width: 200px;
+    min-height: 50px;
+    display: flex;
+    z-index: 100;
+    flex: 0 1 auto;
+    flex-direction: column;
+    padding: 10px 20px;
+
+    input{
+      margin: 10px 0;
+    }
+
+    button {
+      margin-bottom: 10px;
+    }
+  }
 }

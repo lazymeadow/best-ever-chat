@@ -33,6 +33,23 @@ class BestEvarChatClient {
         });
     }
 
+    createRoom(roomName) {
+        this._send({
+            'type': 'room action',
+            'action': 'create',
+            'owner id': Settings.userId,
+            'room name': roomName
+        });
+    }
+
+    deleteRoom(roomId) {
+        this._send({
+            'type': 'room action',
+            'action': 'delete',
+            'room id': roomId
+        });
+    }
+
     // Private functions
 
     _send(data) {

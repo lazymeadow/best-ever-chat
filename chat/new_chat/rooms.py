@@ -78,6 +78,7 @@ class RoomList:
 
         new_room = self._room_defaults.copy()
         new_room['id'] = room_id
+        new_room['owner'] = owner_id
         new_room['name'] = name
         new_room['members'].add(owner_id)
         self._room_map[room_id] = new_room

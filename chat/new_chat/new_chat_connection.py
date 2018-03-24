@@ -52,15 +52,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room id'])
         elif json_message['type'] == 'room action':
             if json_message['action'] == 'create':
-                self._create_room(json_message['data']['room name'])
+                self._create_room(json_message['room name'])
             elif json_message['action'] == 'delete':
-                self._delete_room(json_message['data']['room id'])
+                self._delete_room(json_message['room id'])
             elif json_message['action'] == 'join':
-                self._join_room(json_message['data']['room id'])
+                self._join_room(json_message['room id'])
             elif json_message['action'] == 'leave':
-                self._leave_room(json_message['data']['room id'])
+                self._leave_room(json_message['room id'])
             elif json_message['action'] == 'invite':
-                self._send_invitation(json_message['data']['user id'], json_message['data']['room id'])
+                self._send_invitation(json_message['user id'], json_message['room id'])
         elif json_message['type'] == 'version':
             if json_message['client version'] < CLIENT_VERSION:
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')

@@ -65,7 +65,12 @@
             <!--</div>-->
         <!--</div>-->
     </div>
-    <div id="room-list"></div>
+    <div id="room-list">
+        <div class="rooms-header">
+            <span>Rooms</span>
+            <span id="add-room" class="fa fa-fw fa-plus"></span>
+        </div>
+    </div>
 </div>
 <div class="right">
     <div id="log"></div>
@@ -93,8 +98,10 @@
             <span class="fa fa-fw fa-picture-o"></span>
             <div class="popout-option">
                 <div class="form-group">
-                    <label>Image url:</label>
-                    <input type="url"/>
+                    <label>
+                        Image url:
+                        <input type="url"/>
+                    </label>
                     <button type="button">Send</button>
                 </div>
                 <div class="popout-indicator"></div>
