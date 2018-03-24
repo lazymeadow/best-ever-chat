@@ -5,6 +5,8 @@ from hashlib import sha256
 from requests import get
 from tornado.escape import linkify, to_unicode
 
+MAX_DEQUE_LENGTH = 75
+
 client_log = logging.getLogger('bestevarchat.client')
 client_log.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('log/client.log')

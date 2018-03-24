@@ -1,9 +1,12 @@
 import json
+from collections import deque
+
+from chat.lib import MAX_DEQUE_LENGTH
 
 
 class UserList:
-    user_map = {}
-    participants = set()
+    _user_map = {}
+    _participants = set()
     _user_defaults = {
         'color': '#555555',
         'faction': 'rebel',
@@ -16,8 +19,7 @@ class UserList:
         for user in users:
             new_user = self._user_defaults.copy()
             new_user.update(user)
-            self.user_map[user.id] = new_user
-        print self
+            self._user_map[user.id] = new_user
 
     def get_user(self, user_id):
         """
@@ -25,46 +27,46 @@ class UserList:
         :param str user_id: parasite id
         :return dict: user info
         """
-        return self.user_map.get(user_id, None)
+        return self._user_map.get(user_id, None)
 
     def add_user(self, user):
         """
         Update a user in the map. If the user is already there, the data will be updated to match.
         :param dict user: user data
         """
-        if user['id'] not in self.user_map.keys():
+        if user['id'] not in self._user_map.keys():
             # validate that all necessary information is present with defaults and id check (if no id, invalid)
             if 'id' in user.keys():
                 user.update(self._user_defaults)
-                self.user_map[user['id']] = user
+                self._user_map[user['id']] = user
         else:
-            self.user_map[user['id']].update(user)
+            self._user_map[user['id']].update(user)
 
     def get_user_map(self):
         # we need to return a map that is filtered down to the necessary information for a user list
-        return self.user_map.copy()
+        return self._user_map.copy()
 
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self.user_map[item] for item in self.user_map], key=lambda user: user['username']), key=lambda user: user['status'])
+        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username']), key=lambda user: user['status'])
 
     def get_usernames(self):
-        return [x for x in self.user_map]
+        return [x for x in self._user_map]
 
     def update_user_status(self, user_id, status):
-        if status in ['offline', 'active', 'idle'] and self.user_map.has_key(user_id):
-            self.user_map[user_id]['status'] = status
+        if status in ['offline', 'active', 'idle'] and self._user_map.has_key(user_id):
+            self._user_map[user_id]['status'] = status
 
     def add_participant(self, participant):
-        self.participants.add(participant)
+        self._participants.add(participant)
 
     def get_all_participants(self, exclude=None):
         if exclude is not None:
-            return [x for x in self.participants if x.current_user['id'] != exclude]
-        return self.participants
+            return [x for x in self._participants if x.current_user['id'] != exclude]
+        return self._participants
 
     def get_user_participants(self, user_id):
-        return [x for x in self.participants if x.current_user['id'] == user_id]
+        return [x for x in self._participants if x.current_user['id'] == user_id]
 
     def __str__(self):
         return json.dumps(self.get_user_list())

@@ -2,8 +2,8 @@ import json
 from collections import deque
 from json import JSONEncoder
 
+from chat.lib import MAX_DEQUE_LENGTH
 
-MAX_DEQUE_LENGTH = 75
 
 class RoomList:
     room_map = {}
@@ -29,7 +29,6 @@ class RoomList:
             new_room['members'] = new_room['members'].split(',')
             new_room['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
             self.room_map[room.id] = new_room
-        print self
 
     def get_room(self, room_id):
         """
@@ -68,3 +67,7 @@ class RoomList:
 
     def __str__(self):
         return json.dumps(self.get_room_list())
+
+
+# maybe private messages can be treated as rooms with a special prefix on the key. and there is some kind of mapping to which id to access for a pair of people.
+# get the id for the room, then you get the history and send it out. sending to the client, make the other user the key.

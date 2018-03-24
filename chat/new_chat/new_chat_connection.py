@@ -11,9 +11,9 @@ CLIENT_VERSION = '3.0'
 class NewMultiRoomChatConnection(SockJSConnection):
     current_user = None
     http_server = None
-    participants = set()
-    user_list = None
-    room_list = None
+
+    _user_list = None
+    _room_list = None
 
     def on_open(self, info):
         print 'opened'
@@ -26,12 +26,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send_auth_fail()
             return False
 
-        self.user_list = self.http_server.user_list
-        self.room_list = self.http_server.room_list
+        self._user_list = self.http_server.user_list
+        self._room_list = self.http_server.room_list
 
-        self.user_list.add_participant(self)
-        self.user_list.update_user_status(parasite, 'active')
-        print self.user_list
+        self._user_list.add_participant(self)
+        self._user_list.update_user_status(parasite, 'active')
 
         self.current_user = self.http_server.db.get(
             "SELECT id, password, username, color, sound, soundSet, email, faction FROM parasite WHERE id = %s",
@@ -62,7 +61,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_close(self):
         print 'close'
-        self.user_list.update_user_status(self.current_user.id, 'offline')
+        self._user_list.update_user_status(self.current_user.id, 'offline')
         self.broadcast_user_list()
         self.broadcast_alert('{} is offline.'.format(self.current_user.username))
 
@@ -74,27 +73,27 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :param message: message to be sent
         :param room_id: room receiving the message
         """
-        user = self.user_list.get_user(user_id)
+        user = self._user_list.get_user(user_id)
         # send the unfiltered message
         new_message = {'username': user['username'],
                        'color': user['color'],
                        'message': message,
                        'time': time(),
                        'room': room_id}
-        self.broadcast(self.room_list.get_room_participants(room_id), {'type': 'chat message', 'data': new_message})
+        self.broadcast(self._room_list.get_room_participants(room_id), {'type': 'chat message', 'data': new_message})
         # save unfiltered message in history
-        self.room_list.add_message_to_history(room_id, new_message.copy())
+        self._room_list.add_message_to_history(room_id, new_message.copy())
 
     def broadcast_user_list(self):
-        self.broadcast(self.user_list.get_all_participants(), {'type': 'user list',
+        self.broadcast(self._user_list.get_all_participants(), {'type': 'user list',
                                                                'data': {
-                                                                   'users': self.user_list.get_user_list()
+                                                                   'users': self._user_list.get_user_list()
                                                                }})
 
     def send_room_list(self):
         self.send({'type': 'room data',
                    'data': {
-                       'rooms': self.room_list.get_room_list_for_user(self.current_user.id),
+                       'rooms': self._room_list.get_room_list_for_user(self.current_user.id),
                        'all': True
                    }})
 
@@ -110,8 +109,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
                    }})
 
     def broadcast_alert(self, message, room_id=None, alert_type='fade'):
-        participants = self.user_list.get_all_participants(
-            exclude=self.current_user['id']) if room_id is None else self.room_list.get_room_participants(
+        participants = self._user_list.get_all_participants(
+            exclude=self.current_user['id']) if room_id is None else self._room_list.get_room_participants(
             room_id)
         self.broadcast(participants, {'type': 'alert',
                                       'data': {

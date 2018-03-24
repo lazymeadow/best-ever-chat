@@ -78,7 +78,6 @@ class BestEvarChatClient {
     }
 
     _receivedUserList({users}) {
-        console.log('user list:', users);
         this._userManager.updateUserList(users);
     }
 
