@@ -10,6 +10,7 @@ import torndb
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
+from chat.new_chat.messages import MessageQueue
 from chat.new_chat.new_chat_connection import new_chat_router
 from chat.new_chat.rooms import RoomList
 from chat.new_chat.users import UserList
@@ -37,6 +38,9 @@ class Application(tornado.web.Application):
 
         # room list
         self.room_list = RoomList(self.db, self.user_list)
+
+        # message queue
+        self.message_queue = MessageQueue(self.db, self.user_list)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     _user_list = None
     _room_list = None
+    _message_queue = None
 
     def on_open(self, info):
         print 'opened'
@@ -28,6 +29,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
+        self._message_queue = self.http_server.message_queue
 
         self._user_list.add_participant(self)
         self._user_list.update_user_status(parasite, 'active')
@@ -41,6 +43,13 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._broadcast_alert('{} is online.'.format(self.current_user.username))
 
         self._send_from_server('Connection successful.')
+
+        # send queued messages
+        messages = self._message_queue.get_messages(self.current_user['id'])
+        for message in messages:
+            self.send({'type': message['type'],
+                       'data': json.loads(message['content'])})
+            self._message_queue.remove_message(message['id'])
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -182,12 +191,17 @@ class NewMultiRoomChatConnection(SockJSConnection):
             if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
                 # TODO save the invitation in the database, adding to RoomList class
                 self._room_list.grant_user_room_access(room_id, user_id)
-                self.broadcast(self._user_list.get_user_participants(user_id),
-                               {'type': 'invitation',
-                                'data': {
-                                    'user': self.current_user['username'],
-                                    'room id': room_id,
-                                    'room name': self._room_list.get_room_name(room_id)}})
+                invitee_participants = self._user_list.get_user_participants(user_id)
+                message_data = {'user': self.current_user['username'],
+                                'room id': room_id,
+                                'room name': self._room_list.get_room_name(room_id)}
+                if len(invitee_participants) == 0:
+                    # save invitation
+                    self._message_queue.add_message(user_id, 'invitation', json.dumps(message_data))
+                else:
+                    self.broadcast(invitee_participants,
+                                   {'type': 'invitation',
+                                    'data': message_data})
             else:
                 self._send_alert("You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
 
