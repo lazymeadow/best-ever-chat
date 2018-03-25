@@ -1,7 +1,7 @@
 class RoomManager extends LoggingClass {
     constructor() {
         super();
-        this._soundManager = new SoundManager();
+        // this._soundManager = new SoundManager();
         this._messageLog = new MessageLog();
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
@@ -69,12 +69,14 @@ class RoomManager extends LoggingClass {
         if (this._roomDataMap.has(roomData.id)) {
            const room = this._roomDataMap.get(roomData.id);
            $.merge(room.messageHistory, roomData.history);
-           $.merge(room.memberList, roomData.members);
+           room.memberList = new Set(roomData.members);
+            this.debug(`Room '${roomData.name}' added.`);
         }
         else {
-            let newRoom = new Room(roomData, this);
+            const newRoom = new Room(roomData, this);
             this._roomDataMap.set(newRoom.id, newRoom);
             this._roomListElement.append(newRoom.template);
+            this.debug(`Room '${roomData.name}' updated.`);
         }
     }
 }

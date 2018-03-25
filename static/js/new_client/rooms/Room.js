@@ -1,5 +1,6 @@
-class Room {
+class Room extends LoggingClass {
     constructor({name, owner, id, history, members: memberList}, roomManager) {
+        super();
         this._roomManager = roomManager;
 
         this.name = name;
@@ -68,7 +69,11 @@ class Room {
                             return $('<label>').text('Which users?').append(userCheckboxes);
                         },
                         buttonText: 'Yes!',
-                        buttonClickHandler: () => client.sendInvitations(this.id, $('input[name="invitee"]:checked').map((index, element) => element.value).get())
+                        buttonClickHandler: () => {
+                            const invitees = $('input[name="invitee"]:checked').map((_, element) => element.value).get();
+                            client.sendInvitations(this.id, invitees);
+                            this.debug(`Invitation to room '${this.name}' sent to [${invitees.join(', ')}].`);
+                        }
                     });
                 });
             let removeItem = this.isMine ?
@@ -80,7 +85,10 @@ class Room {
                                 .append($('<div>').text('All users will be kicked out and all history will be lost.'))
                                 .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
                             buttonText: 'Yes!',
-                            buttonClickHandler: () => client.deleteRoom(this.id)
+                            buttonClickHandler: () => {
+                                client.deleteRoom(this.id);
+                                this.debug(`Room '${this.name}' deleted.`);
+                            }
                         });
                     }) :
                 $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('fa fa-fw fa-window-close-o'))
@@ -89,7 +97,10 @@ class Room {
                             content: $('<div>')
                                 .append($('<div>').text(`Are you sure you want to leave '${this.name}'?`)),
                             buttonText: 'Yes!',
-                            buttonClickHandler: () => client.leaveRoom(this.id)
+                            buttonClickHandler: () => {
+                                client.leaveRoom(this.id);
+                                this.debug(`Left room '${this.name}'.`);
+                            }
                         });
                     });
             menu.append(inviteItem).append(removeItem).hide();
