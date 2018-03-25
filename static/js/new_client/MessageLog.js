@@ -60,11 +60,11 @@ class MessageLog extends LoggingClass {
 
         this._logElement.append(messageContainer.append(messageElement));
 
-        // messageContainer.imagesLoaded(function () {
-        //     if (autoScroll) {
-        //         this._logElement.scrollTop(this._logElement[0].scrollHeight);
-        //     }
-        // });
+        messageContainer.imagesLoaded(() => {
+            if (autoScroll) {
+                this._logElement.scrollTop(this._logElement[0].scrollHeight);
+            }
+        });
 
         // TODO move this into the room handler
         // if (username === 'Server') {

@@ -69,6 +69,13 @@ $(function () {
 
     $('.my-username').text(Settings.username);
 
+    window.autoScroll = true;
+    $('#log').scroll((event) => {
+        const log = $(event.target);
+        const scrollThreshold = 100;  // approximately five lines
+        autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
+    });
+
     window.client = new BestEvarChatClient();
 });
 
