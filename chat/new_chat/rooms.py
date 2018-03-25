@@ -56,8 +56,8 @@ class RoomList:
         return self._room_map.copy()
 
     def get_room_list_for_user(self, user_id):
-        return sorted([self.get_room(item) for item in self._room_map if user_id in self._room_map[item]['members']],
-                      key=lambda room: room['name'])
+        return sorted([self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
+                      key=lambda room: room['id'])
 
     def get_room_participants(self, room_id):
         participant_list = []

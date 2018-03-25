@@ -29,7 +29,7 @@ class BestEvarChatClient {
             'type': 'chat message',
             'user id': Settings.userId,
             'message': messageText,
-            'room': Settings.activeRoom
+            'room id': Settings.activeRoom
         });
     }
 
@@ -46,6 +46,31 @@ class BestEvarChatClient {
         this._send({
             'type': 'room action',
             'action': 'delete',
+            'room id': roomId
+        });
+    }
+
+    leaveRoom(roomId) {
+        this._send({
+            'type': 'room action',
+            'action': 'leave',
+            'room id': roomId
+        });
+    }
+
+    sendInvitations(roomId, userIds) {
+        this._send({
+            'type': 'room action',
+            'action': 'invite',
+            'room id': roomId,
+            'user ids': userIds
+        })
+    }
+
+    joinRoom(roomId) {
+        this._send({
+            'type': 'room action',
+            'action': 'join',
             'room id': roomId
         });
     }
@@ -106,8 +131,14 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _receivedInvitation(messageData) {
-        console.log(messageData);
+    _receivedInvitation({user, 'room id': roomId, 'room name': name}) {
+        new Modal({
+            content: `${user} is inviting you to join the room '${name}. Will you join?'`,
+            buttonText: 'Heck yes!',
+            buttonClickHandler: () => this.joinRoom(roomId),
+            showCancel: true,
+            cancelText: 'No way!'
+        })
     }
 
     _receivedAlert({message, alert_type}) {

@@ -26,4 +26,8 @@ class UserManager extends LoggingClass {
         }
         this._userListElement.append(user.template);
     }
+
+    tmp_getUserIdList() {
+        return this._userDataMap.keys();
+    }
 }

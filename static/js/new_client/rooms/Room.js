@@ -1,14 +1,15 @@
 class Room {
-    constructor({name, owner, id, history}, roomManager) {
+    constructor({name, owner, id, history, members: memberList}, roomManager) {
         this._roomManager = roomManager;
 
         this.name = name;
         this.isMine = owner === Settings.userId;
         this.id = id;
+        this.memberList = memberList;
         this._messageHistory = history;
 
         // create a dom element for the room
-        this._roomElement = Room._newRoomElement(this);
+        this._roomElement = this._createRoomElement();
     }
 
     get messageHistory() {
@@ -36,18 +37,62 @@ class Room {
      * @returns {*|{trigger, _default}} jQuery element
      * @private
      */
-    static _newRoomElement(room) {
+    _createRoomElement() {
         let roomElement = $('<div>');
         let elementBody = $('<div>')
             .append($('<span>').addClass('message-indicator fa fa-fw fa-comments-o'))
-            .append($('<span>').addClass('list-content').text(room.name));
+            .append($('<span>').addClass('list-content').text(this.name));
 
-        if (room.id > 0) {
+        if (this.id > 0) {
             let menu = $('<div>').addClass('inline-menu');
-            let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fa fa-fw fa-user-plus'));
-            let removeItem = room.isMine ?
-                $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('fa fa-fw fa-trash-o')).click(() => client.deleteRoom(room.id)) :
-                $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('fa fa-fw fa-window-close-o'));
+            let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fa fa-fw fa-user-plus'))
+                .click(() => {
+                    new Modal({
+                        content: () => {
+                            // create a list of users that are NOT currently in the room
+                            const currentUsers = this.memberList;
+                            const eligibleUsers = this._roomManager._roomDataMap.get(0).memberList
+                                .filter(function (username) {
+                                    return !currentUsers.includes(username);
+                                });
+                            // add a checkbox for each user
+                            const userCheckboxes = [];
+                            $.each(eligibleUsers, function (_, username) {
+                                userCheckboxes.push($('<div>').addClass('form-group')
+                                    .append($('<input>').prop('type', 'checkbox')
+                                        .prop('id', username)
+                                        .prop('value', username)
+                                        .prop('name', 'invitee'))
+                                    .append($('<label>').addClass('check-box').prop('for', username))
+                                    .append($('<span>').addClass('label').text(username)))
+                            });
+                            return $('<label>').text('Which users?').append(userCheckboxes);
+                        },
+                        buttonText: 'Yes!',
+                        buttonClickHandler: () => client.sendInvitations(this.id, $('input[name="invitee"]:checked').map((index, element) => element.value).get())
+                    });
+                });
+            let removeItem = this.isMine ?
+                $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('fa fa-fw fa-trash-o'))
+                    .click(() => {
+                        new Modal({
+                            content: $('<div>')
+                                .append($('<div>').text(`Are you sure you want to delete '${this.name}'?`))
+                                .append($('<div>').text('All users will be kicked out and all history will be lost.'))
+                                .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
+                            buttonText: 'Yes!',
+                            buttonClickHandler: () => client.deleteRoom(this.id)
+                        });
+                    }) :
+                $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('fa fa-fw fa-window-close-o'))
+                    .click(() => {
+                        new Modal({
+                            content: $('<div>')
+                                .append($('<div>').text(`Are you sure you want to leave '${this.name}'?`)),
+                            buttonText: 'Yes!',
+                            buttonClickHandler: () => client.leaveRoom(this.id)
+                        });
+                    });
             menu.append(inviteItem).append(removeItem).hide();
 
             let menuButton = $('<span>').addClass('fa fa-fw fa-caret-down')
@@ -78,7 +123,7 @@ class Room {
                 $('.current').removeClass('current');
                 roomElement.addClass('current');
                 roomElement.removeClass('has-messages');
-                room._roomManager.setActiveRoom(room.id);
+                this._roomManager.setActiveRoom(this.id);
             });
     }
 }

@@ -60,7 +60,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             elif json_message['action'] == 'leave':
                 self._leave_room(json_message['room id'])
             elif json_message['action'] == 'invite':
-                self._send_invitation(json_message['user id'], json_message['room id'])
+                self._send_invitations(json_message['user ids'], json_message['room id'])
         elif json_message['type'] == 'version':
             if json_message['client version'] < CLIENT_VERSION:
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')
@@ -120,14 +120,16 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def _join_room(self, room_id):
         if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
+            #TODO delete the invitation from the database
+            #TODO add chat message for user join/leave room
             participant_list = self._room_list.get_room_participants(room_id)
             [x.send_room_list() for x in participant_list]
             self.broadcast_user_list(participant_list)
-            self._broadcast_alert("{} has joined the room '{}'.".format(self.current_user['username'],
-                                                                        self._room_list.get_room_name(room_id)),
+            room_name = self._room_list.get_room_name(room_id)
+            self._broadcast_alert("{} has joined the room '{}'.".format(self.current_user['username'], room_name),
                                   participant_list=[x for x in participant_list if
                                                     x.current_user['id'] != self.current_user['id']])
-            self._send_alert("You joined the room '{}'.".format(self.current_user['username']))
+            self._send_alert("You joined the room '{}'.".format(room_name))
         else:
             self._send_alert('Failed to join room. Maybe somebody is playing a joke on you?')
 
@@ -137,23 +139,26 @@ class NewMultiRoomChatConnection(SockJSConnection):
             participant_list = room_participants + self._get_my_participants()
             [x.send_room_list() for x in participant_list]
             self.broadcast_user_list(participant_list)
-            self._broadcast_alert('{} has left the room {}.'.format(self.current_user['username'],
-                                                                    self._room_list.get_room_name(room_id)),
+            room_name = self._room_list.get_room_name(room_id)
+            self._broadcast_alert('{} has left the room {}.'.format(self.current_user['username'], room_name),
                                   participant_list=room_participants)
-            self._send_alert("You left the room '{}'.".format(self.current_user['username']))
+            self._send_alert("You left the room '{}'.".format(room_name))
         else:
             self._send_alert("You can't leave that room!")
 
-    def _send_invitation(self, user_id, room_id):
-        if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
-            self.broadcast(self._user_list.get_user_participants(user_id), {'type': 'invitation',
-                                                                            'data': {
-                                                                                'user': self.current_user['username'],
-                                                                                'room id': room_id,
-                                                                                'room name': self._room_list.get_room_name(
-                                                                                    room_id)}})
-        else:
-            self._send_alert("You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
+    def _send_invitations(self, user_ids, room_id):
+        for user_id in user_ids:
+            if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
+                #TODO save the invitation in the database
+                #TODO probably give user access and "not in room" status in room_access table, so join is updating
+                self.broadcast(self._user_list.get_user_participants(user_id),
+                               {'type': 'invitation',
+                                'data': {
+                                    'user': self.current_user['username'],
+                                    'room id': room_id,
+                                    'room name': self._room_list.get_room_name(room_id)}})
+            else:
+                self._send_alert("You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
 
     def send_room_list(self):
         self.send({'type': 'room data',

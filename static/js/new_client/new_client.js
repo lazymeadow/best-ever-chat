@@ -19,19 +19,11 @@ $(function () {
     });
 
     $('#add-room').click((e) => {
-        const modal = $('<div>').addClass('modal')
-            .click((e) => {
-                e.stopPropagation();
-            })
-            .append($('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'))
-            .append($('<button>').text('Create Room').click((e) => {
-                client.createRoom($('#new-room-name').val());
-                $('.modal').remove();
-                overlay.hide();
-            }));
-        overlay.one('click', (e) => {
-            modal.remove()
-        }).append(modal).show();
+        new Modal({
+            content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
+            buttonText: 'Create Room',
+            buttonClickHandler: () => client.createRoom($('#new-room-name').val())
+        });
     });
 
     const chatBar = $('.chat-bar');
