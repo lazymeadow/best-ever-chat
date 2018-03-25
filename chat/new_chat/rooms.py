@@ -24,7 +24,7 @@ class RoomList:
         }
 
         rooms = self.db.query('SELECT id, name, owner, group_concat(parasite_id) AS members '
-                              'FROM rooms LEFT JOIN room_access a ON rooms.id = a.room_id '
+                              'FROM rooms LEFT JOIN room_access a ON rooms.id = a.room_id and a.in_room = TRUE '
                               'GROUP BY id')
         for room in rooms:
             new_room = {}
@@ -73,7 +73,7 @@ class RoomList:
         room_id = self.db.insert("INSERT INTO rooms (name, owner) VALUES (%s, %s)",
                                  name, owner_id)
         # add room to owner user
-        self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE)",
+        self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE) ON DUPLICATE KEY UPDATE in_room=TRUE",
                         room_id, owner_id)
 
         new_room = self._room_defaults.copy()
@@ -102,6 +102,11 @@ class RoomList:
         # return the participants to be informed of the room's demise
         return (room['name'], member_participants)
 
+    def grant_user_room_access(self, room_id, user_id):
+        # add room to owner user
+        self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) ON DUPLICATE KEY UPDATE in_room=FALSE",
+                        room_id, user_id)
+
     def add_user_to_room(self, room_id, user_id):
         if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys():
             return None
@@ -109,7 +114,6 @@ class RoomList:
         self.db.execute("UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s AND room_id = %s",
                         user_id, room_id)
         self._room_map[room_id]['members'].add(user_id)
-
         return True
 
     def remove_user_from_room(self, room_id, user_id):

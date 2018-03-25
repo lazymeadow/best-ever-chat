@@ -181,7 +181,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         for user_id in user_ids:
             if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
                 # TODO save the invitation in the database, adding to RoomList class
-                # TODO probably give user access and "not in room" status in room_access table, so join is updating
+                self._room_list.grant_user_room_access(room_id, user_id)
                 self.broadcast(self._user_list.get_user_participants(user_id),
                                {'type': 'invitation',
                                 'data': {

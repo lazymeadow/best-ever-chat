@@ -2,7 +2,7 @@ class RoomManager extends LoggingClass {
     constructor() {
         super();
         this._soundManager = new SoundManager();
-        this._messageLog = new MessageLog(); // TODO move this into the room handler
+        this._messageLog = new MessageLog();
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
     }
