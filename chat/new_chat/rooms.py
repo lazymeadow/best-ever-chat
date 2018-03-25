@@ -84,7 +84,7 @@ class RoomList:
         self._room_map[room_id] = new_room
 
         # return the participants to update
-        return self.get_room_participants(room_id)
+        return (room_id, self.get_room_participants(room_id))
 
     def remove_room(self, room_id):
         if room_id not in self._room_map.keys():

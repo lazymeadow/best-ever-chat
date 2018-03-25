@@ -5,8 +5,8 @@ class Room {
         this.name = name;
         this.isMine = owner === Settings.userId;
         this.id = id;
-        this.memberList = memberList;
-        this._messageHistory = history;
+        this.memberList = new Set(memberList);
+        this._messageHistory = new Set(history);
 
         // create a dom element for the room
         this._roomElement = this._createRoomElement();
@@ -21,7 +21,7 @@ class Room {
     }
 
     addMessage(messageData, show_indicator = true) {
-        this._messageHistory.push(messageData);
+        this._messageHistory.add(messageData);
         if (show_indicator && Settings.activeRoom !== this.id) {
             this._roomElement.addClass('has-messages');
         }
@@ -33,7 +33,6 @@ class Room {
 
     /**
      * Create a new jQuery element for the room list using the provided Room object.
-     * @param room Room object
      * @returns {*|{trigger, _default}} jQuery element
      * @private
      */
@@ -51,13 +50,13 @@ class Room {
                         content: () => {
                             // create a list of users that are NOT currently in the room
                             const currentUsers = this.memberList;
-                            const eligibleUsers = this._roomManager._roomDataMap.get(0).memberList
-                                .filter(function (username) {
-                                    return !currentUsers.includes(username);
+                            const eligibleUsers = Array.from(this._roomManager._roomDataMap.get(0).memberList)
+                                .filter((username) => {
+                                    return !currentUsers.has(username);
                                 });
                             // add a checkbox for each user
                             const userCheckboxes = [];
-                            $.each(eligibleUsers, function (_, username) {
+                            $.each(eligibleUsers, (_, username) => {
                                 userCheckboxes.push($('<div>').addClass('form-group')
                                     .append($('<input>').prop('type', 'checkbox')
                                         .prop('id', username)

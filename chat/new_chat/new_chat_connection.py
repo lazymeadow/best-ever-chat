@@ -36,7 +36,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             "SELECT id, password, username, color, sound, soundSet, email, faction FROM parasite WHERE id = %s",
             parasite)
 
-        self.broadcast_user_list()
+        self._broadcast_user_list()
         self.send_room_list()
         self._broadcast_alert('{} is online.'.format(self.current_user.username))
 
@@ -73,8 +73,22 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def on_close(self):
         print 'close'
         self._user_list.update_user_status(self.current_user.id, 'offline')
-        self.broadcast_user_list()
+        self._broadcast_user_list()
         self._broadcast_alert('{} is offline.'.format(self.current_user.username))
+
+    def send_room_list(self, room_id=None):
+        if room_id is not None:
+            self.send({'type': 'room data',
+                       'data': {
+                           'rooms': [self._room_list.get_room(room_id)],
+                           'all': False
+                       }})
+        else:
+            self.send({'type': 'room data',
+                       'data': {
+                           'rooms': self._room_list.get_room_list_for_user(self.current_user.id),
+                           'all': True
+                       }})
 
     def _get_my_participants(self):
         return self._user_list.get_user_participants(self.current_user['id'])
@@ -98,37 +112,44 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # save unfiltered message in history
         self._room_list.add_message_to_history(room_id, new_message.copy())
 
-    def broadcast_user_list(self, participant_list=None):
+    def _broadcast_user_list(self, participant_list=None):
         self.broadcast(participant_list or self._user_list.get_all_participants(),
                        {'type': 'user list',
                         'data': {
                             'users': self._user_list.get_user_list()
                         }})
 
+    ### ROOM ACTIONS
+
     def _create_room(self, name):
-        participant_list = self._room_list.create_room(name, self.current_user['id'])
+        (room_id, participant_list) = self._room_list.create_room(name, self.current_user['id'])
         if participant_list is not None:
-            [x.send_room_list() for x in participant_list]
-            self.broadcast_user_list(participant_list)
+            [x.send_room_list(room_id=room_id) for x in participant_list]
+            self._broadcast_user_list(participant_list)
 
     def _delete_room(self, room_id):
         (room_name, participant_list) = self._room_list.remove_room(room_id)
         if participant_list is not None:
             [x.send_room_list() for x in participant_list]
-            self.broadcast_user_list(participant_list)
+            self._broadcast_user_list(participant_list)
             self._broadcast_alert("Room '{}' has been deleted.".format(room_name), participant_list=participant_list)
 
     def _join_room(self, room_id):
         if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
-            #TODO delete the invitation from the database
-            #TODO add chat message for user join/leave room
+            # TODO delete the invitation from the database
             participant_list = self._room_list.get_room_participants(room_id)
-            [x.send_room_list() for x in participant_list]
-            self.broadcast_user_list(participant_list)
+            [x.send_room_list(room_id) for x in participant_list]
+            self._broadcast_user_list(participant_list)
             room_name = self._room_list.get_room_name(room_id)
-            self._broadcast_alert("{} has joined the room '{}'.".format(self.current_user['username'], room_name),
-                                  participant_list=[x for x in participant_list if
-                                                    x.current_user['id'] != self.current_user['id']])
+
+            # broadcast presence to the other room members
+            other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
+            self._broadcast_from_server(other_participants,
+                                        '{} has entered the room.'.format(self.current_user['username']),
+                                        room_id=room_id, save_history=True)
+            # send alerts
+            self._broadcast_alert("{} has joined '{}'.".format(self.current_user['username'], room_name),
+                                  participant_list=other_participants)
             self._send_alert("You joined the room '{}'.".format(room_name))
         else:
             self._send_alert('Failed to join room. Maybe somebody is playing a joke on you?')
@@ -136,11 +157,21 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _leave_room(self, room_id):
         if self._room_list.remove_user_from_room(room_id, self.current_user['id']) is True:
             room_participants = self._room_list.get_room_participants(room_id)
+            # send room update to remaining room members
+            [x.send_room_list(room_id) for x in room_participants]
+            # send full room list to self
+            [x.send_room_list() for x in self._get_my_participants()]
+
             participant_list = room_participants + self._get_my_participants()
-            [x.send_room_list() for x in participant_list]
-            self.broadcast_user_list(participant_list)
+            self._broadcast_user_list(participant_list)
             room_name = self._room_list.get_room_name(room_id)
-            self._broadcast_alert('{} has left the room {}.'.format(self.current_user['username'], room_name),
+
+            # broadcast departure to other room members
+            self._broadcast_from_server(room_participants,
+                                        '{} has left the room.'.format(self.current_user['username']),
+                                        room_id=room_id, save_history=True)
+            # send alerts
+            self._broadcast_alert("{} has left '{}'.".format(self.current_user['username'], room_name),
                                   participant_list=room_participants)
             self._send_alert("You left the room '{}'.".format(room_name))
         else:
@@ -149,8 +180,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _send_invitations(self, user_ids, room_id):
         for user_id in user_ids:
             if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
-                #TODO save the invitation in the database
-                #TODO probably give user access and "not in room" status in room_access table, so join is updating
+                # TODO save the invitation in the database, adding to RoomList class
+                # TODO probably give user access and "not in room" status in room_access table, so join is updating
                 self.broadcast(self._user_list.get_user_participants(user_id),
                                {'type': 'invitation',
                                 'data': {
@@ -160,12 +191,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             else:
                 self._send_alert("You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
 
-    def send_room_list(self):
-        self.send({'type': 'room data',
-                   'data': {
-                       'rooms': self._room_list.get_room_list_for_user(self.current_user.id),
-                       'all': True
-                   }})
+    ### GENERAL HELPER FUNCTIONS
 
     def _send_auth_fail(self):
         """
@@ -204,6 +230,32 @@ class NewMultiRoomChatConnection(SockJSConnection):
                        'message': message,
                        'time': time(),
                        'room': room_id}})
+
+    def _broadcast_from_server(self, send_to, message, message_type='chat message', data=None, room_id=None,
+                               rooms_to_send=None, save_history=False):
+        """
+        Broadcast a message to given participants.
+        :param send_to: participants to receive broadcast message
+        :param message: display message to send
+        :param message_type: type of message
+        :param data: data to send with message
+        :param room_id: room to associate with message. ignored if rooms is defined
+        :param rooms_to_send: rooms to associate message with. if defined, room_id is ignored
+        """
+        if rooms_to_send is not None:
+            for room in rooms_to_send:
+                self._broadcast_from_server(send_to, message, message_type=message_type, data=data, room_id=room,
+                                            save_history=save_history)
+        else:
+            new_message = {'username': 'Server',
+                           'message': message,
+                           'time': time(),
+                           'data': data,
+                           'room id': room_id}
+            if save_history is True:
+                self._room_list.add_message_to_history(room_id, new_message)
+            self.broadcast(send_to, {'type': message_type,
+                                     'data': new_message})
 
 
 new_chat_router = SockJSRouter(NewMultiRoomChatConnection, '/newchat', {

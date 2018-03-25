@@ -66,8 +66,15 @@ class RoomManager extends LoggingClass {
     // Private functions
 
     _addRoom(roomData) {
-        let newRoom = new Room(roomData, this);
-        this._roomDataMap.set(newRoom.id, newRoom);
-        this._roomListElement.append(newRoom.template);
+        if (this._roomDataMap.has(roomData.id)) {
+           const room = this._roomDataMap.get(roomData.id);
+           $.merge(room.messageHistory, roomData.history);
+           $.merge(room.memberList, roomData.members);
+        }
+        else {
+            let newRoom = new Room(roomData, this);
+            this._roomDataMap.set(newRoom.id, newRoom);
+            this._roomListElement.append(newRoom.template);
+        }
     }
 }
