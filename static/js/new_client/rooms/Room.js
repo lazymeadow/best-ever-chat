@@ -63,10 +63,11 @@ class Room extends LoggingClass {
                                         .prop('id', username)
                                         .prop('value', username)
                                         .prop('name', 'invitee'))
-                                    .append($('<label>').addClass('check-box').prop('for', username))
-                                    .append($('<span>').addClass('label').text(username)))
+                                    .append($('<label>').addClass('check-box')
+                                        .prop('for', username)
+                                        .append($('<span>').addClass('label').text(username))));
                             });
-                            return $('<label>').text('Which users?').append(userCheckboxes);
+                            return $('<div>').append($('<label>').text('Which users?')).append(userCheckboxes);
                         },
                         buttonText: 'Yes!',
                         buttonClickHandler: () => {

@@ -1,3 +1,5 @@
+@import "checkboxes";
+
 div {
   padding: 0;
   margin: 0;
@@ -419,6 +421,9 @@ body {
   input {
     font: 1em 'Amiko', sans-serif;
     padding: 3px 5px;
+    &[type=checkbox] {
+      display: none;
+    }
   }
 
   button {
@@ -454,7 +459,7 @@ body {
     padding: 10px 20px;
     margin: 10px;
 
-    input{
+    input {
       margin: 10px 0;
     }
 

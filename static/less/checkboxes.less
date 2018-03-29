@@ -4,7 +4,7 @@
 @duration: .4s;
 
 /* Checkmark style starts */
-@-moz-keyframes dothabottomcheck {
+@-moz-keyframes bottom-check {
   0% {
     height: 0;
   }
@@ -13,7 +13,7 @@
   }
 }
 
-@-webkit-keyframes dothabottomcheck {
+@-webkit-keyframes bottom-check {
   0% {
     height: 0;
   }
@@ -22,7 +22,7 @@
   }
 }
 
-@keyframes dothabottomcheck {
+@keyframes bottom-check {
   0% {
     height: 0;
   }
@@ -31,7 +31,7 @@
   }
 }
 
-@keyframes dothatopcheck {
+@keyframes top-check {
   0% {
     height: 0;
   }
@@ -43,7 +43,7 @@
   }
 }
 
-@-webkit-keyframes dothatopcheck {
+@-webkit-keyframes top-check {
   0% {
     height: 0;
   }
@@ -55,7 +55,7 @@
   }
 }
 
-@-moz-keyframes dothatopcheck {
+@-moz-keyframes top-check {
   0% {
     height: 0;
   }
@@ -65,14 +65,10 @@
   100% {
     height: @checkbox-height * 1.2;
   }
-}
-
-span.label {
-  padding-left: 10px;
 }
 
 .check-box {
-  margin-left: 10px;
+  margin: 5px 10px;
   height: @checkbox-height;
   width: @checkbox-height;
   background-color: transparent;
@@ -129,6 +125,10 @@ span.label {
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
   }
+
+  & > span.label {
+    margin: @checkbox-height * 1.5;
+  }
 }
 
 input[type=checkbox]:checked + .check-box, .check-box.checked {
@@ -136,17 +136,17 @@ input[type=checkbox]:checked + .check-box, .check-box.checked {
 
   &::after {
     height: @checkbox-height * .5;
-    -moz-animation: dothabottomcheck @duration/2 ease 0s forwards;
-    -o-animation: dothabottomcheck @duration/2 ease 0s forwards;
-    -webkit-animation: dothabottomcheck @duration/2 ease 0s forwards;
-    animation: dothabottomcheck @duration/2 ease 0s forwards;
+    -moz-animation: bottom-check @duration/2 ease 0s forwards;
+    -o-animation: bottom-check @duration/2 ease 0s forwards;
+    -webkit-animation: bottom-check @duration/2 ease 0s forwards;
+    animation: bottom-check @duration/2 ease 0s forwards;
   }
 
   &::before {
     height: @checkbox-height * 1.2;
-    -moz-animation: dothatopcheck @duration ease 0s forwards;
-    -o-animation: dothatopcheck @duration ease 0s forwards;
-    -webkit-animation: dothatopcheck @duration ease 0s forwards;
-    animation: dothatopcheck @duration ease 0s forwards;
+    -moz-animation: top-check @duration ease 0s forwards;
+    -o-animation: top-check @duration ease 0s forwards;
+    -webkit-animation: top-check @duration ease 0s forwards;
+    animation: top-check @duration ease 0s forwards;
   }
 }
