@@ -1,5 +1,4 @@
 import logging
-# from _sha256 import sha256
 import re
 from hashlib import sha256
 from urlparse import urlparse

@@ -3,12 +3,13 @@ class MessageQueue:
         self.db = db
         self._user_list = user_list
 
-    def add_message(self, user_id, type, content):
-        self.db.insert("INSERT INTO messages (parasite_id, type, content) VALUES (%s, %s, %s)",
-                       user_id, type, content)
+    def add_invitation(self, user_id, room_id, content):
+        self.db.insert("INSERT INTO invitations (parasite_id, room_id, content) VALUES (%s, %s, %s)",
+                       user_id, room_id, content)
 
-    def get_messages(self, user_id):
-        return self.db.query('SELECT id, type, content FROM messages WHERE parasite_id = %s', user_id)
+    def get_invitations(self, user_id):
+        return self.db.query(
+            "SELECT room_id as 'room id', parasite_id as 'user id', content, 'invitation' as 'type' FROM invitations WHERE parasite_id = %s", user_id)
 
-    def remove_message(self, msg_id):
-        self.db.execute("DELETE FROM messages WHERE id = %s", msg_id)
+    def remove_invitation(self, user_id, room_id):
+        self.db.execute("DELETE FROM invitations WHERE parasite_id = %s AND room_id = %s", user_id, room_id)

@@ -48,11 +48,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._send_from_server('Connection successful.')
 
         # send queued messages
-        messages = self._message_queue.get_messages(self.current_user['id'])
+        messages = self._message_queue.get_invitations(self.current_user['id'])
         for message in messages:
             self.send({'type': message['type'],
                        'data': json.loads(message['content'])})
-            self._message_queue.remove_message(message['id'])
+            self._message_queue.remove_invitation(message['user id'], message['room id'])
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -243,7 +243,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                                 'room name': self._room_list.get_room_name(room_id)}
                 if len(invitee_participants) == 0:
                     # save invitation
-                    self._message_queue.add_message(user_id, 'invitation', json.dumps(message_data))
+                    self._message_queue.add_invitation(user_id, room_id, json.dumps(message_data))
                 else:
                     self.broadcast(invitee_participants,
                                    {'type': 'invitation',
