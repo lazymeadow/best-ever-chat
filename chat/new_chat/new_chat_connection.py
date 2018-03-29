@@ -5,7 +5,7 @@ from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape
 
-from chat.lib import log_from_client, retrieve_image_in_s3
+from chat.lib import log_from_client, retrieve_image_in_s3, preprocess_message, emoji, is_image_url
 
 CLIENT_VERSION = '3.0'
 
@@ -121,11 +121,17 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :param message: message to be sent
         :param room_id: room receiving the message
         """
+
+        # if the message consists only of an image url, let's convert it to an image message, automatically sfw.
+        if is_image_url(message):
+            self._broadcast_image(user_id, message, room_id)
+            return
+
         user = self._user_list.get_user(user_id)
         # send the message
         new_message = {'username': user['username'],
                        'color': user['color'],
-                       'message': message,
+                       'message': preprocess_message(message, emoji),
                        'time': time(),
                        'room id': room_id}
         self.broadcast(self._room_list.get_room_participants(room_id), {'type': 'chat message', 'data': new_message})
@@ -142,6 +148,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :param room_id: room receiving the message
         :param nsfw_flag: true if image is nsfw
         """
+        #if the url doesn't look like an image, just send it as a normal chat
+        if not is_image_url(image_url):
+            self._broadcast_chat_message(user_id, image_url, room_id)
+            return
+
         image_src_url = retrieve_image_in_s3(image_url, self._bucket)
         user = self._user_list.get_user(user_id)
 

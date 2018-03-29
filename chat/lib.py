@@ -1,9 +1,13 @@
 import logging
 # from _sha256 import sha256
+import re
 from hashlib import sha256
+from urlparse import urlparse
 
 from requests import get
-from tornado.escape import linkify, to_unicode
+from tornado.escape import linkify, to_unicode, xhtml_escape
+
+from emoji.emojipy import Emoji
 
 MAX_DEQUE_LENGTH = 75
 
@@ -13,6 +17,8 @@ file_handler = logging.FileHandler('log/client.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
 file_handler.setFormatter(formatter)
 client_log.addHandler(file_handler)
+
+emoji = Emoji()
 
 
 def log_from_client(level, message, parasite_id, session_id):
@@ -30,9 +36,17 @@ def log_from_client(level, message, parasite_id, session_id):
         client_log.critical(log_message)
 
 
+def is_image_url(text):
+    parsed_url = urlparse(text)
+    return (bool(parsed_url.scheme) and (len(re.findall(r"\.(jpg|jpeg|gif|png)", parsed_url.path)) > 0))
+
+
 def preprocess_message(message, emoji_processor):
+    # remove any raw script tags before continuing
+    message_text = message.replace('<script>', xhtml_escape('<script>')).replace('</script>', xhtml_escape('</script>'))
+
     # first linkify
-    message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
+    message_text = linkify(to_unicode(message_text), extra_params='target="_blank"', require_protocol=False)
     # last find shortcode emojis
     message_text = emoji_processor.shortcode_to_unicode(message_text)
     # then find ascii emojis
