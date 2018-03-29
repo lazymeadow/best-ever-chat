@@ -81,7 +81,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_close(self):
         print 'close'
-        self._user_list.update_user_status(self.current_user.id, 'offline')
+        self._user_list.update_user_status(self.current_user.id, 'offline', self)
         self._broadcast_user_list()
         self._broadcast_alert('{} is offline.'.format(self.current_user.username))
 

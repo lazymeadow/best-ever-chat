@@ -56,12 +56,18 @@ class UserList:
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
         return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username']), key=lambda user: user['status'])
 
-    def get_usernames(self):
+    def get_all_usernames(self):
         return [x for x in self._user_map]
 
-    def update_user_status(self, user_id, status):
+    def update_user_status(self, user_id, status, participant=None):
         if status in ['offline', 'active', 'idle'] and self._user_map.has_key(user_id):
-            self._user_map[user_id]['status'] = status
+            if status is 'offline':
+                if participant is not None and participant in self._participants:
+                    self._participants.remove(participant)
+                    if len(self.get_user_participants(user_id)) == 0:
+                        self._user_map[user_id]['status'] = status
+            else:
+                self._user_map[user_id]['status'] = status
 
     def add_participant(self, participant):
         self._participants.add(participant)
