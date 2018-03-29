@@ -19,7 +19,7 @@ class RoomList:
             'name': 'General',
             'owner': None,
             'id': 0,
-            'members': set(self._user_list.get_usernames()),
+            'members': set(self._user_list.get_all_usernames()),
             'history': deque(maxlen=MAX_DEQUE_LENGTH)
         }
 

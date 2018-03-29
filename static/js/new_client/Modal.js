@@ -4,19 +4,26 @@ class Modal extends LoggingClass {
         this.debug('Creating modal');
         const overlay = $('.overlay');
 
-        const modal = $('<div>').addClass('modal')
+        this.modal = $('<div>');
+        this.modal.addClass('modal')
             .click((e) => e.stopPropagation())
             .append(content)
             .append($('<button>').text(buttonText).click(() => {
                 buttonClickHandler();
-                $('.modal').remove();
-                overlay.hide();
+                this.modal.remove();
+                if (overlay.is(':empty')) {
+                    overlay.hide();
+                }
+                return false;
             }))
             .append(showCancel ? $('<button>').text(cancelText).click(() => {
-                $('.modal').remove();
-                overlay.hide();
+                this.modal.remove();
+                if (overlay.is(':empty')) {
+                    overlay.hide();
+                }
+                return false;
             }) : null);
 
-        overlay.append(modal).one('click', () => modal.remove()).show();
+        overlay.append(this.modal).one('click', () => this.modal.remove()).show();
     }
 }
