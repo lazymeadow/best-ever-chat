@@ -22,7 +22,7 @@ class MessageLog extends LoggingClass {
      * @param image_src_url image src url
      * @param nsfw_flag image is nsfw
      */
-    printMessage({time, username, color, message, image_url, image_src_url, nsfw_flag}) {
+    printMessage({time, username, color, message, 'image url': image_url, 'image src url':image_src_url, 'nsfw flag':nsfw_flag}) {
         let messageContainer = $('<div>').addClass('chat-message');
         // set the message color
         if (color)

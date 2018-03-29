@@ -14,7 +14,11 @@ class BestEvarChatClient {
         this._sock = new SockJS(`http://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
-            this._send({'type': 'version', 'client version': CLIENT_VERSION});
+            this._send({
+                'type': 'version',
+                'client version': CLIENT_VERSION,
+                'user id': Settings.userId
+            });
         };
         this._sock.onmessage = (message) => this._handleMessage(message);
         this._sock.onclose = () => {
@@ -33,9 +37,20 @@ class BestEvarChatClient {
         });
     }
 
+    sendImage(imageUrl, nsfw) {
+        this._send({
+            'type': 'image',
+            'user id': Settings.userId,
+            'image url': imageUrl,
+            'nsfw': nsfw,
+            'room id': Settings.activeRoom
+        });
+    }
+
     createRoom(roomName) {
         this._send({
             'type': 'room action',
+            'user id': Settings.userId,
             'action': 'create',
             'owner id': Settings.userId,
             'room name': roomName
@@ -45,6 +60,7 @@ class BestEvarChatClient {
     deleteRoom(roomId) {
         this._send({
             'type': 'room action',
+            'user id': Settings.userId,
             'action': 'delete',
             'room id': roomId
         });
@@ -53,6 +69,7 @@ class BestEvarChatClient {
     leaveRoom(roomId) {
         this._send({
             'type': 'room action',
+            'user id': Settings.userId,
             'action': 'leave',
             'room id': roomId
         });
@@ -61,6 +78,7 @@ class BestEvarChatClient {
     sendInvitations(roomId, userIds) {
         this._send({
             'type': 'room action',
+            'user id': Settings.userId,
             'action': 'invite',
             'room id': roomId,
             'user ids': userIds
@@ -70,6 +88,7 @@ class BestEvarChatClient {
     joinRoom(roomId) {
         this._send({
             'type': 'room action',
+            'user id': Settings.userId,
             'action': 'join',
             'room id': roomId
         });

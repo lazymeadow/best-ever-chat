@@ -1,9 +1,11 @@
 import json
 from time import time
 
+from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
+from tornado.escape import xhtml_escape
 
-from chat.lib import log_from_client
+from chat.lib import log_from_client, retrieve_image_in_s3
 
 CLIENT_VERSION = '3.0'
 
@@ -15,6 +17,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
     _user_list = None
     _room_list = None
     _message_queue = None
+    _bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
     def on_open(self, info):
         print 'opened'
@@ -57,8 +60,19 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self._send_auth_fail()
 
+        if json_message['type'] == 'client log':
+            log_from_client(json_message['level'], json_message['log'], self.current_user['id'],
+                            self.session.session_id)
+            return
+
+        if json_message['user id'] != self.current_user['id']:
+            return
+
         if json_message['type'] == 'chat message':
             self._broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room id'])
+        if json_message['type'] == 'image':
+            self._broadcast_image(json_message['user id'], json_message['image url'], json_message['room id'],
+                                  json_message['nsfw'])
         elif json_message['type'] == 'room action':
             if json_message['action'] == 'create':
                 self._create_room(json_message['room name'])
@@ -75,9 +89,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')
             elif json_message['client version'] > CLIENT_VERSION:
                 self._send_alert('How did you mess up a perfectly good client version number?', 'permanent')
-        elif json_message['type'] == 'client log':
-            log_from_client(json_message['level'], json_message['log'], self.current_user['id'],
-                            self.session.session_id)
 
     def on_close(self):
         print 'close'
@@ -111,15 +122,39 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :param room_id: room receiving the message
         """
         user = self._user_list.get_user(user_id)
-        # send the unfiltered message
+        # send the message
         new_message = {'username': user['username'],
                        'color': user['color'],
                        'message': message,
                        'time': time(),
                        'room id': room_id}
         self.broadcast(self._room_list.get_room_participants(room_id), {'type': 'chat message', 'data': new_message})
-        # save unfiltered message in history
+        # save message in history
         self._room_list.add_message_to_history(room_id, new_message.copy())
+
+    def _broadcast_image(self, user_id, image_url, room_id, nsfw_flag=False):
+        """
+        Broadcast an image message to the given room. Stores the image in the s3 bucket, if available, setting the img
+        tag's src to the cache. If s3 is unavailable, the img src is the original url. Images are wrapping in an a tag
+        with the original url as the href.
+        :param user_id: user sending the message
+        :param image_url: url of the image
+        :param room_id: room receiving the message
+        :param nsfw_flag: true if image is nsfw
+        """
+        image_src_url = retrieve_image_in_s3(image_url, self._bucket)
+        user = self._user_list.get_user(user_id)
+
+        new_message = {'username': user['username'],
+                       'color': user['color'],
+                       'image url': xhtml_escape(image_url),
+                       'image src url': xhtml_escape(image_src_url),
+                       'nsfw flag': nsfw_flag,
+                       'time': time(),
+                       'room id': room_id}
+        self.broadcast(self._room_list.get_room_participants(room_id), {'type': 'chat message',
+                                                                        'data': new_message})
+        self._room_list.add_message_to_history(room_id, new_message)
 
     def _broadcast_user_list(self, participant_list=None):
         self.broadcast(participant_list or self._user_list.get_all_participants(),

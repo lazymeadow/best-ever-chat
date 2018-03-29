@@ -18,7 +18,7 @@ $(function () {
         $('.popout-menu').toggle();
     });
 
-    $('#add-room').click((e) => {
+    $('#add-room').click(() => {
         new Modal({
             content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
             buttonText: 'Create Room',
@@ -59,6 +59,22 @@ $(function () {
             }
         });
 
+    const image_chat = event => {
+        client.sendImage($('#image_url').val(), $('#image_nsfw').is(':checked'));
+        $('.popout-option').hide();
+        $('#image_url').val('');
+    };
+
+    $('#image_chat_button').click(image_chat);
+
+    $('#image_url').keyup(event => {
+        if (event.which === 13) {
+            image_chat();
+        }
+    });
+
+
+
     twemoji.parse(document.body, {
         base: '/static/',
         folder: 'emojione/assets/',
@@ -70,7 +86,7 @@ $(function () {
     $('.my-username').text(Settings.username);
 
     window.autoScroll = true;
-    $('#log').scroll((event) => {
+    $('#log').scroll(event => {
         const log = $(event.target);
         const scrollThreshold = 100;  // approximately five lines
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
