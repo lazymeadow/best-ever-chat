@@ -362,6 +362,8 @@ body {
           border-left: 1px solid lightgrey;
           position: relative;
           cursor: pointer;
+          background-color: @lightest;
+          color: @dark;
 
           & > .fa {
             font-size: 1.5em;
@@ -373,7 +375,7 @@ body {
             right: 0;
             background: white;
             padding: 5px;
-            border: 1px solid lightgrey;
+            border: 1px solid @lightBorderColor;
             z-index: 101;
             margin-right: 3px;
             width: max-content;
@@ -391,7 +393,7 @@ body {
               height: 0;
               border-left: 10px solid transparent;
               border-right: 10px solid transparent;
-              border-top: 10px solid lightgrey;
+              border-top: 10px solid @lightBorderColor;
               position: absolute;
               bottom: -10px;
               right: 10px;
@@ -443,6 +445,8 @@ body {
   input {
     font: 1em 'Amiko', sans-serif;
     padding: 3px 5px;
+    border: 1px solid @lightBorderColor;
+
     &[type=checkbox] {
       display: none;
     }
