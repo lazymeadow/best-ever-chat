@@ -43,7 +43,7 @@ def is_image_url(text):
 def preprocess_message(message, emoji_processor):
     message_text = message
     # remove any raw script, audio, or video tags before continuing
-    if message.find('<script>') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0:
+    if message.find('<script>') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find('<iframe'):
         message_text = xhtml_escape(message)
 
     # first linkify
