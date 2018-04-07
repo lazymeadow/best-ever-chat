@@ -7,6 +7,7 @@ import string
 
 import tornado.web
 import torndb
+from tornado.ioloop import IOLoop
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler
@@ -66,7 +67,6 @@ if __name__ == "__main__":
                    (r'/static/(.*)', {'path': settings['static_path']}),
                    ('/validate_username', ValidateHandler)
                ] + new_chat_router.urls
-    # ] + chat_router.urls
 
     http_server = Application(handlers, settings)
 
@@ -75,4 +75,4 @@ if __name__ == "__main__":
     new_chat_router.get_connection_class().http_server = http_server
 
     logging.info('Server starting.')
-    tornado.ioloop.IOLoop.instance().start()
+    IOLoop.instance().start()

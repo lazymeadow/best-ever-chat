@@ -318,7 +318,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
                                      'data': new_message})
 
 
-new_chat_router = SockJSRouter(NewMultiRoomChatConnection, '/newchat', {
+new_chat_router = SockJSRouter(NewMultiRoomChatConnection, prefix='/newchat', user_settings={
+    'sockjs_url': 'https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js',
     'disabled_transports': [
         'xhr',
         'xhr_streaming',

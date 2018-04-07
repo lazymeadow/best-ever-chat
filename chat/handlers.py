@@ -1,5 +1,6 @@
 import json
 from email.mime.text import MIMEText
+from random import randint
 from smtplib import SMTP
 
 import bcrypt
@@ -7,7 +8,6 @@ import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
 
-from chat.chat_core import users
 from chat.custom_render import BaseHandler, executor
 
 class PageHandler(BaseHandler):
@@ -32,10 +32,10 @@ class ValidateHandler(BaseHandler):
         if new_name is None or new_name == '':
             self.write(json.dumps(False))
             return
-        if new_name == self.get_argument('username', default=None, strip=True):
+        if new_name == self.get_argument('username', default=None, strip=True) or new_name == self.get_argument('id', default=None, strip=True):
             self.write(json.dumps(True))
             return
-        self.write(json.dumps(new_name not in users.keys()))
+        self.write(json.dumps(self.user_list.is_valid_username(new_name)))
 
 
 class AuthCreateHandler(BaseHandler):
@@ -44,21 +44,25 @@ class AuthCreateHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        if not self.check_unique_user(self.get_argument("parasite")):
-            self.render2("create_user.html")
+        parasite = self.get_argument("parasite")
+
+        if self.user_list.is_existing_user(parasite):
+            self.render2("create_user.html", error="This name is taken.")
+            return
         if self.get_argument("password") == self.get_argument("password2"):
             hashed_password = yield executor.submit(
                 bcrypt.hashpw, escape.utf8(self.get_argument("password")),
                 bcrypt.gensalt())
-            parasite_id = self.db.execute(
-                "INSERT INTO parasite (id, email, password, username) "
-                "VALUES (%s, %s, %s, %s)",
-                self.get_argument("parasite"), self.get_argument("email"), hashed_password,
-                self.get_argument("parasite"))
-            self.set_secure_cookie("parasite", str(parasite_id), expires_days=182)
+            self.db.execute(
+                "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, %s)",
+                parasite, self.get_argument("email"), hashed_password, parasite)
+            self.user_list.load_user(parasite)
+            if not self.user_list.is_valid_username(parasite):
+                self.user_list.update_username(parasite, '{}_{}'.format(parasite, randint(1000, 9999)))
+            self.set_secure_cookie("parasite", parasite, expires_days=182)
             self.redirect(self.get_argument("next", "/"))
         else:
-            self.render2("create_user.html", error="incorrect password")
+            self.render2("create_user.html", error="Incorrect password.")
 
 
 class AuthLoginHandler(BaseHandler):

@@ -24,6 +24,9 @@ class UserList:
     def is_existing_user(self, user_id):
         return user_id in self._user_map.keys()
 
+    def is_valid_username(self, user_name):
+        return (user_name not in self._user_map.keys()) and (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()])
+
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
 
@@ -48,6 +51,15 @@ class UserList:
         else:
             self._user_map[user['id']].update(user)
 
+    def load_user(self, user_id):
+        user = self.db.get("SELECT id, username, color, faction FROM parasite WHERE id = %s", user_id)
+        if user['id'] not in self._user_map.keys():
+            new_user = self._user_defaults.copy()
+            new_user.update(user)
+            self._user_map[user.id] = new_user
+        else:
+            self._user_map[user['id']].update(user)
+
     def get_user_map(self):
         # we need to return a map that is filtered down to the necessary information for a user list
         return self._user_map.copy()
@@ -68,6 +80,10 @@ class UserList:
                         self._user_map[user_id]['status'] = status
             else:
                 self._user_map[user_id]['status'] = status
+
+    def update_username(self, user_id, new_username):
+        self._user_map[user_id]['username'] = new_username
+        self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
 
     def add_participant(self, participant):
         self._participants.add(participant)

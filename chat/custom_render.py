@@ -32,13 +32,14 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
     def db(self):
         return self.application.db
 
+    @property
+    def user_list(self):
+        return self.application.user_list
+
     def get_current_user(self):
         user_id = self.get_secure_cookie("parasite")
         if not user_id: return None
         return self.db.get("SELECT * FROM parasite WHERE id = %s", str(user_id))
-
-    def check_unique_user(self, user_id):
-        return self.db.get("SELECT id FROM parasite LIMIT 1") is None
 
     """
     RequestHandler already has a `render()` method. I'm writing another
