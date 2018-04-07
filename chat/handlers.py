@@ -156,6 +156,18 @@ class AuthPasswordResetRequestHandler(BaseHandler):
                      message="A password reset email has been sent for {}. Check your spam folder!".format(parasite))
 
 
+class Chat404Handler(BaseHandler):
+    def prepare(self):
+        self.set_status(404)
+        self.render2("404.html")
+
+    def get(self):
+        pass
+
+    def post(self):
+        pass
+
+
 def send_email(email, user, token):
     link = 'https://bestevarchat.com/reset_password?token=' + token
     # Create a text/plain message
