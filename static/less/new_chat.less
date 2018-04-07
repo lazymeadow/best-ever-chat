@@ -48,7 +48,7 @@ body {
     }
   }
 
-  & > div:not(#alerts) {
+  & > div:not(#alerts):not(.login) {
     height: 100%;
     display: flex;
     flex-flow: column nowrap;
@@ -273,7 +273,7 @@ body {
 
       & #log {
         flex: 1 0 auto;
-        border-bottom: 1px solid lightgrey;
+        border-bottom: 1px solid @lightBorderColor;
         overflow: auto;
         height: ~"calc(100% - 45px)";
         padding: 5px;
@@ -448,11 +448,37 @@ body {
     }
   }
 
-  button {
+  button, .button {
+    font: 1em 'Amiko', sans-serif;
     border: none;
     background-color: @backgroundColor;
     color: white;
-    padding: 3px 5px;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: darken(@backgroundColor, 10%);
+    }
+
+    &.secondary {
+      background-color: @lightest;
+      border: solid 1px @lightBorderColor;
+      color: @backgroundColor;
+
+      &:hover {
+        background: lighten(@lightBackgroundColor, 10%);
+      }
+    }
+
+    &.cancel {
+      background: lighten(@lightBackgroundColor, 10%);
+      color: darken(@lightBackgroundColor, 25%);
+
+      &:hover {
+        background: @lightBackgroundColor;
+        color: darken(@lightBackgroundColor, 35%);
+      }
+    }
   }
 
   .text-danger {

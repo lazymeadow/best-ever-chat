@@ -7,10 +7,12 @@
 @lightButtonColor: #C6E2EB;
 @overlayColor: fade(@dark, 75%);
 @borderColor: @dark;
+@lightBorderColor: lightgrey;
 @backgroundColor: #25687D;
 @lightBackgroundColor: #C9C9C9;
 @lightest: #FCFCFC;
 @buttonHoverColor: darken(@lightButtonColor, 15%);
+@errorRed: #CC0000;
 @headerHeight: 30px;
 @tabHeight: 30px;
 @chatBarHeight: 45px;
@@ -36,36 +38,90 @@ body {
 }
 
 div.login {
-  text-align: right;
   width: 500px;
-  padding: 5px;
+  padding: 25px;
   margin-left: auto;
   margin-right: auto;
   background: @lightest;
-  border: solid 1px @borderColor;
-  border-radius: 3px;
-  min-height: 100px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  align-self: center;
+  align-items: center;
+
+  h1 {
+    font-size: 2em;
+    margin: 0;
+    font-weight: normal;
+  }
 
   a {
-    float: left;
-    padding: 10px;
+    font-size: .75em;
+    color: darken(@lightBackgroundColor, 25%);
   }
 
   label {
-    min-width: 150px;
+    flex: 0 0 auto;
+    align-self: center;
+    margin-right: 10px;
+
+    &.check-box {
+      margin-right: 0;
+      margin-left: 0;
+    }
   }
 
   button {
-    min-width: 100px;
+    min-width: 110px;
+    margin-top: 10px;
 
     &.primary {
-      float: right;
+      justify-self: end;
     }
+  }
 
-    &.secondary {
-      float: left;
+  input {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    border: 1px solid @lightBorderColor;
+    width: 250px;
+  }
+
+  .form-group {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+
+    &.check-box {
+      flex-direction: row;
+
+      & label {
+        font-size: .9em;
+      }
     }
+  }
+  .form-element {
+    flex: 1 0 auto;
+    display: flex;
+    width: 350px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  & .message {
+    flex: 1 1 auto;
+    padding-top: 10px;
+    min-height: 19px;
+    text-align: center;
+
+    &.error {
+      color: @errorRed;
+    }
+  }
+
+  .flex-spacer {
+    flex: 1 0 auto;
   }
 }
 /*

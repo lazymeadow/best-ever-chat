@@ -41,11 +41,6 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
         if not user_id: return None
         return self.db.get("SELECT * FROM parasite WHERE id = %s", str(user_id))
 
-    """
-    RequestHandler already has a `render()` method. I'm writing another
-    method `render2()` and keeping the API almost same.
-    """
-
     def render2(self, template_name, **kwargs):
         """
         This is for making some extra context variables available to

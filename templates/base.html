@@ -2,11 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>{{ title }}</title>
+    <title>{{ title }} | Best Evar Chat 3.0</title>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous"></script>
+
+    <script type="application/javascript">
+        const new_location = "{{ location }}";
+        if (new_location) {
+            history.replaceState('', '', new_location);
+        }
+    </script>
 
     {% block includes %}
     {% endblock %}
@@ -16,9 +23,9 @@
     <link rel="stylesheet" href="static/chat.css" type="text/css"/>
 </head>
 <body>
-    <div class="content">
-        {% block content %}
-        {% endblock %}
-    </div>
+<div class="content">
+    {% block content %}
+    {% endblock %}
+</div>
 </body>
 </html>

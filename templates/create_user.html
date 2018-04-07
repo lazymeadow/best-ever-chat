@@ -1,38 +1,43 @@
 {% extends "base.html" %}
 
-{% set title = 'Register for Best evar Chat 2.0!' %}
+{% set title = 'Register' %}
 
 {% block content %}
-
-    {% if error %}
-        <span style="color: red">Error: {{ error }}</span><p>
-    {% endif %}
-    <div class="login">
-        <form action="/register" method="POST">
-            <div class="form-group">
-                <div class="form-element">
-                    <label for="parasite">Username</label>
-                    <input type=text name="parasite" id="parasite"/>
-                </div>
-                <div class="form-element">
-                    <label for="email">Email</label>
-                    <input type=email name="email" id="email"/>
-                </div>
-                <div class="form-element">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password"/>
-                </div>
-                <div class="form-element">
-                    <label for="password2">Confirm Password</label>
-                    <input type="password" name="password2" id="password2"/>
-                </div>
-                {{ xsrf_form_html() }}
-            </div>
-            <div>
-                <button class="primary" type="submit">Register</button>
-                <a href="/login">I already did this! Go login</a>
-            </div>
-        </form>
+<div class="login">
+    <h1>Register</h1>
+    <div class="message {{'error' if error}}">
+        {% if error %}
+        {{error}}
+        {% elif message %}
+        {{message}}
+        {% endif %}
     </div>
+    <form action="/register" method="POST">
+        <div class="form-group">
+            <div class="form-element">
+                <label for="parasite">Username</label>
+                <input type=text name="parasite" id="parasite" required value="{{username}}"/>
+            </div>
+            <div class="form-element">
+                <label for="email">Email</label>
+                <input type=email name="email" id="email" required value="{{email}}"/>
+            </div>
+            <div class="form-element">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required/>
+            </div>
+            <div class="form-element">
+                <label for="password2">Confirm</label>
+                <input type="password" name="password2" id="password2" required/>
+            </div>
+            {{ xsrf_form_html() }}
+            <div class="form-element">
+                <div class="flex-spacer"></div>
+                <button class="primary" type="submit">Register</button>
+            </div>
+        </div>
+        <a href="/login">&lt; I already did this!</a>
+    </form>
+</div>
 
 {% endblock %}
