@@ -188,6 +188,9 @@ def send_email(email, user, token):
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
-    s = SMTP('localhost')
-    s.sendmail(me, you, msg.as_string())
-    s.quit()
+    try:
+        s = SMTP('localhost')
+        s.sendmail(me, you, msg.as_string())
+        s.quit()
+    except:
+        pass
