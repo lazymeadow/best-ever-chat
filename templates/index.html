@@ -45,7 +45,7 @@
         <div class="button">
             😃
             <div class="popout-option">
-                <table>
+                <table id="emoji_list">
                     {% for emojis in emoji_list | batch(12) %}
                     <tr>
                         {% for emoji in emojis %}

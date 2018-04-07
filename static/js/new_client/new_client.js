@@ -73,14 +73,18 @@ $(function () {
         }
     });
 
-
-
     twemoji.parse(document.body, {
         base: '/static/',
         folder: 'emojione/assets/',
         attributes: function (icon, variant) {
             return {title: icon + variant};
         }
+    });
+
+    $('#emoji_list .emoji').click(event => {
+        var chatText = chatBar.children('input');
+        chatText.val(chatText.val() + $(event.target).prop('alt'));
+        $('.popout-option').hide();
     });
 
     $('.my-username').text(Settings.username);
