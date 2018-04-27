@@ -107,6 +107,9 @@ class RoomList:
         self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) ON DUPLICATE KEY UPDATE in_room=FALSE",
                         room_id, user_id)
 
+    def add_user_to_member_list(self, room_id, user_id):
+        self._room_map[room_id]['members'].add(user_id)
+
     def add_user_to_room(self, room_id, user_id):
         if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys():
             return None

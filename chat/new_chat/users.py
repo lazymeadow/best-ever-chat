@@ -54,6 +54,7 @@ class UserList:
     def load_user(self, user_id):
         user = self.db.get("SELECT id, username, color, faction FROM parasite WHERE id = %s", user_id)
         if user['id'] not in self._user_map.keys():
+            # this means this is a probably NEW user, created since the server was started.
             new_user = self._user_defaults.copy()
             new_user.update(user)
             self._user_map[user.id] = new_user

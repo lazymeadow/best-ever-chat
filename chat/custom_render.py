@@ -36,6 +36,10 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
     def user_list(self):
         return self.application.user_list
 
+    @property
+    def room_list(self):
+        return self.application.room_list
+
     def get_current_user(self):
         user_id = self.get_secure_cookie("parasite")
         if not user_id: return None

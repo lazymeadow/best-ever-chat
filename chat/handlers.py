@@ -62,6 +62,7 @@ class AuthCreateHandler(BaseHandler):
                 "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, %s)",
                 parasite, self.get_argument("email"), hashed_password, username)
             self.user_list.load_user(parasite)
+            self.room_list.add_user_to_member_list(0, parasite)
             self.set_secure_cookie("parasite", parasite, expires_days=182)
             self.render2("login.html", username=parasite, location='login')
         else:
