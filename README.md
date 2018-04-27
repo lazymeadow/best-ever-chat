@@ -26,7 +26,7 @@ permissions to the `bestchat` schema: DELETE, EXECUTE, INSERT, SELECT, SHOW, VIE
 
 ## To run:
 1. `lessc ./static/less/chat.less ./static/chat.css --clean-css="--s1 --advanced --compatibility=ie8"`
-2.`babel static\js\new_client --source-maps inline` -- this needs verified. also for a jetbrains filewatcher do `static\js\new_client --source-maps inline` with output a file from std out 
+2. `babel static\js\new_client --source-maps inline` -- this needs verified. also for a jetbrains filewatcher do `static\js\new_client --source-maps inline` with output a file from std out
 3. `python tornado_chat.py`
 
 
