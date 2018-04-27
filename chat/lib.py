@@ -3,6 +3,7 @@ import re
 from hashlib import sha256
 from urlparse import urlparse
 
+import os
 from requests import get
 from tornado.escape import linkify, to_unicode, xhtml_escape
 
@@ -12,6 +13,13 @@ MAX_DEQUE_LENGTH = 75
 
 client_log = logging.getLogger('bestevarchat.client')
 client_log.setLevel(logging.DEBUG)
+
+if not os.path.exists('log'):
+    os.mkdir('log')
+
+    # with open('log/client.log') as f:
+    #     f.close()
+
 file_handler = logging.FileHandler('log/client.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
 file_handler.setFormatter(formatter)
