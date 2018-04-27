@@ -13,7 +13,7 @@ $(function () {
         $('.popout-menu').hide();
     });
 
-    $($('#current-user').children().last()).click(() => {
+    $($('#main_menu')).click(() => {
         overlay.show();
         $('.popout-menu').toggle();
     });
@@ -97,5 +97,6 @@ $(function () {
     });
 
     window.client = new BestEvarChatClient();
+    new MainMenu(client);
 });
 
