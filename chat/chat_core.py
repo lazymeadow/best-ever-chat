@@ -76,6 +76,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if len(current_rooms) != 0:
             self.joined_rooms.extend(
                 filter(lambda x: x not in self.joined_rooms, map(lambda x: x['room_id'], current_rooms)))
+        self.current_user.username = to_unicode(self.current_user.username)
         self.username = self.current_user.username
         for room in self.joined_rooms:
             if room not in rooms.keys():
@@ -474,7 +475,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
                 self.broadcast_from_server(self.participants.difference(self_set),
                                            user + " is now " + self.username, rooms_to_send=self.joined_rooms)
-                self.broadcast_from_server(updating_participants, "Name changed to {}.".format(self.username),
+                self.broadcast_from_server(updating_participants, "Name changed to " + self.username + ".",
                                            message_type='update', data={'username': self.username})
                 should_broadcast_users = True
 
@@ -482,7 +483,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.broadcast_user_list()
 
         self.http_server.db.execute(
-            'UPDATE parasite SET color=%s, username=%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s',
+            to_unicode('UPDATE parasite SET color=%s, username=_utf8mb4%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s'),
             self.current_user.color, self.current_user.username, self.current_user.sound,
             self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user['id'])
 
