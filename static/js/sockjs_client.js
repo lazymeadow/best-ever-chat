@@ -197,7 +197,7 @@ function connect() {
             }
             if (type === 'information') {
                 if (!Cookies.get('info_read')) {
-                    $('#information_content').html(data.message);
+                    changeTab('information', 1);
                     toggleModal('information');
                 }
             }

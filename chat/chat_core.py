@@ -1,3 +1,4 @@
+# coding=utf-8
 import json
 import time
 from collections import deque
@@ -119,6 +120,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         self.broadcast_user_list()
         self.send_from_server('Connection successful. Type /help or /h for available commands.')
+        self.send({'type': 'information'})
 
     def on_message(self, message):
         """
