@@ -431,13 +431,16 @@ function updateUserList() {
         userDiv.prepend(activeIcon);
         userList.append(userDiv);
     });
+    parse_emojis(userList[0]);
 }
 
 function showUsername() {
     var username = Cookies.get("username");
+    var usernameDisplay = $("#username_display");
     if (username) {
-        $("#username_display").text(username + ":");
+        usernameDisplay.text(username + ":");
         $("#set_name").val(username);
+        parse_emojis(usernameDisplay[0]);
     }
 }
 
