@@ -1,4 +1,4 @@
-var client_version = '2.0.1';
+var client_version = '2.0.2';
 var HOST = 'localhost:6969';
 var DEFAULT_TITLE = "Best evar chat 2.0!";
 
