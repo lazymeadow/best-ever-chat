@@ -76,8 +76,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if len(current_rooms) != 0:
             self.joined_rooms.extend(
                 filter(lambda x: x not in self.joined_rooms, map(lambda x: x['room_id'], current_rooms)))
-        self.current_user.username = to_unicode(self.current_user.username)
-        self.username = self.current_user.username
+        self.username = self.current_user['username']
         for room in self.joined_rooms:
             if room not in rooms.keys():
                 rooms[room] = self.http_server.db.get("SELECT * FROM rooms WHERE id = %s", room)
@@ -248,9 +247,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             room_participants = rooms[room_id]['participants']
             room_users = {}
             for user_key in [x.username for x in list(room_participants)]:
-                room_users[user_key] = users[user_key].copy()
-                room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
-                room_users[user_key].pop('private_history')
+                if user_key in users.keys():
+                    room_users[user_key] = users[user_key].copy()
+                    room_users[user_key]['typing'] = users[user_key]['typing'][room_id]
+                    room_users[user_key].pop('private_history')
             self.broadcast(room_participants, {'type': 'userList', 'data': {'users': room_users, 'room': room_id}})
         else:
             for room in self.joined_rooms:
@@ -258,9 +258,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 room_participants = rooms[room]['participants']
                 room_users = {}
                 for user_key in [x.username for x in list(room_participants)]:
-                    room_users[user_key] = users[user_key].copy()
-                    room_users[user_key]['typing'] = users[user_key]['typing'][room]
-                    room_users[user_key].pop('private_history')
+                    if user_key in users.keys():
+                        room_users[user_key] = users[user_key].copy()
+                        room_users[user_key]['typing'] = users[user_key]['typing'][room]
+                        room_users[user_key].pop('private_history')
                 self.broadcast(self.participants, {'type': 'userList', 'data': {'users': room_users, 'room': room}})
 
     def broadcast_private_message(self, recipient, recipient_username, message):
@@ -467,25 +468,25 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.send_from_server('Name already taken.')
             else:
                 prev_user_data = users.pop(self.username, {})
-                self.username = settings['newUser']
-                self.current_user.username = self.username
+                self.username = to_unicode(settings['newUser'])
+                self.current_user['username'] = self.username
                 users[self.username] = prev_user_data
 
                 self_set = {self}
 
-                self.broadcast_from_server(self.participants.difference(self_set),
-                                           user + " is now " + self.username, rooms_to_send=self.joined_rooms)
                 self.broadcast_from_server(updating_participants, "Name changed to " + self.username + ".",
                                            message_type='update', data={'username': self.username})
+                self.broadcast_from_server(self.participants.difference(self_set),
+                                           user + " is now " + self.username, rooms_to_send=self.joined_rooms)
                 should_broadcast_users = True
-
-        if should_broadcast_users:
-            self.broadcast_user_list()
 
         self.http_server.db.execute(
             to_unicode('UPDATE parasite SET color=%s, username=_utf8mb4%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s'),
-            self.current_user.color, self.current_user.username, self.current_user.sound,
+            self.current_user.color, self.current_user['username'], self.current_user.sound,
             self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user['id'])
+
+        if should_broadcast_users:
+            self.broadcast_user_list()
 
     def update_user_status(self, json_status):
         """
@@ -503,7 +504,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
         if 'idle' in json_status:
             idleStatus = json_status['idle']
-            if idleStatus != users[self.username]['idle']:
+            if self.username in users.keys() and idleStatus != users[self.username]['idle']:
                 # get all user participants
                 updating_participants = get_matching_participants(self.participants, self.current_user['id'])
                 if idleStatus:
@@ -533,8 +534,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             else:
                 typing_status = json_status['typing']
 
-            if room_id in users[self.username]['typing'] and users[self.username]['typing'][
-                room_id] is not typing_status:
+            if self.username in users.keys() and room_id in users[self.username]['typing'] \
+                    and users[self.username]['typing'][room_id] is not typing_status:
                 users[self.username]['typing'][room_id] = typing_status
                 self.broadcast_user_list(room_id=room_id)
 
