@@ -193,12 +193,13 @@ function connect() {
                 }
             }
             if (type === 'versionUpdate') {
-                Cookies.remove('info_read');
+                localStorage.removeItem('info_read');
             }
             if (type === 'information') {
-                if (!Cookies.get('info_read')) {
+                if (!localStorage.getItem('info_read')) {
                     changeTab('information', 1);
                     toggleModal('information');
+                    localStorage.setItem('info_read', true);
                 }
             }
             if (type === 'invitation') {
