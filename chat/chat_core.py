@@ -9,7 +9,7 @@ import sockjs.tornado
 import tornado.web
 from boto3 import resource
 from tornado import gen, ioloop
-from tornado.escape import xhtml_escape, linkify, to_unicode
+from tornado.escape import xhtml_escape, linkify, to_unicode, url_escape
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from chat.custom_render import executor
@@ -474,12 +474,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 self.current_user['username'] = self.username
                 users[self.username] = prev_user_data
 
-                self_set = {self}
-
                 self.broadcast_from_server(updating_participants, "Name changed to " + self.username + ".",
                                            message_type='update', data={'username': self.username})
-                self.broadcast_from_server(self.participants.difference(self_set),
+                self.broadcast_from_server(self.participants.difference(updating_participants),
                                            user + " is now " + self.username, rooms_to_send=self.joined_rooms)
+
                 should_broadcast_users = True
 
         self.http_server.db.execute(

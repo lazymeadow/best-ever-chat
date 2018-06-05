@@ -13,6 +13,14 @@ var rooms = {};
 var active_room = localStorage.getItem('active_room') || 0;
 
 $(document).ready(function () {
+    // move all the cookies sent from the server into localstorage for use during session
+    localStorage.setItem('username', Cookies.get('username'));
+    localStorage.setItem('email', Cookies.get('email'));
+    localStorage.setItem('color', Cookies.get('color'));
+    localStorage.setItem('faction', Cookies.get('faction'));
+    localStorage.setItem('sound_set', Cookies.get('sound_set'));
+    localStorage.setItem('sounds', Cookies.get('sounds'));
+
     window.document.title = getPageTitle();
     // initial hiding of elements
     $('#emoji-list').hide();
@@ -74,11 +82,11 @@ $(document).ready(function () {
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
     });
 
-    $('#email').val(Cookies.get('email'));
-    $('input:radio[name=faction]').filter('[value={}]'.replace('{}', Cookies.get('faction'))).prop('checked', true);
+    $('#email').val(localStorage.getItem('email'));
+    $('input:radio[name=faction]').filter('[value={}]'.replace('{}', localStorage.getItem('faction'))).prop('checked', true);
 
     colorPicker = bestColorPicker($('#color'));
-    colorPicker.setColor(Cookies.get('color'));
+    colorPicker.setColor(localStorage.getItem('color'));
 
     // local settings
     var fontSize = localStorage.getItem('fontSize') || '14px';
@@ -87,7 +95,7 @@ $(document).ready(function () {
     $('#tab_title').val(getPageTitle());
     $('input:radio[name=timestamps]').filter('[value={}]'.replace('{}', localStorage.getItem('timestamps'))).prop('checked', true);
     $('#hidden_images').prop('checked', JSON.parse(localStorage.getItem('hideImages') || 'true'));
-    $('#profamity_filter').prop('checked', JSON.parse(Cookies.get('profamity_filter') || 'false'));
+    $('#profamity_filter').prop('checked', JSON.parse(localStorage.getItem('profamity_filter') || 'false'));
 
     showUsername();
 
@@ -103,7 +111,7 @@ function logout() {
 }
 
 function connect() {
-    if (Cookies.get('username')) {
+    if (localStorage.getItem('username')) {
 
         sock = new SockJS('http://' + HOST + '/chat/');
 
@@ -127,23 +135,23 @@ function connect() {
             if (type === 'update') {
                 for (var updateKey in data.data) {
                     if (data.data.hasOwnProperty(updateKey)) {
-                        if (Cookies.get(updateKey) !== data.data[updateKey]) {
-                            Cookies.set(updateKey, data.data[updateKey]);
+                        if (localStorage.getItem(updateKey) !== data.data[updateKey]) {
+                            localStorage.setItem(updateKey, data.data[updateKey]);
                             if (updateKey === 'email') {
                                 $('#email').val(data.data[updateKey]);
                             }
                             if (updateKey === 'faction') {
                                 $('input:radio[name=faction]').filter('[value={}]'.replace('{}',
-                                    Cookies.get('faction'))).prop('checked', true);
+                                    localStorage.getItem('faction'))).prop('checked', true);
                             }
                             if (updateKey === 'username') {
                                 showUsername();
                             }
                             if (updateKey === 'sounds') {
-                                $('#volume-slider').val(Cookies.get('sounds'));
+                                $('#volume-slider').val(localStorage.getItem('sounds'));
                             }
                             if (updateKey === 'color') {
-                                colorPicker.setColor(Cookies.get('color'));
+                                colorPicker.setColor(localStorage.getItem('color'));
                             }
                             if (updateKey === 'sound_set') {
                                 chooseSoundSet();
@@ -213,7 +221,7 @@ function connect() {
                         sock.send(JSON.stringify({
                             'type': 'joinRoom',
                             'room_id': data['room_id'],
-                            'user': Cookies.get('username')
+                            'user': localStorage.getItem('username')
                         }));
                     },
                     submitText: 'Yes!',
@@ -268,7 +276,7 @@ function connect() {
                             print_message(data);
                         }
                     }
-                    if (data.user !== Cookies.get('username')) {
+                    if (data.user !== localStorage.getItem('username')) {
                         updateMessageCount();
                     }
                 }
@@ -364,7 +372,7 @@ function submitChat(event) {
         var chatText = $('#chat_text');
         sock.send(JSON.stringify({
             'type': 'chatMessage',
-            'user': Cookies.get('username'),
+            'user': localStorage.getItem('username'),
             'message': chatText.val(),
             'room': active_room
         }));
@@ -397,7 +405,7 @@ function showImageInput() {
             if (imgUrl) {
                 sock.send(JSON.stringify({
                     'type': 'imageMessage',
-                    'user': Cookies.get('username'),
+                    'user': localStorage.getItem('username'),
                     'url': imgUrl,
                     'nsfw_flag': $('#nsfw_flag').is(':checked'),
                     'room': active_room
@@ -436,7 +444,7 @@ function updateUserList() {
 }
 
 function showUsername() {
-    var username = Cookies.get("username");
+    var username = localStorage.getItem("username");
     var usernameDisplay = $("#username_display");
     if (username) {
         usernameDisplay.text(username + ":");
@@ -467,7 +475,7 @@ function createRoom() {
                     var eligibleUsers = rooms[0]['users'].map(function (user) {
                         return user['username'];
                     }).filter(function (element) {
-                        return element !== Cookies.get('username');
+                        return element !== localStorage.getItem('username');
                     });
 
                     if (eligibleUsers.length === 0)
@@ -497,7 +505,7 @@ function createRoom() {
             sock.send(JSON.stringify({
                 'type': 'newRoom',
                 'data': data,
-                'user': Cookies.get('username')
+                'user': localStorage.getItem('username')
             }));
         },
         submitText: 'Create it!'

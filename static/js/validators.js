@@ -11,7 +11,7 @@ var validation_settings = {
                 type: 'post',
                 data: {
                     username: function () {
-                        return Cookies.get('username');
+                        return localStorage.getItem('username');
                     },
                     _xsrf: function () {
                         return Cookies.get('_xsrf');
@@ -42,32 +42,32 @@ var validation_settings = {
         }
     },
     submitHandler: function () {
-        var username = Cookies.get("username");
+        var username = localStorage.getItem("username");
         var data = {};
         var setName = $("#set_name");
         if (setName.val() !== '' && setName.val() !== username) {
             data.newUser = setName.val();
-            data.oldUser = Cookies.get('username');
+            data.oldUser = localStorage.getItem('username');
         }
-        var color = Cookies.get("color");
+        var color = localStorage.getItem("color");
         if (colorPicker.val() !== color) {
             data.newColor = $("#color").val();
         }
         var sounds = $('#volume-slider').val();
-        if (sounds !== Cookies.get('sounds')) {
+        if (sounds !== localStorage.getItem('sounds')) {
             data.newSounds = sounds;
         }
         var soundSet = $('input[name="sounds-radios"]:checked').val();
-        if (soundSet !== Cookies.get('sound_set')) {
+        if (soundSet !== localStorage.getItem('sound_set')) {
             data.newSoundSet = soundSet;
         }
         var faction = $('input[name="faction"]:checked').val();
-        if (faction !== Cookies.get('faction')) {
+        if (faction !== localStorage.getItem('faction')) {
             data.newFaction = faction;
         }
 
         var email = $('#email').val();
-        if (email !== '' && email !== Cookies.get('email')) {
+        if (email !== '' && email !== localStorage.getItem('email')) {
             data.newEmail = email;
         }
 
