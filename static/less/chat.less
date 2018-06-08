@@ -259,13 +259,16 @@ div.login {
   }
 }
 
-input {
+input, textarea {
   font: 1em 'Amiko', sans-serif;
   padding: @elementPadding;
   background: @lightest;
-  height: 25px;
   border: @borderColor 1px solid;
   border-radius: 3px;
+}
+
+input {
+  height: 25px;
 }
 
 .primary-button() {
@@ -316,6 +319,7 @@ button, .button {
 
   .form-element {
     display: table-row;
+    vertical-align: inherit;
 
     div {
       display: table-cell;
@@ -327,7 +331,7 @@ button, .button {
     }
   }
 
-  label:not(.check-box), input {
+  label:not(.check-box), input, textarea {
     display: table-cell;
     margin: 10px 25px;
     &[type="radio"] {

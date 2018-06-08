@@ -132,7 +132,7 @@ function connect() {
             if (type === 'auth_fail') {
                 location.reload();
             }
-            if (type === 'update') {
+            else if (type === 'update') {
                 for (var updateKey in data.data) {
                     if (data.data.hasOwnProperty(updateKey)) {
                         if (localStorage.getItem(updateKey) !== data.data[updateKey]) {
@@ -165,7 +165,7 @@ function connect() {
                 }
                 print_message(data);
             }
-            if (type === 'userList') {
+            else if (type === 'userList') {
                 var room_num = data.room;
                 if (rooms.hasOwnProperty(room_num)) {
                     rooms[room_num].users = [];
@@ -200,17 +200,17 @@ function connect() {
                         updateUserList();
                 }
             }
-            if (type === 'versionUpdate') {
+            else if (type === 'versionUpdate') {
                 localStorage.removeItem('info_read');
             }
-            if (type === 'information') {
+            else if (type === 'information') {
                 if (!localStorage.getItem('info_read')) {
                     changeTab('information', 1);
                     toggleModal('information');
                     localStorage.setItem('info_read', true);
                 }
             }
-            if (type === 'invitation') {
+            else if (type === 'invitation') {
                 dynamic_modal({
                     modalId: 'invitation',
                     title: 'You\'ve been invited to a room!',
@@ -228,14 +228,14 @@ function connect() {
                     cancelText: 'No!'
                 });
             }
-            if (type === 'deleteRoom') {
+            else if (type === 'deleteRoom') {
                 var room_id = data.data.room_id;
                 removeTab(room_id);
                 delete rooms[room_id];
                 rooms[0].history.push(data);
                 print_message(data);
             }
-            if (type === 'room_data') {
+            else if (type === 'room_data') {
                 if (data.all)
                     $('#room_tabs .tab').remove();
                 for (var i = 0; i < data.rooms.length; i++) {
@@ -248,7 +248,7 @@ function connect() {
                 }
                 $('#room_' + active_room).click();
             }
-            if (type === 'chatMessage') {
+            else if (type === 'chatMessage') {
                 var roomData = data.room;
                 if ($.isArray(roomData) && data.user === 'Server') {
                     for (var roomNum in roomData) {
@@ -282,12 +282,18 @@ function connect() {
                 }
 
             }
-            if (type === 'privateMessage') {
+            else if (type === 'privateMessage') {
                 data.type = 'privateMessage';
                 for (var id in rooms) {
                     rooms[id].history.push(data);
                 }
                 print_private_message(data);
+            }
+            else if (type === 'bug') {
+                bugModal(title);
+            }
+            else if (type === 'feature') {
+                featureModal(title);
             }
         };
 
@@ -509,5 +515,63 @@ function createRoom() {
             }));
         },
         submitText: 'Create it!'
+    });
+}
+
+function bugModal(title) {
+    var title_input = $('<input>').val(title);
+    var body_input = $('<textarea>');
+    dynamic_modal({
+        modalId: 'bug',
+        title: 'Submit a bug',
+        content: $('<div>')
+            .append('You found a bug? Nice job!')
+            .append($('<div>').addClass('form-group')
+                .append($('<div>').addClass('form-element')
+                    .append($('<label>').text('Title:'))
+                    .append(title_input))
+                .append($('<div>').addClass('form-element')
+                    .append($('<label>').text('Description:'))
+                    .append(body_input))),
+        callback: function () {
+            sock.send(JSON.stringify({
+                type: 'bug',
+                data: {
+                    title: `[Best Evar Chat] ${title_input.val()} (submitted by ${Cookies.get('id')})`,
+                    body: body_input.val()
+                }
+            }));
+        },
+        submitText: 'Send it in!',
+        cancelText: 'Nevermind'
+    });
+}
+
+function featureModal(title) {
+    var title_input = $('<input>').val(title);
+    var body_input = $('<textarea>');
+    dynamic_modal({
+        modalId: 'feature',
+        title: "Feature request",
+        content: $('<div>')
+            .append('So, this chat isn\'t good enough for you? Fine! What do you want?')
+            .append($('<div>').addClass('form-group')
+                .append($('<div>').addClass('form-element')
+                    .append($('<label>').text('Title:'))
+                    .append(title_input))
+                .append($('<div>').addClass('form-element')
+                    .append($('<label>').text('Description:'))
+                    .append(body_input))),
+        callback: function () {
+            sock.send(JSON.stringify({
+                type: 'feature',
+                data: {
+                    title: `[Best Evar Chat] ${title_input.val()} (submitted by ${Cookies.get('id')})`,
+                    body: ''
+                }
+            }));
+        },
+        submitText: 'Make it better!',
+        cancelText: 'Just kidding'
     });
 }

@@ -8,7 +8,6 @@
         <div class="tabs" id="information_tabs">
             <div class="tab active" id="information_0" onclick="changeTab('information', 0)">Help me!</div>
             <div class="tab" id="information_1" onclick="changeTab('information', 1)">Recent Updates</div>
-            <div class="tab" id="information_2" onclick="changeTab('information', 2)">I found a bug!</div>
         </div>
 
         <div class="tab-content" id="information_0_content">
@@ -34,11 +33,6 @@
 
         <div class="tab-content" id="information_1_content">
             {% include 'info_log.html' %}
-        </div>
-
-        <div class="tab-content" id="information_2_content">
-            <p>Hey! You found a bug? Good job!</p>
-            <p><a href="https://github.com/lazymeadow/best-ever-chat/issues/new" target="_blank">Report it here!</a></p>
         </div>
     </div>
 

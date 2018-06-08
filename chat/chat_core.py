@@ -8,6 +8,8 @@ import bcrypt
 import sockjs.tornado
 import tornado.web
 from boto3 import resource
+from requests import post
+from requests.auth import HTTPBasicAuth
 from tornado import gen, ioloop
 from tornado.escape import xhtml_escape, linkify, to_unicode, url_escape
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -163,6 +165,10 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.leave_room(json_message['data'])
         elif json_message['type'] == 'deleteRoom':
             self.delete_room(json_message['data'])
+        elif json_message['type'] == 'bug':
+            self.create_bug(json_message['data'])
+        elif json_message['type'] == 'feature':
+            self.request_feature(json_message['data'])
 
     def on_close(self):
         """
@@ -482,7 +488,8 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                 should_broadcast_users = True
 
         self.http_server.db.execute(
-            to_unicode('UPDATE parasite SET color=%s, username=_utf8mb4%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s'),
+            to_unicode(
+                'UPDATE parasite SET color=%s, username=_utf8mb4%s, sound=%s, soundSet=%s, email=%s, faction=%s WHERE id=%s'),
             self.current_user.color, self.current_user['username'], self.current_user.sound,
             self.current_user.soundSet, self.current_user.email, self.current_user.faction, self.current_user['id'])
 
@@ -572,6 +579,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             /rt, /retell
             /r, /reply
             /h, /help
+            /b, /bug
         :param json_message: message to parse
         """
         message = json_message['message']
@@ -592,6 +600,15 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                   '<td>/retell</td>' +
                                   '<td>/rt</td>' +
                                   '<td>send a private message to the last person you sent one to</td>' +
+                                  '</tr>' +
+                                  '<tr>' +
+                                  '<td>/bug</td>' +
+                                  '<td>/b</td>' +
+                                  '<td>submit a bug on github</td>' +
+                                  '</tr>' +
+                                  '<td>/feature</td>' +
+                                  '<td>/f</td>' +
+                                  '<td>submit a feature request on github</td>' +
                                   '</tr>' +
                                   '</table>')
         elif command == 'tell' or command == 't':
@@ -633,6 +650,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
                                                    command_args)
             else:
                 self.send_from_server('You cannot reply if you have not received a tell.')
+
+        elif command == 'bug' or command == 'b':
+            self.send({'type': 'bug', 'data': {'title': command_args}})
+        elif command == 'feature' or command == 'f':
+            self.send({'type': 'feature', 'data': {'title': command_args}})
         else:
             self.send_from_server('Invalid command \'{}\''.format(command))
 
@@ -801,6 +823,36 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             [participant.joined_rooms.remove(room_id) for participant in rooms[room_id]['participants'] if
              room_id in participant.joined_rooms]
             rooms.pop(room_id, None)
+
+    def create_bug(self, data):
+        response = self._create_github_issue(data['title'], data['body'], 'bug')
+        if response.ok:
+            issue_json = response.json()
+            message = preprocess_message(
+                'Bug #{} created! View it at {}'.format(issue_json['number'], issue_json['url']), emoji)
+            self.send_from_server(message)
+        else:
+            self.send_from_server('Failed to create bug!' + response.json()['message'])
+
+    def request_feature(self, data):
+        response = self._create_github_issue(data['title'], data['body'], 'enhancement')
+        if response.ok:
+            issue_json = response.json()
+            message = preprocess_message(
+                'Feature #{} requested! View it at {}'.format(issue_json['number'], issue_json['url']), emoji)
+            self.send_from_server(message)
+        else:
+            self.send_from_server('Failed to create feature request!' + response.json()['message'])
+
+    def _create_github_issue(self, title, body, issue_type):
+        return post('https://api.github.com/repos/lazymeadow/best-ever-chat/issues',
+                    data=json.dumps({
+                        'title': title,
+                        'body': body,
+                        'labels': [issue_type]
+                    }),
+                    headers={'Accept': 'application/vnd.github.v3+json'},
+                    auth=('lazymeadow', 'aa50953ab214deea8bb33cfcd675a839a222e61b'))
 
 
 chat_router = sockjs.tornado.SockJSRouter(MultiRoomChatConnection, '/chat', {
