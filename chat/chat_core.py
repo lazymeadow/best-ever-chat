@@ -35,7 +35,7 @@ rooms = {
 emoji = Emoji()
 profamity_filter = ProfamityFilter()
 
-client_version = '2.0.2'
+client_version = '2.1.0'
 
 
 class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
