@@ -2,12 +2,18 @@ import logging
 from hashlib import sha256
 
 from requests import get
-from tornado.escape import linkify, to_unicode
+from tornado.escape import linkify, to_unicode, xhtml_escape
 
 
 def preprocess_message(message, emoji_processor):
+    message_text = message
+    # remove any raw script, audio, video, or iframe tags before continuing
+    if message.find('<script') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
+            '<iframe') >= 0:
+        message_text = xhtml_escape(message)
+
     # first linkify
-    message_text = linkify(to_unicode(message), extra_params='target="_blank"', require_protocol=False)
+    message_text = linkify(to_unicode(message_text), extra_params='target="_blank"', require_protocol=False)
     # last find shortcode emojis
     message_text = emoji_processor.shortcode_to_unicode(message_text)
     # then find ascii emojis
