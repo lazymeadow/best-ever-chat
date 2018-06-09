@@ -1,4 +1,3 @@
-
 @dark: #4A4A4A;
 @bodyColor: #222222;
 @lightButtonColor: #C6E2EB;
@@ -37,6 +36,11 @@ div.login, div.not-found, div.form {
   a {
     font-size: .75em;
     color: darken(@lightBackgroundColor, 25%);
+  }
+
+  p {
+    margin: 0 20px;
+    text-align: center;
   }
 
   label {
@@ -102,7 +106,6 @@ div.login, div.not-found, div.form {
     flex: 1 0 auto;
   }
 }
-
 
 /* New Chat Styling */
 div {
@@ -201,6 +204,33 @@ body {
         background: @lightBackgroundColor;
         color: darken(@lightBackgroundColor, 35%);
       }
+    }
+  }
+}
+
+@media screen and (max-width: 640px) {
+  body {
+    overflow-y: auto;
+  }
+
+  div.login, div.not-found, div.form {
+    width: 300px;
+    padding: 10px 5px;
+
+    h1 {
+      margin: 5px 0;
+    }
+
+    button {
+      min-width: 80px;
+    }
+
+    input {
+      width: 150px;
+    }
+
+    .form-group, .form-element {
+      width: 250px;
     }
   }
 }

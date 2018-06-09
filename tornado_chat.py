@@ -4,7 +4,7 @@
 import os
 import random
 import string
-from subprocess import Popen
+# from subprocess import Popen
 
 import tornado.web
 import torndb
@@ -19,9 +19,9 @@ SECRET_KEY = ''.join(
 
 http_server = None
 
-less_process = Popen(['lessc', 'static/less/chat.less', 'static/dist/chat.css'])
-(result, err) = less_process.communicate()
-if err: print err
+# less_process = Popen(['lessc', 'static/less/chat.less', 'static/dist/chat.css'])
+# (result, err) = less_process.communicate()
+# if err: print err
 
 
 class Application(tornado.web.Application):
