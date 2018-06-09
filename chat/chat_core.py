@@ -846,11 +846,11 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
 
     def _create_github_issue(self, title, body, issue_type):
         return post('https://api.github.com/repos/lazymeadow/best-ever-chat/issues',
-                    data=json.dumps({
+                    json={
                         'title': title,
                         'body': body,
                         'labels': [issue_type]
-                    }),
+                    },
                     headers={'Accept': 'application/vnd.github.v3+json'},
                     auth=('lazymeadow', 'aa50953ab214deea8bb33cfcd675a839a222e61b'))
 
