@@ -208,48 +208,18 @@ body {
   }
 }
 
-.small-form() {
-  body {
-    overflow-y: auto;
-    font-size: 1em;
-  }
-
-  div.login, div.not-found, div.form {
-    width: 500px;
-    max-width: 90%;
-    padding: 10px 5px;
-
-    h1 {
-      margin: 5px 0;
-    }
-
-    button {
-      min-width: 80px;
-    }
-
-    input {
-      width: 150px;
-    }
-
-    .form-group, .form-element {
-      width: 250px;
-    }
-  }
-
-}
-
 @media (-webkit-min-device-pixel-ratio: 2),
 (min--moz-device-pixel-ratio: 2),
 (min-resolution: 2dppx),
 (min-resolution: 192dpi) {
-  .small-form();
-
   body {
+    overflow-y: auto;
     font-size: 2em;
   }
 
   div.login, div.not-found, div.form {
     width: 750px;
+    max-width: 90%;
     padding: 25px;
 
     button {
@@ -265,8 +235,4 @@ body {
     }
   }
 
-}
-
-@media (max-device-width: 640px) {
-  .small-form();
 }
