@@ -829,7 +829,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if response.ok:
             issue_json = response.json()
             message = preprocess_message(
-                'Bug #{} created! View it at {}'.format(issue_json['number'], issue_json['url']), emoji)
+                'Bug #{} created! View it at {}'.format(issue_json['number'], issue_json['html_url']), emoji)
             self.send_from_server(message)
         else:
             self.send_from_server('Failed to create bug!' + response.json()['message'])
@@ -839,7 +839,7 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
         if response.ok:
             issue_json = response.json()
             message = preprocess_message(
-                'Feature #{} requested! View it at {}'.format(issue_json['number'], issue_json['url']), emoji)
+                'Feature #{} requested! View it at {}'.format(issue_json['number'], issue_json['html_url']), emoji)
             self.send_from_server(message)
         else:
             self.send_from_server('Failed to create feature request!' + response.json()['message'])
