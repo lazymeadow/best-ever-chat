@@ -1,29 +1,68 @@
 {% extends "base.html" %}
 
-{% set title = 'Login to Best evar Chat 2.0!' %}
+{% set title = 'Sign In' %}
+
+{% block includes %}
+<link rel="stylesheet" href="static/dist/login.css" type="text/css"/>
+<script type="application/javascript">
+    $(function () {
+        const last_login = localStorage.getItem('last_login');
+        if (last_login) {
+            $('#parasite').val(last_login);
+            $('#remember').prop('checked', true);
+        }
+
+        $('#register').click(function () {
+            window.location = '/register';
+        });
+
+        $('form').submit(function () {
+            if ($('#remember').is(':checked')) {
+                localStorage.setItem('last_login', $('#parasite').val());
+            }
+            else {
+                localStorage.removeItem('last_login');
+            }
+            console.log('set last login', localStorage.getItem('last_login'));
+        });
+    });
+</script>
+{% endblock %}
 
 {% block content %}
-{% if error %}
-<span style="color: red">Error: {{ error }}</span><p>
-    {% endif %}
 <div class="login">
-    <form action="/login" method="POST" accept-charset="UTF-8">
+    <h1>Sign In</h1>
+    <div class="message {{'error' if error}}">
+        {% if error %}
+        {{error}}
+        {% elif message %}
+        {{message}}
+        {% endif %}
+    </div>
+    <form action="/login" method="POST">
         <div class="form-group">
             <div class="form-element">
                 <label for="parasite">Username</label>
-                <input type=text name="parasite" id="parasite"/>
+                <input type=text name="parasite" id="parasite" required/>
             </div>
             <div class="form-element">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password"/>
+                <input type="password" name="password" id="password" required/>
             </div>
         </div>
         {{ xsrf_form_html() }}
-        <div>
-            <button class="primary" type="submit">Login</button>
-            <a href="/register">Register</a>
-            <a href="/forgot_password">I forgot my password!</a>
+        <div class="form-group check-box">
+            <div class="flex-spacer"></div>
+            <label for="remember">Remember my username</label>
+            <input type="checkbox" id="remember">
+            <label class="check-box" for="remember"></label>
         </div>
+        <div class="form-element">
+            <button class="secondary" id="register" type="button">Register</button>
+            <div class="flex-spacer"></div>
+            <button type="submit">Login</button>
+        </div>
+        <a href="/forgot_password">I forgot my password!</a>
     </form>
 </div>
 {% endblock %}
