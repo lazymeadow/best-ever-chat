@@ -208,13 +208,15 @@ body {
   }
 }
 
-@media screen and (max-width: 640px) {
+.small-form() {
   body {
     overflow-y: auto;
+    font-size: 1em;
   }
 
   div.login, div.not-found, div.form {
-    width: 300px;
+    width: 500px;
+    max-width: 90%;
     padding: 10px 5px;
 
     h1 {
@@ -233,4 +235,38 @@ body {
       width: 250px;
     }
   }
+
+}
+
+@media (-webkit-min-device-pixel-ratio: 2),
+(min--moz-device-pixel-ratio: 2),
+(min-resolution: 2dppx),
+(min-resolution: 192dpi) {
+  .small-form();
+
+  body {
+    font-size: 2em;
+  }
+
+  div.login, div.not-found, div.form {
+    width: 750px;
+    padding: 25px;
+
+    button {
+      min-width: 200px;
+    }
+
+    input {
+      width: 450px;
+    }
+
+    .form-group, .form-element {
+      width: 650px;
+    }
+  }
+
+}
+
+@media (max-device-width: 640px) {
+  .small-form();
 }
