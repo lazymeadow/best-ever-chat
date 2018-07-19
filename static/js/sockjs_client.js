@@ -290,10 +290,10 @@ function connect() {
                 print_private_message(data);
             }
             else if (type === 'bug') {
-                bugModal(title);
+                bugModal(data.title);
             }
             else if (type === 'feature') {
-                featureModal(title);
+                featureModal(data.title);
             }
         };
 
