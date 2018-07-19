@@ -364,8 +364,9 @@ class MultiRoomChatConnection(sockjs.tornado.SockJSConnection):
             self.messageCount += 1
             if self.messageCount > 3:
                 spammy_participants = [x for x in self.participants if x.current_user.id == self.current_user['id']]
-                self.broadcast_from_server(self.participants.difference(spammy_participants),
-                                           "{} has been blocked for spamming!!".format(self.username))
+                self.broadcast_from_server(rooms[room_id]['participants'].difference(spammy_participants),
+                                           u"{} has been blocked for spamming!!".format(self.username),
+                                           room_id=room_id)
                 for participant in spammy_participants:
                     participant.you_are_spammy()
             else:
