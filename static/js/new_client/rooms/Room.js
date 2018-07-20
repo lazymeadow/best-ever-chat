@@ -69,7 +69,7 @@ class Room extends LoggingClass {
                             });
                             return $('<div>').append($('<label>').text('Which users?')).append(userCheckboxes);
                         },
-                        buttonText: 'Yes!',
+                        buttonText: 'Send!',
                         buttonClickHandler: () => {
                             const invitees = $('input[name="invitee"]:checked').map((_, element) => element.value).get();
                             client.sendInvitations(this.id, invitees);

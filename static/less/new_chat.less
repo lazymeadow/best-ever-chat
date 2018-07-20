@@ -459,6 +459,7 @@ body {
     color: white;
     padding: 5px;
     cursor: pointer;
+    min-width: 80px;
 
     &:hover {
       background: darken(@backgroundColor, 10%);
@@ -502,7 +503,7 @@ body {
 
   & > .modal {
     background-color: white;
-    min-width: 200px;
+    min-width: 300px;
     min-height: 50px;
     display: flex;
     z-index: 100;
@@ -521,6 +522,11 @@ body {
 
     button {
       margin: 10px 0;
+    }
+
+    & div:last-child {
+      display: flex;
+      justify-content: space-between;
     }
   }
 }

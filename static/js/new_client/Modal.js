@@ -1,5 +1,5 @@
 class Modal extends LoggingClass {
-    constructor({title, content, buttonText, buttonClickHandler, showCancel, cancelText='Cancel', form = false}) {
+    constructor({title, content, buttonText, buttonClickHandler, showCancel=true, cancelText='Cancel', form = false}) {
         super();
         this.debug('Creating modal');
         const overlay = $('.overlay');
