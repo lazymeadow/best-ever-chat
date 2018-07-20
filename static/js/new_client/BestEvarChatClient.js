@@ -151,41 +151,15 @@ class BestEvarChatClient {
     }
 
     _receivedInvitation({user, 'room id': roomId, 'room name': name}) {
-        new Modal({
-            content: `${user} is inviting you to join the room '${name}. Will you join?'`,
-            buttonText: 'Heck yes!',
-            buttonClickHandler: () => this.joinRoom(roomId),
-            showCancel: true,
-            cancelText: 'No way!'
-        })
+        new Alert({
+            content: `${user} is inviting you to join the room '${name}'.`,
+            type: 'actionable',
+            actionText: 'Join!',
+            actionCallback: () => this.joinRoom(roomId)
+        });
     }
 
     _receivedAlert({message, alert_type}) {
-        // create hidden alert
-        let newAlert = $('<div>').text(message).hide();
-        // append hidden alert
-        let alertsBox = $('#alerts');
-        alertsBox.prepend(newAlert);
-        // slideDown alert
-        newAlert.slideDown(500);
-        // if previously empty, slideDown alerts box
-        if (newAlert.is(':last-child')) {
-            alertsBox.slideDown(500);
-        }
-
-        if (alert_type === 'fade') {
-            // after timeout, slideUp alert. if empty, slide up box.
-            window.setTimeout(() => {
-                newAlert.slideUp(500, () => {
-                    newAlert.remove();
-                    if (alertsBox.is(':empty')) {
-                        alertsBox.slideUp(500);
-                    }
-                });
-            }, 3500);
-        }
-        else if (alert_type === 'dismiss') {
-            // add a dismiss button
-        }
+        new Alert({content: message, type: alert_type});
     }
 }

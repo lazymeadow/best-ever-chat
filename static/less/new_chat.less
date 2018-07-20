@@ -29,7 +29,6 @@ body {
     border: 1px solid #cccccc;
     border-top: none;
     margin: 0 auto;
-    padding: 3px 5px;
     max-width: 500px;
     background-color: #f0f0f0;
     color: #4A4A4A;
@@ -43,8 +42,22 @@ body {
 
     & > div:not(:last-child) {
       border-bottom: 1px solid #cccccc;
-      margin-bottom: 5px;
-      padding-bottom: 3px;
+    }
+
+    & > div {
+      padding: 5px 3px;
+
+      & div.alert-actions {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 2 * @elementPadding;
+
+        & span {
+          color: #25687D;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
     }
   }
 

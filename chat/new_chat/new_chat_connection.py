@@ -233,14 +233,16 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._send_alert("You can't leave that room!")
 
     def _send_invitations(self, user_ids, room_id):
+        room_name = self._room_list.get_room_name(room_id)
         for user_id in user_ids:
+            invitee_username = self._user_list.get_username(user_id)
             if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
                 # TODO save the invitation in the database, adding to RoomList class
                 self._room_list.grant_user_room_access(room_id, user_id)
                 invitee_participants = self._user_list.get_user_participants(user_id)
                 message_data = {'user': self.current_user['username'],
                                 'room id': room_id,
-                                'room name': self._room_list.get_room_name(room_id)}
+                                'room name': room_name}
                 if len(invitee_participants) == 0:
                     # save invitation
                     self._message_queue.add_invitation(user_id, room_id, json.dumps(message_data))
@@ -248,8 +250,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
                     self.broadcast(invitee_participants,
                                    {'type': 'invitation',
                                     'data': message_data})
+                    self._send_alert(u"Invitation sent to {} to join {}.".format(invitee_username, room_name))
             else:
-                self._send_alert(u"You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
+                self._send_alert(u"You can't invite {} to {}!".format(invitee_username, room_name))
 
     ### GENERAL HELPER FUNCTIONS
 
