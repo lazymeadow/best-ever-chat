@@ -85,7 +85,7 @@ class AuthLoginHandler(BaseHandler):
             bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
             tornado.escape.utf8(parasite.password))
         if hashed_password == parasite.password:
-            self.set_secure_cookie("parasite", str(parasite.id))
+            self.set_secure_cookie("parasite", str(parasite.id), expires_days=90)
             self.redirect(self.get_argument("next", "/"))
         else:
             self.render2("login.html", error="Incorrect username or password.")
