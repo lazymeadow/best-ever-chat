@@ -11,7 +11,6 @@ class MainMenu extends LoggingClass {
                 () => {
                     new Modal({
                         form: true,
-                        showCancel: true,
                         title: 'Client Settings',
                         content: $('<div>')
                             .append($('<div>').addClass('form-group')
@@ -48,22 +47,50 @@ class MainMenu extends LoggingClass {
             .append(this._new_menu_item(
                 'User Settings',
                 'user-circle-o',
-                () => false
+                () => {
+                    new Modal({
+                        form: true,
+                        title: 'User Settings',
+                        content: $('<div>'),
+                        buttonText: 'Save',
+                        buttonClickHandler: () => {
+                            this.debug('User settings saved');
+                        }
+                    });
+                }
             ))
             .append(this._new_menu_item(
                 'Account Settings',
                 'cogs',
-                () => false
+                () => {
+                    new Modal({
+                        form: true,
+                        title: 'Account Settings',
+                        content: $('<div>'),
+                        buttonText: 'Save',
+                        buttonClickHandler: () => {
+                            this.debug('Account settings saved');
+                        }
+                    });
+                }
             ))
             .append(this._new_menu_item(
                 'About',
                 'question',
-                () => false
+                () => {
+                    new Modal({
+                        showCancel: false,
+                        title: 'About',
+                        content: $('<div>'),
+                        buttonText: 'Awesome!',
+                        buttonClickHandler: () => false
+                    });
+                }
             ))
             .append(this._new_menu_item(
                 'Log Out',
                 'sign-out',
-                () => false
+                () => window.location = '/logout'
             ));
 
     }
