@@ -2,8 +2,7 @@
     Best chat ever now a sockjs-tornado application.
 """
 import os
-import random
-import string
+from ConfigParser import SafeConfigParser
 
 import tornado.web
 import torndb
@@ -17,8 +16,23 @@ from chat.new_chat.rooms import RoomList
 from chat.new_chat.users import UserList
 from emoji.emoji_curation import curated_emojis
 
-SECRET_KEY = ''.join(
-    random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
+import logging
+
+logging.getLogger().setLevel(logging.DEBUG)
+
+cfgparser = SafeConfigParser()
+currdir = os.path.dirname(os.path.realpath(__file__))
+with open('install/chat.cfg', 'r+') as cfg:
+    cfgparser.readfp(cfg)
+    config_section = os.environ['BEC_ENV'] if os.environ.has_key('BEC_ENV') else 'local'
+
+    logging.info("Loading config: [{}]".format(config_section))
+
+    SECRET_KEY = cfgparser.get(config_section, 'BEC_SECRET_KEY')
+    DB_USER = cfgparser.get(config_section, 'BEC_DB_USER')
+    DB_PASSWORD = cfgparser.get(config_section, 'BEC_DB_PASSWORD')
+    DB_HOST = cfgparser.get(config_section, 'BEC_DB_HOST')
+    DB_SCHEMA = cfgparser.get(config_section, 'BEC_DB_SCHEMA')
 
 http_server = None
 
@@ -28,10 +42,10 @@ class Application(tornado.web.Application):
         super(Application, self).__init__(handlers, **settings)
         # Have one global connection to the blog DB across all handlers
         self.db = torndb.Connection(
-            host='127.0.0.1:3306',
-            database='bestchat',
-            user='bestChat',
-            password='a5e625568329d8c2216631da90efc030121400bde3bde2300fd089b738568717',
+            host=DB_HOST,
+            database=DB_SCHEMA,
+            user=DB_USER,
+            password=DB_PASSWORD,
             charset='utf8mb4'
         )
 
@@ -46,10 +60,6 @@ class Application(tornado.web.Application):
 
 
 if __name__ == "__main__":
-    import logging
-
-    logging.getLogger().setLevel(logging.DEBUG)
-
     settings = {
         'cookie_secret': SECRET_KEY,
         'template_path': 'templates',
