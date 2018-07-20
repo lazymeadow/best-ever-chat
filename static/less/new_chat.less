@@ -472,7 +472,6 @@ body {
     color: white;
     padding: 5px;
     cursor: pointer;
-    min-width: 80px;
 
     &:hover {
       background: darken(@backgroundColor, 10%);
@@ -497,6 +496,10 @@ body {
         color: darken(@lightBackgroundColor, 35%);
       }
     }
+  }
+
+  button, & :not(.chat-bar) > .button {
+    min-width: 80px;
   }
 
   .text-danger {

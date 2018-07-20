@@ -8,6 +8,10 @@ $(function () {
     $('.inline-menu').hide();
     $('.popout-option').hide();
 
+    $('body').click(() => {
+        $('.popout-option').hide();
+    });
+
     overlay.click(() => {
         overlay.hide();
         $('.popout-menu').hide();
@@ -34,7 +38,8 @@ $(function () {
         // prevent clicking the child from toggling itself
         popoutOption.click(event => event.stopPropagation());
 
-        $(element).click(() => {
+        $(element).click(event => {
+            event.stopPropagation();
             if (popoutOption.is(':visible')) {
                 popoutOption.hide();
             } else {
@@ -76,9 +81,9 @@ $(function () {
     _parseEmojis();
 
     $('#emoji_list .emoji').click(event => {
+        event.stopPropagation();
         var chatText = chatBar.children('input');
         chatText.val(chatText.val() + $(event.target).prop('alt'));
-        $('.popout-option').hide();
     });
 
     $('.my-username').text(Settings.username);
