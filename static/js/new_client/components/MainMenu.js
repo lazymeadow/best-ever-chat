@@ -14,29 +14,30 @@ class MainMenu extends LoggingClass {
                         title: 'Client Settings',
                         content: $('<div>')
                             .append($('<div>').addClass('form-group')
-                            // Browser tab title
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
-                                    .append($('<input>', {id: 'tab_title'})))
-                                // Client font size
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Font Size', for: 'font_size'}))
-                                    .append($('<select>', {id: 'font_size'})
-                                        .append($.map([12, 14, 16, 18, 20, 22, 24], item => {
-                                            return $('<option>', {value: item, text: item});
-                                        }))))
-                                // Hide images by default
-                                .append($('<div>').addClass('form-element check-box')
-                                    .append($('<label>', {text: 'Hide images by default', for: 'hide_images'}))
-                                    .append($('<input>', {type: 'checkbox', id: 'hide_images'}))
-                                    .append($('<label>', {for: 'hide_images'}).addClass('check-box')))
-                                // Timestamp mode
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Timestamps', for: 'timestamps'}))
-                                    .append($('<select>', {id: 'timestamps'})
-                                        .append($('<option>', {value: 'date_time', text: 'Date & Time'}))
-                                        .append($('<option>', {value: 'just_time', text: 'Just Time'}))
-                                        .append($('<option>', {value: 'off', text: 'Off'}))))),
+                                // Browser tab title
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
+                                        .append($('<input>', {id: 'tab_title'})))
+                                    // Client font size
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Font Size', for: 'font_size'}))
+                                        .append($('<select>', {id: 'font_size'})
+                                            .append($.map([12, 14, 16, 18, 20, 22, 24], item => {
+                                                return $('<option>', {value: item, text: item});
+                                            }))))
+                                    // Hide images by default
+                                    .append($('<div>').addClass('form-element check-box')
+                                        .append($('<label>', {text: 'Hide images by default', for: 'hide_images'}))
+                                        .append($('<input>', {type: 'checkbox', id: 'hide_images'}))
+                                        .append($('<label>', {for: 'hide_images'}).addClass('check-box')))
+                                    // Timestamp mode
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Timestamps', for: 'timestamps'}))
+                                        .append($('<select>', {id: 'timestamps'})
+                                            .append($('<option>', {value: 'date_time', text: 'Date & Time'}))
+                                            .append($('<option>', {value: 'just_time', text: 'Just Time'}))
+                                            .append($('<option>', {value: 'off', text: 'Off'}))))
+                            ),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
                             this.debug('Client settings saved');
@@ -94,7 +95,20 @@ class MainMenu extends LoggingClass {
                     new Modal({
                         form: true,
                         title: 'Account Settings',
-                        content: $('<div>'),
+                        content: $('<div>')
+                            .append($('<div>').addClass('form-group')
+                                    // Email
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Email Address', for: 'email'}))
+                                        .append($('<input>', {id: 'email'})))
+                                    // Password
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Change Password', for: 'password1'}))
+                                        .append($('<input>', {id: 'password1', type: 'password', placeholder: 'New password'})))
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: '', for: 'password2'}))
+                                        .append($('<input>', {id: 'password2', type: 'password', placeholder: 'Confirm password'})))
+                            ),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
                             this.debug('Account settings saved');
