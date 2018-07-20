@@ -52,7 +52,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
         for message in messages:
             self.send({'type': message['type'],
                        'data': json.loads(message['content'])})
-            self._message_queue.remove_invitation(message['user id'], message['room id'])
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -79,7 +78,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             elif json_message['action'] == 'delete':
                 self._delete_room(json_message['room id'])
             elif json_message['action'] == 'join':
-                self._join_room(json_message['room id'])
+                self._join_room(json_message['room id'], json_message['accept'], json_message['inviter id'])
             elif json_message['action'] == 'leave':
                 self._leave_room(json_message['room id'])
             elif json_message['action'] == 'invite':
@@ -148,7 +147,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :param room_id: room receiving the message
         :param nsfw_flag: true if image is nsfw
         """
-        #if the url doesn't look like an image, just send it as a normal chat
+        # if the url doesn't look like an image, just send it as a normal chat
         if not is_image_url(image_url):
             self._broadcast_chat_message(user_id, image_url, room_id)
             return
@@ -189,25 +188,39 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._broadcast_user_list(participant_list)
             self._broadcast_alert(u"Room '{}' has been deleted.".format(room_name), participant_list=participant_list)
 
-    def _join_room(self, room_id):
-        if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
-            # TODO delete the invitation from the database
-            participant_list = self._room_list.get_room_participants(room_id)
-            [x.send_room_list(room_id) for x in participant_list]
-            self._broadcast_user_list(participant_list)
-            room_name = self._room_list.get_room_name(room_id)
+    def _join_room(self, room_id, accept, inviter_id):
+        room_name = self._room_list.get_room_name(room_id)
+        if accept is True:
+            if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
+                # TODO delete the invitation from the database
+                participant_list = self._room_list.get_room_participants(room_id)
+                [x.send_room_list(room_id) for x in participant_list]
+                self._broadcast_user_list(participant_list)
 
-            # broadcast presence to the other room members
-            other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
-            self._broadcast_from_server(other_participants,
-                                        u'{} has entered the room.'.format(self.current_user['username']),
-                                        room_id=room_id, save_history=True)
-            # send alerts
-            self._broadcast_alert(u"{} has joined '{}'.".format(self.current_user['username'], room_name),
-                                  participant_list=other_participants)
-            self._send_alert(u"You joined the room '{}'.".format(room_name))
+                # broadcast presence to the other room members
+                other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
+                self._broadcast_from_server(other_participants,
+                                            u'{} has entered the room.'.format(self.current_user['username']),
+                                            room_id=room_id, save_history=True)
+                # send alerts
+                self._broadcast_alert(u"{} has joined '{}'.".format(self.current_user['username'], room_name),
+                                      participant_list=other_participants)
+                self._send_alert(u"You joined the room '{}'.".format(room_name))
+                self._message_queue.remove_invitation(self.current_user['id'], room_id)
+            else:
+                self._send_alert('Failed to join room. Maybe somebody is playing a joke on you?')
+        elif self._room_list.remove_user_from_room(room_id, self.current_user['id']) is True:
+            # broadcast decline to inviter
+            self._broadcast_alert(u"{} declined to join {}.".format(self.current_user['username'], room_name),
+                                  participant_list=self._user_list.get_user_participants(inviter_id))
+            # broadcast acknowledgement to invitee
+            self._send_alert(
+                u"You declined the invitation from {} to join {}.".format(self._user_list.get_username(inviter_id),
+                                                                          room_name))
+            # remove invitation
+            self._message_queue.remove_invitation(self.current_user['id'], room_id)
         else:
-            self._send_alert('Failed to join room. Maybe somebody is playing a joke on you?')
+            self._send_alert(u"There was a problem handling your request.")
 
     def _leave_room(self, room_id):
         if self._room_list.remove_user_from_room(room_id, self.current_user['id']) is True:
@@ -237,22 +250,19 @@ class NewMultiRoomChatConnection(SockJSConnection):
         for user_id in user_ids:
             invitee_username = self._user_list.get_username(user_id)
             if self._room_list.is_valid_invitation(self.current_user['id'], user_id, room_id):
-                # TODO save the invitation in the database, adding to RoomList class
                 self._room_list.grant_user_room_access(room_id, user_id)
                 invitee_participants = self._user_list.get_user_participants(user_id)
                 message_data = {'user': self.current_user['username'],
+                                'user id': self.current_user['id'],
                                 'room id': room_id,
                                 'room name': room_name}
-                if len(invitee_participants) == 0:
-                    # save invitation
-                    self._message_queue.add_invitation(user_id, room_id, json.dumps(message_data))
-                else:
-                    self.broadcast(invitee_participants,
-                                   {'type': 'invitation',
-                                    'data': message_data})
-                    self._send_alert(u"Invitation sent to {} to join {}.".format(invitee_username, room_name))
+                self._message_queue.add_invitation(user_id, room_id, json.dumps(message_data))
+                self.broadcast(invitee_participants,
+                               {'type': 'invitation',
+                                'data': message_data})
+                self._send_alert(u"Invitation sent to {} to join {}.".format(invitee_username, room_name))
             else:
-                self._send_alert(u"You can't invite {} to {}!".format(invitee_username, room_name))
+                self._send_alert(u"You can't invite {} to join {}!".format(invitee_username, room_name))
 
     ### GENERAL HELPER FUNCTIONS
 

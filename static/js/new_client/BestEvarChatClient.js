@@ -85,12 +85,14 @@ class BestEvarChatClient {
         })
     }
 
-    joinRoom(roomId) {
+    joinRoom(roomId, accept=true, inviterId) {
         this._send({
             'type': 'room action',
             'user id': Settings.userId,
             'action': 'join',
-            'room id': roomId
+            'room id': roomId,
+            accept,
+            'inviter id': inviterId
         });
     }
 
@@ -150,12 +152,14 @@ class BestEvarChatClient {
         console.log(messageData);
     }
 
-    _receivedInvitation({user, 'room id': roomId, 'room name': name}) {
+    _receivedInvitation({user, 'user id': userId, 'room id': roomId, 'room name': name}) {
         new Alert({
             content: `${user} is inviting you to join the room '${name}'.`,
             type: 'actionable',
             actionText: 'Join!',
-            actionCallback: () => this.joinRoom(roomId)
+            actionCallback: () => this.joinRoom(roomId, true, userId),
+            dismissText: 'No, thanks.',
+            dismissCallback: () => this.joinRoom(roomId, false, userId)
         });
     }
 

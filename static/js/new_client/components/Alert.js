@@ -1,12 +1,12 @@
 class Alert extends LoggingClass {
-    constructor({content, type = 'fade', actionText, actionCallback}) {
+    constructor({content, type = 'fade', actionText, actionCallback, dismissText = 'Dismiss', dismissCallback}) {
         super();
         this.debug('Creating alert');
 
         // create hidden alert
         this.alert = $('<div>').html(content).hide();
 
-        const alertsBox = $('#alerts');
+        this.alertsBox = $('#alerts');
 
         if (type === 'fade') {
             // after timeout, slideUp alert. if empty, slide up box.
@@ -16,11 +16,11 @@ class Alert extends LoggingClass {
         }
         else if (type === 'dismiss') {
             this.alert.append($('<div>').addClass('alert-actions')
-                .append($('<span>').addClass('alert-action').text('Dismiss').click(() => this._fade())));
+                .append(this._dismissElement(dismissText, dismissCallback)));
         }
         else if (type === 'actionable') {
             this.alert.append($('<div>').addClass('alert-actions')
-                .append($('<span>').text('Dismiss').click(() => this._fade()))
+                .append(this._dismissElement(dismissText, dismissCallback))
                 .append($('<span>').text(actionText).click(() => {
                     actionCallback();
                     this._fade();
@@ -28,21 +28,30 @@ class Alert extends LoggingClass {
         }
 
         // append hidden alert
-        alertsBox.prepend(this.alert);
+        this.alertsBox.prepend(this.alert);
         // slideDown alert
         this.alert.slideDown(500);
         // if previously empty, slideDown alerts box
         if (this.alert.is(':last-child')) {
-            alertsBox.slideDown(500);
+            this.alertsBox.slideDown(500);
         }
     }
 
     _fade() {
         this.alert.slideUp(500, () => {
             this.alert.remove();
-            if (alertsBox.is(':empty')) {
-                alertsBox.slideUp(500);
+            if (this.alertsBox.is(':empty')) {
+                this.alertsBox.slideUp(500);
             }
+        });
+    }
+
+    _dismissElement(dismissText, dismissCallback) {
+        return $('<span>').text(dismissText).click(() => {
+            if (dismissCallback) {
+                dismissCallback();
+            }
+            this._fade()
         });
     }
 }
