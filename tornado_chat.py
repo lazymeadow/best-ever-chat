@@ -31,7 +31,8 @@ class Application(tornado.web.Application):
             host='127.0.0.1:3306',
             database='bestchat',
             user='bestChat',
-            password='a5e625568329d8c2216631da90efc030121400bde3bde2300fd089b738568717'
+            password='a5e625568329d8c2216631da90efc030121400bde3bde2300fd089b738568717',
+            charset='utf8mb4'
         )
 
         # user list

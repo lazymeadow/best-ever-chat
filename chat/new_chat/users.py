@@ -1,6 +1,8 @@
 import json
 from collections import deque
 
+from tornado.escape import to_unicode
+
 from chat.lib import MAX_DEQUE_LENGTH
 
 
@@ -17,6 +19,7 @@ class UserList:
         self.db = db
         users = self.db.query("SELECT id, username, color, faction FROM parasite")
         for user in users:
+            user['username'] = to_unicode(user['username'])
             new_user = self._user_defaults.copy()
             new_user.update(user)
             self._user_map[user.id] = new_user

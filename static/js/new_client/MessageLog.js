@@ -80,7 +80,7 @@ class MessageLog extends LoggingClass {
         //     if (username !== 'Client') SoundManager.playReceived();
         // }
 
-        this._parseEmojis(messageContainer[0]);
+        _parseEmojis(messageContainer[0]);
         super.debug('Added message to log.');
     }
 
@@ -110,15 +110,5 @@ class MessageLog extends LoggingClass {
         if (Settings.timestamps === 'date_time')
             format = "MM/DD/YY " + format;
         return `[${moment.unix(timestamp).format(format)}]`;
-    }
-
-    _parseEmojis(element) {
-        twemoji.parse(element || document.body, {
-            base: '/static/',
-            folder: 'emojione/assets/',
-            attributes: function (icon, variant) {
-                return {title: icon + variant};
-            }
-        });
     }
 }

@@ -7,6 +7,7 @@ import bcrypt
 import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
+from tornado.escape import url_escape
 
 from chat.custom_render import BaseHandler, executor
 
@@ -16,7 +17,7 @@ class PageHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.set_cookie('username', self.current_user.username.replace(' ', '%20') or '')
+        self.set_cookie('username', url_escape(self.current_user.username) or '')
         self.set_cookie('color', self.current_user.color or '')
         self.set_cookie('sounds', str(self.current_user.sound) or '100')
         self.set_cookie('sound_set', self.current_user.soundSet or 'AIM')
@@ -59,7 +60,7 @@ class AuthCreateHandler(BaseHandler):
             username = parasite if self.user_list.is_valid_username(parasite) else '{}_{}'.format(parasite,
                                                                                                   randint(1000, 9999))
             self.db.execute(
-                "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, %s)",
+                "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, _utf8mb4%s)",
                 parasite, self.get_argument("email"), hashed_password, username)
             self.user_list.load_user(parasite)
             self.room_list.add_user_to_member_list(0, parasite)

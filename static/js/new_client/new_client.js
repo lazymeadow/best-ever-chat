@@ -73,13 +73,7 @@ $(function () {
         }
     });
 
-    twemoji.parse(document.body, {
-        base: '/static/',
-        folder: 'emojione/assets/',
-        attributes: function (icon, variant) {
-            return {title: icon + variant};
-        }
-    });
+    _parseEmojis();
 
     $('#emoji_list .emoji').click(event => {
         var chatText = chatBar.children('input');
@@ -99,4 +93,14 @@ $(function () {
     window.client = new BestEvarChatClient();
     new MainMenu(client);
 });
+
+function _parseEmojis(element) {
+    twemoji.parse(element || document.body, {
+        base: '/static/',
+        folder: 'emojione/assets/',
+        attributes: function (icon, variant) {
+            return {title: icon + variant};
+        }
+    });
+}
 

@@ -30,6 +30,7 @@ class RoomManager extends LoggingClass {
         }
         this._roomDataMap.get(Settings.activeRoom).selectThisRoom();
         super.debug('Rooms updated.');
+        _parseEmojis(this._roomListElement);
     }
 
     /**

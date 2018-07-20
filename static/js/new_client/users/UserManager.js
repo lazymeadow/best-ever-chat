@@ -10,6 +10,7 @@ class UserManager extends LoggingClass {
         newUsers.forEach((userData) => {
             this._addUser(userData)
         });
+        _parseEmojis(this._userListElement);
     }
 
     _addUser(userData) {

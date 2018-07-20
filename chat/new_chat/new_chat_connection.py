@@ -43,7 +43,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._broadcast_user_list()
         self.send_room_list()
-        self._broadcast_alert('{} is online.'.format(self.current_user.username))
+        self._broadcast_alert(u'{} is online.'.format(self.current_user.username))
 
         self._send_from_server('Connection successful.')
 
@@ -94,7 +94,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         print 'close'
         self._user_list.update_user_status(self.current_user.id, 'offline', self)
         self._broadcast_user_list()
-        self._broadcast_alert('{} is offline.'.format(self.current_user.username))
+        self._broadcast_alert(u'{} is offline.'.format(self.current_user.username))
 
     def send_room_list(self, room_id=None):
         if room_id is not None:
@@ -187,7 +187,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if participant_list is not None:
             [x.send_room_list() for x in participant_list]
             self._broadcast_user_list(participant_list)
-            self._broadcast_alert("Room '{}' has been deleted.".format(room_name), participant_list=participant_list)
+            self._broadcast_alert(u"Room '{}' has been deleted.".format(room_name), participant_list=participant_list)
 
     def _join_room(self, room_id):
         if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
@@ -200,12 +200,12 @@ class NewMultiRoomChatConnection(SockJSConnection):
             # broadcast presence to the other room members
             other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
             self._broadcast_from_server(other_participants,
-                                        '{} has entered the room.'.format(self.current_user['username']),
+                                        u'{} has entered the room.'.format(self.current_user['username']),
                                         room_id=room_id, save_history=True)
             # send alerts
-            self._broadcast_alert("{} has joined '{}'.".format(self.current_user['username'], room_name),
+            self._broadcast_alert(u"{} has joined '{}'.".format(self.current_user['username'], room_name),
                                   participant_list=other_participants)
-            self._send_alert("You joined the room '{}'.".format(room_name))
+            self._send_alert(u"You joined the room '{}'.".format(room_name))
         else:
             self._send_alert('Failed to join room. Maybe somebody is playing a joke on you?')
 
@@ -223,12 +223,12 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
             # broadcast departure to other room members
             self._broadcast_from_server(room_participants,
-                                        '{} has left the room.'.format(self.current_user['username']),
+                                        u'{} has left the room.'.format(self.current_user['username']),
                                         room_id=room_id, save_history=True)
             # send alerts
-            self._broadcast_alert("{} has left '{}'.".format(self.current_user['username'], room_name),
+            self._broadcast_alert(u"{} has left '{}'.".format(self.current_user['username'], room_name),
                                   participant_list=room_participants)
-            self._send_alert("You left the room '{}'.".format(room_name))
+            self._send_alert(u"You left the room '{}'.".format(room_name))
         else:
             self._send_alert("You can't leave that room!")
 
@@ -249,7 +249,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                                    {'type': 'invitation',
                                     'data': message_data})
             else:
-                self._send_alert("You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
+                self._send_alert(u"You can't invite {} to that room!".format(self._user_list.get_username(user_id)))
 
     ### GENERAL HELPER FUNCTIONS
 
