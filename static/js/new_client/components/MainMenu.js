@@ -15,9 +15,29 @@ class MainMenu extends LoggingClass {
                         title: 'Client Settings',
                         content: $('<div>')
                             .append($('<div>').addClass('form-group')
+                            // Browser tab title
                                 .append($('<div>').addClass('form-element')
-                                    .append($('<label>').text('Tab Title').prop('for', 'tab_title'))
-                                    .append($('<input>').prop('id', 'tab_title')))),
+                                    .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
+                                    .append($('<input>', {id: 'tab_title'})))
+                                // Client font size
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Font Size', for: 'font_size'}))
+                                    .append($('<select>', {id: 'font_size'})
+                                        .append($.map([12, 14, 16, 18, 20, 22, 24], (item) => {
+                                            return $('<option>', {value: item, text: item});
+                                        }))))
+                                // Hide images by default
+                                .append($('<div>').addClass('form-element check-box')
+                                    .append($('<label>', {text: 'Hide images by default', for: 'hide_images'}))
+                                    .append($('<input>', {type: 'checkbox', id: 'hide_images'}))
+                                    .append($('<label>', {for: 'hide_images'}).addClass('check-box')))
+                                // Timestamp mode
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Timestamps', for: 'timestamps'}))
+                                    .append($('<select>', {id: 'timestamps'})
+                                        .append($('<option>', {value: 'date_time', text: 'Date & Time'}))
+                                        .append($('<option>', {value: 'just_time', text: 'Just Time'}))
+                                        .append($('<option>', {value: 'off', text: 'Off'}))))),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
                             this.debug('Client settings saved');
