@@ -62,7 +62,9 @@ class MainMenu extends LoggingClass {
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Volume', for: 'volume'}))
                                         .append($('<input>', {id: 'volume', type: 'range'}))
-                                        .append($('<div>', {id: 'volume_button'}).append($('<span>').addClass('fa-stack fa').append($('<i>').addClass('fa fa-volume-down fa-stack-2x')))))
+                                        .append($('<div>', {id: 'volume_button'})
+                                            .append($('<span>').addClass('fa-stack fa')
+                                                .append($('<i>').addClass('fa fa-volume-down fa-stack-2x')))))
                                     // Sound set
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
@@ -123,7 +125,7 @@ class MainMenu extends LoggingClass {
                     new Modal({
                         showCancel: false,
                         title: 'About',
-                        content: $('<div>'),
+                        content: $('<div>').text('Figure out a way to get this dynamically populated.'),
                         buttonText: 'Awesome!',
                         buttonClickHandler: () => false
                     });
