@@ -458,7 +458,10 @@ body {
   input {
     font: 1em 'Amiko', sans-serif;
     padding: 3px 5px;
-    border: 1px solid @lightBorderColor;
+
+    &:not([type=range]) {
+      border: 1px solid @lightBorderColor;
+    }
 
     &[type=checkbox] {
       display: none;
@@ -544,9 +547,13 @@ body {
       margin: 10px 0;
     }
 
-    & div:last-child {
+    & > div:last-child {
       display: flex;
       justify-content: space-between;
+    }
+
+    .form-group, .form-element {
+      width: 400px;
     }
   }
 }
