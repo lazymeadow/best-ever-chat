@@ -1,4 +1,8 @@
-class Alert extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+
+
+export class Alert extends LoggingClass {
     constructor({content, type = 'fade', actionText, actionCallback, dismissText = 'Dismiss', dismissCallback}) {
         super();
         this.debug('Creating alert');

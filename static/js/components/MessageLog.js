@@ -1,4 +1,13 @@
-class MessageLog extends LoggingClass {
+import $ from 'jquery';
+import moment from 'moment';
+import imagesLoaded from 'imagesloaded';
+imagesLoaded.makeJQueryPlugin( $ );
+
+import {LoggingClass} from "../client/LoggingClass";
+import {Settings} from "../client/Settings";
+import {_parseEmojis} from "../lib";
+
+export class MessageLog extends LoggingClass {
     constructor() {
         super();
         this._logElement = $('#log');

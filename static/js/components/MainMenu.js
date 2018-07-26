@@ -1,4 +1,8 @@
-class MainMenu extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+import {Modal} from "./Modal";
+
+export class MainMenu extends LoggingClass {
     constructor(client) {
         super();
         this._client = client;

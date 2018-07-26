@@ -1,4 +1,14 @@
-const CLIENT_VERSION = '3.0';
+/**
+ * BEST EVAR CHAT CLIENT 3.0.0
+ * @author Audrey Mavra McCormick
+ */
+
+import $ from 'jquery';
+import {Modal} from "./components/Modal";
+import {Settings} from "./client/Settings";
+import {BestEvarChatClient} from "./client/BestEvarChatClient";
+import {MainMenu} from "./components/MainMenu";
+import {_parseEmojis} from "./lib";
 
 $(function () {
     const overlay = $('.overlay');
@@ -98,14 +108,3 @@ $(function () {
     window.client = new BestEvarChatClient();
     new MainMenu(client);
 });
-
-function _parseEmojis(element) {
-    twemoji.parse(element || document.body, {
-        base: '/static/',
-        folder: 'emojione/assets/',
-        attributes: function (icon, variant) {
-            return {title: icon + variant};
-        }
-    });
-}
-

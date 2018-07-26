@@ -1,4 +1,7 @@
-class SoundManager {
+import $ from 'jquery';
+import Settings from './Settings'
+
+export class SoundManager {
     constructor() {
         this._receiveSound = $('<audio>').attr('type', 'audio/mpeg');
         this._sendSound = $('<audio>').attr('type', 'audio/mpeg');

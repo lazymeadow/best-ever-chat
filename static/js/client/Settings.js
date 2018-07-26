@@ -1,4 +1,6 @@
-class Settings {
+import Cookies from 'js-cookie';
+
+export class Settings {
     static get userId() {
         return Cookies.get('id');
     }

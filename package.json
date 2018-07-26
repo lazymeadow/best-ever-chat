@@ -1,0 +1,47 @@
+{
+  "name": "best-evar-chat",
+  "version": "3.0.0",
+  "description": "The Best Evar Chat - now with webpack!",
+  "private": true,
+  "scripts": {
+    "build-all": "npm install && npm run build-client && npm run build-login",
+    "build-login": "npm run login-less",
+    "build-client": "npm run webpack && npm run main-less",
+    "login-less": "lessc ./static/less/login.less ./static/dist/login.css --clean-css=\"--s1 --advanced --compatibility=ie8\"",
+    "main-less": "lessc ./static/less/chat.less ./static/dist/chat.css --clean-css=\"--s1 --advanced --compatibility=ie8\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazymeadow/best-ever-chat.git"
+  },
+  "author": "Audrey Mavra McCormick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lazymeadow/best-ever-chat/issues"
+  },
+  "homepage": "https://github.com/lazymeadow/best-ever-chat#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "less": "^3.8.0",
+    "less-plugin-clean-css": "^1.5.1",
+    "webpack": "^4.16.2",
+    "webpack-command": "^0.4.1"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-runtime": "^6.26.0",
+    "imagesloaded": "^4.1.4",
+    "jquery": "^3.3.1",
+    "js-cookie": "^2.2.0",
+    "moment": "^2.22.2",
+    "sockjs-client": "^1.1.5",
+    "twemoji": "^11.0.0"
+  }
+}

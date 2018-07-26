@@ -1,4 +1,9 @@
-class UserManager extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+import {User} from "./User";
+import {_parseEmojis} from "../lib";
+
+export class UserManager extends LoggingClass {
     constructor() {
         super();
         this._userListElement = $('#user-list');

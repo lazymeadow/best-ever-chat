@@ -1,4 +1,11 @@
-class RoomManager extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+import {MessageLog} from "../components/MessageLog";
+import {Settings} from "../client/Settings";
+import {Room} from "./Room";
+import {_parseEmojis} from '../lib';
+
+export class RoomManager extends LoggingClass {
     constructor() {
         super();
         // this._soundManager = new SoundManager();

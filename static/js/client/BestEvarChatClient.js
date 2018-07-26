@@ -1,4 +1,12 @@
-class BestEvarChatClient {
+import SockJS from 'sockjs-client';
+import {RoomManager} from "../rooms/RoomManager";
+import {UserManager} from "../users/UserManager";
+import {Settings} from "./Settings";
+import {Logger} from "./Logger";
+import {Alert} from "../components/Alert";
+import {CLIENT_VERSION} from "../lib";
+
+export class BestEvarChatClient {
     constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;

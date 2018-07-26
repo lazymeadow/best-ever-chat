@@ -1,4 +1,7 @@
-class Modal extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+
+export class Modal extends LoggingClass {
     constructor({title, content, buttonText, buttonClickHandler, showCancel=true, cancelText='Cancel', form = false}) {
         super();
         this.debug('Creating modal');

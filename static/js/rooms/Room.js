@@ -1,4 +1,10 @@
-class Room extends LoggingClass {
+import $ from 'jquery';
+import {LoggingClass} from "../client/LoggingClass";
+import {Settings} from "../client/Settings";
+import {Modal} from "../components/Modal";
+
+
+export class Room extends LoggingClass {
     constructor({name, owner, id, history, members: memberList}, roomManager) {
         super();
         this._roomManager = roomManager;
