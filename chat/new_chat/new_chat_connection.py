@@ -190,8 +190,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._broadcast_alert('{} is now {}.'.format(old_username, new_username))
                 update_user_list = True
 
-        # if 'color' in settings.keys():
-
+        if 'color' in settings.keys():
+            self._user_list.update_color(self.current_user['id'], settings['color'])
 
         if update_user_list:
             self._broadcast_user_list()

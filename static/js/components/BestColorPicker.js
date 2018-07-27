@@ -20,11 +20,6 @@ const colors = [
     '#b51ba6'
 ];
 
-const selectColor = (event) => {
-    $('.selected-color').removeClass('selected-color');
-    $(event.target).addClass('selected-color');
-};
-
 export class BestColorPicker {
     constructor(element) {
         this.element = element.empty();
@@ -34,7 +29,9 @@ export class BestColorPicker {
         for (let color in colors) {
             this.element.append($('<span/>').addClass('color-block')
                 .css('background-color', colors[color])
-                .click(selectColor)
+                .click(() => {
+                    this.color = colors[color];
+                })
                 .attr('value', colors[color])
             );
         }
@@ -44,8 +41,8 @@ export class BestColorPicker {
 
     set color(color) {
         if ($.inArray(color, colors) >= 0) {
-            let selected = this.element.children('[value="' + color + '"]');
-            selected.click();
+            $('.selected-color').removeClass('selected-color');
+            this.element.children('[value="' + color + '"]').addClass('selected-color');
             this.element.val(color);
         }
     }
