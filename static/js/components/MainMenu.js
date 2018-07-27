@@ -23,6 +23,20 @@ export class MainMenu extends LoggingClass {
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
                                         .append($('<input>', {id: 'tab_title'})))
+                                    // Volume
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Volume', for: 'volume'}))
+                                        .append($('<input>', {id: 'volume', type: 'range'}))
+                                        .append($('<div>', {id: 'volume_button'})
+                                            .append($('<span>').addClass('fa-stack fa')
+                                                .append($('<i>').addClass('fa fa-volume-down fa-stack-2x')))))
+                                    // Sound set
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
+                                        .append($('<select>', {id: 'sound_set'})
+                                            .append($.map(['AIM', 'MSN'], item => {
+                                                return $('<option>', {value: item, text: item});
+                                            }))))
                                     // Client font size
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Font Size', for: 'font_size'}))
@@ -63,20 +77,6 @@ export class MainMenu extends LoggingClass {
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Display Name', for: 'username'}))
                                         .append($('<input>', {id: 'username'})))
-                                    // Volume
-                                    .append($('<div>').addClass('form-element')
-                                        .append($('<label>', {text: 'Volume', for: 'volume'}))
-                                        .append($('<input>', {id: 'volume', type: 'range'}))
-                                        .append($('<div>', {id: 'volume_button'})
-                                            .append($('<span>').addClass('fa-stack fa')
-                                                .append($('<i>').addClass('fa fa-volume-down fa-stack-2x')))))
-                                    // Sound set
-                                    .append($('<div>').addClass('form-element')
-                                        .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
-                                        .append($('<select>', {id: 'sound_set'})
-                                            .append($.map(['AIM', 'MSN'], item => {
-                                                return $('<option>', {value: item, text: item});
-                                            }))))
                                     // Color
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Color', for: 'color'}))
