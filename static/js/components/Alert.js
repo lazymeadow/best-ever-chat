@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import {LoggingClass} from "../client/LoggingClass";
+import {LoggingClass} from "../util";
 
 
 export class Alert extends LoggingClass {

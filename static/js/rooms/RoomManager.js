@@ -1,7 +1,6 @@
 import $ from 'jquery';
-import {LoggingClass} from "../client/LoggingClass";
-import {MessageLog} from "../components/MessageLog";
-import {Settings} from "../client/Settings";
+import {LoggingClass, Settings} from "../util";
+import {MessageLog} from "../components";
 import {Room} from "./Room";
 import {_parseEmojis} from '../lib';
 

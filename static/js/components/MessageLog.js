@@ -3,8 +3,7 @@ import moment from 'moment';
 import imagesLoaded from 'imagesloaded';
 imagesLoaded.makeJQueryPlugin( $ );
 
-import {LoggingClass} from "../client/LoggingClass";
-import {Settings} from "../client/Settings";
+import {LoggingClass, Settings} from "../util";
 import {_parseEmojis} from "../lib";
 
 export class MessageLog extends LoggingClass {

@@ -1,9 +1,8 @@
 import SockJS from 'sockjs-client';
-import {RoomManager} from "../rooms/RoomManager";
-import {UserManager} from "../users/UserManager";
-import {Settings} from "./Settings";
-import {Logger} from "./Logger";
-import {Alert} from "../components/Alert";
+import {RoomManager} from "../rooms";
+import {UserManager} from "../users";
+import {Settings, Logger} from "../util";
+import {Alert} from "../components";
 import {CLIENT_VERSION} from "../lib";
 
 export class BestEvarChatClient {

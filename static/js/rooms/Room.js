@@ -1,7 +1,6 @@
 import $ from 'jquery';
-import {LoggingClass} from "../client/LoggingClass";
-import {Settings} from "../client/Settings";
-import {Modal} from "../components/Modal";
+import {LoggingClass, Settings} from "../util";
+import {Modal} from "../components";
 
 
 export class Room extends LoggingClass {

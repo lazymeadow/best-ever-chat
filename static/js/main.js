@@ -4,11 +4,12 @@
  */
 
 import $ from 'jquery';
-import {Modal} from "./components/Modal";
-import {Settings} from "./client/Settings";
-import {BestEvarChatClient} from "./client/BestEvarChatClient";
-import {MainMenu} from "./components/MainMenu";
+import {Modal, MainMenu} from "./components";
+import {BestEvarChatClient} from "./client";
+import {Settings} from "./util";
 import {_parseEmojis} from "./lib";
+
+let chatClient;
 
 $(function () {
     const overlay = $('.overlay');
@@ -36,7 +37,7 @@ $(function () {
         new Modal({
             content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
             buttonText: 'Create Room',
-            buttonClickHandler: () => client.createRoom($('#new-room-name').val())
+            buttonClickHandler: () => chatClient.createRoom($('#new-room-name').val())
         });
     });
 
@@ -68,14 +69,14 @@ $(function () {
         .keyup(event => {
             if (event.which === 13) {
                 let chatInput = $(event.target);
-                client.sendChat(chatInput.val());
+                chatClient.sendChat(chatInput.val());
                 chatInput.val('');
                 chatInput.focus();
             }
         });
 
     const image_chat = event => {
-        client.sendImage($('#image_url').val(), $('#image_nsfw').is(':checked'));
+        chatClient.sendImage($('#image_url').val(), $('#image_nsfw').is(':checked'));
         $('.popout-option').hide();
         $('#image_url').val('');
     };
@@ -105,6 +106,6 @@ $(function () {
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
     });
 
-    window.client = new BestEvarChatClient();
-    new MainMenu(client);
+    chatClient = new BestEvarChatClient();
+    new MainMenu(chatClient);
 });

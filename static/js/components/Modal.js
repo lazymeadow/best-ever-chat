@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import {LoggingClass} from "../client/LoggingClass";
+import {LoggingClass} from "../util";
 
 export class Modal extends LoggingClass {
     constructor({title, content, buttonText, buttonClickHandler, showCancel=true, cancelText='Cancel', form = false}) {

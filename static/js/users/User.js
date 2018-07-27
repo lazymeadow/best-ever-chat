@@ -1,6 +1,5 @@
 import $ from 'jquery';
-import {LoggingClass} from "../client/LoggingClass";
-import {Settings} from "../client/Settings";
+import {LoggingClass, Settings} from "../util";
 
 export class User extends LoggingClass {
     constructor({username, color, faction, status, typing, id}) {
