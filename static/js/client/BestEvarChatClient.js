@@ -13,7 +13,7 @@ export class BestEvarChatClient {
         Settings.init();
         new MainMenu(this);
 
-        this._roomManager = new RoomManager();
+        this._roomManager = new RoomManager(this);
         this._userManager = new UserManager();
 
         this.connect();

@@ -5,9 +5,10 @@ import {Room} from "./Room";
 import {_parseEmojis} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor() {
+    constructor(client) {
         super();
         // this._soundManager = new SoundManager();
+        this._client = client;
         this._messageLog = new MessageLog();
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
