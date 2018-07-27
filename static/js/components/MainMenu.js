@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import {LoggingClass} from "../client/LoggingClass";
 import {Modal} from "./Modal";
+import {BestColorPicker} from "./BestColorPicker";
 
 export class MainMenu extends LoggingClass {
     constructor(client) {
@@ -79,7 +80,7 @@ export class MainMenu extends LoggingClass {
                                     // Color
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Color', for: 'color'}))
-                                        .append(bestColorPicker($('<div>', {id: 'color'}))))
+                                        .append((new BestColorPicker($('<div>', {id: 'color'}))).element))
                                     // Faction
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Faction', for: 'faction'}))

@@ -1,0 +1,24 @@
+@color-block-size: 25px;
+@color-block-margin: 8px;
+@selected-color-border-size: 3px;
+
+.colorpicker {
+  /*eight squares with margins*/
+  width: (@color-block-size * 8) + (@color-block-margin * 16);
+  display: block;
+}
+
+.color-block {
+  width: @color-block-size;
+  height: @color-block-size;
+  border-radius: 4px;
+  display: inline-block;
+  margin: @color-block-margin;
+  cursor: pointer;
+}
+
+.selected-color {
+  border: black @selected-color-border-size solid;
+  width: @color-block-size - (@selected-color-border-size * 2);
+  height: @color-block-size - (@selected-color-border-size * 2);
+}
