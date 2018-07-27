@@ -2,11 +2,14 @@ import Cookies from 'js-cookie';
 
 export class Settings {
     static init() {
+        // set server values
         Settings.username = Cookies.get('username');
         Settings.faction = Cookies.get('faction');
         Settings.color = Cookies.get('color');
-        Settings.volume = Cookies.get('volume');
         Settings.soundSet = Cookies.get('soundSet');
+
+        // set value overrides
+        Settings.volume = Settings.volume || Cookies.get('volume');
     }
 
     static get userId() {
@@ -83,7 +86,8 @@ export class Settings {
     }
 
     static get hideImages() {
-        return localStorage.getItem(`${Settings.userId}.hideImages`) === 'true';
+        const storedSetting = localStorage.getItem(`${Settings.userId}.hideImages`);
+        return storedSetting === null ? true : storedSetting === 'true';
     }
 
     static set hideImages(hideImages) {
