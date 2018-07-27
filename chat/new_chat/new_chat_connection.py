@@ -180,18 +180,20 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _update_settings(self, settings):
         update_user_list = False
         if 'username' in settings.keys():
-            new_username = to_unicode(settings['username'])
+            new_username = to_unicode(settings.pop('username'))
             old_username = self.current_user['username']
             if self._user_list.is_valid_username(new_username) is not True:
-                self._send_alert('{} is not a valid username.'.format(new_username))
+                self._send_alert(u'{} is not a valid username.'.format(new_username))
             elif new_username != old_username:
-                self._user_list.update_username(self.current_user['id'], settings['username'])
-                self._send_alert('Username changed from {} to {}.'.format(old_username, new_username))
-                self._broadcast_alert('{} is now {}.'.format(old_username, new_username))
+                self._user_list.update_username(self.current_user['id'], new_username)
+                self._send_alert(u'Username changed from {} to {}.'.format(old_username, new_username))
+                self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
                 update_user_list = True
 
-        if 'color' in settings.keys():
-            self._user_list.update_color(self.current_user['id'], settings['color'])
+        for key, value in settings.iteritems():
+            old_value = self.current_user[key]
+            self._user_list.update_user_conf(self.current_user['id'], key, value)
+            self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
 
         if update_user_list:
             self._broadcast_user_list()

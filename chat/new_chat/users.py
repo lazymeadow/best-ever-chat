@@ -25,7 +25,8 @@ class UserList:
         return user_id in self._user_map.keys()
 
     def is_valid_username(self, user_name):
-        return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (user_name not in self._user_map.keys())
+        return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (
+                    user_name not in self._user_map.keys())
 
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
@@ -52,7 +53,9 @@ class UserList:
             self._user_map[user['id']].update(user)
 
     def load_user(self, user_id):
-        user = self.db.get("SELECT id, password, username, sound, soundSet, email, faction, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s", user_id)
+        user = self.db.get(
+            "SELECT id, password, username, sound, soundSet, email, faction, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s",
+            user_id)
         if user['conf']:
             user.update(dict([config.split(':') for config in user['conf'].split(',')]))
         if user['id'] not in self._user_map.keys():
@@ -69,7 +72,8 @@ class UserList:
 
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username']), key=lambda user: user['status'])
+        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username']),
+                      key=lambda user: user['status'])
 
     def get_all_usernames(self):
         return [x for x in self._user_map]
@@ -90,10 +94,12 @@ class UserList:
             participant.current_user['username'] = new_username
         self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
 
-    def update_color(self, user_id, new_color):
+    def update_user_conf(self, user_id, conf_name, conf_value):
         if self._user_map.has_key(user_id):
-            self._user_map[user_id]['color'] = new_color
-            self.db.update("INSERT INTO parasite_config (name, value, parasite_id) VALUES ('color', %s, %s)  ON DUPLICATE KEY UPDATE value=%s", new_color, user_id, new_color)
+            self._user_map[user_id][conf_name] = conf_value
+            self.db.update(
+                "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
+                conf_name, conf_value, user_id, conf_value)
 
     def add_participant(self, participant):
         self._participants.add(participant)
