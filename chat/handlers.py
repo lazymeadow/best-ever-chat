@@ -19,8 +19,8 @@ class PageHandler(BaseHandler):
     def get(self):
         self.set_cookie('username', url_escape(self.current_user['username']) or '')
         self.set_cookie('color', self.current_user['color'] or '')
-        self.set_cookie('sounds', str(self.current_user['sound']) or '100')
-        self.set_cookie('sound_set', self.current_user['soundSet'] or 'AIM')
+        self.set_cookie('volume', str(self.current_user['volume']) or '100')
+        self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
         self.set_cookie('email', self.current_user['email'] or '')
         self.set_cookie('faction', self.current_user['faction'] or 'ra')
         self.set_cookie('id', self.current_user['id'])
@@ -93,11 +93,13 @@ class AuthLoginHandler(BaseHandler):
 
 class AuthLogoutHandler(BaseHandler):
     def get(self):
-        self.clear_cookie("parasite")
         self.clear_cookie("username")
         self.clear_cookie("color")
-        self.clear_cookie("sounds")
+        self.clear_cookie("volume")
         self.clear_cookie("soundSet")
+        self.clear_cookie("email")
+        self.clear_cookie("faction")
+        self.clear_cookie("id")
         self.redirect("login")
 
 

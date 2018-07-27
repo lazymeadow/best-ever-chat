@@ -100,6 +100,16 @@ export class BestEvarChatClient {
         });
     }
 
+    updateClientSettings() {
+        this._send({
+            'type': 'settings',
+            'data': {
+                volume: Settings.volume,
+                soundSet: Settings.soundSet
+            }
+        });
+    }
+
     joinRoom(roomId, accept = true, inviterId) {
         this._send({
             'type': 'room action',

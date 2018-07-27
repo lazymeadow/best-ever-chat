@@ -10,9 +10,11 @@ class UserList:
     _user_map = {}
     _participants = set()
     _user_defaults = {
+        'status': 'offline',
         'color': '#555555',
-        'faction': 'rebel',
-        'status': 'offline'
+        'faction': 'ra',
+        'soundSet': 'AIM',
+        'volume': '100'
     }
 
     def __init__(self, db):
@@ -54,7 +56,7 @@ class UserList:
 
     def load_user(self, user_id):
         user = self.db.get(
-            "SELECT id, password, username, sound, soundSet, email, faction, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s",
+            "SELECT id, password, username, email, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s",
             user_id)
         if user['conf']:
             user.update(dict([config.split(':') for config in user['conf'].split(',')]))
@@ -95,11 +97,12 @@ class UserList:
         self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
 
     def update_user_conf(self, user_id, conf_name, conf_value):
-        if self._user_map.has_key(user_id):
+        if self._user_map.has_key(user_id) and self._user_map[user_id][conf_name] != conf_value:
             self._user_map[user_id][conf_name] = conf_value
             self.db.update(
                 "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
                 conf_name, conf_value, user_id, conf_value)
+            return True
 
     def add_participant(self, participant):
         self._participants.add(participant)

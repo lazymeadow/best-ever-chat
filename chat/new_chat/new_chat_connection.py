@@ -178,7 +178,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
     ### USER ACTIONS
 
     def _update_settings(self, settings):
-        update_user_list = False
+        update_user_list = 'username' in settings.keys() or 'faction' in settings.keys()
+
         if 'username' in settings.keys():
             new_username = to_unicode(settings.pop('username'))
             old_username = self.current_user['username']
@@ -188,12 +189,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._user_list.update_username(self.current_user['id'], new_username)
                 self._send_alert(u'Username changed from {} to {}.'.format(old_username, new_username))
                 self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
-                update_user_list = True
 
         for key, value in settings.iteritems():
             old_value = self.current_user[key]
-            self._user_list.update_user_conf(self.current_user['id'], key, value)
-            self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
+            if self._user_list.update_user_conf(self.current_user['id'], key, value):
+                self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
 
         if update_user_list:
             self._broadcast_user_list()

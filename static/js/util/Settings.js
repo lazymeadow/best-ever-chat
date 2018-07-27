@@ -3,11 +3,10 @@ import Cookies from 'js-cookie';
 export class Settings {
     static init() {
         Settings.username = Cookies.get('username');
-        Settings.activeRoom = parseInt(localStorage.getItem(`${Settings.userId}.activeRoom`)) || 0;
         Settings.faction = Cookies.get('faction');
         Settings.color = Cookies.get('color');
+        Settings.volume = Cookies.get('volume');
         Settings.soundSet = Cookies.get('soundSet');
-        Settings.timestamps = Cookies.get('timestamps');
     }
 
     static get userId() {
@@ -22,20 +21,20 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.username`, username);
     }
 
+    static get activeRoom() {
+        return parseInt(localStorage.getItem(`${Settings.userId}.activeRoom`)) || 0;
+    }
+
+    static set activeRoom(roomId) {
+        localStorage.setItem(`${Settings.userId}.activeRoom`, roomId);
+    }
+
     static get faction() {
         return localStorage.getItem(`${Settings.userId}.faction`);
     }
 
     static set faction(faction) {
         localStorage.setItem(`${Settings.userId}.faction`, faction);
-    }
-
-    static get activeRoom() {
-        return parseInt(localStorage.getItem(`${Settings.userId}.activeRoom`));
-    }
-
-    static set activeRoom(roomId) {
-        localStorage.setItem(`${Settings.userId}.activeRoom`, roomId);
     }
 
     static get color() {
@@ -46,6 +45,27 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.color`, color);
     }
 
+    static get tabTitle() {
+        return localStorage.getItem(`${Settings.userId}.tabTitle`) || '';
+    }
+
+    static set tabTitle(tabTitle) {
+        if (tabTitle) {
+            localStorage.setItem(`${Settings.userId}.tabTitle`, tabTitle);
+        }
+        else {
+            localStorage.removeItem(`${Settings.userId}.tabTitle`);
+        }
+    }
+
+    static get volume() {
+        return localStorage.getItem(`${Settings.userId}.volume`);
+    }
+
+    static set volume(volume) {
+        localStorage.setItem(`${Settings.userId}.volume`, volume);
+    }
+
     static get soundSet() {
         return localStorage.getItem(`${Settings.userId}.soundSet`);
     }
@@ -54,8 +74,24 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.soundSet`, soundSet);
     }
 
+    static get fontSize() {
+        return localStorage.getItem(`${Settings.userId}.fontSize`) || 14;
+    }
+
+    static set fontSize(fontSize) {
+        localStorage.setItem(`${Settings.userId}.fontSize`, fontSize);
+    }
+
+    static get hideImages() {
+        return localStorage.getItem(`${Settings.userId}.hideImages`) === 'true';
+    }
+
+    static set hideImages(hideImages) {
+        localStorage.setItem(`${Settings.userId}.hideImages`, hideImages);
+    }
+
     static get timestamps() {
-        return localStorage.getItem(`${Settings.userId}.timestamps`);
+        return localStorage.getItem(`${Settings.userId}.timestamps`) || 'date_time';
     }
 
     static set timestamps(timestamps) {
