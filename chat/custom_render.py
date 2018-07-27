@@ -43,7 +43,7 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
     def get_current_user(self):
         user_id = self.get_secure_cookie("parasite")
         if not user_id: return None
-        return self.db.get("SELECT * FROM parasite WHERE id = %s", str(user_id))
+        return self.user_list.get_user(user_id)
 
     def render2(self, template_name, **kwargs):
         """

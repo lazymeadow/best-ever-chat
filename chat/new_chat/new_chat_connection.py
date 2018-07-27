@@ -37,13 +37,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._user_list.add_participant(self)
         self._user_list.update_user_status(parasite, 'active')
 
-        self.current_user = self.http_server.db.get(
-            "SELECT id, password, username, color, sound, soundSet, email, faction FROM parasite WHERE id = %s",
-            parasite)
+        self.current_user = self._user_list.get_user(parasite)
 
         self._broadcast_user_list()
         self._send_room_list()
-        self._broadcast_alert(u'{} is online.'.format(self.current_user.username))
+        self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
 
         self._send_from_server('Connection successful.')
 
@@ -95,9 +93,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_close(self):
         print 'close'
-        self._user_list.update_user_status(self.current_user.id, 'offline', self)
+        self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._broadcast_user_list()
-        self._broadcast_alert(u'{} is offline.'.format(self.current_user.username))
+        self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
 
     def _send_room_list(self, room_id=None):
         if room_id is not None:
@@ -109,7 +107,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         else:
             self.send({'type': 'room data',
                        'data': {
-                           'rooms': self._room_list.get_room_list_for_user(self.current_user.id),
+                           'rooms': self._room_list.get_room_list_for_user(self.current_user['id']),
                            'all': True
                        }})
 
@@ -191,6 +189,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert('Username changed from {} to {}.'.format(old_username, new_username))
                 self._broadcast_alert('{} is now {}.'.format(old_username, new_username))
                 update_user_list = True
+
+        # if 'color' in settings.keys():
+
 
         if update_user_list:
             self._broadcast_user_list()

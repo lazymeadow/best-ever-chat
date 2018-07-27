@@ -17,12 +17,9 @@ class UserList:
 
     def __init__(self, db):
         self.db = db
-        users = self.db.query("SELECT id, username, color, faction FROM parasite")
-        for user in users:
-            user['username'] = to_unicode(user['username'])
-            new_user = self._user_defaults.copy()
-            new_user.update(user)
-            self._user_map[user.id] = new_user
+        parasites = self.db.query("SELECT id FROM parasite")
+        for parasite in parasites:
+            self.load_user(parasite['id'])
 
     def is_existing_user(self, user_id):
         return user_id in self._user_map.keys()
@@ -55,7 +52,9 @@ class UserList:
             self._user_map[user['id']].update(user)
 
     def load_user(self, user_id):
-        user = self.db.get("SELECT id, username, color, faction FROM parasite WHERE id = %s", user_id)
+        user = self.db.get("SELECT id, password, username, sound, soundSet, email, faction, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s", user_id)
+        if user['conf']:
+            user.update(dict([config.split(':') for config in user['conf'].split(',')]))
         if user['id'] not in self._user_map.keys():
             # this means this is a probably NEW user, created since the server was started.
             new_user = self._user_defaults.copy()
@@ -90,6 +89,11 @@ class UserList:
         for participant in self.get_user_participants(user_id):
             participant.current_user['username'] = new_username
         self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
+
+    def update_color(self, user_id, new_color):
+        if self._user_map.has_key(user_id):
+            self._user_map[user_id]['color'] = new_color
+            self.db.update("INSERT INTO parasite_config (name, value, parasite_id) VALUES ('color', %s, %s)  ON DUPLICATE KEY UPDATE value=%s", new_color, user_id, new_color)
 
     def add_participant(self, participant):
         self._participants.add(participant)
