@@ -54,7 +54,7 @@ export class RoomManager extends LoggingClass {
             this._messageLog.printMessage(messageData, false);
         }
         else {
-            this._roomDataMap.get(roomId).addMessage(messageData);
+            this._roomDataMap.get(roomId).addMessage(messageData, messageData.username !== Settings.username);
             if (Settings.activeRoom === roomId) {
                 this._messageLog.printMessage(messageData, true);
             }
