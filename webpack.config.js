@@ -1,5 +1,6 @@
 const path = require('path');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
     mode: "development",
@@ -16,7 +17,8 @@ module.exports = {
                 ],
                 loader: 'babel-loader',
                 options: {
-                    presets: ['es2015']
+                    presets: ['env'],
+                    plugins: ["transform-object-rest-spread"]
                 }
             }
         ]
@@ -24,12 +26,13 @@ module.exports = {
     stats: {
         colors: true
     },
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'static/dist')
     },
     plugins: [
+        new CleanWebpackPlugin(['static/dist/*.js']),
         new CircularDependencyPlugin({
             // exclude detection of files based on a RegExp
             exclude: /a\.js|node_modules/,

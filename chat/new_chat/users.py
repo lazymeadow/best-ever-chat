@@ -28,7 +28,7 @@ class UserList:
         return user_id in self._user_map.keys()
 
     def is_valid_username(self, user_name):
-        return (user_name not in self._user_map.keys()) and (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()])
+        return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (user_name not in self._user_map.keys())
 
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
@@ -87,6 +87,8 @@ class UserList:
 
     def update_username(self, user_id, new_username):
         self._user_map[user_id]['username'] = new_username
+        for participant in self.get_user_participants(user_id):
+            participant.current_user['username'] = new_username
         self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
 
     def add_participant(self, participant):

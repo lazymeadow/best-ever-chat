@@ -3,7 +3,7 @@ from time import time
 
 from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
-from tornado.escape import xhtml_escape
+from tornado.escape import xhtml_escape, to_unicode
 
 from chat.lib import log_from_client, retrieve_image_in_s3, preprocess_message, emoji, is_image_url
 
@@ -42,7 +42,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             parasite)
 
         self._broadcast_user_list()
-        self.send_room_list()
+        self._send_room_list()
         self._broadcast_alert(u'{} is online.'.format(self.current_user.username))
 
         self._send_from_server('Connection successful.')
@@ -69,7 +69,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         if json_message['type'] == 'chat message':
             self._broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room id'])
-        if json_message['type'] == 'image':
+        elif json_message['type'] == 'image':
             self._broadcast_image(json_message['user id'], json_message['image url'], json_message['room id'],
                                   json_message['nsfw'])
         elif json_message['type'] == 'room action':
@@ -88,6 +88,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')
             elif json_message['client version'] > CLIENT_VERSION:
                 self._send_alert('How did you mess up a perfectly good client version number?', 'permanent')
+        elif json_message['type'] == 'settings':
+            self._update_settings(json_message['data'])
+        else:
+            print 'Received: ' + str(json_message)
 
     def on_close(self):
         print 'close'
@@ -95,7 +99,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._broadcast_user_list()
         self._broadcast_alert(u'{} is offline.'.format(self.current_user.username))
 
-    def send_room_list(self, room_id=None):
+    def _send_room_list(self, room_id=None):
         if room_id is not None:
             self.send({'type': 'room data',
                        'data': {
@@ -173,18 +177,36 @@ class NewMultiRoomChatConnection(SockJSConnection):
                             'users': self._user_list.get_user_list()
                         }})
 
+    ### USER ACTIONS
+
+    def _update_settings(self, settings):
+        update_user_list = False
+        if 'username' in settings.keys():
+            new_username = to_unicode(settings['username'])
+            old_username = self.current_user['username']
+            if self._user_list.is_valid_username(new_username) is not True:
+                self._send_alert('{} is not a valid username.'.format(new_username))
+            elif new_username != old_username:
+                self._user_list.update_username(self.current_user['id'], settings['username'])
+                self._send_alert('Username changed from {} to {}.'.format(old_username, new_username))
+                self._broadcast_alert('{} is now {}.'.format(old_username, new_username))
+                update_user_list = True
+
+        if update_user_list:
+            self._broadcast_user_list()
+
     ### ROOM ACTIONS
 
     def _create_room(self, name):
         (room_id, participant_list) = self._room_list.create_room(name, self.current_user['id'])
         if participant_list is not None:
-            [x.send_room_list(room_id=room_id) for x in participant_list]
+            [x._send_room_list(room_id=room_id) for x in participant_list]
             self._broadcast_user_list(participant_list)
 
     def _delete_room(self, room_id):
         (room_name, participant_list) = self._room_list.remove_room(room_id)
         if participant_list is not None:
-            [x.send_room_list() for x in participant_list]
+            [x._send_room_list() for x in participant_list]
             self._broadcast_user_list(participant_list)
             self._broadcast_alert(u"Room '{}' has been deleted.".format(room_name), participant_list=participant_list)
 
@@ -194,7 +216,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
                 # TODO delete the invitation from the database
                 participant_list = self._room_list.get_room_participants(room_id)
-                [x.send_room_list(room_id) for x in participant_list]
+                [x._send_room_list(room_id) for x in participant_list]
                 self._broadcast_user_list(participant_list)
 
                 # broadcast presence to the other room members
@@ -226,9 +248,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if self._room_list.remove_user_from_room(room_id, self.current_user['id']) is True:
             room_participants = self._room_list.get_room_participants(room_id)
             # send room update to remaining room members
-            [x.send_room_list(room_id) for x in room_participants]
+            [x._send_room_list(room_id) for x in room_participants]
             # send full room list to self
-            [x.send_room_list() for x in self._get_my_participants()]
+            [x._send_room_list() for x in self._get_my_participants()]
 
             participant_list = room_participants + self._get_my_participants()
             self._broadcast_user_list(participant_list)

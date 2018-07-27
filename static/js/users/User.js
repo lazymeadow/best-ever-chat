@@ -20,8 +20,8 @@ export class User extends LoggingClass {
         }
         else {
             this._userElement = $('#current-user');
-            this._userElement.children('.list-content').text(this.username);
-            this._userElement.children('.online-status').addClass(`fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`);
+            this._userElement.find('.list-content').text(this.username);
+            this._userElement.find('.online-status').addClass(`fa fa-fw fa-${this.faction === 'empire' ? 'ge' : 'ra'}`);
             this._userElement.addClass(this.status);
         }
     }
@@ -36,15 +36,14 @@ export class User extends LoggingClass {
     updateUser({username, color, faction, status, typing, id}) {
         if (username !== this.username) {
             this.username = username;
-            this._userElement.children('.list-content').text(this.username);
+            this._userElement.find('.list-content').text(this.username);
         }
         if (faction !== this.faction) {
             this.faction = faction;
-            this._userElement.children('.online-status').toggleClass('fa-ge fa-ra');
+            this._userElement.find('.online-status').toggleClass('fa-ge fa-ra');
         }
         this._userElement.removeClass().addClass(status);
         this.color = color;
-
     }
 
 

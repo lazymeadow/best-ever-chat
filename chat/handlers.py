@@ -22,7 +22,7 @@ class PageHandler(BaseHandler):
         self.set_cookie('sounds', str(self.current_user.sound) or '100')
         self.set_cookie('sound_set', self.current_user.soundSet or 'AIM')
         self.set_cookie('email', self.current_user.email or '')
-        self.set_cookie('faction', self.current_user.faction or 'rebel')
+        self.set_cookie('faction', self.current_user.faction or 'ra')
         self.set_cookie('id', self.current_user.id)
         self.render2('index.html', emoji_list=self.settings['emojis'])
 

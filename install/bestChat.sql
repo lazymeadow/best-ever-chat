@@ -32,7 +32,7 @@ CREATE TABLE `parasite` (
   `soundSet` varchar(3) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
   `reset_token` varchar(64) DEFAULT NULL,
-  `faction` varchar(16) NOT NULL DEFAULT 'rebel',
+  `faction` varchar(16) NOT NULL DEFAULT 'ra',
   PRIMARY KEY (`id`),
   UNIQUE KEY `parasite_id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

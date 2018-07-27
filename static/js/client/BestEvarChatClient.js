@@ -2,13 +2,17 @@ import SockJS from 'sockjs-client';
 import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
 import {Settings, Logger} from "../util";
-import {Alert} from "../components";
+import {Alert, MainMenu} from "../components";
 import {CLIENT_VERSION} from "../lib";
 
 export class BestEvarChatClient {
     constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
+
+        Settings.init();
+        new MainMenu(this);
+
         this._roomManager = new RoomManager();
         this._userManager = new UserManager();
 
@@ -23,8 +27,7 @@ export class BestEvarChatClient {
         this._sock.onopen = () => {
             this._send({
                 'type': 'version',
-                'client version': CLIENT_VERSION,
-                'user id': Settings.userId
+                'client version': CLIENT_VERSION
             });
         };
         this._sock.onmessage = (message) => this._handleMessage(message);
@@ -38,7 +41,6 @@ export class BestEvarChatClient {
     sendChat(messageText) {
         this._send({
             'type': 'chat message',
-            'user id': Settings.userId,
             'message': messageText,
             'room id': Settings.activeRoom
         });
@@ -47,7 +49,6 @@ export class BestEvarChatClient {
     sendImage(imageUrl, nsfw) {
         this._send({
             'type': 'image',
-            'user id': Settings.userId,
             'image url': imageUrl,
             'nsfw': nsfw,
             'room id': Settings.activeRoom
@@ -57,7 +58,6 @@ export class BestEvarChatClient {
     createRoom(roomName) {
         this._send({
             'type': 'room action',
-            'user id': Settings.userId,
             'action': 'create',
             'owner id': Settings.userId,
             'room name': roomName
@@ -67,7 +67,6 @@ export class BestEvarChatClient {
     deleteRoom(roomId) {
         this._send({
             'type': 'room action',
-            'user id': Settings.userId,
             'action': 'delete',
             'room id': roomId
         });
@@ -76,7 +75,6 @@ export class BestEvarChatClient {
     leaveRoom(roomId) {
         this._send({
             'type': 'room action',
-            'user id': Settings.userId,
             'action': 'leave',
             'room id': roomId
         });
@@ -85,17 +83,26 @@ export class BestEvarChatClient {
     sendInvitations(roomId, userIds) {
         this._send({
             'type': 'room action',
-            'user id': Settings.userId,
             'action': 'invite',
             'room id': roomId,
             'user ids': userIds
-        })
+        });
     }
 
-    joinRoom(roomId, accept=true, inviterId) {
+    updateUserSettings() {
+        this._send({
+            'type': 'settings',
+            'data': {
+                username: Settings.username,
+                color: Settings.color,
+                faction: Settings.faction
+            }
+        });
+    }
+
+    joinRoom(roomId, accept = true, inviterId) {
         this._send({
             'type': 'room action',
-            'user id': Settings.userId,
             'action': 'join',
             'room id': roomId,
             accept,
@@ -106,7 +113,10 @@ export class BestEvarChatClient {
     // Private functions
 
     _send(data) {
-        this._sock.send(JSON.stringify(data));
+        this._sock.send(JSON.stringify({
+            'user id': Settings.userId,
+            ...data
+        }));
     }
 
     _handleMessage({data: {data: messageData, type: messageType}}) {

@@ -97,8 +97,6 @@ $(function () {
         chatText.val(chatText.val() + $(event.target).prop('alt'));
     });
 
-    $('.my-username').text(Settings.username);
-
     window.autoScroll = true;
     $('#log').scroll(event => {
         const log = $(event.target);
@@ -107,5 +105,6 @@ $(function () {
     });
 
     chatClient = new BestEvarChatClient();
-    new MainMenu(chatClient);
+
+    $('#current-user').find('.list-content').text(Settings.username);
 });
