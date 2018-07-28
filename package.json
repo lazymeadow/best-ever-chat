@@ -4,11 +4,7 @@
   "description": "The Best Evar Chat - now with webpack!",
   "private": true,
   "scripts": {
-    "build-all": "npm install && npm run build-client && npm run build-login",
-    "build-login": "npm run login-less",
-    "build-client": "npm run webpack && npm run main-less",
-    "login-less": "lessc ./static/less/login.less ./static/dist/login.css --clean-css=\"--s1 --advanced --compatibility=ie8\"",
-    "main-less": "lessc ./static/less/chat.less ./static/dist/chat.css --clean-css=\"--s1 --advanced --compatibility=ie8\"",
+    "build-all": "npm install && npm run webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
     "webpack": "webpack"
