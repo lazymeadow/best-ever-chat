@@ -3,8 +3,8 @@
 {% set title = 'Sign In' %}
 
 {% block includes %}
-<link rel="stylesheet" href="static/dist/login.css" type="text/css"/>
-<script src="static/dist/login.js"></script>
+<link rel="stylesheet" href="/static/login.css" type="text/css"/>
+<script src="/static/login.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
         <div class="form-group">
             <div class="form-element">
                 <label for="parasite">Username</label>
-                <input type=text name="parasite" id="parasite" required/>
+                <input type=text name="parasite" id="parasite" value="{% if username %}{{username}}{% endif %}" required/>
             </div>
             <div class="form-element">
                 <label for="password">Password</label>

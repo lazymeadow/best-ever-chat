@@ -65,7 +65,7 @@ if __name__ == "__main__":
         'template_path': 'templates',
         'xsrf_cookies': True,
         'login_url': "/login",
-        'static_path': os.path.join(os.path.dirname(__file__), 'static'),
+        'static_path': os.path.join(os.path.dirname(__file__), 'static/dist'),
         'emojis': curated_emojis,
         'default_handler_class': Chat404Handler
     }
