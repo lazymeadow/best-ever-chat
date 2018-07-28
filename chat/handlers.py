@@ -73,6 +73,8 @@ class AuthCreateHandler(BaseHandler):
 
 class AuthLoginHandler(BaseHandler):
     def get(self):
+        if self.get_secure_cookie("parasite"):
+            self.redirect(self.get_argument("next", "/"))
         self.render2("login.html", error=self.get_argument("error", default=None))
 
     @gen.coroutine
@@ -93,13 +95,7 @@ class AuthLoginHandler(BaseHandler):
 
 class AuthLogoutHandler(BaseHandler):
     def get(self):
-        self.clear_cookie("username")
-        self.clear_cookie("color")
-        self.clear_cookie("volume")
-        self.clear_cookie("soundSet")
-        self.clear_cookie("email")
-        self.clear_cookie("faction")
-        self.clear_cookie("id")
+        self.clear_all_cookies()
         self.redirect("login")
 
 
