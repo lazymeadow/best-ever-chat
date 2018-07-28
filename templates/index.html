@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% set title = "Loading..." %}
+
 {% block includes %}
 <link rel="stylesheet" href="/static/dist/chat.css" type="text/css"/>
 <script src="/static/dist/main.js"></script>
@@ -13,7 +15,7 @@
         <span class="online-status"></span>
         <span class="list-content"></span>
         <span>
-            <span class="fa fa-fw fa-caret-down" id="main_menu"></span>
+            <span class="fas fa-fw fa-caret-down" id="main_menu"></span>
                 <div class="popout-menu"></div>
         </span>
     </div>
@@ -21,7 +23,7 @@
     <div id="room-list">
         <div class="rooms-header">
             <span>Rooms</span>
-            <span id="add-room" class="fa fa-fw fa-plus"></span>
+            <span id="add-room" class="fas fa-fw fa-plus"></span>
         </div>
     </div>
 </div>
@@ -48,7 +50,7 @@
             </div>
         </div>
         <div class="button">
-            <span class="fa fa-fw fa-picture-o"></span>
+            <span class="far fa-fw fa-image"></span>
             <div class="popout-option">
                 <div class="form-group">
                     <label for="image_url">

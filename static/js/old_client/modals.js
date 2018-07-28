@@ -15,7 +15,7 @@ function dynamic_modal(options) {
         .append($('<div>').addClass('modal-header')
             .append($('<span>').addClass('modal-title')
                 .text(options.title || ''))
-            .append($('<span>').addClass('close-icon fa fa-close')
+            .append($('<span>').addClass('close-icon fas fa-close')
                 .click(function () {
                     toggleModal(options.modalId);
                     newModal.remove();

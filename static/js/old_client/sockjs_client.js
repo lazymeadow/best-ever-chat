@@ -410,10 +410,10 @@ function updateUserList() {
     $.each(newList, function (index, user) {
         var userDiv = $('<div/>').attr('title', user['real_name']);
         if (user['typing']) {
-            userDiv.append($('<span>').addClass('typing fa fa-fw fa-commenting-o'));
+            userDiv.append($('<span>').addClass('typing fas fa-fw fa-commenting-o'));
         }
         userDiv.append(user['username']);
-        var activeIcon = $('<span>').addClass('fa fa-fw').addClass('fa-' + user.faction);
+        var activeIcon = $('<span>').addClass('fas fa-fw').addClass('fa-' + user.faction);
         activeIcon.addClass(user['idle'] ? 'idle' : 'active');
         userDiv.prepend(activeIcon);
         userList.append(userDiv);

@@ -2,11 +2,11 @@
 var receive_sound, send_sound, connect_sound, disconnect_sound, activate_sound;
 
 function getMuteIconHTML() {
-    return '<i class="fa fa-volume-off fa-stack-2x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i>';
+    return '<i class="fas fa-volume-off fa-stack-2x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i>';
 }
 
 function getVolumeIconHTML(value) {
-    return value > 33 ? '<i class="fa fa-volume-up fa-stack-2x"></i>' : '<i class="fa fa-volume-down fa-stack-2x"></i>';
+    return value > 33 ? '<i class="fas fa-volume-up fa-stack-2x"></i>' : '<i class="fas fa-volume-down fa-stack-2x"></i>';
 }
 
 

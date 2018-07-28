@@ -13,15 +13,15 @@ export class User extends LoggingClass {
 
         if (this.id !== Settings.userId) {
             this._userElement = $('<div>').append($('<div>')
-                .append($('<span>').addClass(`online-status fa fa-fw fa-${this.faction}`))
+                .append($('<span>').addClass(`online-status fab fa-fw fa-${this.faction}`))
                 .append($('<span>').addClass('list-content').text(this.username))
-                .append($('<span>').addClass('typing-status fa fa-fw fa-commenting-o')))
+                .append($('<span>').addClass('typing-status far fa-fw fa-comment-dots')))
                 .removeClass().addClass(this.status);
         }
         else {
             this._userElement = $('#current-user');
             this._userElement.find('.list-content').text(this.username);
-            this._userElement.find('.online-status').addClass(`fa fa-fw fa-${this.faction}`);
+            this._userElement.find('.online-status').addClass(`fab fa-fw fa-${this.faction}`);
             this._userElement.addClass(this.status);
         }
     }

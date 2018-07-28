@@ -45,12 +45,12 @@ export class Room extends LoggingClass {
     _createRoomElement() {
         let roomElement = $('<div>');
         let elementBody = $('<div>')
-            .append($('<span>').addClass('message-indicator fa fa-fw fa-comments-o'))
+            .append($('<span>').addClass('message-indicator far fa-fw fa-comments'))
             .append($('<span>').addClass('list-content').text(this.name));
 
         if (this.id > 0) {
             let menu = $('<div>').addClass('inline-menu');
-            let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fa fa-fw fa-user-plus'))
+            let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fas fa-fw fa-user-plus'))
                 .click(() => {
                     new Modal({
                         content: () => {
@@ -83,7 +83,7 @@ export class Room extends LoggingClass {
                     });
                 });
             let removeItem = this.isMine ?
-                $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('fa fa-fw fa-trash-o'))
+                $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('far fa-fw fa-trash-alt'))
                     .click(() => {
                         new Modal({
                             content: $('<div>')
@@ -97,7 +97,7 @@ export class Room extends LoggingClass {
                             }
                         });
                     }) :
-                $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('fa fa-fw fa-window-close-o'))
+                $('<span>').addClass('menu-item').text('Leave Room').prepend($('<span>').addClass('far fa-fw fa-window-close'))
                     .click(() => {
                         new Modal({
                             content: $('<div>')
@@ -111,7 +111,7 @@ export class Room extends LoggingClass {
                     });
             menu.append(inviteItem).append(removeItem).hide();
 
-            let menuButton = $('<span>').addClass('fa fa-fw fa-caret-down')
+            let menuButton = $('<span>').addClass('fas fa-fw fa-caret-down')
                 .click((event) => {
                     event.stopPropagation();
 

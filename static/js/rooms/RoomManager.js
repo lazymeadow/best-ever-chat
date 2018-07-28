@@ -2,7 +2,7 @@ import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 import {MessageLog} from "../components";
 import {Room} from "./Room";
-import {_parseEmojis} from '../lib';
+import {_parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
     constructor(client) {
@@ -67,7 +67,9 @@ export class RoomManager extends LoggingClass {
      */
     setActiveRoom(roomId) {
         Settings.activeRoom = roomId;
-        this._messageLog.printMessages(this._roomDataMap.get(roomId).messageHistory);
+        let room = this._roomDataMap.get(roomId);
+        this._messageLog.printMessages(room.messageHistory);
+        setTitle(room.name);
         super.debug(`Active room set to ${roomId}.`);
     }
 
@@ -75,9 +77,9 @@ export class RoomManager extends LoggingClass {
 
     _addRoom(roomData) {
         if (this._roomDataMap.has(roomData.id)) {
-           const room = this._roomDataMap.get(roomData.id);
-           $.merge(room.messageHistory, roomData.history);
-           room.memberList = new Set(roomData.members);
+            const room = this._roomDataMap.get(roomData.id);
+            $.merge(room.messageHistory, roomData.history);
+            room.memberList = new Set(roomData.members);
             this.debug(`Room '${roomData.name}' added.`);
         }
         else {

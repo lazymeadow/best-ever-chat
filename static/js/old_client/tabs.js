@@ -42,9 +42,9 @@ function createNewTab(room) {
         .prop('room_id', room['id'])
         .prop('title', room['name'])
         .click(setActiveTab)
-        .append($('<div>').addClass('indicator fa fa-star').hide());
+        .append($('<div>').addClass('indicator fas fa-star').hide());
     if (room['id'] > 0) {
-        var menuButton = $('<span>').addClass('fa fa-fw fa-ellipsis-h')
+        var menuButton = $('<span>').addClass('fas fa-fw fa-ellipsis-h')
             .prop('room_id', room['id']);
         newTab.append(menuButton);
         menu(menuButton,
@@ -52,7 +52,7 @@ function createNewTab(room) {
                 menuId: 'tab_menu_' + room['id'],
                 menuItems: [
                     {
-                        iconClass: 'fa fa-fw fa-user-plus',
+                        iconClass: 'fas fa-fw fa-user-plus',
                         name: 'Invite Users',
                         id: 'invite_' + room['id'],
                         callback: function (event) {
@@ -100,7 +100,7 @@ function createNewTab(room) {
                         }
                     },
                     {
-                        iconClass: 'fa fa-fw fa-window-close-o',
+                        iconClass: 'fas fa-fw fa-window-close-o',
                         name: 'Leave Room',
                         callback: function (event) {
                             toggleMenu($(event.target).parents('.menu').prop('id'));
@@ -115,7 +115,7 @@ function createNewTab(room) {
                         }
                     },
                     {
-                        iconClass: 'fa fa-fw fa-trash',
+                        iconClass: 'fas fa-fw fa-trash',
                         name: 'Delete Room',
                         disabled: room['owner'] !== Cookies.get('id'),
                         callback: function (event) {

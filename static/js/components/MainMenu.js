@@ -3,29 +3,6 @@ import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 
-const accountSettingsModal = () => new Modal({
-    form: true,
-    title: 'Account Settings',
-    content: $('<div>')
-        .append($('<div>').addClass('form-group')
-            // Email
-                .append($('<div>').addClass('form-element')
-                    .append($('<label>', {text: 'Email Address', for: 'email'}))
-                    .append($('<input>', {id: 'email'})))
-                // Password
-                .append($('<div>').addClass('form-element')
-                    .append($('<label>', {text: 'Change Password', for: 'password1'}))
-                    .append($('<input>', {id: 'password1', type: 'password', placeholder: 'New password'})))
-                .append($('<div>').addClass('form-element')
-                    .append($('<label>', {text: '', for: 'password2'}))
-                    .append($('<input>', {id: 'password2', type: 'password', placeholder: 'Confirm password'})))
-        ),
-    buttonText: 'Save',
-    buttonClickHandler: () => {
-        this.debug('Account settings saved!');
-    }
-});
-
 export class MainMenu extends LoggingClass {
     constructor(client) {
         super();
@@ -35,7 +12,7 @@ export class MainMenu extends LoggingClass {
         this._menuContents
             .append(this._new_menu_item(
                 'Client Settings',
-                'desktop',
+                ['fas', 'desktop'],
                 () => new Modal({
                     form: true,
                     title: 'Client Settings',
@@ -52,7 +29,7 @@ export class MainMenu extends LoggingClass {
                                     .append($('<input>', {id: 'volume', type: 'range'}).val(Settings.volume))
                                     .append($('<div>', {id: 'volume_button'})
                                         .append($('<span>').addClass('fa-stack fa')
-                                            .append($('<i>').addClass('fa fa-volume-down fa-stack-2x')))))
+                                            .append($('<i>').addClass('fas fa-volume-down fa-stack-2x')))))
                                 // Sound set
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
@@ -100,7 +77,7 @@ export class MainMenu extends LoggingClass {
             ))
             .append(this._new_menu_item(
                 'User Settings',
-                'user-circle-o',
+                ['far', 'user-circle'],
                 () => {
                     const colorPicker = new BestColorPicker($('<div>', {id: 'color'}));
                     return new Modal({
@@ -137,12 +114,37 @@ export class MainMenu extends LoggingClass {
             ))
             .append(this._new_menu_item(
                 'Account Settings',
-                'cogs',
-                accountSettingsModal
+                ['fas', 'cogs'],
+                () => new Modal({
+                    form: true,
+                    title: 'Account Settings',
+                    content: $('<div>')
+                        .append($('<div>').addClass('form-group')
+                            // Email
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Email Address', for: 'email'}))
+                                    .append($('<input>', {id: 'email'})))
+                                // Password
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Change Password', for: 'password1'}))
+                                    .append($('<input>', {id: 'password1', type: 'password', placeholder: 'New password'})))
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: '', for: 'password2'}))
+                                    .append($('<input>', {
+                                        id: 'password2',
+                                        type: 'password',
+                                        placeholder: 'Confirm password'
+                                    })))
+                        ),
+                    buttonText: 'Save',
+                    buttonClickHandler: () => {
+                        this.debug('Account settings saved!');
+                    }
+                })
             ))
             .append(this._new_menu_item(
                 'About',
-                'question',
+                ['fas', 'question'],
                 () => {
                     new Modal({
                         showCancel: false,
@@ -155,7 +157,7 @@ export class MainMenu extends LoggingClass {
             ))
             .append(this._new_menu_item(
                 'Log Out',
-                'sign-out',
+                ['fas', 'sign-out-alt'],
                 () => window.location = '/logout'
             ));
 
@@ -163,7 +165,7 @@ export class MainMenu extends LoggingClass {
 
     _new_menu_item(title, icon, clickHandler) {
         return $('<span>').addClass('menu-item')
-            .append($('<span>').addClass(`fa fa-fw fa-${icon}`))
+            .append($('<span>').addClass(`${icon[0]} fa-fw fa-${icon[1]}`))
             .append(title)
             .click(() => {
                 $('.overlay').hide();

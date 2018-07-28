@@ -12,7 +12,7 @@ class UserList:
     _user_defaults = {
         'status': 'offline',
         'color': '#555555',
-        'faction': 'ra',
+        'faction': 'rebel',
         'soundSet': 'AIM',
         'volume': '100'
     }

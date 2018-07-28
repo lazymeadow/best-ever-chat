@@ -4,7 +4,7 @@
  */
 
 import $ from 'jquery';
-import {Modal, MainMenu} from "./components";
+import {Modal} from "./components";
 import {BestEvarChatClient} from "./client";
 import {Settings} from "./util";
 import {_parseEmojis} from "./lib";
