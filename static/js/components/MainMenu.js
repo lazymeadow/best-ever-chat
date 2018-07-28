@@ -143,6 +143,34 @@ export class MainMenu extends LoggingClass {
                 })
             ))
             .append(this._new_menu_item(
+                'Bug Report',
+                ['fas', 'bug'],
+                () => {
+                    new Modal({
+                        form: true,
+                        title: 'Report a Bug',
+                        content: $('<div>').text('You found a bug? Nice job!'),
+                        buttonText: 'Send it in!',
+                        cancelText: 'Nevermind',
+                        buttonClickHandler: () => false
+                    });
+                }
+            ))
+            .append(this._new_menu_item(
+                'Feature Request',
+                ['fas', 'heart'],
+                () => {
+                    new Modal({
+                        form: true,
+                        title: 'Request a Feature',
+                        content: $('<div>').text('So, this chat isn\'t good enough for you? Fine! What do you want?'),
+                        buttonText: 'Awesome!',
+                        cancelText: 'Just kidding',
+                        buttonClickHandler: () => false
+                    });
+                }
+            ))
+            .append(this._new_menu_item(
                 'About',
                 ['fas', 'question'],
                 () => {
@@ -155,6 +183,19 @@ export class MainMenu extends LoggingClass {
                     });
                 }
             ))
+            .append(Settings.userId === 'audrey' ? this._new_menu_item(
+                'Admin Tools',
+                ['fas', 'feather-alt'],
+                () => {
+                    new Modal({
+                        showCancel: false,
+                        title: 'About',
+                        content: $('<div>').text('Figure out a way to get this dynamically populated.'),
+                        buttonText: 'Awesome!',
+                        buttonClickHandler: () => false
+                    });
+                }
+            ) : null)
             .append(this._new_menu_item(
                 'Log Out',
                 ['fas', 'sign-out-alt'],
