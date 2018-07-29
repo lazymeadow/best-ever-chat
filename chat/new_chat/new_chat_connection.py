@@ -182,10 +182,20 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _update_settings(self, settings):
         settings_keys = settings.keys()
         if 'email' in settings_keys:
-            self._send_alert('Emails do not change yet.')
+            new_email = settings.pop('email')
+            if self._user_list.update_user_email(self.current_user['id'], new_email):
+                self._send_alert(u'Email updated to {}.'.format(new_email))
 
         if 'password' in settings_keys:
-            self._send_alert('Passwords do not change yet.')
+            password_data = settings.pop('password')
+            if password_data['password1'] != password_data['password2']:
+                self._send_alert('Password entries did not match.')
+            else:
+                updated = self._user_list.update_user_password(self.current_user['id'], password_data['password1'])
+                if updated:
+                    self._send_alert('Password changed.')
+                else:
+                    self._send_alert('Password not changed.')
 
         update_user_list = 'username' in settings_keys or 'faction' in settings_keys
 
@@ -194,8 +204,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             old_username = self.current_user['username']
             if self._user_list.is_valid_username(new_username) is not True:
                 self._send_alert(u'{} is not a valid username.'.format(new_username))
-            elif new_username != old_username:
-                self._user_list.update_username(self.current_user['id'], new_username)
+            elif self._user_list.update_username(self.current_user['id'], new_username):
                 self._send_alert(u'Username changed from {} to {}.'.format(old_username, new_username))
                 self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
 

@@ -1,7 +1,7 @@
 import SockJS from 'sockjs-client';
 import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
-import {Settings, Logger} from "../util";
+import {Logger, Settings} from "../util";
 import {Alert, MainMenu} from "../components";
 import {CLIENT_VERSION} from "../lib";
 
@@ -111,14 +111,15 @@ export class BestEvarChatClient {
     }
 
     updateAccountSettings(password1, password2) {
+        let password = {};
+        if (password1 && password2) {
+            password = {password: {password1, password2}};
+        }
         this._send({
             'type': 'settings',
             'data': {
                 email: Settings.email,
-                password: {
-                    password1,
-                    password2
-                }
+                ...password
             }
         });
     }

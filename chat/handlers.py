@@ -10,6 +10,7 @@ from tornado import escape, gen
 from tornado.escape import url_escape
 
 from chat.custom_render import BaseHandler, executor
+from chat.lib import hash_password
 
 
 class PageHandler(BaseHandler):
@@ -54,9 +55,7 @@ class AuthCreateHandler(BaseHandler):
             self.render2("create_user.html", error="This name is taken.")
             return
         if self.get_argument("password") == self.get_argument("password2"):
-            hashed_password = yield executor.submit(
-                bcrypt.hashpw, escape.utf8(self.get_argument("password")),
-                bcrypt.gensalt())
+            hashed_password = yield hash_password(escape.utf8(self.get_argument("password")))
             username = parasite if self.user_list.is_valid_username(parasite) else '{}_{}'.format(parasite,
                                                                                                   randint(1000, 9999))
             self.db.execute(

@@ -2,9 +2,12 @@ import re
 from hashlib import sha256
 from urlparse import urlparse
 
+import bcrypt
+import tornado
 from requests import get
 from tornado.escape import linkify, to_unicode, xhtml_escape
 
+from chat.custom_render import executor
 from chat.loggers import log_from_server
 from emoji.emojipy import Emoji
 
@@ -58,3 +61,13 @@ def retrieve_image_in_s3(image_url, bucket):
         log_from_server('debug', e.message)
         log_from_server('debug', 'Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
         return image_url
+
+
+def check_password(new_password, hashed_password):
+    return bcrypt.checkpw(tornado.escape.utf8(new_password), tornado.escape.utf8(hashed_password))
+
+
+def hash_password(password):
+    return executor.submit(
+        bcrypt.hashpw, tornado.escape.utf8(password),
+        bcrypt.gensalt())

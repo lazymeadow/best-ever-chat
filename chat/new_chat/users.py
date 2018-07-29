@@ -1,9 +1,6 @@
 import json
-from collections import deque
 
-from tornado.escape import to_unicode
-
-from chat.lib import MAX_DEQUE_LENGTH
+from chat.lib import hash_password, check_password
 
 
 class UserList:
@@ -28,7 +25,7 @@ class UserList:
 
     def is_valid_username(self, user_name):
         return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (
-                    user_name not in self._user_map.keys())
+                user_name not in self._user_map.keys())
 
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
@@ -91,16 +88,32 @@ class UserList:
                 self._user_map[user_id]['status'] = status
 
     def update_username(self, user_id, new_username):
-        self._user_map[user_id]['username'] = new_username
-        for participant in self.get_user_participants(user_id):
-            participant.current_user['username'] = new_username
-        self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
+        old_username = self._user_map[user_id]['username']
+        if old_username != new_username:
+            self._user_map[user_id]['username'] = new_username
+            for participant in self.get_user_participants(user_id):
+                participant.current_user['username'] = new_username
+            self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
+            return True
 
     def update_user_email(self, user_id, new_email):
-        pass
+        old_email = self._user_map[user_id]['email']
+        if old_email != new_email:
+            self._user_map[user_id]['email'] = new_email
+            for participant in self.get_user_participants(user_id):
+                participant.current_user['email'] = new_email
+            self.db.update("UPDATE parasite SET email = %s WHERE id = %s", new_email, user_id)
+            return True
 
     def update_user_password(self, user_id, new_password):
-        pass
+        old_password = self._user_map[user_id]['password']
+        if not check_password(new_password, old_password):
+            hashed_password = hash_password(new_password)
+            self._user_map[user_id]['password'] = hashed_password
+            for participant in self.get_user_participants(user_id):
+                participant.current_user['password'] = hashed_password
+            self.db.update("UPDATE parasite SET password = %s WHERE id = %s", hashed_password, user_id)
+            return True
 
     def update_user_conf(self, user_id, conf_name, conf_value):
         if self._user_map.has_key(user_id) and self._user_map[user_id][conf_name] != conf_value:

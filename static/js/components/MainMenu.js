@@ -103,7 +103,10 @@ export class MainMenu extends LoggingClass {
                             ),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
-                            Settings.username = $('#username').val();
+                            const newUsername = $('#username').val();
+                            if (newUsername) {
+                                Settings.username = newUsername;
+                            }
                             Settings.color = colorPicker.color;
                             Settings.faction = $('#faction').val();
                             this._client.updateUserSettings();
@@ -138,8 +141,11 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
-                            Settings.email = $('#email').val();
-                            this._client.updateAccountSettings($('#password1').val(), $('#password2').val());
+                        const newEmail = $('#email').val();
+                        if (newEmail) {
+                            Settings.email = newEmail;
+                        }
+                        this._client.updateAccountSettings($('#password1').val(), $('#password2').val());
                         this.debug('Account settings saved!');
                     }
                 })
