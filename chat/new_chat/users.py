@@ -108,7 +108,7 @@ class UserList:
     def update_user_password(self, user_id, new_password):
         old_password = self._user_map[user_id]['password']
         if not check_password(new_password, old_password):
-            hashed_password = hash_password(new_password)
+            hashed_password = hash_password(new_password).result()
             self._user_map[user_id]['password'] = hashed_password
             for participant in self.get_user_participants(user_id):
                 participant.current_user['password'] = hashed_password
