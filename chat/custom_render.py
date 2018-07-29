@@ -5,29 +5,7 @@ from tornado import concurrent
 executor = concurrent.futures.ThreadPoolExecutor(2)
 
 
-class TemplateRendering:
-    """
-    A simple class to hold methods for rendering templates.
-    """
-
-    def render_template(self, template_name, **kwargs):
-        template_dirs = []
-        if self.settings.get('template_path', ''):
-            template_dirs.append(
-                self.settings["template_path"]
-            )
-
-        env = Environment(loader=FileSystemLoader(template_dirs))
-
-        try:
-            template = env.get_template(template_name)
-        except TemplateNotFound:
-            raise TemplateNotFound(template_name)
-        content = template.render(kwargs)
-        return content
-
-
-class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
+class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         return self.application.db
@@ -44,6 +22,22 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
         user_id = self.get_secure_cookie("parasite")
         if not user_id: return None
         return self.user_list.get_user(user_id)
+
+    def render_template(self, template_name, **kwargs):
+        template_dirs = []
+        if self.settings.get('template_path', ''):
+            template_dirs.append(
+                self.settings["template_path"]
+            )
+
+        env = Environment(loader=FileSystemLoader(template_dirs))
+
+        try:
+            template = env.get_template(template_name)
+        except TemplateNotFound:
+            raise TemplateNotFound(template_name)
+        content = template.render(kwargs)
+        return content
 
     def render2(self, template_name, **kwargs):
         """

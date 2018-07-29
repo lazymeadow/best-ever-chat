@@ -1,15 +1,13 @@
 import json
-from email.mime.text import MIMEText
 from random import randint
-from smtplib import SMTP
 
-import bcrypt
 import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
 from tornado.escape import url_escape
 
-from chat.custom_render import BaseHandler, executor
+from chat.custom_render import BaseHandler
+from chat.emails import send_reset_email
 from chat.lib import hash_password, check_password
 
 
@@ -52,7 +50,7 @@ class AuthCreateHandler(BaseHandler):
         parasite = self.get_argument("parasite")
 
         if self.user_list.is_existing_user(parasite):
-            self.render2("create_user.html", error="This name is taken.")
+            self.render2("create_user.html", error="Invalid username.")
             return
         if self.get_argument("password") == self.get_argument("password2"):
             hashed_password = yield hash_password(escape.utf8(self.get_argument("password")))
@@ -63,11 +61,10 @@ class AuthCreateHandler(BaseHandler):
                 parasite, self.get_argument("email"), hashed_password, username)
             self.user_list.load_user(parasite)
             self.room_list.add_user_to_member_list(0, parasite)
-            self.set_secure_cookie("parasite", parasite, expires_days=182)
             self.render2("login.html", username=parasite, location='login')
         else:
             self.render2("create_user.html", username=parasite, email=self.get_argument("email"),
-                         error="Incorrect password.")
+                         error="Password entries must match.")
 
 
 class AuthLoginHandler(BaseHandler):
@@ -78,10 +75,10 @@ class AuthLoginHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        parasite = self.db.get("SELECT id, password FROM parasite WHERE id = %s", self.get_argument("parasite"))
+        parasite = self.user_list.get_user(self.get_argument('parasite'))
         try:
-            if check_password(self.get_argument('password'), parasite.password):
-                self.set_secure_cookie("parasite", str(parasite.id), expires_days=90)
+            if check_password(self.get_argument('password'), parasite['password']):
+                self.set_secure_cookie("parasite", str(parasite['id']), expires_days=90)
                 self.redirect(self.get_argument("next", "/"))
             else:
                 self.render2("login.html", error="Incorrect username or password.")
@@ -101,13 +98,13 @@ class AuthPasswordResetHandler(BaseHandler):
         try:
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
-            parasite = serializer.loads(token, max_age=86400)  # do i really have to do 24hrs in secs?
-            parasiteId = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
-            if parasiteId is not None and parasiteId.reset_token == token:
+            parasite = serializer.loads(token, max_age=86400)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            if parasite_record is not None and parasite_record.reset_token == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
                 self.render2("login.html", error="Invalid reset link.", location="login")
-        except:
+        except Exception as e:
             self.render2("login.html", error="Invalid reset link.", location="login")
 
     @gen.coroutine
@@ -117,13 +114,11 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
             if parasite_record is not None and self.get_argument("password") == self.get_argument(
-                    "password2") and parasite_record.reset_token == token:
-                hashed_password = yield hash_password(self.get_argument("password"))
-                self.db.execute("UPDATE parasite SET password = %s, reset_token = NULL WHERE id = %s", hashed_password,
-                                parasite)
-                self.render2("login.html", message="Password reset successful. Please login.", location="login")
+                    "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
+                parasite, self.get_argument("password"), check_match=False):
+                self.render2("login.html", message="Password reset successful.", location="login")
             else:
                 self.render2("login.html", error="Password reset failed.", location="login")
         except:
@@ -136,16 +131,15 @@ class AuthPasswordResetRequestHandler(BaseHandler):
 
     def post(self):
         parasite = self.get_argument("parasite")
-        parasite_email = self.db.get("SELECT email FROM parasite WHERE id = %s", parasite)
-        if parasite_email is not None:
+        if self.user_list.is_existing_user(parasite):
+            user = self.user_list.get_user(parasite)
             # Generate a link
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             string = serializer.dumps(parasite)
-            self.db.execute("UPDATE parasite SET reset_token = %s, password = %s WHERE id = %s", string, "INVALIDATED",
-                            parasite)
+            self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
-            send_email(parasite_email.email, parasite, string)
+            send_reset_email(user['email'], parasite, string)
 
         self.render2("login.html", location='login',
                      message="A password reset email has been sent for {}. Check your spam folder!".format(parasite),
@@ -161,32 +155,4 @@ class Chat404Handler(BaseHandler):
         pass
 
     def post(self):
-        pass
-
-
-def send_email(email, user, token):
-    link = 'https://bestevarchat.com/reset_password?token=' + token
-    # Create a text/plain message
-    msg = MIMEText('Well, someone has requested as password reset for {}.\n\n'
-                   'If it wasn\'t you, then please, let me know. '
-                   'Otherwise, here\'s a link for you...'
-                   'You\'d better hurry, it\'ll only be good for 24 hours. \n\n'
-                   '{}'.format(user, link))
-
-    # me == the sender's email address
-    me = 'server@bestevarchat.com'
-    # you == the recipient's email address
-    you = email
-
-    msg['Subject'] = '[Best Evar Chat] Maybe you got amnesia?'
-    msg['From'] = me
-    msg['To'] = you
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-    try:
-        s = SMTP('localhost')
-        s.sendmail(me, you, msg.as_string())
-        s.quit()
-    except:
         pass
