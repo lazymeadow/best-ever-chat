@@ -96,6 +96,12 @@ class UserList:
             participant.current_user['username'] = new_username
         self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
 
+    def update_user_email(self, user_id, new_email):
+        pass
+
+    def update_user_password(self, user_id, new_password):
+        pass
+
     def update_user_conf(self, user_id, conf_name, conf_value):
         if self._user_map.has_key(user_id) and self._user_map[user_id][conf_name] != conf_value:
             self._user_map[user_id][conf_name] = conf_value

@@ -138,6 +138,8 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
+                            Settings.email = $('#email').val();
+                            this._client.updateAccountSettings($('#password1').val(), $('#password2').val());
                         this.debug('Account settings saved!');
                     }
                 })

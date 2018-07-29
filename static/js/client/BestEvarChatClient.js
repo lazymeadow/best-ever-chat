@@ -110,6 +110,19 @@ export class BestEvarChatClient {
         });
     }
 
+    updateAccountSettings(password1, password2) {
+        this._send({
+            'type': 'settings',
+            'data': {
+                email: Settings.email,
+                password: {
+                    password1,
+                    password2
+                }
+            }
+        });
+    }
+
     joinRoom(roomId, accept = true, inviterId) {
         this._send({
             'type': 'room action',

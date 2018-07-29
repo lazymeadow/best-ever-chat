@@ -1,6 +1,7 @@
 """
     Best chat ever now a sockjs-tornado application.
 """
+import logging
 import os
 from ConfigParser import SafeConfigParser
 
@@ -10,29 +11,28 @@ from tornado.ioloop import IOLoop
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler
+from chat.loggers import log_from_server
 from chat.new_chat.messages import MessageQueue
 from chat.new_chat.new_chat_connection import new_chat_router
 from chat.new_chat.rooms import RoomList
 from chat.new_chat.users import UserList
 from emoji.emoji_curation import curated_emojis
 
-import logging
-
 logging.getLogger().setLevel(logging.DEBUG)
 
-cfgparser = SafeConfigParser()
-currdir = os.path.dirname(os.path.realpath(__file__))
+config_parser = SafeConfigParser()
+current_dir = os.path.dirname(os.path.realpath(__file__))
 with open('install/chat.cfg', 'r+') as cfg:
-    cfgparser.readfp(cfg)
+    config_parser.readfp(cfg)
     config_section = os.environ['BEC_ENV'] if os.environ.has_key('BEC_ENV') else 'local'
 
-    logging.info("Loading config: [{}]".format(config_section))
+    log_from_server('info', "Loading config: [{}]".format(config_section))
 
-    SECRET_KEY = cfgparser.get(config_section, 'BEC_SECRET_KEY')
-    DB_USER = cfgparser.get(config_section, 'BEC_DB_USER')
-    DB_PASSWORD = cfgparser.get(config_section, 'BEC_DB_PASSWORD')
-    DB_HOST = cfgparser.get(config_section, 'BEC_DB_HOST')
-    DB_SCHEMA = cfgparser.get(config_section, 'BEC_DB_SCHEMA')
+    SECRET_KEY = config_parser.get(config_section, 'BEC_SECRET_KEY')
+    DB_USER = config_parser.get(config_section, 'BEC_DB_USER')
+    DB_PASSWORD = config_parser.get(config_section, 'BEC_DB_PASSWORD')
+    DB_HOST = config_parser.get(config_section, 'BEC_DB_HOST')
+    DB_SCHEMA = config_parser.get(config_section, 'BEC_DB_SCHEMA')
 
 http_server = None
 
@@ -85,5 +85,5 @@ if __name__ == "__main__":
 
     new_chat_router.get_connection_class().http_server = http_server
 
-    logging.info('Server starting.')
+    log_from_server('info', 'Server starting.')
     IOLoop.instance().start()

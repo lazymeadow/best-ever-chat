@@ -5,7 +5,8 @@ from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
-from chat.lib import log_from_client, retrieve_image_in_s3, preprocess_message, emoji, is_image_url
+from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url
+from chat.loggers import log_from_client
 
 CLIENT_VERSION = '3.0'
 
@@ -25,6 +26,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # the room list (filtered for the user)
         # the user list (of current status for users)
         # the user's default settings (to be used on the client)
+
         parasite = self.session.handler.get_secure_cookie('parasite')
         if parasite is None:
             self._send_auth_fail()
@@ -178,9 +180,16 @@ class NewMultiRoomChatConnection(SockJSConnection):
     ### USER ACTIONS
 
     def _update_settings(self, settings):
-        update_user_list = 'username' in settings.keys() or 'faction' in settings.keys()
+        settings_keys = settings.keys()
+        if 'email' in settings_keys:
+            self._send_alert('Emails do not change yet.')
 
-        if 'username' in settings.keys():
+        if 'password' in settings_keys:
+            self._send_alert('Passwords do not change yet.')
+
+        update_user_list = 'username' in settings_keys or 'faction' in settings_keys
+
+        if 'username' in settings_keys:
             new_username = to_unicode(settings.pop('username'))
             old_username = self.current_user['username']
             if self._user_list.is_valid_username(new_username) is not True:

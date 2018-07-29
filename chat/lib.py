@@ -1,46 +1,16 @@
-import logging
 import re
 from hashlib import sha256
 from urlparse import urlparse
 
-import os
 from requests import get
 from tornado.escape import linkify, to_unicode, xhtml_escape
 
+from chat.loggers import log_from_server
 from emoji.emojipy import Emoji
 
 MAX_DEQUE_LENGTH = 75
 
-client_log = logging.getLogger('bestevarchat.client')
-client_log.setLevel(logging.DEBUG)
-
-if not os.path.exists('log'):
-    os.mkdir('log')
-
-    # with open('log/client.log') as f:
-    #     f.close()
-
-file_handler = logging.FileHandler('log/client.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
-file_handler.setFormatter(formatter)
-client_log.addHandler(file_handler)
-
 emoji = Emoji()
-
-
-def log_from_client(level, message, parasite_id, session_id):
-    level = level.upper()
-    log_message = '({}:{}) {}'.format(parasite_id, session_id, message)
-    if level == 'DEBUG':
-        client_log.debug(log_message)
-    elif level == 'INFO':
-        client_log.info(log_message)
-    elif level == 'WARNING':
-        client_log.warning(log_message)
-    elif level == 'ERROR':
-        client_log.error(log_message)
-    elif level == 'CRITICAL':
-        client_log.critical(log_message)
 
 
 def is_image_url(text):
@@ -51,7 +21,8 @@ def is_image_url(text):
 def preprocess_message(message, emoji_processor):
     message_text = message
     # remove any raw script, audio, or video tags before continuing
-    if message.find('<script>') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find('<iframe'):
+    if message.find('<script>') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
+            '<iframe'):
         message_text = xhtml_escape(message)
 
     # first linkify
@@ -72,7 +43,7 @@ def retrieve_image_in_s3(image_url, bucket):
     s3_key = 'images/' + sha256(image_url).hexdigest()
     try:
         exists = filter(lambda x: x.key == s3_key, list(bucket.objects.all()))
-        logging.info('Found object in S3: {}'.format(exists))
+        log_from_server('info', 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
             req_for_image = get(image_url, stream=True)
             file_object_from_req = req_for_image.raw
@@ -84,6 +55,6 @@ def retrieve_image_in_s3(image_url, bucket):
             bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
         return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
     except Exception as e:
-        logging.info(e.message)
-        logging.info('Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
+        log_from_server('debug', e.message)
+        log_from_server('debug', 'Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
         return image_url

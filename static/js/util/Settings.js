@@ -7,6 +7,7 @@ export class Settings {
         Settings.faction = Cookies.get('faction');
         Settings.color = Cookies.get('color');
         Settings.soundSet = Cookies.get('soundSet');
+        Settings.email = Cookies.get('email');
 
         // set value overrides
         Settings.volume = Settings.volume || Cookies.get('volume');
@@ -100,5 +101,13 @@ export class Settings {
 
     static set timestamps(timestamps) {
         localStorage.setItem(`${Settings.userId}.timestamps`, timestamps);
+    }
+
+    static get email() {
+        return localStorage.getItem(`${Settings.userId}.email`) || '';
+    }
+
+    static set email(email) {
+        localStorage.setItem(`${Settings.userId}.email`, email);
     }
 }
