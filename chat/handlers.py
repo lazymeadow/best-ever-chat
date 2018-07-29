@@ -10,7 +10,7 @@ from tornado import escape, gen
 from tornado.escape import url_escape
 
 from chat.custom_render import BaseHandler, executor
-from chat.lib import hash_password
+from chat.lib import hash_password, check_password
 
 
 class PageHandler(BaseHandler):
@@ -79,16 +79,13 @@ class AuthLoginHandler(BaseHandler):
     @gen.coroutine
     def post(self):
         parasite = self.db.get("SELECT id, password FROM parasite WHERE id = %s", self.get_argument("parasite"))
-        if not parasite:
-            self.render2("login.html", error="Incorrect username or password.")
-            return
-        hashed_password = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            tornado.escape.utf8(parasite.password))
-        if hashed_password == parasite.password:
-            self.set_secure_cookie("parasite", str(parasite.id), expires_days=90)
-            self.redirect(self.get_argument("next", "/"))
-        else:
+        try:
+            if check_password(self.get_argument('password'), parasite.password):
+                self.set_secure_cookie("parasite", str(parasite.id), expires_days=90)
+                self.redirect(self.get_argument("next", "/"))
+            else:
+                self.render2("login.html", error="Incorrect username or password.")
+        except:
             self.render2("login.html", error="Incorrect username or password.")
 
 
@@ -119,14 +116,12 @@ class AuthPasswordResetHandler(BaseHandler):
         try:
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
-            parasite = serializer.loads(token, max_age=86400)  # do i really have to do 24hrs in secs?
-            parasiteId = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
-            if parasiteId is not None and self.get_argument("password") == self.get_argument(
-                    "password2") and parasiteId.reset_token == token:
-                hashed_password = yield executor.submit(
-                    bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-                    bcrypt.gensalt())
-                self.db.execute("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
+            parasite = serializer.loads(token, max_age=86400)
+            parasite_record = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
+            if parasite_record is not None and self.get_argument("password") == self.get_argument(
+                    "password2") and parasite_record.reset_token == token:
+                hashed_password = yield hash_password(self.get_argument("password"))
+                self.db.execute("UPDATE parasite SET password = %s, reset_token = NULL WHERE id = %s", hashed_password,
                                 parasite)
                 self.render2("login.html", message="Password reset successful. Please login.", location="login")
             else:
@@ -147,12 +142,14 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             string = serializer.dumps(parasite)
-            self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
+            self.db.execute("UPDATE parasite SET reset_token = %s, password = %s WHERE id = %s", string, "INVALIDATED",
+                            parasite)
 
             send_email(parasite_email.email, parasite, string)
 
         self.render2("login.html", location='login',
-                     message="A password reset email has been sent for {}. Check your spam folder!".format(parasite))
+                     message="A password reset email has been sent for {}. Check your spam folder!".format(parasite),
+                     username=parasite)
 
 
 class Chat404Handler(BaseHandler):

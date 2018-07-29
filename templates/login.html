@@ -21,11 +21,20 @@
         <div class="form-group">
             <div class="form-element">
                 <label for="parasite">Username</label>
-                <input type=text name="parasite" id="parasite" value="{% if username %}{{username}}{% endif %}" required/>
+                <input type=text
+                       name="parasite"
+                       id="parasite"
+                       value="{{username}}"
+                       required
+                       autocomplete="username"/>
             </div>
             <div class="form-element">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" required/>
+                <input type="password"
+                       name="password"
+                       id="password"
+                       required
+                       autocomplete="current-password"/>
             </div>
         </div>
         {{ xsrf_form_html() }}

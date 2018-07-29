@@ -11,25 +11,26 @@ export class Modal extends LoggingClass {
         this.modal.addClass('modal').addClass(form ? 'form' : '')
             .click(event => event.stopPropagation())
             .append($('<h1>').text(title))
-            .append(content)
-            .append($('<div>').addClass(form ? 'form-element' : '')
-                .append(showCancel ? $('<button>').addClass('secondary').text(cancelText)
-                    .click(event => {
+            .append((form ? $('<form>') : $(''))
+                .append(content)
+                .append($('<div>').addClass(form ? 'form-element' : '')
+                    .append(showCancel ? $('<button>').addClass('secondary').text(cancelText)
+                        .click(event => {
+                            event.stopPropagation();
+                            this.modal.remove();
+                            if (overlay.is(':empty')) {
+                                overlay.hide();
+                            }
+                        }) : null)
+                    .append(form ? $('<div>').addClass('flex-spacer') : null)
+                    .append($('<button>').text(buttonText).click(event => {
                         event.stopPropagation();
+                        buttonClickHandler();
                         this.modal.remove();
                         if (overlay.is(':empty')) {
                             overlay.hide();
                         }
-                    }) : null)
-                .append(form ? $('<div>').addClass('flex-spacer') : null)
-                .append($('<button>').text(buttonText).click(event => {
-                    event.stopPropagation();
-                    buttonClickHandler();
-                    this.modal.remove();
-                    if (overlay.is(':empty')) {
-                        overlay.hide();
-                    }
-                })));
+                    }))));
 
         overlay.append(this.modal).one('click', () => this.modal.remove()).show();
     }

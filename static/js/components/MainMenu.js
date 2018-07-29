@@ -126,17 +126,27 @@ export class MainMenu extends LoggingClass {
                             // Email
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Email Address', for: 'email'}))
-                                    .append($('<input>', {id: 'email'})))
+                                    .append($('<input>', {
+                                        id: 'email',
+                                        type: 'email',
+                                        autocomplete: 'email'
+                                    }).val(Settings.email)))
                                 // Password
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Change Password', for: 'password1'}))
-                                    .append($('<input>', {id: 'password1', type: 'password', placeholder: 'New password'})))
+                                    .append($('<input>', {
+                                        id: 'password1',
+                                        type: 'password',
+                                        placeholder: 'New password',
+                                        autocomplete: "new-password"
+                                    })))
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: '', for: 'password2'}))
                                     .append($('<input>', {
                                         id: 'password2',
                                         type: 'password',
-                                        placeholder: 'Confirm password'
+                                        placeholder: 'Confirm password',
+                                        autocomplete: "new-password"
                                     })))
                         ),
                     buttonText: 'Save',
