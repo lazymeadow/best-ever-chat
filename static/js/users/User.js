@@ -40,7 +40,7 @@ export class User extends LoggingClass {
         }
         if (faction !== this.faction) {
             this.faction = faction;
-            this._userElement.find('.online-status').toggleClass('fa-ge fa-ra');
+            this._userElement.find('.online-status').toggleClass(`fa-ge fa-${this.faction}`);
         }
         this._userElement.removeClass().addClass(status);
         this.color = color;

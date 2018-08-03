@@ -97,8 +97,8 @@ export class MainMenu extends LoggingClass {
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Faction', for: 'faction'}))
                                         .append($('<select>', {id: 'faction'})
-                                            .append($('<option>', {value: 'ra', text: 'Rebel Alliance'}))
-                                            .append($('<option>', {value: 'ge', text: 'Galactic Empire'}))
+                                            .append($('<option>', {value: 'rebel', text: 'Rebel Alliance'}))
+                                            .append($('<option>', {value: 'empire', text: 'Galactic Empire'}))
                                             .val(Settings.faction)))
                             ),
                         buttonText: 'Save',
