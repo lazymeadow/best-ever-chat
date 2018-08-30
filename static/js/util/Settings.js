@@ -1,6 +1,23 @@
+import $ from 'jquery';
 import Cookies from 'js-cookie';
 
 export class Settings {
+    static get allowedFactions() {
+        return {
+            'First Order': 'first-order',
+            'First Order (Alternate)': 'first-order-alt',
+            'Galactic Empire': 'empire',
+            'Galactic Republic': 'galactic-republic',
+            'Galactic Senate': 'galactic-senate',
+            'Jedi Order': 'jedi-order',
+            'Mandalorian': 'mandalorian',
+            'Old Republic': 'old-republic',
+            'Rebel Alliance': 'rebel',
+            'Sith': 'sith',
+            'Trade Federation': 'trade-federation',
+        };
+    }
+
     static init() {
         // set server values
         Settings.username = Cookies.get('username');
@@ -38,7 +55,9 @@ export class Settings {
     }
 
     static set faction(faction) {
-        localStorage.setItem(`${Settings.userId}.faction`, faction);
+        if ($.inArray(faction, Object.values(Settings.allowedFactions)) >= 0) {
+            localStorage.setItem(`${Settings.userId}.faction`, faction);
+        }
     }
 
     static get color() {

@@ -3,53 +3,55 @@
 {% set title = 'Sign In' %}
 
 {% block includes %}
-<link rel="stylesheet" href="/static/login.css" type="text/css"/>
-<script src="/static/login.js"></script>
+    <link rel="stylesheet" href="/static/login.css" type="text/css"/>
+    <script src="/static/login.js"></script>
 {% endblock %}
 
 {% block content %}
-<div class="login">
-    <h1>Sign In</h1>
-    <div class="message {{'error' if error}}">
-        {% if error %}
-        {{error}}
-        {% elif message %}
-        {{message}}
-        {% endif %}
+    <div class="login">
+        <h1>Sign In</h1>
+        <div class="message {{ 'error' if error }}">
+            {% if error %}
+                {{ error }}
+            {% elif message %}
+                {{ message }}
+            {% endif %}
+        </div>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <div class="form-element">
+                    <label for="parasite">Username</label>
+                    <input type=text
+                           name="parasite"
+                           id="parasite"
+                           value="{{ username }}"
+                           required
+                           autocomplete="username"
+                           tabindex="1"/>
+                </div>
+                <div class="form-element">
+                    <label for="password">Password</label>
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           required
+                           autocomplete="current-password"
+                           tabindex="1"/>
+                </div>
+            </div>
+            {{ xsrf_form_html() }}
+            <div class="form-group check-box">
+                <div class="flex-spacer"></div>
+                <label for="remember">Remember my username</label>
+                <input type="checkbox" id="remember">
+                <label class="check-box" for="remember" tabindex="1"></label>
+            </div>
+            <div class="form-element">
+                <button class="secondary" id="register" type="button" tabindex="0">Register</button>
+                <div class="flex-spacer"></div>
+                <button type="submit" tabindex="1">Login</button>
+            </div>
+            <a href="/forgot_password" tabindex="0">I forgot my password!</a>
+        </form>
     </div>
-    <form action="/login" method="POST">
-        <div class="form-group">
-            <div class="form-element">
-                <label for="parasite">Username</label>
-                <input type=text
-                       name="parasite"
-                       id="parasite"
-                       value="{{username}}"
-                       required
-                       autocomplete="username"/>
-            </div>
-            <div class="form-element">
-                <label for="password">Password</label>
-                <input type="password"
-                       name="password"
-                       id="password"
-                       required
-                       autocomplete="current-password"/>
-            </div>
-        </div>
-        {{ xsrf_form_html() }}
-        <div class="form-group check-box">
-            <div class="flex-spacer"></div>
-            <label for="remember">Remember my username</label>
-            <input type="checkbox" id="remember">
-            <label class="check-box" for="remember"></label>
-        </div>
-        <div class="form-element">
-            <button class="secondary" id="register" type="button">Register</button>
-            <div class="flex-spacer"></div>
-            <button type="submit">Login</button>
-        </div>
-        <a href="/forgot_password">I forgot my password!</a>
-    </form>
-</div>
 {% endblock %}

@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import SockJS from 'sockjs-client';
 import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
@@ -89,28 +90,28 @@ export class BestEvarChatClient {
         });
     }
 
-    updateUserSettings() {
+    updateUserSettings({username, color, faction}) {
         this._send({
             'type': 'settings',
             'data': {
-                username: Settings.username,
-                color: Settings.color,
-                faction: Settings.faction
+                username,
+                color,
+                faction
             }
         });
     }
 
-    updateClientSettings() {
+    updateClientSettings({volume, soundSet}) {
         this._send({
             'type': 'settings',
             'data': {
-                volume: Settings.volume,
-                soundSet: Settings.soundSet
+                volume,
+                soundSet
             }
         });
     }
 
-    updateAccountSettings(password1, password2) {
+    updateAccountSettings({email, password1, password2}) {
         let password = {};
         if (password1 && password2) {
             password = {password: {password1, password2}};
@@ -118,7 +119,7 @@ export class BestEvarChatClient {
         this._send({
             'type': 'settings',
             'data': {
-                email: Settings.email,
+                email,
                 ...password
             }
         });
@@ -186,7 +187,9 @@ export class BestEvarChatClient {
     }
 
     _receivedUpdate(messageData) {
-        console.log(messageData);
+        $.each(messageData, (key, value) => {
+            Settings[key] = value;
+        });
     }
 
     _receivedPrivateMessage(messageData) {

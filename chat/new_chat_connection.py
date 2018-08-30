@@ -180,11 +180,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
     ### USER ACTIONS
 
     def _update_settings(self, settings):
+        updates_map = {}
         settings_keys = settings.keys()
         if 'email' in settings_keys:
             new_email = settings.pop('email')
             if self._user_list.update_user_email(self.current_user['id'], new_email):
+                updates_map['email'] = new_email
                 self._send_alert(u'Email updated to {}.'.format(new_email))
+            else:
+                self._send_alert(u'Email change unsuccessful.')
 
         if 'password' in settings_keys:
             password_data = settings.pop('password')
@@ -207,14 +211,23 @@ class NewMultiRoomChatConnection(SockJSConnection):
             elif self._user_list.update_username(self.current_user['id'], new_username):
                 self._send_alert(u'Username changed from {} to {}.'.format(old_username, new_username))
                 self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
+                updates_map['username'] = new_username
 
         for key, value in settings.iteritems():
             old_value = self.current_user[key]
             if self._user_list.update_user_conf(self.current_user['id'], key, value):
                 self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
+                updates_map[key] = value
+            else:
+                self._send_alert('{} was not changed.'.format(key.title()))
 
         if update_user_list:
             self._broadcast_user_list()
+
+        self.broadcast(self._user_list.get_user_participants(self.current_user['id']), {
+            "type": "update",
+            "data": updates_map
+        })
 
     ### ROOM ACTIONS
 

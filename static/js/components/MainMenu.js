@@ -21,7 +21,7 @@ export class MainMenu extends LoggingClass {
                             // Browser tab title
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
-                                    .append($('<input>', {id: 'tab_title', placeholder: 'Room | Best Evar Chat 3.0'})
+                                    .append($('<input>', {id: 'tab_title', placeholder: '<Room> | Best Evar Chat 3.0'})
                                         .val(Settings.tabTitle)))
                                 // Volume
                                 .append($('<div>').addClass('form-element')
@@ -64,13 +64,16 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
+                        // TODO: validate before submit -> needs to stop the modal from closing if it doesn't submit. maybe the modal itself can have a validation parameter and handle that stuff?
+
                         Settings.tabTitle = $('#tab_title').val();
-                        Settings.volume = $('#volume').val();
-                        Settings.soundSet = $('#sound_set').val();
                         Settings.fontSize = $('#font_size').val();
                         Settings.hideImages = $('#hide_images').prop('checked');
                         Settings.timestamps = $('#timestamps').val();
-                        this._client.updateClientSettings();
+                        this._client.updateClientSettings({
+                            volume: $('#volume').val(),
+                            soundSet: $('#sound_set').val()
+                        });
                         this.debug('Client settings saved!');
                     }
                 })
@@ -96,20 +99,22 @@ export class MainMenu extends LoggingClass {
                                     // Faction
                                     .append($('<div>').addClass('form-element')
                                         .append($('<label>', {text: 'Faction', for: 'faction'}))
+                                        .append($('<i>').addClass(`fab fa-fw ${Settings.faction}`))
                                         .append($('<select>', {id: 'faction'})
-                                            .append($('<option>', {value: 'rebel', text: 'Rebel Alliance'}))
-                                            .append($('<option>', {value: 'empire', text: 'Galactic Empire'}))
+                                            .append(Object.entries(Settings.allowedFactions).map(([displayName, value]) => $('<option>', {
+                                                text: displayName,
+                                                value: value
+                                            })))
                                             .val(Settings.faction)))
                             ),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
                             const newUsername = $('#username').val();
-                            if (newUsername) {
-                                Settings.username = newUsername;
-                            }
-                            Settings.color = colorPicker.color;
-                            Settings.faction = $('#faction').val();
-                            this._client.updateUserSettings();
+                            this._client.updateUserSettings({
+                                username: newUsername,
+                                color: colorPicker.color,
+                                faction: $('#faction').val()
+                            });
                             this.debug('User settings saved!');
                         }
                     });
@@ -152,10 +157,11 @@ export class MainMenu extends LoggingClass {
                     buttonText: 'Save',
                     buttonClickHandler: () => {
                         const newEmail = $('#email').val();
-                        if (newEmail) {
-                            Settings.email = newEmail;
-                        }
-                        this._client.updateAccountSettings($('#password1').val(), $('#password2').val());
+                        this._client.updateAccountSettings({
+                            email: newEmail,
+                            password1: $('#password1').val(),
+                            password2: $('#password2').val()
+                        });
                         this.debug('Account settings saved!');
                     }
                 })

@@ -48,10 +48,10 @@
 
       & #current-user {
         flex: 0 0 auto;
-        padding: 10px 33px 10px 3px;
+        padding: 10px 35px 10px 3px;
         background-color: darken(@backgroundColor, 10%);
         display: flex;
-        align-items: baseline;
+        align-items: center;
 
         & > span {
           flex: 0 0 auto;
@@ -123,6 +123,8 @@
         /* Opera doesn't support this in the shorthand */
         background-attachment: local, local, scroll, scroll;
 
+        padding-right: 15px;
+
         & > div {
           z-index: 1;
           width: 100%;
@@ -180,6 +182,10 @@
       & #user-list {
         border-bottom: 2px solid darken(@backgroundColor, 3%);
         .panel();
+
+        & > div {
+          align-items: center;
+        }
 
         & .typing-status {
           visibility: hidden;

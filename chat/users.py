@@ -3,6 +3,20 @@ import json
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password
 
+allowed_factions = [
+    'first-order',
+    'first-order-alt',
+    'empire',
+    'galactic-republic',
+    'galactic-senate',
+    'jedi-order',
+    'mandalorian',
+    'old-republic',
+    'rebel',
+    'sith',
+    'trade-federation'
+]
+
 
 class UserList:
     _user_map = {}
@@ -54,7 +68,7 @@ class UserList:
 
     def load_user(self, user_id):
         user = self.db.get(
-            "SELECT id, password, username, email, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') as conf FROM parasite JOIN parasite_config conf on parasite.id = conf.parasite_id WHERE id = %s",
+            "SELECT id, password, username, email, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
             user_id)
         if user['conf']:
             user.update(dict([config.split(':') for config in user['conf'].split(',')]))
@@ -109,7 +123,7 @@ class UserList:
     def update_user_password(self, user_id, new_password, check_match=True):
         old_password = self._user_map[user_id]['password']
         if not check_match or not check_password(new_password, old_password):
-            hashed_password = hash_password(new_password).result()
+            hashed_password = hash_password(new_password).result()  # hash_password returns a Future
             self._user_map[user_id]['password'] = hashed_password
             for participant in self.get_user_participants(user_id):
                 participant.current_user['password'] = hashed_password
@@ -119,6 +133,9 @@ class UserList:
 
     def update_user_conf(self, user_id, conf_name, conf_value):
         if self._user_map.has_key(user_id) and self._user_map[user_id][conf_name] != conf_value:
+            if conf_name == 'faction' and conf_value not in allowed_factions:
+                return False
+
             self._user_map[user_id][conf_name] = conf_value
             self.db.update(
                 "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
