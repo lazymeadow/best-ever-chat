@@ -184,11 +184,23 @@
         .panel();
 
         & > div {
+          height: 33px;
+          display: flex;
           align-items: center;
+        }
+
+        & .online-status {
+          flex: 0 0 auto;
+        }
+
+        & .list-content {
+          flex: 1 0 auto;
+          text-overflow: ellipsis;
         }
 
         & .typing-status {
           visibility: hidden;
+          flex: 0 0 auto;
         }
 
         & .is-typing .typing-status {
