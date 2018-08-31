@@ -104,7 +104,8 @@ $(function () {
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
     });
 
-    chatClient = new BestEvarChatClient();
+    window.chatClient = new BestEvarChatClient();
+    // chatClient = new BestEvarChatClient();
 
     $('#current-user').find('.list-content').text(Settings.username);
 });

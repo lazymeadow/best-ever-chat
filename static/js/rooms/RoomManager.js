@@ -1,15 +1,13 @@
 import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
-import {MessageLog} from "../components";
 import {Room} from "./Room";
 import {_parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor(client) {
+    constructor(messageLog) {
         super();
         // this._soundManager = new SoundManager();
-        this._client = client;
-        this._messageLog = new MessageLog();
+        this._messageLog = messageLog;
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
     }

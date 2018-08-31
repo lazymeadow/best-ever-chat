@@ -3,8 +3,9 @@ import SockJS from 'sockjs-client';
 import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
 import {Logger, Settings} from "../util";
-import {Alert, MainMenu} from "../components";
+import {Alert, MainMenu, MessageLog} from "../components";
 import {CLIENT_VERSION} from "../lib";
+import {PrivateMessageManager} from "../privateMessages";
 
 export class BestEvarChatClient {
     constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
@@ -14,7 +15,9 @@ export class BestEvarChatClient {
         Settings.init();
         new MainMenu(this);
 
-        this._roomManager = new RoomManager(this);
+        this._messageLog = new MessageLog();
+        this._roomManager = new RoomManager(this._messageLog);
+        this._privateMessageManager = new PrivateMessageManager(this._messageLog);
         this._userManager = new UserManager();
 
         this.connect();
