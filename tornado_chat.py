@@ -14,6 +14,7 @@ from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, 
 from chat.loggers import log_from_server
 from chat.message_queue import MessageQueue
 from chat.new_chat_connection import new_chat_router
+from chat.private_messages import PrivateMessageMap
 from chat.rooms import RoomList
 from chat.users import UserList
 from emoji.emoji_curation import curated_emojis
@@ -54,6 +55,9 @@ class Application(tornado.web.Application):
 
         # room list
         self.room_list = RoomList(self.db, self.user_list)
+
+        # private messages
+        self.private_message_map = PrivateMessageMap(self.user_list)
 
         # message queue
         self.message_queue = MessageQueue(self.db, self.user_list)

@@ -51,10 +51,6 @@ class RoomList:
                 'history': sorted([x.copy() for x in room['history']], key=lambda x: x['time']),
                 'members': list(room['members'])}
 
-    def get_room_map(self):
-        # we need to return a map that is filtered down to the necessary information for a room list
-        return self._room_map.copy()
-
     def get_room_list_for_user(self, user_id):
         return sorted([self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
                       key=lambda room: room['id'])
