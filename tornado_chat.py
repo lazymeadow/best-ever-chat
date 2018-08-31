@@ -12,7 +12,7 @@ from tornado.ioloop import IOLoop
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler
 from chat.loggers import log_from_server
-from chat.messages import MessageQueue
+from chat.message_queue import MessageQueue
 from chat.new_chat_connection import new_chat_router
 from chat.rooms import RoomList
 from chat.users import UserList
