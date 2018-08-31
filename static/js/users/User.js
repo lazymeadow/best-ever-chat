@@ -2,14 +2,17 @@ import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 
 export class User extends LoggingClass {
-    constructor({username, color, faction, status, typing, id}) {
+    constructor({username, color, faction, status, typing, id}, userManager) {
         super();
+        this._userManager = userManager;
+
         this.username = username;
         this.color = color;
         this.faction = faction;
         this.status = status;
         this.typing = typing;
         this.id = id;
+        this._threadMessages = new Set();
 
         if (this.id !== Settings.userId) {
             this._iconElement = $('<span>').addClass('online-status fa-stack fa-1x')
@@ -20,7 +23,10 @@ export class User extends LoggingClass {
                 .append(this._iconElement)
                 .append($('<span>').addClass('list-content').text(this.username))
                 .append($('<span>').addClass('typing-status far fa-fw fa-comment-dots'))
-                .removeClass().addClass(this.status);
+                .removeClass().addClass(this.status)
+                .click(() => {
+                    this._userManager.setActiveThread(this.id);
+                });
         }
         else {
             this._userElement = $('#current-user');
@@ -56,6 +62,17 @@ export class User extends LoggingClass {
         this.color = color;
     }
 
+
+    addPrivateMessageThread({messages}) {
+        this._threadMessages = new Set(messages);
+    }
+
+    addMessage(messageData, show_indicator = true) {
+        this._threadMessages.add(messageData);
+        if (show_indicator && Settings.activeLogId !== this.id) {
+            this._userElement.addClass('has-messages');
+        }
+    }
 
     // Private functions
 }

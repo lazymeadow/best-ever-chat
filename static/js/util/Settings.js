@@ -28,6 +28,7 @@ export class Settings {
 
         // set value overrides
         Settings.volume = Settings.volume || Cookies.get('volume');
+        Settings.activeLogType = Settings.activeLogType || 'room';
     }
 
     static get userId() {
@@ -42,12 +43,22 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.username`, username);
     }
 
-    static get activeRoom() {
-        return parseInt(localStorage.getItem(`${Settings.userId}.activeRoom`)) || 0;
+    static get activeLogId() {
+        return localStorage.getItem(`${Settings.userId}.activeLogId`) || '0';
     }
 
-    static set activeRoom(roomId) {
-        localStorage.setItem(`${Settings.userId}.activeRoom`, roomId);
+    static set activeLogId(roomOrThreadId) {
+        localStorage.setItem(`${Settings.userId}.activeLogId`, roomOrThreadId);
+    }
+    
+    static get activeLogType() {
+        return localStorage.getItem(`${Settings.userId}.activeLogType`) || 'room';
+    }
+
+    static set activeLogType(type) {
+        if ($.inArray(type, ['room', 'thread']) >= 0) {
+            localStorage.setItem(`${Settings.userId}.activeLogType`, type);
+        }
     }
 
     static get faction() {

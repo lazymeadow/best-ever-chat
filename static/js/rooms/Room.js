@@ -28,7 +28,7 @@ export class Room extends LoggingClass {
 
     addMessage(messageData, show_indicator = true) {
         this._messageHistory.add(messageData);
-        if (show_indicator && Settings.activeRoom !== this.id) {
+        if (show_indicator && Settings.activeLogId !== this.id) {
             this._roomElement.addClass('has-messages');
         }
     }

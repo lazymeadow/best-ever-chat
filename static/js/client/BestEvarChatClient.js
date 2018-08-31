@@ -5,7 +5,6 @@ import {UserManager} from "../users";
 import {Logger, Settings} from "../util";
 import {Alert, MainMenu, MessageLog} from "../components";
 import {CLIENT_VERSION} from "../lib";
-import {PrivateMessageManager} from "../privateMessages";
 
 export class BestEvarChatClient {
     constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
@@ -17,8 +16,7 @@ export class BestEvarChatClient {
 
         this._messageLog = new MessageLog();
         this._roomManager = new RoomManager(this._messageLog);
-        this._privateMessageManager = new PrivateMessageManager(this._messageLog);
-        this._userManager = new UserManager();
+        this._userManager = new UserManager(this._messageLog);
 
         this.connect();
     }
@@ -46,7 +44,7 @@ export class BestEvarChatClient {
         this._send({
             'type': 'chat message',
             'message': messageText,
-            'room id': Settings.activeRoom
+            'room id': Settings.activeLogId
         });
     }
 
@@ -55,7 +53,7 @@ export class BestEvarChatClient {
             'type': 'image',
             'image url': imageUrl,
             'nsfw': nsfw,
-            'room id': Settings.activeRoom
+            'room id': Settings.activeLogId
         });
     }
 
@@ -157,6 +155,9 @@ export class BestEvarChatClient {
         else if (messageType === 'room data') {
             this._receivedRoomData(messageData);
         }
+        else if (messageType === 'private message data') {
+            this._receivedPrivateMessageData(messageData);
+        }
         else if (messageType === 'user list') {
             this._receivedUserList(messageData);
         }
@@ -185,6 +186,10 @@ export class BestEvarChatClient {
         this._roomManager.addRooms(rooms, all);
     }
 
+    _receivedPrivateMessageData({threads}) {
+        this._userManager.addPrivateMessageThreads(threads);
+    }
+
     _receivedUserList({users}) {
         this._userManager.updateUserList(users);
     }
@@ -196,7 +201,7 @@ export class BestEvarChatClient {
     }
 
     _receivedPrivateMessage(messageData) {
-        console.log(messageData);
+        this._userManager.addMessage(messageData);
     }
 
     _receivedInvitation({user, 'user id': userId, 'room id': roomId, 'room name': name}) {

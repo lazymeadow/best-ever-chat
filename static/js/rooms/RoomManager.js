@@ -30,10 +30,12 @@ export class RoomManager extends LoggingClass {
         // add the room data to the list
         rooms.forEach((room) => this._addRoom(room));
         // select the active room. if the active room is not present, reset to 0
-        if (!this._roomDataMap.has(Settings.activeRoom)) {
-            Settings.activeRoom = 0;
+        if (Settings.activeLogType === 'room') {
+            if (!this._roomDataMap.has(Settings.activeLogId)) {
+                Settings.activeLogId = '0';
+            }
+            this._roomDataMap.get(Settings.activeLogId).selectThisRoom();
         }
-        this._roomDataMap.get(Settings.activeRoom).selectThisRoom();
         super.debug('Rooms updated.');
         _parseEmojis(this._roomListElement[0]);
     }
@@ -52,9 +54,9 @@ export class RoomManager extends LoggingClass {
             this._messageLog.printMessage(messageData, false);
         }
         else {
-            this._roomDataMap.get(roomId).addMessage(messageData, messageData.username !== Settings.username);
-            if (Settings.activeRoom === roomId) {
-                this._messageLog.printMessage(messageData, true);
+            this._roomDataMap.get(roomId.toString()).addMessage(messageData, messageData.username !== Settings.username);
+            if (Settings.activeLogType === 'room' && Settings.activeLogId === roomId.toString()) {
+                this._messageLog.printMessage(messageData);
             }
         }
     }
@@ -64,8 +66,9 @@ export class RoomManager extends LoggingClass {
      * @param roomId
      */
     setActiveRoom(roomId) {
-        Settings.activeRoom = roomId;
-        let room = this._roomDataMap.get(roomId);
+        Settings.activeLogType = 'room';
+        Settings.activeLogId = roomId.toString();
+        let room = this._roomDataMap.get(roomId.toString());
         this._messageLog.printMessages(room.messageHistory);
         setTitle(room.name);
         super.debug(`Active room set to ${roomId}.`);
@@ -74,15 +77,15 @@ export class RoomManager extends LoggingClass {
     // Private functions
 
     _addRoom(roomData) {
-        if (this._roomDataMap.has(roomData.id)) {
-            const room = this._roomDataMap.get(roomData.id);
+        if (this._roomDataMap.has(roomData.id.toString())) {
+            const room = this._roomDataMap.get(roomData.id.toString());
             $.merge(room.messageHistory, roomData.history);
             room.memberList = new Set(roomData.members);
             this.debug(`Room '${roomData.name}' added.`);
         }
         else {
             const newRoom = new Room(roomData, this);
-            this._roomDataMap.set(newRoom.id, newRoom);
+            this._roomDataMap.set(newRoom.id.toString(), newRoom);
             this._roomListElement.append(newRoom.template);
             this.debug(`Room '${roomData.name}' updated.`);
         }

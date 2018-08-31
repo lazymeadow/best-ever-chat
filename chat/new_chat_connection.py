@@ -44,6 +44,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._broadcast_user_list()
         self._send_room_list()
+        self._send_pm_thread_list()
         self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
 
         self._send_from_server('Connection successful.')
@@ -71,8 +72,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if json_message['type'] == 'chat message':
             self._broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room id'])
         elif json_message['type'] == 'private message':
-            self._broadcast_private_message(json_message['user id'], json_message['recipient id'],
-                                            json_message['message'], json_message['thread id'])
+            self._broadcast_private_message(json_message['recipient id'], json_message['message'])
         elif json_message['type'] == 'image':
             self._broadcast_image(json_message['user id'], json_message['image url'], json_message['room id'],
                                   json_message['nsfw'])
@@ -114,10 +114,14 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send({'type': 'room data',
                        'data': {
                            'rooms': self._room_list.get_room_list_for_user(self.current_user['id']),
-                           'private message threads': self._private_messages.get_thread_list_for_user(
-                               self.current_user['id']),
                            'all': True
                        }})
+
+    def _send_pm_thread_list(self):
+        return self.send({'type': 'private message data',
+                          'data': {
+                              'threads': self._private_messages.get_thread_list_for_user(self.current_user['id'])
+                          }})
 
     def _get_my_participants(self):
         return self._user_list.get_user_participants(self.current_user['id'])
@@ -147,31 +151,26 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # save message in history
         self._room_list.add_message_to_history(room_id, new_message)
 
-    def _broadcast_private_message(self, user_id, recipient_id, message, thread_id=None):
+    def _broadcast_private_message(self, recipient_id, message):
         """
         Broadcast a private message to the two appropriate users.
-        :param user_id:         user sending the message
         :param recipient_id:    user receiving the message
         :param message:         message to be sent
         :param thread_id:       id of the private message thread (can be None)
         """
 
-        if thread_id is None:
-            verified_thread_id = self._private_messages.retrieve_thread_id(user_id, recipient_id)
-        else:
-            verified_thread_id = thread_id if self._private_messages.verify_thread_id(
-                thread_id, user_id, recipient_id) else self._private_messages.retrieve_thread_id(user_id, recipient_id)
+        verified_thread_id = self._private_messages.retrieve_thread_id(self.current_user['id'], recipient_id)
 
-        user = self._user_list.get_user(user_id)
-        new_pm = {'username': user['username'],
+        user = self._user_list.get_user(self.current_user['id'])
+        new_pm = {'sender id': self.current_user['id'],
+                  'username': user['username'],
                   'color': user['color'],
                   'message': preprocess_message(message, emoji),
-                  'time': time(),
-                  'thread id': verified_thread_id}
+                  'time': time()}
         self.broadcast(self._private_messages.get_thread_participants(verified_thread_id),
                        {'type': 'private message', 'data': new_pm})
 
-        self._private_messages.add_pm_to_thread(new_pm, user_id, recipient_id, verified_thread_id)
+        self._private_messages.add_pm_to_thread(new_pm, self.current_user['id'], recipient_id, verified_thread_id)
 
     def _broadcast_image(self, user_id, image_url, room_id, nsfw_flag=False):
         """
