@@ -4,8 +4,9 @@ import {User} from "./User";
 import {_parseEmojis, setTitle} from "../lib";
 
 export class UserManager extends LoggingClass {
-    constructor(messageLog) {
+    constructor(chatClient, messageLog) {
         super();
+        this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._userListElement = $('#user-list');
         this._userDataMap = new Map();
@@ -23,6 +24,15 @@ export class UserManager extends LoggingClass {
         threads.forEach((thread) => {
             this._userDataMap.get(thread['recipient id']).addPrivateMessageThread(thread);
         });
+        // select the active thread. if the active thread is not present, reset to general room
+        if (Settings.activeLogType === 'thread') {
+            if (this._userDataMap.has(Settings.activeLogId)) {
+                this.setActiveThread(Settings.activeLogId);
+            }
+            else {
+                this._chatClient.selectGeneralRoom();
+            }
+        }
     }
 
     addMessage({'sender id': senderId, 'recipient id': recipientId, ...messageData}) {

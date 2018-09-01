@@ -31,7 +31,7 @@ export class RoomManager extends LoggingClass {
         rooms.forEach((room) => this._addRoom(room));
         // select the active room. if the active room is not present, reset to 0
         if (Settings.activeLogType === 'room') {
-            if (!this._roomDataMap.has(parseInt(parseInt(Settings.activeLogId, 10), 10))) {
+            if (!this._roomDataMap.has(parseInt(Settings.activeLogId, 10))) {
                 Settings.activeLogId = 0;
             }
             this._roomDataMap.get(parseInt(Settings.activeLogId, 10)).selectThisRoom();

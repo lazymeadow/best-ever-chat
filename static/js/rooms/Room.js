@@ -77,7 +77,7 @@ export class Room extends LoggingClass {
                         buttonText: 'Send!',
                         buttonClickHandler: () => {
                             const invitees = $('input[name="invitee"]:checked').map((_, element) => element.value).get();
-                            this._roomManager._client.sendInvitations(this.id, invitees);
+                            this._roomManager._chatClient.sendInvitations(this.id, invitees);
                             this.debug(`Invitation to room '${this.name}' sent to [${invitees.join(', ')}].`);
                         }
                     });
@@ -92,7 +92,7 @@ export class Room extends LoggingClass {
                                 .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
                             buttonText: 'Yes!',
                             buttonClickHandler: () => {
-                                this._roomManager._client.deleteRoom(this.id);
+                                this._roomManager._chatClient.deleteRoom(this.id);
                                 this.debug(`Room '${this.name}' deleted.`);
                             }
                         });
@@ -104,7 +104,7 @@ export class Room extends LoggingClass {
                                 .append($('<div>').text(`Are you sure you want to leave '${this.name}'?`)),
                             buttonText: 'Yes!',
                             buttonClickHandler: () => {
-                                this._roomManager._client.leaveRoom(this.id);
+                                this._roomManager._chatClient.leaveRoom(this.id);
                                 this.debug(`Left room '${this.name}'.`);
                             }
                         });

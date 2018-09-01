@@ -4,9 +4,9 @@ import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 
 export class MainMenu extends LoggingClass {
-    constructor(client) {
+    constructor(chatClient) {
         super();
-        this._client = client;
+        this._chatClient = chatClient;
         this._menuContents = $('#main_menu').next('.popout-menu');
 
         this._menuContents
@@ -70,7 +70,7 @@ export class MainMenu extends LoggingClass {
                         Settings.fontSize = $('#font_size').val();
                         Settings.hideImages = $('#hide_images').prop('checked');
                         Settings.timestamps = $('#timestamps').val();
-                        this._client.updateClientSettings({
+                        this._chatClient.updateClientSettings({
                             volume: $('#volume').val(),
                             soundSet: $('#sound_set').val()
                         });
@@ -110,7 +110,7 @@ export class MainMenu extends LoggingClass {
                         buttonText: 'Save',
                         buttonClickHandler: () => {
                             const newUsername = $('#username').val();
-                            this._client.updateUserSettings({
+                            this._chatClient.updateUserSettings({
                                 username: newUsername,
                                 color: colorPicker.color,
                                 faction: $('#faction').val()
@@ -157,7 +157,7 @@ export class MainMenu extends LoggingClass {
                     buttonText: 'Save',
                     buttonClickHandler: () => {
                         const newEmail = $('#email').val();
-                        this._client.updateAccountSettings({
+                        this._chatClient.updateAccountSettings({
                             email: newEmail,
                             password1: $('#password1').val(),
                             password2: $('#password2').val()

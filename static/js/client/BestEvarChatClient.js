@@ -16,7 +16,7 @@ export class BestEvarChatClient {
 
         this._messageLog = new MessageLog();
         this._roomManager = new RoomManager(this._messageLog);
-        this._userManager = new UserManager(this._messageLog);
+        this._userManager = new UserManager(this, this._messageLog);
 
         this.connect();
     }
@@ -38,6 +38,10 @@ export class BestEvarChatClient {
         };
 
         Logger.set_socket(this._sock);
+    }
+
+    selectGeneralRoom() {
+        this._roomManager.setActiveRoom(0);
     }
 
     sendChat(messageText) {
