@@ -31,10 +31,10 @@ export class RoomManager extends LoggingClass {
         rooms.forEach((room) => this._addRoom(room));
         // select the active room. if the active room is not present, reset to 0
         if (Settings.activeLogType === 'room') {
-            if (!this._roomDataMap.has(Settings.activeLogId)) {
-                Settings.activeLogId = '0';
+            if (!this._roomDataMap.has(parseInt(parseInt(Settings.activeLogId, 10), 10))) {
+                Settings.activeLogId = 0;
             }
-            this._roomDataMap.get(Settings.activeLogId).selectThisRoom();
+            this._roomDataMap.get(parseInt(Settings.activeLogId, 10)).selectThisRoom();
         }
         super.debug('Rooms updated.');
         _parseEmojis(this._roomListElement[0]);
@@ -54,8 +54,8 @@ export class RoomManager extends LoggingClass {
             this._messageLog.printMessage(messageData, false);
         }
         else {
-            this._roomDataMap.get(roomId.toString()).addMessage(messageData, messageData.username !== Settings.username);
-            if (Settings.activeLogType === 'room' && Settings.activeLogId === roomId.toString()) {
+            this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
+            if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
                 this._messageLog.printMessage(messageData);
             }
         }
@@ -67,8 +67,8 @@ export class RoomManager extends LoggingClass {
      */
     setActiveRoom(roomId) {
         Settings.activeLogType = 'room';
-        Settings.activeLogId = roomId.toString();
-        let room = this._roomDataMap.get(roomId.toString());
+        Settings.activeLogId = parseInt(roomId, 10);
+        let room = this._roomDataMap.get(parseInt(roomId, 10));
         this._messageLog.printMessages(room.messageHistory);
         setTitle(room.name);
         super.debug(`Active room set to ${roomId}.`);
@@ -77,15 +77,15 @@ export class RoomManager extends LoggingClass {
     // Private functions
 
     _addRoom(roomData) {
-        if (this._roomDataMap.has(roomData.id.toString())) {
-            const room = this._roomDataMap.get(roomData.id.toString());
+        if (this._roomDataMap.has(parseInt(roomData.id, 10))) {
+            const room = this._roomDataMap.get(parseInt(roomData.id, 10));
             $.merge(room.messageHistory, roomData.history);
             room.memberList = new Set(roomData.members);
             this.debug(`Room '${roomData.name}' added.`);
         }
         else {
             const newRoom = new Room(roomData, this);
-            this._roomDataMap.set(newRoom.id.toString(), newRoom);
+            this._roomDataMap.set(parseInt(newRoom.id, 10), newRoom);
             this._roomListElement.append(newRoom.template);
             this.debug(`Room '${roomData.name}' updated.`);
         }

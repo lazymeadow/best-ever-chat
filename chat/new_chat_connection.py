@@ -163,6 +163,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         user = self._user_list.get_user(self.current_user['id'])
         new_pm = {'sender id': self.current_user['id'],
+                  'recipient id': recipient_id,
                   'username': user['username'],
                   'color': user['color'],
                   'message': preprocess_message(message, emoji),

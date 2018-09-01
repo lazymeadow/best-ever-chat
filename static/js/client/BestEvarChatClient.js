@@ -41,11 +41,20 @@ export class BestEvarChatClient {
     }
 
     sendChat(messageText) {
-        this._send({
-            'type': 'chat message',
-            'message': messageText,
-            'room id': Settings.activeLogId
-        });
+        if (Settings.activeLogType === 'room') {
+            this._send({
+                'type': 'chat message',
+                'message': messageText,
+                'room id': parseInt(Settings.activeLogId, 10)
+            });
+        }
+        else {
+            this._send({
+                'type': 'private message',
+                'message': messageText,
+                'recipient id': Settings.activeLogId
+            });
+        }
     }
 
     sendImage(imageUrl, nsfw) {

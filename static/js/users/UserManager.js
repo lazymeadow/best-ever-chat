@@ -25,10 +25,10 @@ export class UserManager extends LoggingClass {
         });
     }
 
-    addMessage({'sender id': senderId, ...messageData}) {
-        console.log(Settings.activeLogId, Settings.activeLogType);
-        const isCurrentLog = (Settings.activeLogType === 'thread' && Settings.activeLogId === senderId);
-        this._userDataMap.get(senderId).addMessage(messageData, !isCurrentLog);
+    addMessage({'sender id': senderId, 'recipient id': recipientId, ...messageData}) {
+        const otherUserId = recipientId === Settings.userId ? senderId : recipientId;
+        const isCurrentLog = (Settings.activeLogType === 'thread' && Settings.activeLogId === otherUserId);
+        this._userDataMap.get(otherUserId).addMessage(messageData, !isCurrentLog);
         if (isCurrentLog) {
             this._messageLog.printMessage(messageData);
         }
