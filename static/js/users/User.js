@@ -23,10 +23,9 @@ export class User extends LoggingClass {
                 .append(this._iconElement)
                 .append($('<span>').addClass('list-content').text(this.username))
                 .append($('<span>').addClass('typing-status far fa-fw fa-comment-dots'))
-                .removeClass().addClass(this.status)
-                .click(() => {
-                    this._userManager.setActiveThread(this.id);
-                });
+                .addClass(Settings.activeLogId === this.id ? 'current' : '')
+                .addClass(this.status);
+            this._userElement.click(() => this._selectThisThread());
         }
         else {
             this._userElement = $('#current-user');
@@ -58,7 +57,11 @@ export class User extends LoggingClass {
             this.faction = faction;
             this._iconElement.find('[faction=true]').toggleClass(`fa-${oldFaction} fa-${this.faction}`);
         }
-        this._userElement.removeClass().addClass(status);
+        const oldStatus = this.status;
+        this.status = status;
+        this._userElement.removeClass(oldStatus).addClass(this.status)
+            .addClass(Settings.activeLogId === this.id ? 'current' : '')
+            .click(() => this._selectThisThread());
         this.color = color;
     }
 
@@ -75,4 +78,11 @@ export class User extends LoggingClass {
     }
 
     // Private functions
+
+    _selectThisThread() {
+        $('.current').removeClass('current');
+        this._userElement.addClass('current');
+        this._userElement.removeClass('has-messages');
+        this._userManager.setActiveThread(this.id);
+    }
 }

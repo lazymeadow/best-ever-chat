@@ -179,6 +179,10 @@
         }
       }
 
+      .selected-panel-item() {
+        background: lighten(@backgroundColor, 10%);
+      }
+
       & #user-list {
         border-bottom: 2px solid darken(@backgroundColor, 3%);
         .panel();
@@ -231,6 +235,10 @@
             visibility: hidden;
           }
         }
+
+        & .current {
+          .selected-panel-item();
+        }
       }
 
       & #room-list {
@@ -270,7 +278,7 @@
         }
 
         & .current {
-          background: lighten(@backgroundColor, 10%);
+          .selected-panel-item();
         }
       }
     }
