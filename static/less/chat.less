@@ -13,10 +13,6 @@
 @import url('https://fonts.googleapis.com/css?family=Amiko');
 @import 'colorpicker';
 
-.fa-fw {
-  text-align: left;
-}
-
 @import 'common';
 
 @import 'input-range';
@@ -48,7 +44,7 @@
 
       & #current-user {
         flex: 0 0 auto;
-        padding: 10px 35px 10px 3px;
+        padding: 10px 38px 10px 3px;
         background-color: darken(@backgroundColor, 10%);
         display: flex;
         align-items: center;
@@ -93,10 +89,6 @@
             font-weight: bold;
             flex: 1 1 auto;
             word-break: break-all;
-
-            &:hover {
-              cursor: pointer;
-            }
           }
         }
 
@@ -131,16 +123,15 @@
 
           & > div:not(.inline-menu) {
             padding: 7px 3px;
-            width: ~"calc(100% - 20px)";
+            width: ~"calc(100% - 26px)";
             display: flex;
             white-space: nowrap;
 
             & > span {
               flex: 0 0 auto;
-              cursor: pointer;
 
-              &:not(last) {
-                padding-right: 3px;
+              &:hover {
+                cursor: pointer;
               }
 
               &:last-of-type:not(.list-content) {
@@ -193,6 +184,17 @@
           align-items: center;
           &:hover {
             cursor: pointer;
+            background: lighten(@backgroundColor, 20%);
+          }
+
+          & .message-indicator {
+            visibility: hidden;
+            color: @errorRed;
+            position: absolute;
+            margin-top: -5px;
+            margin-left: 3px;
+            font-size: 10px;
+            z-index: 1;
           }
         }
 
@@ -225,7 +227,9 @@
         }
 
         & .offline {
-          opacity: .5;
+          & .list-content {
+            opacity: .5;
+          }
 
           & .online-status {
             visibility: hidden;
@@ -239,6 +243,15 @@
         & .current {
           .selected-panel-item();
         }
+
+        & .has-messages {
+          font-weight: bold;
+          letter-spacing: .5px;
+
+          & .message-indicator {
+            visibility: visible;
+          }
+        }
       }
 
       & #room-list {
@@ -248,7 +261,7 @@
           border-bottom: 2px solid darken(@backgroundColor, 3%);
           padding: 15px 10px 7px;
           display: flex;
-          width: ~"calc(100% - 20px)";
+          width: ~"calc(100% - 25px)";
 
           & span {
             padding-right: 3px;
@@ -256,20 +269,30 @@
 
             &#add-room {
               flex: 0 0 auto;
-              padding-right: 10px;
-              cursor: pointer;
+              padding-right: 9px;
+
+              &:hover {
+                cursor: pointer;
+              }
             }
           }
+        }
+
+        & > div:not(.rooms-header):hover {
+          background: lighten(@backgroundColor, 20%);
         }
 
         & .message-indicator {
           visibility: hidden;
           opacity: .8;
+          width: 2em;
+          text-align: center;
         }
 
         & > .has-messages {
           & .list-content {
             font-weight: bold;
+            letter-spacing: .5px;
           }
 
           & .message-indicator {

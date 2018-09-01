@@ -20,6 +20,7 @@ export class User extends LoggingClass {
                 .append($('<i>', {faction: true}).addClass(`fab fa-stack-1x fa-inverse fa-${this.faction}`));
 
             this._userElement = $('<div>', {title: this.id})
+                .append($('<span>').addClass('message-indicator fas fa-fw fa-star'))
                 .append(this._iconElement)
                 .append($('<span>').addClass('list-content').text(this.username))
                 .append($('<span>').addClass('typing-status far fa-fw fa-comment-dots'))
