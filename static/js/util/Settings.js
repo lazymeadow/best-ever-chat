@@ -100,6 +100,15 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.volume`, volume);
     }
 
+    static get muted() {
+        const mutedValue = localStorage.getItem(`${Settings.userId}.muted`);
+        return mutedValue ? mutedValue === 'true' : false;
+    }
+
+    static set muted(muted) {
+        localStorage.setItem(`${Settings.userId}.muted`, muted);
+    }
+
     static get soundSet() {
         return localStorage.getItem(`${Settings.userId}.soundSet`);
     }

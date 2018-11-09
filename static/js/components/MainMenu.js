@@ -2,6 +2,7 @@ import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
+import {Alert} from "./Alert";
 
 export class MainMenu extends LoggingClass {
     constructor(chatClient) {
@@ -16,52 +17,85 @@ export class MainMenu extends LoggingClass {
                 () => new Modal({
                     form: true,
                     title: 'Client Settings',
-                    content: $('<div>')
-                        .append($('<div>').addClass('form-group')
-                            // Browser tab title
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
-                                    .append($('<input>', {id: 'tab_title', placeholder: '<Room> | Best Evar Chat 3.0'})
-                                        .val(Settings.tabTitle)))
-                                // Volume
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Volume', for: 'volume'}))
-                                    .append($('<input>', {id: 'volume', type: 'range'}).val(Settings.volume))
-                                    .append($('<div>', {id: 'volume_button'})
-                                        .append($('<span>').addClass('fa-stack fa')
-                                            .append($('<i>').addClass('fas fa-volume-down fa-stack-2x')))))
-                                // Sound set
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
-                                    .append($('<select>', {id: 'sound_set'})
-                                        .append($.map(['AIM', 'MSN'], item => {
-                                            return $('<option>', {value: item, text: item});
-                                        })).val(Settings.soundSet)))
-                                // Client font size
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Font Size', for: 'font_size'}))
-                                    .append($('<select>', {id: 'font_size'})
-                                        .append($.map([12, 14, 16, 18, 20, 22, 24], item => {
-                                            return $('<option>', {value: item, text: item});
-                                        })).val(Settings.fontSize)))
-                                // Hide images by default
-                                .append($('<div>').addClass('form-element check-box')
-                                    .append($('<label>', {text: 'Hide images by default', for: 'hide_images'}))
-                                    .append($('<input>', {
-                                        type: 'checkbox',
-                                        id: 'hide_images'
-                                    }).prop('checked', Settings.hideImages))
-                                    .append($('<label>', {for: 'hide_images'}).addClass('check-box')))
-                                // Timestamp mode
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Timestamps', for: 'timestamps'}))
-                                    .append($('<select>', {id: 'timestamps'})
-                                        .append($('<option>', {value: 'date_time', text: 'Date & Time'}))
-                                        .append($('<option>', {value: 'just_time', text: 'Just Time'}))
-                                        .append($('<option>', {value: 'off', text: 'Off'}))
-                                        .val(Settings.timestamps)
-                                    ))
-                        ),
+                    content: () => {
+                        let muted = Settings.muted;
+                        let volume = Settings.volume;
+
+                        const getButtonContents = () => {
+                            let iconStackWrapper = $('<span>').addClass('fa-stack fa');
+                            if (muted) {
+                                return iconStackWrapper.append($('<i>').addClass('fas fa-volume-off fa-stack-2x')).append($('<i>').addClass('fas fa-ban fa-stack-2x text-danger'));
+                            }
+                            else if (volume > 50) {
+                                return iconStackWrapper.append($('<i>').addClass('fas fa-volume-up fa-stack-2x'));
+                            }
+                            else {
+                                return iconStackWrapper.append($('<i>').addClass('fas fa-volume-down fa-stack-2x'));
+                            }
+                        };
+
+                        return $('<div>')
+                            .append($('<div>').addClass('form-group')
+                                // Browser tab title
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Tab Title', for: 'tab_title'}))
+                                        .append($('<input>', {id: 'tab_title', placeholder: '<Room> | Best Evar Chat 3.0'})
+                                            .val(Settings.tabTitle)))
+                                    // Volume
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Volume', for: 'volume'}))
+                                        .append($('<input>', {
+                                            id: 'volume',
+                                            type: 'range',
+                                            value: volume
+                                        }).change(event => {
+                                            volume = event.target.value;
+                                            muted = parseInt(volume, 10) === 0;
+                                            console.log(volume, muted);
+                                            $('#muted').val(muted);
+                                            $('#volume_button').html(getButtonContents());
+                                        }))
+                                        .append($('<div>', {id: 'volume_button'})
+                                            .click(() => {
+                                                muted = !muted;
+                                                $('#volume_button').html(getButtonContents());
+                                                $('#muted').val(muted);
+                                            })
+                                            .append(getButtonContents())))
+                                    .append($('<input>', {type: 'hidden', id: 'muted', value: muted}))
+                                    // Sound set
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Sound Set', for: 'sound_set'}))
+                                        .append($('<select>', {id: 'sound_set'})
+                                            .append($.map(['AIM', 'MSN'], item => {
+                                                return $('<option>', {value: item, text: item});
+                                            })).val(Settings.soundSet)))
+                                    // Client font size
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Font Size', for: 'font_size'}))
+                                        .append($('<select>', {id: 'font_size'})
+                                            .append($.map([12, 14, 16, 18, 20, 22, 24], item => {
+                                                return $('<option>', {value: item, text: item});
+                                            })).val(Settings.fontSize)))
+                                    // Hide images by default
+                                    .append($('<div>').addClass('form-element check-box')
+                                        .append($('<label>', {text: 'Hide images by default', for: 'hide_images'}))
+                                        .append($('<input>', {
+                                            type: 'checkbox',
+                                            id: 'hide_images'
+                                        }).prop('checked', Settings.hideImages))
+                                        .append($('<label>', {for: 'hide_images'}).addClass('check-box')))
+                                    // Timestamp mode
+                                    .append($('<div>').addClass('form-element')
+                                        .append($('<label>', {text: 'Timestamps', for: 'timestamps'}))
+                                        .append($('<select>', {id: 'timestamps'})
+                                            .append($('<option>', {value: 'date_time', text: 'Date & Time'}))
+                                            .append($('<option>', {value: 'just_time', text: 'Just Time'}))
+                                            .append($('<option>', {value: 'off', text: 'Off'}))
+                                            .val(Settings.timestamps)
+                                        ))
+                            );
+                    },
                     buttonText: 'Save',
                     buttonClickHandler: () => {
                         // TODO: validate before submit -> needs to stop the modal from closing if it doesn't submit. maybe the modal itself can have a validation parameter and handle that stuff?
@@ -70,11 +104,26 @@ export class MainMenu extends LoggingClass {
                         Settings.fontSize = $('#font_size').val();
                         Settings.hideImages = $('#hide_images').prop('checked');
                         Settings.timestamps = $('#timestamps').val();
-                        this._chatClient.updateClientSettings({
-                            volume: $('#volume').val(),
-                            soundSet: $('#sound_set').val()
-                        });
-                        this.debug('Client settings saved!');
+                        Settings.muted = $('#muted').val();
+
+                        let serverChanges = {};
+                        const newVolume = $('#volume').val();
+                        if (newVolume !== Settings.volume) {
+                            serverChanges['volume'] = newVolume;
+                        }
+                        const newSoundSet = $('#sound_set').val();
+                        if (newSoundSet !== Settings.soundSet) {
+                            serverChanges['soundSet'] = newSoundSet;
+                        }
+
+                        if (Object.keys(serverChanges).length === 0) {
+                            new Alert({content: 'No changes made.'});
+                            this.debug('No changes made to client settings.');
+                        }
+                        else {
+                            this._chatClient.updateClientSettings(serverChanges);
+                            this.debug('Client settings saved!');
+                        }
                     }
                 })
             ))
@@ -109,13 +158,29 @@ export class MainMenu extends LoggingClass {
                             ),
                         buttonText: 'Save',
                         buttonClickHandler: () => {
+                            let serverChanges = {};
+
                             const newUsername = $('#username').val();
-                            this._chatClient.updateUserSettings({
-                                username: newUsername,
-                                color: colorPicker.color,
-                                faction: $('#faction').val()
-                            });
-                            this.debug('User settings saved!');
+                            if (newUsername !== Settings.username) {
+                                serverChanges['username'] = newUsername;
+                            }
+                            const newColor = colorPicker.color;
+                            if (newColor !== Settings.color) {
+                                serverChanges['color'] = newColor;
+                            }
+                            const newFaction = $('#faction').val();
+                            if (newFaction !== Settings.faction) {
+                                serverChanges['faction'] = newFaction;
+                            }
+
+                            if (Object.keys(serverChanges).length === 0) {
+                                new Alert({content: 'No changes made.'});
+                                this.debug('No changes made to user settings.');
+                            }
+                            else {
+                                this._chatClient.updateUserSettings(serverChanges);
+                                this.debug('User settings saved!');
+                            }
                         }
                     });
                 }
@@ -191,10 +256,13 @@ export class MainMenu extends LoggingClass {
                         buttonText: 'Send it in!',
                         cancelText: 'Nevermind',
                         buttonClickHandler: () => {
-                            this._chatClient.submitBug({
-                                title: `[Best Evar Chat] ${$('#title').val()} (submitted by ${Settings.userId})`,
-                                body: $('#body').val()
-                            });
+                            const title = $('#title').val();
+                            if (title) {
+                                this._chatClient.submitBug({
+                                    title: `[Best Evar Chat] ${title} (submitted by ${Settings.userId})`,
+                                    body: $('#body').val()
+                                });
+                            }
                         }
                     });
                 }
@@ -225,10 +293,13 @@ export class MainMenu extends LoggingClass {
                         buttonText: 'Awesome!',
                         cancelText: 'Just kidding',
                         buttonClickHandler: () => {
-                            this._chatClient.submitFeature({
-                                title: `[Best Evar Chat] ${$('#title').val()} (submitted by ${Settings.userId})`,
-                                body: $('#body').val()
-                            });
+                            const title = $('#title').val();
+                            if (title) {
+                                this._chatClient.submitFeature({
+                                    title: `[Best Evar Chat] ${title} (submitted by ${Settings.userId})`,
+                                    body: $('#body').val()
+                                });
+                            }
                         }
                     });
                 }

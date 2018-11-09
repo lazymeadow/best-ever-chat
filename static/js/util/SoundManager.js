@@ -1,8 +1,10 @@
 import $ from 'jquery';
-import Settings from './Settings'
+import {Settings} from './Settings'
+import {LoggingClass} from "./Logger";
 
-export class SoundManager {
+export class SoundManager extends LoggingClass {
     constructor() {
+        super();
         this._receiveSound = $('<audio>').attr('type', 'audio/mpeg');
         this._sendSound = $('<audio>').attr('type', 'audio/mpeg');
         this._connectSound = $('<audio>').attr('type', 'audio/mpeg');
@@ -13,30 +15,38 @@ export class SoundManager {
             .append(this._connectSound)
             .append(this._disconnectSound)
             .append(this._activateSound);
+        this.updateSoundSet();
+        this.updateVolume();
+    }
+
+    updateVolume() {
+        $('audio').prop('volume', Settings.volume / 100);
     }
 
     playSent() {
-        if (!this._receiveSound.prop('muted'))
+        if (!Settings.muted)
             this._receiveSound[0].play();
+        this.debug('Playing sent sound');
     }
 
     playReceived() {
-        if (!this._sendSound.prop('muted'))
+        if (!Settings.muted)
             this._sendSound[0].play();
+        this.debug('Playing received sound');
     }
 
     playConnected() {
-        if (!this._connectSound.prop('muted'))
+        if (!Settings.muted)
             this._connectSound[0].play();
     }
 
     playDisconnected() {
-        if (!this._disconnectSound.prop('muted'))
+        if (!Settings.muted)
             this._disconnectSound[0].play();
     }
 
     playActivate() {
-        if (!this._activateSound.prop('muted'))
+        if (!Settings.muted)
             this._activateSound[0].play();
     }
 

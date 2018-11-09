@@ -75,20 +75,6 @@ export class MessageLog extends LoggingClass {
             }
         });
 
-        // TODO move this into the room handler
-        // if (username === 'Server') {
-        //     if (includes('disconnected')) play_disconnect();
-        //     else if (includes('connected') && !includes(Cookies.get('username'))) {
-        //         SoundManager.playConnected();
-        //     }
-        // }
-        // else if (username === Cookies.get('username')) {
-        //     SoundManager.playSent();
-        // }
-        // else if (!ignoreCount) {
-        //     if (username !== 'Client') SoundManager.playReceived();
-        // }
-
         _parseEmojis(messageContainer[0]);
         super.debug('Added message to log.');
     }

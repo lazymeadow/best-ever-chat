@@ -2,7 +2,7 @@ import $ from 'jquery';
 import SockJS from 'sockjs-client';
 import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
-import {Logger, Settings} from "../util";
+import {Logger, Settings, SoundManager} from "../util";
 import {Alert, MainMenu, MessageLog} from "../components";
 import {CLIENT_VERSION} from "../lib";
 
@@ -15,8 +15,9 @@ export class BestEvarChatClient {
         new MainMenu(this);
 
         this._messageLog = new MessageLog();
-        this._roomManager = new RoomManager(this._messageLog);
-        this._userManager = new UserManager(this, this._messageLog);
+        this._soundManager = new SoundManager();
+        this._roomManager = new RoomManager(this._messageLog, this._soundManager);
+        this._userManager = new UserManager(this, this._messageLog, this._soundManager);
 
         this.connect();
     }
@@ -224,6 +225,12 @@ export class BestEvarChatClient {
     _receivedUpdate(messageData) {
         $.each(messageData, (key, value) => {
             Settings[key] = value;
+            if (key === 'volume') {
+                this._soundManager.updateVolume();
+            }
+            if (key === 'soundSet') {
+                this._soundManager.updateSoundSet();
+            }
         });
     }
 
@@ -244,5 +251,11 @@ export class BestEvarChatClient {
 
     _receivedAlert({message, alert_type}) {
         new Alert({content: message, type: alert_type});
+        if (message.includes('offline')) {
+            this._soundManager.playDisconnected();
+        }
+        else if (message.includes('online')) {
+            this._soundManager.playConnected();
+        }
     }
 }

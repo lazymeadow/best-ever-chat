@@ -4,10 +4,11 @@ import {User} from "./User";
 import {_parseEmojis, setTitle} from "../lib";
 
 export class UserManager extends LoggingClass {
-    constructor(chatClient, messageLog) {
+    constructor(chatClient, messageLog, soundManager) {
         super();
         this._chatClient = chatClient;
         this._messageLog = messageLog;
+        this._soundManager = soundManager;
         this._userListElement = $('#user-list');
         this._userDataMap = new Map();
     }
@@ -44,6 +45,12 @@ export class UserManager extends LoggingClass {
                 this._messageLog.clear();
             }
             this._messageLog.printMessage(messageData);
+        }
+        if (senderId === Settings.username) {
+            this._soundManager.playSent();
+        }
+        else {
+            this._soundManager.playReceived();
         }
     }
 

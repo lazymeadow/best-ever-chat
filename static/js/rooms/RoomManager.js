@@ -4,10 +4,10 @@ import {Room} from "./Room";
 import {_parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor(messageLog) {
+    constructor(messageLog, soundManager) {
         super();
-        // this._soundManager = new SoundManager();
         this._messageLog = messageLog;
+        this._soundManager = soundManager;
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
     }
@@ -59,7 +59,7 @@ export class RoomManager extends LoggingClass {
             if (totalMessages <= 1) {
                 this._messageLog.clear();
             }
-                this._messageLog.printMessage(messageData, false);
+                this._messageLog.printMessage(messageData);
             }
         }
         else {
@@ -69,6 +69,12 @@ export class RoomManager extends LoggingClass {
                     this._messageLog.clear();
                 }
                 this._messageLog.printMessage(messageData);
+                if (messageData.username === Settings.username) {
+                    this._soundManager.playSent();
+                }
+                else {
+                    this._soundManager.playReceived();
+                }
             }
         }
     }
