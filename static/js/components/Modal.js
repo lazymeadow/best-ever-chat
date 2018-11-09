@@ -11,9 +11,9 @@ export class Modal extends LoggingClass {
         this.modal.addClass('modal').addClass(form ? 'form' : '')
             .click(event => event.stopPropagation())
             .append($('<h1>').text(title))
-            .append((form ? $('<form>') : $(''))
+            .append((form ? $('<form>') : $('<div>'))
                 .append(content)
-                .append($('<div>').addClass(form ? 'form-element' : '')
+                .append($('<div>').addClass('form-element')
                     .append(showCancel ? $('<button>').addClass('secondary').text(cancelText)
                         .click(event => {
                             event.stopPropagation();

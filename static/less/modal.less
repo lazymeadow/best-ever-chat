@@ -18,6 +18,8 @@
     flex-direction: column;
     padding: 10px 20px;
     margin: 10px;
+    align-self: center;
+    align-items: center;
 
     h1 {
       margin-bottom: 29px;
@@ -33,11 +35,10 @@
 
     button {
       margin: 10px 0;
-    }
 
-    & > div:last-child {
-      display: flex;
-      justify-content: space-between;
+      &:not(.secondary) {
+        float: right;
+      }
     }
 
     .form-group, .form-element {

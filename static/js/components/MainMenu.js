@@ -202,7 +202,7 @@ export class MainMenu extends LoggingClass {
                         showCancel: false,
                         title: 'About',
                         content: $('<div>').text('Figure out a way to get this dynamically populated.'),
-                        buttonText: 'Awesome!',
+                        buttonText: 'Unbelievable!',
                         buttonClickHandler: () => false
                     });
                 }
@@ -213,9 +213,9 @@ export class MainMenu extends LoggingClass {
                 () => {
                     new Modal({
                         showCancel: false,
-                        title: 'About',
-                        content: $('<div>').text('Figure out a way to get this dynamically populated.'),
-                        buttonText: 'Awesome!',
+                        title: 'Super Secret Stuff',
+                        content: $('<div>').text('yeah you know this is where the cool kids go'),
+                        buttonText: '1337',
                         buttonClickHandler: () => false
                     });
                 }
