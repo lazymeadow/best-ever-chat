@@ -47,7 +47,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._send_pm_thread_list()
         self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
 
-        self._send_from_server('Connection successful.')
+        self._send_alert('Connection successful.')
 
         # send queued messages
         messages = self._message_queue.get_invitations(self.current_user['id'])

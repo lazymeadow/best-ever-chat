@@ -31,6 +31,7 @@ export class Room extends LoggingClass {
         if (show_indicator && Settings.activeLogId !== this.id) {
             this._roomElement.addClass('has-messages');
         }
+        return this._messageHistory.size;
     }
 
     selectThisRoom() {

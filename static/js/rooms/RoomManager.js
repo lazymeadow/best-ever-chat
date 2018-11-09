@@ -48,14 +48,26 @@ export class RoomManager extends LoggingClass {
      */
     addMessage(messageData, roomId = null) {
         if (roomId === null) {
-            this._roomDataMap.forEach((room) => {
-                room.addMessage(messageData, false);
+            let totalMessages = 0;
+            this._roomDataMap.forEach((room, roomId) => {
+                const messageCount = room.addMessage(messageData, false);
+                if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
+                    totalMessages = messageCount;
+                }
             });
-            this._messageLog.printMessage(messageData, false);
+            if (Settings.activeLogType === 'room') {
+            if (totalMessages <= 1) {
+                this._messageLog.clear();
+            }
+                this._messageLog.printMessage(messageData, false);
+            }
         }
         else {
-            this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
+            const totalMessages = this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
             if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
+                if (totalMessages <= 1) {
+                    this._messageLog.clear();
+                }
                 this._messageLog.printMessage(messageData);
             }
         }
@@ -69,7 +81,7 @@ export class RoomManager extends LoggingClass {
         Settings.activeLogType = 'room';
         Settings.activeLogId = parseInt(roomId, 10);
         let room = this._roomDataMap.get(parseInt(roomId, 10));
-        this._messageLog.printMessages(room.messageHistory);
+        this._messageLog.printMessages(room.messageHistory, 'There are no messages here!');
         setTitle(room.name);
         super.debug(`Active room set to ${roomId}.`);
     }

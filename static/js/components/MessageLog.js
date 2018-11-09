@@ -1,7 +1,8 @@
 import $ from 'jquery';
 import moment from 'moment';
 import imagesLoaded from 'imagesloaded';
-imagesLoaded.makeJQueryPlugin( $ );
+
+imagesLoaded.makeJQueryPlugin($);
 
 import {LoggingClass, Settings} from "../util";
 import {_parseEmojis} from "../lib";
@@ -30,7 +31,7 @@ export class MessageLog extends LoggingClass {
      * @param image_src_url image src url
      * @param nsfw_flag image is nsfw
      */
-    printMessage({time, username, color, message, 'image url': image_url, 'image src url':image_src_url, 'nsfw flag':nsfw_flag}) {
+    printMessage({time, username, color, message, 'image url': image_url, 'image src url': image_src_url, 'nsfw flag': nsfw_flag}) {
         let messageContainer = $('<div>').addClass('chat-message');
         // set the message color
         if (color)
@@ -54,10 +55,10 @@ export class MessageLog extends LoggingClass {
             message = $('<div>').addClass('image-wrapper')
                 .append($('<span>').text((hideImage ? 'show' : 'hide') + ' image' + (nsfw_flag ? ' -- NSFW!' : ''))
                     .click(function (event) {
-                    let image_element = $(event.target).next();
-                    image_element.toggle();
-                    $(event.target).text((image_element.is(':visible') ? 'hide' : 'show') + ' image ' + (nsfw_flag ? '-- NSFW!' : ''))
-                }))
+                        let image_element = $(event.target).next();
+                        image_element.toggle();
+                        $(event.target).text((image_element.is(':visible') ? 'hide' : 'show') + ' image ' + (nsfw_flag ? '-- NSFW!' : ''))
+                    }))
                 .append(imageElement);
         }
 
@@ -96,12 +97,25 @@ export class MessageLog extends LoggingClass {
      * Prints an array of messages to the log.
      *
      * @param messages an array of messages to print
+     * @param emptyMessage string to display when there are no messages
      */
-    printMessages(messages) {
+    printMessages(messages, emptyMessage = '') {
         super.debug('Printing message log...');
-        this._logElement.empty();
-        messages.forEach((item) => this.printMessage(item));
+        this.clear();
+        if (messages.size > 0) {
+            messages.forEach((item) => this.printMessage(item));
+        }
+        else {
+            this._logElement.html(`<div class="chat-message"><em>${emptyMessage}</em></div>`);
+        }
         super.debug('Message log printed.');
+    }
+
+    /**
+     * Empty the message log.
+     */
+    clear() {
+        this._logElement.empty();
     }
 
     /**

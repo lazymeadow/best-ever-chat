@@ -41,7 +41,6 @@ export class User extends LoggingClass {
     }
 
     get template() {
-        // TODO is this necessary? don't know if returning would be okay on current user
         return this.id !== Settings.userId ? this._userElement : undefined;
     }
 
@@ -76,6 +75,7 @@ export class User extends LoggingClass {
         if (show_indicator && Settings.activeLogId !== this.id) {
             this._userElement.addClass('has-messages');
         }
+        return this._threadMessages.size;
     }
 
     // Private functions

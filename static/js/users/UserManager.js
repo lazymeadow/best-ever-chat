@@ -38,8 +38,11 @@ export class UserManager extends LoggingClass {
     addMessage({'sender id': senderId, 'recipient id': recipientId, ...messageData}) {
         const otherUserId = recipientId === Settings.userId ? senderId : recipientId;
         const isCurrentLog = (Settings.activeLogType === 'thread' && Settings.activeLogId === otherUserId);
-        this._userDataMap.get(otherUserId).addMessage(messageData, !isCurrentLog);
+        const totalMessages = this._userDataMap.get(otherUserId).addMessage(messageData, !isCurrentLog);
         if (isCurrentLog) {
+            if (totalMessages <= 1) {
+                this._messageLog.clear();
+            }
             this._messageLog.printMessage(messageData);
         }
     }
@@ -48,7 +51,7 @@ export class UserManager extends LoggingClass {
         Settings.activeLogType = 'thread';
         Settings.activeLogId = userId;
         let user = this._userDataMap.get(userId);
-        this._messageLog.printMessages(user._threadMessages);
+        this._messageLog.printMessages(user._threadMessages, 'This private message thread is empty!');
         setTitle('Private Message');
         super.debug(`Active thread set to ${user.id}.`);
     }
