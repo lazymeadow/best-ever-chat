@@ -104,6 +104,20 @@ export class BestEvarChatClient {
         });
     }
 
+    submitBug(bugData) {
+        this._send({
+            'type': 'bug',
+            ...bugData
+        });
+    }
+
+    submitFeature(featureData) {
+        this._send({
+            'type': 'feature',
+            ...featureData
+        });
+    }
+
     updateUserSettings({username, color, faction}) {
         this._send({
             'type': 'settings',

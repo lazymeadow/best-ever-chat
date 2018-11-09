@@ -71,7 +71,7 @@ div.login, div.not-found, div.form {
     }
   }
 
-  input {
+  input, textarea {
     flex: 0 0 auto;
     margin: 10px 0;
     width: 250px;
@@ -115,10 +115,12 @@ div.login, div.not-found, div.form {
     flex-flow: column nowrap;
   }
 
-  input {
+  input, textarea {
     font: 1em 'Amiko', sans-serif;
     padding: 3px 5px;
+  }
 
+  input {
     &:not([type=range]) {
       border: 1px solid @lightBorderColor;
     }
@@ -126,6 +128,10 @@ div.login, div.not-found, div.form {
     &[type=checkbox] {
       display: none;
     }
+  }
+
+  textarea {
+      border: 1px solid @lightBorderColor;
   }
 
   button, .button {

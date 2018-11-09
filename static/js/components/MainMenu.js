@@ -156,9 +156,8 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
-                        const newEmail = $('#email').val();
                         this._chatClient.updateAccountSettings({
-                            email: newEmail,
+                            email: $('#email').val(),
                             password1: $('#password1').val(),
                             password2: $('#password2').val()
                         });
@@ -173,10 +172,30 @@ export class MainMenu extends LoggingClass {
                     new Modal({
                         form: true,
                         title: 'Report a Bug',
-                        content: $('<div>').text('You found a bug? Nice job!'),
+                        content: $('<div>')
+                            .append('You found a bug? Nice job!')
+                            .append($('<div>').addClass('form-group')
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Title', for: 'title'}))
+                                    .append($('<input>', {
+                                        id: 'title',
+                                        type: 'text',
+                                        value: ''
+                                    })))
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Body', for: 'body'}))
+                                    .append($('<textarea>', {
+                                        id: 'body',
+                                        value: ''
+                                    })))),
                         buttonText: 'Send it in!',
                         cancelText: 'Nevermind',
-                        buttonClickHandler: () => false
+                        buttonClickHandler: () => {
+                            this._chatClient.submitBug({
+                                title: `[Best Evar Chat] ${$('#title').val()} (submitted by ${Settings.userId})`,
+                                body: $('#body').val()
+                            });
+                        }
                     });
                 }
             ))
@@ -187,10 +206,30 @@ export class MainMenu extends LoggingClass {
                     new Modal({
                         form: true,
                         title: 'Request a Feature',
-                        content: $('<div>').text('So, this chat isn\'t good enough for you? Fine! What do you want?'),
+                        content: $('<div>')
+                            .append('So, this chat isn\'t good enough for you? Fine! What do you want?')
+                            .append($('<div>').addClass('form-group')
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Title', for: 'title'}))
+                                    .append($('<input>', {
+                                        id: 'title',
+                                        type: 'text',
+                                        value: ''
+                                    })))
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Body', for: 'body'}))
+                                    .append($('<textarea>', {
+                                        id: 'body',
+                                        value: ''
+                                    })))),
                         buttonText: 'Awesome!',
                         cancelText: 'Just kidding',
-                        buttonClickHandler: () => false
+                        buttonClickHandler: () => {
+                            this._chatClient.submitFeature({
+                                title: `[Best Evar Chat] ${$('#title').val()} (submitted by ${Settings.userId})`,
+                                body: $('#body').val()
+                            });
+                        }
                     });
                 }
             ))

@@ -34,6 +34,8 @@ with open('install/chat.cfg', 'r+') as cfg:
     DB_PASSWORD = config_parser.get(config_section, 'BEC_DB_PASSWORD')
     DB_HOST = config_parser.get(config_section, 'BEC_DB_HOST')
     DB_SCHEMA = config_parser.get(config_section, 'BEC_DB_SCHEMA')
+    GITHUB_USERNAME = config_parser.get(config_section, 'GITHUB_USERNAME')
+    GITHUB_TOKEN = config_parser.get(config_section, 'GITHUB_TOKEN')
 
 http_server = None
 
@@ -49,6 +51,10 @@ class Application(tornado.web.Application):
             password=DB_PASSWORD,
             charset='utf8mb4'
         )
+
+        # Save the github auth data for making issues
+        self.github_username = GITHUB_USERNAME
+        self.github_token = GITHUB_TOKEN
 
         # user list
         self.user_list = UserList(self.db)

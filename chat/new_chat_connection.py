@@ -5,7 +5,7 @@ from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
-from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url
+from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue
 from chat.loggers import log_from_client
 
 CLIENT_VERSION = '3.0'
@@ -61,7 +61,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self._send_auth_fail()
 
-        if json_message['type'] == 'client log':
+        message_type = json_message['type']
+        if message_type == 'client log':
             log_from_client(json_message['level'], json_message['log'], self.current_user['id'],
                             self.session.session_id)
             return
@@ -69,14 +70,14 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if json_message['user id'] != self.current_user['id']:
             return
 
-        if json_message['type'] == 'chat message':
+        if message_type == 'chat message':
             self._broadcast_chat_message(json_message['user id'], json_message['message'], json_message['room id'])
-        elif json_message['type'] == 'private message':
+        elif message_type == 'private message':
             self._broadcast_private_message(json_message['recipient id'], json_message['message'])
-        elif json_message['type'] == 'image':
+        elif message_type == 'image':
             self._broadcast_image(json_message['user id'], json_message['image url'], json_message['room id'],
                                   json_message['nsfw'])
-        elif json_message['type'] == 'room action':
+        elif message_type == 'room action':
             if json_message['action'] == 'create':
                 self._create_room(json_message['room name'])
             elif json_message['action'] == 'delete':
@@ -87,13 +88,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._leave_room(json_message['room id'])
             elif json_message['action'] == 'invite':
                 self._send_invitations(json_message['user ids'], json_message['room id'])
-        elif json_message['type'] == 'version':
+        elif message_type == 'version':
             if json_message['client version'] < CLIENT_VERSION:
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')
             elif json_message['client version'] > CLIENT_VERSION:
                 self._send_alert('How did you mess up a perfectly good client version number?', 'permanent')
-        elif json_message['type'] == 'settings':
+        elif message_type == 'settings':
             self._update_settings(json_message['data'])
+        elif message_type == 'bug' or message_type == 'feature':
+            self._send_to_github(message_type, json_message['title'], json_message['body'])
         else:
             print 'Received: ' + str(json_message)
 
@@ -351,6 +354,21 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert(u"Invitation sent to {} to join {}.".format(invitee_username, room_name))
             else:
                 self._send_alert(u"You can't invite {} to join {}!".format(invitee_username, room_name))
+
+    def _send_to_github(self, type, title, body):
+        response = create_github_issue(self.http_server.github_username,
+                                       self.http_server.github_token,
+                                       title,
+                                       body,
+                                       type)
+        issue_json = response.json()
+        if response.ok:
+            message = preprocess_message(
+                '{} #{} created! View it at {}'.format(type.title(), issue_json['number'], issue_json['html_url']),
+                emoji)
+            self._send_from_server(message)
+        else:
+            self._send_from_server('Failed to create {}! ({})'.format(type, issue_json['message']))
 
     ### GENERAL HELPER FUNCTIONS
 

@@ -4,7 +4,7 @@ from urlparse import urlparse
 
 import bcrypt
 import tornado
-from requests import get
+from requests import get, post
 from tornado.escape import linkify, to_unicode, xhtml_escape
 
 from chat.custom_render import executor
@@ -71,3 +71,14 @@ def hash_password(password):
     return executor.submit(
         bcrypt.hashpw, tornado.escape.utf8(password),
         bcrypt.gensalt())
+
+
+def create_github_issue(username, token, title, body, issue_type):
+    return post('https://api.github.com/repos/lazymeadow/best-ever-chat/issues',
+                json={
+                    'title': title,
+                    'body': body,
+                    'labels': [issue_type]
+                },
+                headers={'Accept': 'application/vnd.github.v3+json'},
+                auth=(username, token))
