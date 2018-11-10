@@ -49,24 +49,24 @@ export class RoomManager extends LoggingClass {
      */
     addMessage(messageData, roomId = null) {
         if (roomId === null) {
-            let totalMessages = 0;
+            let currentRoomMessageCount = 0;
             this._roomDataMap.forEach((room, roomId) => {
                 const messageCount = room.addMessage(messageData, false);
                 if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
-                    totalMessages = messageCount;
+                    currentRoomMessageCount = messageCount;
                 }
             });
             if (Settings.activeLogType === 'room') {
-            if (totalMessages <= 1) {
-                this._messageLog.clear();
-            }
+                if (currentRoomMessageCount <= 1) {
+                    this._messageLog.clear();
+                }
                 this._messageLog.printMessage(messageData);
             }
         }
         else {
-            const totalMessages = this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
+            const roomMessageCount = this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
             if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
-                if (totalMessages <= 1) {
+                if (roomMessageCount <= 1) {
                     this._messageLog.clear();
                 }
                 this._messageLog.printMessage(messageData);
