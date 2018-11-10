@@ -6,7 +6,7 @@ from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue
-from chat.loggers import log_from_client
+from chat.loggers import log_from_client, log_from_server
 
 CLIENT_VERSION = '3.0'
 
@@ -21,7 +21,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
     _bucket = resource('s3').Bucket('best-ever-chat-image-cache')
 
     def on_open(self, info):
-        print 'opened'
         # on initial connection, we need to send the "initialization" information
         # the room list (filtered for the user)
         # the user list (of current status for users)
@@ -32,28 +31,36 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._send_auth_fail()
             return False
 
+        log_from_server('DEBUG', 'Client {} connecting...'.format(parasite))
+
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
         self._private_messages = self.http_server.private_message_map
         self._message_queue = self.http_server.message_queue
 
         self._user_list.add_participant(self)
-        self._user_list.update_user_status(parasite, 'active')
-
         self.current_user = self._user_list.get_user(parasite)
+        was_offline = self.current_user['status'] == 'offline'
+
+        self._user_list.update_user_status(parasite, 'active')
 
         self._broadcast_user_list()
         self._send_room_list()
         self._send_pm_thread_list()
-        self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
+        if was_offline is True:
+            self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
 
         self._send_alert('Connection successful.')
+
+        log_from_server('debug', 'Client {} connected successfully.'.format(parasite))
 
         # send queued messages
         messages = self._message_queue.get_invitations(self.current_user['id'])
         for message in messages:
             self.send({'type': message['type'],
                        'data': json.loads(message['content'])})
+
+        log_from_server('debug', 'Sent client {} {} queued messages.'.format(parasite, len(messages)))
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -101,10 +108,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
             print 'Received: ' + str(json_message)
 
     def on_close(self):
-        print 'close'
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._broadcast_user_list()
-        self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
+        if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
+            self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
 
     def _send_room_list(self, room_id=None):
         if room_id is not None:
