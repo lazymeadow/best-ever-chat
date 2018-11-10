@@ -120,12 +120,13 @@
         & > div {
           z-index: 1;
           width: 100%;
+          padding: 3px;
 
           & > div:not(.inline-menu) {
-            padding: 7px 3px;
-            width: ~"calc(100% - 26px)";
             display: flex;
+            height: 27px;
             white-space: nowrap;
+            align-items: center;
 
             & > span {
               flex: 0 0 auto;
@@ -136,6 +137,7 @@
 
               &:last-of-type:not(.list-content) {
                 opacity: .5;
+                padding-right: 9px;
               }
 
               &.list-content {
@@ -179,7 +181,7 @@
         .panel();
 
         & > div {
-          margin: 3px;
+          padding: 3px;
           display: flex;
           align-items: center;
           &:hover {
@@ -259,17 +261,15 @@
 
         & .rooms-header {
           border-bottom: 2px solid darken(@backgroundColor, 3%);
-          padding: 15px 10px 7px;
+          padding: 15px 7px 7px 10px;
           display: flex;
-          width: ~"calc(100% - 25px)";
+          width: ~"calc(100% - 15px)";
 
           & span {
-            padding-right: 3px;
             flex: 1 1 auto;
 
             &#add-room {
               flex: 0 0 auto;
-              padding-right: 9px;
 
               &:hover {
                 cursor: pointer;
