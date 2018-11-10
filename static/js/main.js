@@ -73,14 +73,17 @@ $(function () {
         // hide all open popouts
         $('.popout-option').hide();
     })
-    // submit chat on enter and reset value
         .keyup(event => {
+            let chatInput = $(event.target);
+            // submit chat on enter and reset value
             if (event.which === 13) {
-                let chatInput = $(event.target);
                 chatClient.sendChat(chatInput.val());
                 chatInput.val('');
                 chatInput.focus();
             }
+            // update typing status
+            const currentMessage = chatInput.val();
+            chatClient.sendTyping(currentMessage.length > 0);
         });
 
     // image chat button handlers
@@ -121,9 +124,9 @@ $(function () {
     // set idle listeners
     const resetIdleTimeout = () => {
         window.clearTimeout(idleTimeout);
-        chatClient.setIdle(false);
+        chatClient.sendIdle(false);
         idleTimeout = window.setTimeout(() => {
-            chatClient.setIdle(true);
+            chatClient.sendIdle(true);
         }, 15 * 60 * 1000);  // fifteen minutes
     };
 

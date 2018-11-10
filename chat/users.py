@@ -26,7 +26,8 @@ class UserList:
         'color': '#555555',
         'faction': 'rebel',
         'soundSet': 'AIM',
-        'volume': '100'
+        'volume': '100',
+        'typing': False
     }
 
     def __init__(self, db):
@@ -101,6 +102,10 @@ class UserList:
                         self._user_map[user_id]['status'] = status
             else:
                 self._user_map[user_id]['status'] = status
+
+    def update_user_typing_status(self, user_id, is_typing):
+        if self._user_map.has_key(user_id):
+            self._user_map[user_id]['typing'] = is_typing
 
     def update_username(self, user_id, new_username):
         old_username = self._user_map[user_id]['username']

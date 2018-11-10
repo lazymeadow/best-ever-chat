@@ -90,6 +90,7 @@ export class RoomManager extends LoggingClass {
         let room = this._roomDataMap.get(parseInt(roomId, 10));
         this._messageLog.printMessages(room.messageHistory, 'There are no messages here!');
         setTitle(room.name);
+        this._chatClient.updateUserList();
         super.debug(`Active room set to ${roomId}.`);
     }
 

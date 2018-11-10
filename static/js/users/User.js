@@ -32,6 +32,7 @@ export class User extends LoggingClass {
             this._userElement.find('.list-content').text(this.username);
             this._userElement.addClass(this.status)
                 .addClass(Settings.activeLogId === this.id ? 'current' : '')
+                .addClass(Settings.activeLogId === this.typing ? 'is-typing' : '')
                 .prop('title', this.id);
 
             this._iconElement = this._userElement.find('.online-status');
@@ -49,6 +50,15 @@ export class User extends LoggingClass {
 
     // Public functions
 
+    updateTypingStatus() {
+        if ((Settings.activeLogId === this.typing) || (Settings.activeLogId === this.id && Settings.userId === this.typing)) {
+            this._userElement.addClass('is-typing');
+        }
+        else {
+            this._userElement.removeClass('is-typing');
+        }
+    }
+
     updateUser({username, color, faction, status, typing}) {
         if (username !== this.username) {
             this.username = username;
@@ -63,6 +73,8 @@ export class User extends LoggingClass {
         this.status = status;
         this._userElement.removeClass(oldStatus).addClass(this.status)
             .addClass(Settings.activeLogId === this.id ? 'current' : '');
+        this.typing = typing;
+        this.updateTypingStatus();
         if (Settings.userId !== this.id) {
             this._userElement.click(() => this._selectThisThread());
         }

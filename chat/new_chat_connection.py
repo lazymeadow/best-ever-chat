@@ -101,7 +101,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
             elif json_message['action'] == 'invite':
                 self._send_invitations(json_message['user ids'], json_message['room id'])
         elif message_type == 'status':
-            self._user_list.update_user_status(self.current_user['id'], json_message['status'], self)
+            self._user_list.update_user_status(self.current_user['id'], json_message['status'])
+            self._broadcast_user_list()
+        elif message_type == 'typing':
+            self._user_list.update_user_typing_status(self.current_user['id'], json_message['status'])
             self._broadcast_user_list()
         elif message_type == 'version':
             if json_message['client version'] < CLIENT_VERSION:
@@ -117,6 +120,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_close(self):
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
+        self._user_list.update_user_typing_status(self.current_user['id'], False)
         self._broadcast_user_list()
         if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
             self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))

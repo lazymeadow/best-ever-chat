@@ -19,13 +19,28 @@ export class UserManager extends LoggingClass {
         }
     }
 
-    updateUserList(newUsers) {
-        this._userListElement.empty();
-        newUsers.forEach((userData) => {
-            this._addUser(userData)
-        });
-        _parseEmojis(this._userListElement[0]);
+    getUserTypingStatus(userId) {
+        if (this._userDataMap.has(userId)) {
+            return this._userDataMap.get(userId).typing;
+        }
     }
+
+    updateUserList(newUsers) {
+        if (newUsers === undefined) {
+            this._userDataMap.forEach(user => {
+                user.updateTypingStatus();
+            })
+        }
+        else {
+            this._userListElement.empty();
+            newUsers.forEach((userData) => {
+                this._addUser(userData)
+            });
+            _parseEmojis(this._userListElement[0]);
+        }
+    }
+
+
 
     addPrivateMessageThreads(threads) {
         threads.forEach((thread) => {
@@ -67,6 +82,7 @@ export class UserManager extends LoggingClass {
         this._messageLog.printMessages(user._threadMessages, 'This private message thread is empty!');
         setTitle('Private Message');
         super.debug(`Active thread set to ${user.id}.`);
+        this.updateUserList();
     }
 
     _addUser(userData) {

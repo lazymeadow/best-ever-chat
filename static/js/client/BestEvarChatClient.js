@@ -62,21 +62,32 @@ export class BestEvarChatClient {
         }
     }
 
-    setIdle(shouldBeIdle) {
+    updateUserList() {
+        this._userManager.updateUserList();
+    }
+
+    sendIdle(shouldBeIdle) {
         const isIdle = this._userManager.getUserStatus(Settings.userId) === 'idle';
         if (isIdle === undefined) {
             return;
         }
-        if (shouldBeIdle && !isIdle) {
+        if ((shouldBeIdle && !isIdle) || (!shouldBeIdle && isIdle)) {
             this._send({
                 'type': 'status',
-                'status': 'idle'
+                'status': shouldBeIdle ? 'idle' : 'active'
             });
         }
-        else if (!shouldBeIdle && isIdle) {
+    }
+
+    sendTyping(shouldBeTyping) {
+        const isTyping = this._userManager.getUserTypingStatus(Settings.userId);
+        if (isTyping === undefined) {
+            return;
+        }
+        if ((shouldBeTyping && !isTyping) || (!shouldBeTyping && isTyping)) {
             this._send({
-                'type': 'status',
-                'status': 'active'
+                'type': 'typing',
+                'status': shouldBeTyping ? Settings.activeLogId : false
             });
         }
     }
