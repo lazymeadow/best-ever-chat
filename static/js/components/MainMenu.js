@@ -342,7 +342,8 @@ export class MainMenu extends LoggingClass {
         return $('<span>').addClass('menu-item')
             .append($('<span>').addClass(`${icon[0]} fa-fw fa-${icon[1]}`))
             .append(title)
-            .click(() => {
+            .click(event => {
+                event.stopPropagation();
                 $('.overlay').hide();
                 this._menuContents.hide();
                 clickHandler();

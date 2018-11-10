@@ -49,6 +49,14 @@
         display: flex;
         align-items: center;
 
+        &.current {
+          background-color: lighten(@backgroundColor, 10%);
+        }
+
+        &:hover {
+          background-color: lighten(@backgroundColor, 20%);
+        }
+
         & > span {
           flex: 0 0 auto;
 
@@ -89,6 +97,7 @@
             font-weight: bold;
             flex: 1 1 auto;
             word-break: break-all;
+            cursor: pointer;
           }
         }
 
@@ -124,7 +133,8 @@
 
           & > div:not(.inline-menu) {
             display: flex;
-            height: 27px;
+            height: 34px;
+            margin: -3px;
             white-space: nowrap;
             align-items: center;
 
@@ -151,6 +161,7 @@
           & > .inline-menu {
             display: block;
             background-color: darken(@backgroundColor, 3%);
+            margin: 3px -3px -3px;
 
             & .menu-item {
               opacity: .85;
@@ -158,9 +169,8 @@
               display: block;
               cursor: pointer;
 
-              &:not(:last-child) {
-                padding-bottom: 4px;
-                margin-bottom: 4px;
+              &:hover {
+                background-color: lighten(@backgroundColor, 20%);
               }
 
               & > .fas, & > .far, & > .fab {
@@ -173,7 +183,7 @@
       }
 
       .selected-panel-item() {
-        background: lighten(@backgroundColor, 10%);
+        background-color: lighten(@backgroundColor, 10%);
       }
 
       & #user-list {
@@ -186,7 +196,7 @@
           align-items: center;
           &:hover {
             cursor: pointer;
-            background: lighten(@backgroundColor, 20%);
+            background-color: lighten(@backgroundColor, 20%);
           }
 
           & .message-indicator {
@@ -278,8 +288,8 @@
           }
         }
 
-        & > div:not(.rooms-header):hover {
-          background: lighten(@backgroundColor, 20%);
+        & > div:not(.rooms-header) > div:first-child:hover {
+          background-color: lighten(@backgroundColor, 20%);
         }
 
         & .message-indicator {
@@ -308,7 +318,7 @@
 
     &.right {
       flex: 4 0 auto;
-      background: white;
+      background-color: white;
       z-index: 10;
       width: ~"calc(100% - 200px)";
 
@@ -419,7 +429,7 @@
             position: absolute;
             bottom: 45px;
             right: 0;
-            background: white;
+            background-color: white;
             padding: 5px;
             border: 1px solid @lightBorderColor;
             z-index: 101;

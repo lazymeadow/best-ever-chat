@@ -26,18 +26,20 @@ export class User extends LoggingClass {
                 .append($('<span>').addClass('typing-status far fa-fw fa-comment-dots'))
                 .addClass(Settings.activeLogId === this.id ? 'current' : '')
                 .addClass(this.status);
-            this._userElement.click(() => this._selectThisThread());
         }
         else {
             this._userElement = $('#current-user');
             this._userElement.find('.list-content').text(this.username);
-            this._userElement.addClass(this.status).prop('title', this.id);
+            this._userElement.addClass(this.status)
+                .addClass(Settings.activeLogId === this.id ? 'current' : '')
+                .prop('title', this.id);
 
             this._iconElement = this._userElement.find('.online-status');
             this._iconElement.addClass('fa-stack fa-1x')
                 .append($('<i>').addClass('fas fa-circle fa-stack-1x'))
                 .append($('<i>', {faction: true}).addClass(`fab fa-stack-1x fa-inverse fa-${this.faction}`));
         }
+        this._userElement.click(() => this._selectThisThread());
     }
 
     get template() {
@@ -60,8 +62,10 @@ export class User extends LoggingClass {
         const oldStatus = this.status;
         this.status = status;
         this._userElement.removeClass(oldStatus).addClass(this.status)
-            .addClass(Settings.activeLogId === this.id ? 'current' : '')
-            .click(() => this._selectThisThread());
+            .addClass(Settings.activeLogId === this.id ? 'current' : '');
+        if (Settings.userId !== this.id) {
+            this._userElement.click(() => this._selectThisThread());
+        }
         this.color = color;
     }
 

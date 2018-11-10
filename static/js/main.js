@@ -28,7 +28,8 @@ $(function () {
         $('.popout-menu').hide();
     });
 
-    $($('#main_menu')).click(() => {
+    $('#main_menu').click(event => {
+        event.stopPropagation();
         overlay.show();
         $('.popout-menu').toggle();
     });
@@ -105,6 +106,4 @@ $(function () {
     });
 
     chatClient = new BestEvarChatClient();
-
-    $('#current-user').find('.list-content').text(Settings.username);
 });

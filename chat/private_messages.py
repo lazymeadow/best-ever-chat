@@ -39,7 +39,9 @@ class PrivateMessageMap:
 
         participant_list = []
         participant_list.extend(self._user_list.get_user_participants(self._thread_map[pm_id]['user_1']))
-        participant_list.extend(self._user_list.get_user_participants(self._thread_map[pm_id]['user_2']))
+        # Don't need to add duplicates if they're the same user
+        if self._thread_map[pm_id]['user_1'] != self._thread_map[pm_id]['user_2']:
+            participant_list.extend(self._user_list.get_user_participants(self._thread_map[pm_id]['user_2']))
 
         return participant_list
 
