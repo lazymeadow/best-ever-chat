@@ -295,12 +295,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 [x._send_room_list(room_id) for x in participant_list]
                 self._broadcast_user_list(participant_list)
 
-                # broadcast presence to the other room members
-                other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
-                self._broadcast_from_server(other_participants,
-                                            u'{} has entered the room.'.format(self.current_user['username']),
-                                            room_id=room_id, save_history=True)
                 # send alerts
+                other_participants = [x for x in participant_list if x.current_user['id'] != self.current_user['id']]
                 self._broadcast_alert(u"{} has joined '{}'.".format(self.current_user['username'], room_name),
                                       participant_list=other_participants)
                 self._send_alert(u"You joined the room '{}'.".format(room_name))
@@ -332,10 +328,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._broadcast_user_list(participant_list)
             room_name = self._room_list.get_room_name(room_id)
 
-            # broadcast departure to other room members
-            self._broadcast_from_server(room_participants,
-                                        u'{} has left the room.'.format(self.current_user['username']),
-                                        room_id=room_id, save_history=True)
             # send alerts
             self._broadcast_alert(u"{} has left '{}'.".format(self.current_user['username'], room_name),
                                   participant_list=room_participants)

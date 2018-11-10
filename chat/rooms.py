@@ -27,10 +27,12 @@ class RoomList:
                               'FROM rooms LEFT JOIN room_access a ON rooms.id = a.room_id and a.in_room = TRUE '
                               'GROUP BY id')
         for room in rooms:
-            new_room = {}
+            if room['members'] is not None:
+                room['members'] = set(room['members'].split(','))
+            else:
+                del room['members']
+            new_room = self._room_defaults.copy()
             new_room.update(room)
-            new_room['members'] = set(new_room['members'].split(','))
-            new_room['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
             self._room_map[room.id] = new_room
 
     def get_room_name(self, room_id):
@@ -88,6 +90,8 @@ class RoomList:
 
         member_participants = self.get_room_participants(room_id)
 
+        # remove all invitations to this room existing in the message queue
+        self.db.execute("DELETE FROM invitations WHERE room_id = %s", room_id)
         # remove all room_access rows for the room from database
         self.db.execute("DELETE FROM room_access WHERE room_id = %s", room_id)
         # remove the room from database

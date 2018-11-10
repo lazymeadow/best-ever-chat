@@ -16,7 +16,7 @@ export class BestEvarChatClient {
 
         this._messageLog = new MessageLog();
         this._soundManager = new SoundManager();
-        this._roomManager = new RoomManager(this._messageLog, this._soundManager);
+        this._roomManager = new RoomManager(this, this._messageLog, this._soundManager);
         this._userManager = new UserManager(this, this._messageLog, this._soundManager);
 
         this.connect();

@@ -4,8 +4,9 @@ import {Room} from "./Room";
 import {_parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor(messageLog, soundManager) {
+    constructor(chatClient, messageLog, soundManager) {
         super();
+        this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._soundManager = soundManager;
         this._roomDataMap = new Map();
@@ -72,7 +73,7 @@ export class RoomManager extends LoggingClass {
                 if (messageData.username === Settings.username) {
                     this._soundManager.playSent();
                 }
-                else {
+                else if (messageData.username !== 'Server') {
                     this._soundManager.playReceived();
                 }
             }
