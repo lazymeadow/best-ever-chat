@@ -31,7 +31,8 @@ class RoomList:
             new_room.update(room)
             self._room_map[room.id] = new_room
 
-    def _get_default_room(self):
+    @staticmethod
+    def _get_default_room():
         return {
             'members': set(),
             'history': deque(maxlen=MAX_DEQUE_LENGTH)
