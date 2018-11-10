@@ -4,10 +4,10 @@ import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
 import {Logger, Settings, SoundManager} from "../util";
 import {Alert, MainMenu, MessageLog} from "../components";
-import {CLIENT_VERSION} from "../lib";
+import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 
 export class BestEvarChatClient {
-    constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
+    constructor(hostname = '192.168.1.4', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
 
@@ -18,6 +18,10 @@ export class BestEvarChatClient {
         this._soundManager = new SoundManager();
         this._roomManager = new RoomManager(this, this._messageLog, this._soundManager);
         this._userManager = new UserManager(this, this._messageLog, this._soundManager);
+        this._disconnectedAlert = null;
+        this._reconnectAlert = null;
+        this._reconnectTimeout = null;
+        this._reconnectCount = 0;
 
         this.connect();
     }
@@ -25,9 +29,15 @@ export class BestEvarChatClient {
     // Public functions
 
     connect() {
-        this._sock = new SockJS(`http://${this._hostname}/${this._routingPath}/`);
+        this._sock = new SockJS(`https://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
+            if (this._disconnectedAlert) {
+                this._disconnectedAlert.remove();
+                this._disconnectedAlert = null;
+            }
+            window.clearTimeout(this._reconnectTimeout);
+            this._reconnectCount = 0;
             this._send({
                 'type': 'version',
                 'client version': CLIENT_VERSION
@@ -36,6 +46,7 @@ export class BestEvarChatClient {
         this._sock.onmessage = (message) => this._handleMessage(message);
         this._sock.onclose = () => {
             console.log('Bye!');
+            this._attemptReconnect();
         };
 
         Logger.set_socket(this._sock);
@@ -249,7 +260,7 @@ export class BestEvarChatClient {
         $.each(messageData, (key, value) => {
             Settings[key] = value;
             if (key === 'volume') {
-                this._soundManager.updateVolume();
+                SoundManager.updateVolume();
             }
             if (key === 'soundSet') {
                 this._soundManager.updateSoundSet();
@@ -279,6 +290,34 @@ export class BestEvarChatClient {
         }
         else if (message.includes('online')) {
             this._soundManager.playConnected();
+        }
+    }
+
+    _attemptReconnect() {
+        if (!this._disconnectedAlert) {
+            this._disconnectedAlert = new Alert({content: 'Connection lost!!', type: 'permanent'});
+        }
+
+        const reconnect = () => {
+            this._reconnectCount++;
+            new Alert({content: `Attempting to reconnect to the server ... (${this._reconnectCount}/${MAX_RETRIES})`});
+            this.connect();
+        };
+        window.clearTimeout(this._reconnectTimeout);
+
+        if (this._reconnectCount < MAX_RETRIES) {
+            this._reconnectTimeout = window.setTimeout(reconnect, 1000);
+        }
+        else if (!this._reconnectAlert) {
+            this._reconnectAlert = new Alert({
+                content: 'Failed to open connection to server.',
+                type: 'actionable',
+                actionText: 'Retry',
+                actionCallback: () => {
+                    this._reconnectCount = 0;
+                    this._attemptReconnect();
+                }
+            });
         }
     }
 }

@@ -41,6 +41,10 @@ export class Alert extends LoggingClass {
         }
     }
 
+    remove() {
+        this._fade();
+    }
+
     _fade() {
         this.alert.slideUp(500, () => {
             this.alert.remove();
@@ -55,7 +59,7 @@ export class Alert extends LoggingClass {
             if (dismissCallback) {
                 dismissCallback();
             }
-            this._fade()
+            this._fade();
         });
     }
 }

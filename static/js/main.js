@@ -7,11 +7,17 @@ import $ from 'jquery';
 import {Modal} from "./components";
 import {BestEvarChatClient} from "./client";
 import {_parseEmojis} from "./lib";
+import Cookies from 'js-cookie';
 
 let chatClient;
 let idleTimeout;
 
-$(function () {
+if (!Cookies.get('id')) {
+    location.reload();
+}
+
+$(() => {
+// $(window).on('load', () => {
     const overlay = $('.overlay');
     overlay.hide();
 

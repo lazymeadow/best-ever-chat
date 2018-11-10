@@ -5,7 +5,7 @@ class Logger {
 
     static log(level, loggedFrom, message) {
         console.log(`${level.toUpperCase()}: ${loggedFrom.constructor.name.padEnd(15)} ${message}`);
-        if (this._sock) {
+        if (this._sock && this._sock.readyState === 1) {  // SockJS.OPEN)
             this._sock.send(JSON.stringify({
                 'type': 'client log',
                 'level': level,

@@ -16,10 +16,10 @@ export class SoundManager extends LoggingClass {
             .append(this._disconnectSound)
             .append(this._activateSound);
         this.updateSoundSet();
-        this.updateVolume();
+        SoundManager.updateVolume();
     }
 
-    updateVolume() {
+    static updateVolume() {
         $('audio').prop('volume', Settings.volume / 100);
     }
 
