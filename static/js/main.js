@@ -9,30 +9,31 @@ import {BestEvarChatClient} from "./client";
 import {_parseEmojis} from "./lib";
 
 let chatClient;
+let idleTimeout;
 
 $(function () {
     const overlay = $('.overlay');
-
     overlay.hide();
-    $('.popout-menu').hide();
-    $('.inline-menu').hide();
-    $('.popout-option').hide();
 
+    // dismiss popout menus when clicking away from them
     $('body').click(() => {
         $('.popout-option').hide();
     });
 
+    // overlay dismisses on click
     overlay.click(() => {
         overlay.hide();
         $('.popout-menu').hide();
     });
 
+    // open main menu on click
     $('#main_menu').click(event => {
         event.stopPropagation();
         overlay.show();
         $('.popout-menu').toggle();
     });
 
+    // open modal when clicking room +
     $('#add-room').click(() => {
         new Modal({
             content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
@@ -48,6 +49,7 @@ $(function () {
 
     const chatBar = $('.chat-bar');
 
+    // add popout handlers on click for image chat and emoji list
     chatBar.children('.button').each((index, element) => {
         const popoutOption = $(element).children('.popout-option');
 
@@ -71,6 +73,7 @@ $(function () {
         // hide all open popouts
         $('.popout-option').hide();
     })
+    // submit chat on enter and reset value
         .keyup(event => {
             if (event.which === 13) {
                 let chatInput = $(event.target);
@@ -80,6 +83,7 @@ $(function () {
             }
         });
 
+    // image chat button handlers
     const image_chat = () => {
         const imageUrlElement = $('#image_url');
         chatClient.sendImage(imageUrlElement.val(), $('#image_nsfw').is(':checked'));
@@ -89,26 +93,45 @@ $(function () {
 
     $('#image_chat_button').click(image_chat);
 
+    // submit images on enter
     $('#image_url').keyup(event => {
         if (event.which === 13) {
             image_chat();
         }
     });
 
+    // parse emoji list and button
     _parseEmojis();
 
+    // adding emojis to your chat message when clicked in the list
     $('#emoji_list .emoji').click(event => {
         event.stopPropagation();
         const chatText = chatBar.children('input');
         chatText.val(chatText.val() + $(event.target).prop('alt'));
     });
 
+    // set auto scroll threshold when messages are received so you're not popped back to the bottom when catching up
     window.autoScroll = true;
     $('#log').scroll(event => {
         const log = $(event.target);
         const scrollThreshold = 100;  // approximately five lines
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
     });
+
+    // set idle listeners
+    const resetIdleTimeout = () => {
+        window.clearTimeout(idleTimeout);
+        chatClient.setIdle(false);
+        idleTimeout = window.setTimeout(() => {
+            chatClient.setIdle(true);
+        }, 15 * 60 * 1000);  // fifteen minutes
+    };
+
+    $(document).mouseenter(resetIdleTimeout)
+        .scroll(resetIdleTimeout)
+        .keydown(resetIdleTimeout)
+        .click(resetIdleTimeout)
+        .dblclick(resetIdleTimeout);
 
     chatClient = new BestEvarChatClient();
 });

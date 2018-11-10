@@ -100,6 +100,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._leave_room(json_message['room id'])
             elif json_message['action'] == 'invite':
                 self._send_invitations(json_message['user ids'], json_message['room id'])
+        elif message_type == 'status':
+            self._user_list.update_user_status(self.current_user['id'], json_message['status'], self)
+            self._broadcast_user_list()
         elif message_type == 'version':
             if json_message['client version'] < CLIENT_VERSION:
                 self._send_alert('Your client is out of date. You\'d better refresh your page!', 'permanent')

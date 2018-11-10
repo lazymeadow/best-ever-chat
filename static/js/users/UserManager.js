@@ -13,6 +13,12 @@ export class UserManager extends LoggingClass {
         this._userDataMap = new Map();
     }
 
+    getUserStatus(userId) {
+        if (this._userDataMap.has(userId)) {
+            return this._userDataMap.get(userId).status;
+        }
+    }
+
     updateUserList(newUsers) {
         this._userListElement.empty();
         newUsers.forEach((userData) => {

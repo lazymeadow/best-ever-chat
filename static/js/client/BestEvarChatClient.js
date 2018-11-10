@@ -62,6 +62,25 @@ export class BestEvarChatClient {
         }
     }
 
+    setIdle(shouldBeIdle) {
+        const isIdle = this._userManager.getUserStatus(Settings.userId) === 'idle';
+        if (isIdle === undefined) {
+            return;
+        }
+        if (shouldBeIdle && !isIdle) {
+            this._send({
+                'type': 'status',
+                'status': 'idle'
+            });
+        }
+        else if (!shouldBeIdle && isIdle) {
+            this._send({
+                'type': 'status',
+                'status': 'active'
+            });
+        }
+    }
+
     sendImage(imageUrl, nsfw) {
         this._send({
             'type': 'image',
