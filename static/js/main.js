@@ -37,7 +37,12 @@ $(function () {
         new Modal({
             content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
             buttonText: 'Create Room',
-            buttonClickHandler: () => chatClient.createRoom($('#new-room-name').val())
+            buttonClickHandler: () => {
+                const roomName = $('#new-room-name').val();
+                if (roomName) {
+                    chatClient.createRoom(roomName);
+                }
+            }
         });
     });
 

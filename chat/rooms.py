@@ -6,10 +6,6 @@ from chat.lib import MAX_DEQUE_LENGTH
 
 class RoomList:
     _room_map = {}
-    _room_defaults = {
-        'members': set(),
-        'history': deque(maxlen=MAX_DEQUE_LENGTH)
-    }
 
     def __init__(self, db, user_list):
         self.db = db
@@ -31,11 +27,20 @@ class RoomList:
                 room['members'] = set(room['members'].split(','))
             else:
                 del room['members']
-            new_room = self._room_defaults.copy()
+            new_room = self._get_default_room()
             new_room.update(room)
             self._room_map[room.id] = new_room
 
+    def _get_default_room(self):
+        return {
+            'members': set(),
+            'history': deque(maxlen=MAX_DEQUE_LENGTH)
+        }
+
     def get_room_name(self, room_id):
+        if room_id not in self._room_map.keys():
+            return None
+
         return self._room_map[room_id]['name']
 
     def get_room(self, room_id):
@@ -47,6 +52,7 @@ class RoomList:
         room = self._room_map.get(room_id)
         if room is None:
             return room
+
         return {'id': room_id,
                 'name': room['name'],
                 'owner': room['owner'],
@@ -54,10 +60,16 @@ class RoomList:
                 'members': list(room['members'])}
 
     def get_room_list_for_user(self, user_id):
-        return sorted([self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
-                      key=lambda room: room['id'])
+        if not self._user_list.is_existing_user(user_id):
+            return None
+        return sorted(
+            [self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
+            key=lambda room: room['id'])
 
     def get_room_participants(self, room_id):
+        if room_id not in self._room_map.keys():
+            return None
+
         participant_list = []
         [participant_list.extend(self._user_list.get_user_participants(user_id))
          for user_id in self._room_map[room_id]['members']]
@@ -71,10 +83,11 @@ class RoomList:
         room_id = self.db.insert("INSERT INTO rooms (name, owner) VALUES (%s, %s)",
                                  name, owner_id)
         # add room to owner user
-        self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE) ON DUPLICATE KEY UPDATE in_room=TRUE",
-                        room_id, owner_id)
+        self.db.execute(
+            "INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE) ON DUPLICATE KEY UPDATE in_room=TRUE",
+            room_id, owner_id)
 
-        new_room = self._room_defaults.copy()
+        new_room = self._get_default_room()
         new_room['id'] = room_id
         new_room['owner'] = owner_id
         new_room['name'] = name
@@ -103,11 +116,16 @@ class RoomList:
         return (room['name'], member_participants)
 
     def grant_user_room_access(self, room_id, user_id):
+        if room_id not in self._room_map.keys() or not self._user_list.is_existing_user(user_id):
+            return None
         # add room to owner user
-        self.db.execute("INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) ON DUPLICATE KEY UPDATE in_room=FALSE",
-                        room_id, user_id)
+        self.db.execute(
+            "INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) ON DUPLICATE KEY UPDATE in_room=FALSE",
+            room_id, user_id)
 
     def add_user_to_member_list(self, room_id, user_id):
+        if room_id not in self._room_map.keys() or not self._user_list.is_existing_user(user_id):
+            return None
         self._room_map[room_id]['members'].add(user_id)
 
     def add_user_to_room(self, room_id, user_id):
@@ -154,6 +172,3 @@ class RoomList:
                                    'owner': self._room_map[item]['owner'],
                                    'members': self._room_map[item]['members']} for item in self._room_map],
                                  key=lambda room: room['name']))
-
-# maybe private messages can be treated as rooms with a special prefix on the key. and there is some kind of mapping to which id to access for a pair of people.
-# get the id for the room, then you get the history and send it out. sending to the client, make the other user the key.
