@@ -31,7 +31,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._send_auth_fail()
             return False
 
-        log_from_server('DEBUG', 'Client {} connecting...'.format(parasite))
+        log_from_server('DEBUG', 'Client ({}:{}) connecting...'.format(parasite, self.session.session_id))
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
@@ -52,7 +52,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._send_alert('Connection successful.')
 
-        log_from_server('debug', 'Client {} connected successfully.'.format(parasite))
+        log_from_server('debug', 'Client ({}:{}) connected successfully.'.format(parasite, self.session.session_id))
 
         # send queued messages
         messages = self._message_queue.get_invitations(self.current_user['id'])
@@ -64,6 +64,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_message(self, message):
         json_message = json.loads(message)
+        print json_message
 
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self._send_auth_fail()
@@ -75,6 +76,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
             return
 
         if json_message['user id'] != self.current_user['id']:
+            log_from_server('warning',
+                            'Socket message received from incorrect parasite ({}) from socket ({}:{}). Sending authentication failure.'.format(
+                                json_message['user id'], self.current_user['id'], self.session.session_id))
+            self._send_auth_fail()
             return
 
         if message_type == 'chat message':

@@ -175,7 +175,7 @@ export class BestEvarChatClient {
 
     _handleMessage({data: {data: messageData, type: messageType}}) {
         if (messageType === 'auth fail') {
-            location.reload();
+            location.replace('/logout');
         }
         else if (messageType === 'version update') {
             this._receivedVersionUpdate(messageData);
