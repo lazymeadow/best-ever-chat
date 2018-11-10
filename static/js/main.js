@@ -6,7 +6,6 @@
 import $ from 'jquery';
 import {Modal} from "./components";
 import {BestEvarChatClient} from "./client";
-import {Settings} from "./util";
 import {_parseEmojis} from "./lib";
 
 let chatClient;
@@ -63,7 +62,7 @@ $(function () {
         });
     });
 
-    chatBar.children('input').focus(event => {
+    chatBar.children('input').focus(() => {
         // hide all open popouts
         $('.popout-option').hide();
     })
@@ -76,10 +75,11 @@ $(function () {
             }
         });
 
-    const image_chat = event => {
-        chatClient.sendImage($('#image_url').val(), $('#image_nsfw').is(':checked'));
+    const image_chat = () => {
+        const imageUrlElement = $('#image_url');
+        chatClient.sendImage(imageUrlElement.val(), $('#image_nsfw').is(':checked'));
         $('.popout-option').hide();
-        $('#image_url').val('');
+        imageUrlElement.val('');
     };
 
     $('#image_chat_button').click(image_chat);
@@ -94,7 +94,7 @@ $(function () {
 
     $('#emoji_list .emoji').click(event => {
         event.stopPropagation();
-        var chatText = chatBar.children('input');
+        const chatText = chatBar.children('input');
         chatText.val(chatText.val() + $(event.target).prop('alt'));
     });
 
