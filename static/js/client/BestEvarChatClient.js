@@ -207,9 +207,6 @@ export class BestEvarChatClient {
         if (messageType === 'auth fail') {
             location.replace('/logout');
         }
-        else if (messageType === 'version update') {
-            this._receivedVersionUpdate(messageData);
-        }
         else if (messageType === 'room data') {
             this._receivedRoomData(messageData);
         }
@@ -234,10 +231,6 @@ export class BestEvarChatClient {
         else if (messageType === 'invitation') {
             this._receivedInvitation(messageData);
         }
-    }
-
-    _receivedVersionUpdate(messageData) {
-        console.log(messageData);
     }
 
     _receivedRoomData({rooms, all}) {
