@@ -11,7 +11,7 @@ from chat.custom_render import executor
 from chat.loggers import log_from_server
 from emoji.emojipy import Emoji
 
-MAX_DEQUE_LENGTH = 75
+MAX_DEQUE_LENGTH = 200
 
 emoji = Emoji()
 
@@ -24,7 +24,7 @@ def is_image_url(text):
 def preprocess_message(message, emoji_processor):
     message_text = message
     # remove any raw script, audio, or video tags before continuing
-    if message.find('<script>') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
+    if message.find('<script') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
             '<iframe'):
         message_text = xhtml_escape(message)
 
