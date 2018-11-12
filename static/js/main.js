@@ -41,20 +41,6 @@ $(() => {
         $('.popout-menu').toggle();
     });
 
-    // open modal when clicking room +
-    $('#add-room').click(() => {
-        new Modal({
-            content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
-            buttonText: 'Create Room',
-            buttonClickHandler: () => {
-                const roomName = $('#new-room-name').val();
-                if (roomName) {
-                    chatClient.createRoom(roomName);
-                }
-            }
-        });
-    });
-
     const chatBar = $('.chat-bar');
 
     // add popout handlers on click for image chat and emoji list

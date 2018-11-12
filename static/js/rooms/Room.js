@@ -54,6 +54,7 @@ export class Room extends LoggingClass {
             let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fas fa-fw fa-user-plus'))
                 .click(() => {
                     new Modal({
+                        title: `Invite to join "${this.name}"`,
                         content: () => {
                             // create a list of users that are NOT currently in the room
                             const currentUsers = this.memberList;
@@ -78,7 +79,6 @@ export class Room extends LoggingClass {
                         buttonText: 'Send!',
                         buttonClickHandler: () => {
                             const invitees = $('input[name="invitee"]:checked').map((_, element) => element.value).get();
-                            //FIXME
                             this._roomManager._chatClient.sendInvitations(this.id, invitees);
                             this.debug(`Invitation to room '${this.name}' sent to [${invitees.join(', ')}].`);
                         }
@@ -88,13 +88,12 @@ export class Room extends LoggingClass {
                 $('<span>').addClass('menu-item').text('Delete Room').prepend($('<span>').addClass('far fa-fw fa-trash-alt'))
                     .click(() => {
                         new Modal({
+                            title: `Are you sure you want to delete '${this.name}'?`,
                             content: $('<div>')
-                                .append($('<div>').text(`Are you sure you want to delete '${this.name}'?`))
                                 .append($('<div>').text('All users will be kicked out and all history will be lost.'))
                                 .append($('<div>').addClass('text-danger').text('This action is irreversible.')),
                             buttonText: 'Yes!',
                             buttonClickHandler: () => {
-                                //FIXME
                                 this._roomManager._chatClient.deleteRoom(this.id);
                                 this.debug(`Room '${this.name}' deleted.`);
                             }
@@ -107,7 +106,6 @@ export class Room extends LoggingClass {
                                 .append($('<div>').text(`Are you sure you want to leave '${this.name}'?`)),
                             buttonText: 'Yes!',
                             buttonClickHandler: () => {
-                                //FIXME
                                 this._roomManager._chatClient.leaveRoom(this.id);
                                 this.debug(`Left room '${this.name}'.`);
                             }

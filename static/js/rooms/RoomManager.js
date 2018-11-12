@@ -2,6 +2,7 @@ import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 import {Room} from "./Room";
 import {_parseEmojis, setTitle} from '../lib';
+import {Modal} from "../components";
 
 export class RoomManager extends LoggingClass {
     constructor(chatClient, messageLog, soundManager) {
@@ -11,6 +12,21 @@ export class RoomManager extends LoggingClass {
         this._soundManager = soundManager;
         this._roomDataMap = new Map();
         this._roomListElement = $('#room-list');
+
+        // open modal when clicking room +
+        $('#add-room').click(() => {
+            new Modal({
+                content: $('<input>').prop('id', 'new-room-name').prop('placeholder', 'Room name'),
+                title: 'Create a Room',
+                buttonText: 'Create Room',
+                buttonClickHandler: () => {
+                    const roomName = $('#new-room-name').val();
+                    if (roomName) {
+                        chatClient.createRoom(roomName);
+                    }
+                }
+            });
+        });
     }
 
 
