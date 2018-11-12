@@ -23,10 +23,6 @@ def is_image_url(text):
 
 def preprocess_message(message, emoji_processor):
     message_text = message
-    # remove any raw script, audio, or video tags before continuing
-    if message.find('<script') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
-            '<iframe'):
-        message_text = xhtml_escape(message)
 
     # first linkify
     message_text = linkify(to_unicode(message_text), extra_params='target="_blank"', require_protocol=False)
@@ -34,6 +30,10 @@ def preprocess_message(message, emoji_processor):
     message_text = emoji_processor.shortcode_to_unicode(message_text)
     # then find ascii emojis
     message_text = emoji_processor.ascii_to_unicode(message_text)
+    # remove any raw script, audio, or video tags that are left
+    if message.find('<script') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
+            '<iframe') >= 0:
+        message_text = xhtml_escape(message_text)
 
     return message_text
 
