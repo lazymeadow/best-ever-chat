@@ -8,9 +8,11 @@ import {Modal} from "./components";
 import {BestEvarChatClient} from "./client";
 import {_parseEmojis} from "./lib";
 import Cookies from 'js-cookie';
+import {ChatHistory} from "./util";
 
 let chatClient;
 let idleTimeout;
+let chatHistory;
 
 if (!Cookies.get('id')) {
     location.reload();
@@ -81,14 +83,33 @@ $(() => {
     })
         .keyup(event => {
             let chatInput = $(event.target);
+            const currentMessage = chatInput.val();
+
+            // up arrow goes through history
+            if (event.which === 38) {
+                chatInput.val(chatHistory.getNext());
+                if (currentMessage !== '') {
+                    chatHistory.addMessage(currentMessage, true);
+                }
+            }
+            // down arrow goes through history, too
+            else if (event.which === 40) {
+                chatInput.val(chatHistory.getPrevious());
+            }
+            else {
+                chatHistory.reset();
+            }
             // submit chat on enter and reset value
             if (event.which === 13) {
-                chatClient.sendChat(chatInput.val());
+                if (currentMessage !== '') {
+                    chatHistory.addMessage(currentMessage);
+                    chatClient.sendChat(currentMessage);
+                }
                 chatInput.val('');
                 chatInput.focus();
             }
+
             // update typing status
-            const currentMessage = chatInput.val();
             chatClient.sendTyping(currentMessage.length > 0);
         });
 
@@ -142,5 +163,6 @@ $(() => {
         .click(resetIdleTimeout)
         .dblclick(resetIdleTimeout);
 
+    chatHistory = new ChatHistory();
     chatClient = new BestEvarChatClient();
 });
