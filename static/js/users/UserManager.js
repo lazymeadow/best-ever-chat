@@ -79,7 +79,8 @@ export class UserManager extends LoggingClass {
         Settings.activeLogType = 'thread';
         Settings.activeLogId = userId;
         let user = this._userDataMap.get(userId);
-        this._messageLog.printMessages(user._threadMessages, 'This private message thread is empty!');
+        this._messageLog.printMessages(user._threadMessages, user.id === Settings.userId ?
+            'You can talk to yourself here!' : `There are no messages here. Anything you say here is just between you and ${user.username}!`);
         setTitle('Private Message');
         super.debug(`Active thread set to ${user.id}.`);
         this.updateUserList();
