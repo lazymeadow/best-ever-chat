@@ -208,10 +208,12 @@ export class BestEvarChatClient {
     // Private functions
 
     _send(data) {
-        this._sock.send(JSON.stringify({
-            'user id': Settings.userId,
-            ...data
-        }));
+        if (this._sock && this._sock.readyState === 1) {  // SockJS.OPEN
+            this._sock.send(JSON.stringify({
+                'user id': Settings.userId,
+                ...data
+            }));
+        }
     }
 
     _handleMessage({data: {data: messageData, type: messageType}}) {
