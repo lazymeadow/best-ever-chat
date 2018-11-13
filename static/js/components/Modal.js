@@ -2,18 +2,18 @@ import $ from 'jquery';
 import {LoggingClass} from "../util";
 
 export class Modal extends LoggingClass {
-    constructor({title, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false}) {
+    constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false}) {
         super('Modal');
         this.debug('Creating modal');
         const overlay = $('.overlay');
 
         this.modal = $('<div>');
-        let errorDiv = $('<div>').addClass('message error');
+        let messageDiv = $('<div>').addClass('message').text(message);
         this.modal.addClass('modal').addClass(form ? 'form' : '')
             .click(event => event.stopPropagation())
             .append($('<h1>').text(title))
             .append($('<div>')
-                .append(errorDiv)
+                .append(messageDiv)
                 .append(content)
                 .append($('<div>').addClass('form-element')
                     .append(showCancel ? $('<button>').addClass('secondary').text(cancelText)
@@ -29,7 +29,7 @@ export class Modal extends LoggingClass {
                         event.stopPropagation();
                         const error = buttonClickHandler();
                         if (error) {
-                            errorDiv.text(error);
+                            messageDiv.addClass('error').text(error);
                         }
                         else {
                             this.modal.remove();

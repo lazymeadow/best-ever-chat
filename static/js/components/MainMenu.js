@@ -226,7 +226,7 @@ export class MainMenu extends LoggingClass {
                     title: 'Account Settings',
                     content: $('<div>')
                         .append($('<div>').addClass('form-group')
-                                // Email
+                            // Email
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Email Address', for: 'email'}))
                                     .append($('<input>', {
@@ -254,22 +254,24 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
+                        let serverChanges = {};
+
                         let email = $('#email');
                         if (!email[0].checkValidity()) {
                             return 'That is an invalid email address.';
                         }
                         email = email.val();
+                        if (email !== Settings.email) {
+                            serverChanges['email'] = email;
+                        }
 
                         const password1 = $('#password1').val();
                         const password2 = $('#password2').val();
                         if (password1 !== password2) {
                             return 'Passwords do not match.';
                         }
-                        this._chatClient.updateAccountSettings({
-                            email,
-                            password1,
-                            password2
-                        });
+                        serverChanges = {...serverChanges, password1, password2};
+                        this._chatClient.updateAccountSettings(serverChanges);
                         this.debug('Account settings saved!');
                     }
                 })
@@ -281,9 +283,8 @@ export class MainMenu extends LoggingClass {
                     new Modal({
                         form: true,
                         title: 'Report a Bug',
-                        content: $('<div>')
-                            .append('You found a bug? Nice job!')
-                            .append($('<div>').addClass('form-group')
+                        message: 'You found a bug? Nice job!',
+                        content: $('<div>').addClass('form-group')
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Title', for: 'title'}))
                                     .append($('<input>', {
@@ -296,11 +297,14 @@ export class MainMenu extends LoggingClass {
                                     .append($('<textarea>', {
                                         id: 'body',
                                         value: ''
-                                    })))),
+                                    }))),
                         buttonText: 'Send it in!',
                         cancelText: 'Nevermind',
                         buttonClickHandler: () => {
                             const title = $('#title').val();
+                            if (!title) {
+                                return 'A title is required.';
+                            }
                             if (title) {
                                 this._chatClient.submitBug({
                                     title: `[Best Evar Chat] ${title} (submitted by ${Settings.userId})`,
@@ -318,26 +322,28 @@ export class MainMenu extends LoggingClass {
                     new Modal({
                         form: true,
                         title: 'Request a Feature',
-                        content: $('<div>')
-                            .append('So, this chat isn\'t good enough for you? Fine! What do you want?')
-                            .append($('<div>').addClass('form-group')
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Title', for: 'title'}))
-                                    .append($('<input>', {
-                                        id: 'title',
-                                        type: 'text',
-                                        value: ''
-                                    })))
-                                .append($('<div>').addClass('form-element')
-                                    .append($('<label>', {text: 'Body', for: 'body'}))
-                                    .append($('<textarea>', {
-                                        id: 'body',
-                                        value: ''
-                                    })))),
+                        message: 'So, this chat isn\'t good enough for you? Fine! What do you want?',
+                        content: $('<div>').addClass('form-group')
+                            .append($('<div>').addClass('form-element')
+                                .append($('<label>', {text: 'Title', for: 'title'}))
+                                .append($('<input>', {
+                                    id: 'title',
+                                    type: 'text',
+                                    value: ''
+                                })))
+                            .append($('<div>').addClass('form-element')
+                                .append($('<label>', {text: 'Body', for: 'body'}))
+                                .append($('<textarea>', {
+                                    id: 'body',
+                                    value: ''
+                                }))),
                         buttonText: 'Awesome!',
                         cancelText: 'Just kidding',
                         buttonClickHandler: () => {
                             const title = $('#title').val();
+                            if (!title) {
+                                return 'A title is required.';
+                            }
                             if (title) {
                                 this._chatClient.submitFeature({
                                     title: `[Best Evar Chat] ${title} (submitted by ${Settings.userId})`,
