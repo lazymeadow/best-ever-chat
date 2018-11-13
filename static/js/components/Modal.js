@@ -8,10 +8,12 @@ export class Modal extends LoggingClass {
         const overlay = $('.overlay');
 
         this.modal = $('<div>');
+        let errorDiv = $('<div>').addClass('message error');
         this.modal.addClass('modal').addClass(form ? 'form' : '')
             .click(event => event.stopPropagation())
             .append($('<h1>').text(title))
-            .append((form ? $('<form>') : $('<div>'))
+            .append($('<div>')
+                .append(errorDiv)
                 .append(content)
                 .append($('<div>').addClass('form-element')
                     .append(showCancel ? $('<button>').addClass('secondary').text(cancelText)
@@ -25,10 +27,15 @@ export class Modal extends LoggingClass {
                     .append(form ? $('<div>').addClass('flex-spacer') : null)
                     .append($('<button>').text(buttonText).click(event => {
                         event.stopPropagation();
-                        buttonClickHandler();
-                        this.modal.remove();
-                        if (overlay.is(':empty')) {
-                            overlay.hide();
+                        const error = buttonClickHandler();
+                        if (error) {
+                            errorDiv.text(error);
+                        }
+                        else {
+                            this.modal.remove();
+                            if (overlay.is(':empty')) {
+                                overlay.hide();
+                            }
                         }
                     }))));
 

@@ -191,6 +191,9 @@ export class MainMenu extends LoggingClass {
                             let serverChanges = {};
 
                             const newUsername = $('#username').val();
+                            if (newUsername.length > 32) {
+                                return 'Username is too long.';
+                            }
                             if (newUsername !== Settings.username) {
                                 serverChanges['username'] = newUsername;
                             }

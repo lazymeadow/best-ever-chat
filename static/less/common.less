@@ -77,6 +77,17 @@ div.login, div.not-found, div.form {
     width: 250px;
   }
 
+  & .message {
+    flex: 1 1 auto;
+    padding-top: 10px;
+    min-height: 19px;
+    text-align: center;
+
+    &.error {
+      color: @errorRed;
+    }
+  }
+
   .form-group {
     width: 350px;
     display: flex;

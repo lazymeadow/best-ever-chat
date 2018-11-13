@@ -16,7 +16,7 @@ class PageHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.set_cookie('username', url_escape(self.current_user['username']) or '')
+        self.set_cookie('username', url_escape(self.current_user['username'], plus=False) or '')
         self.set_cookie('color', self.current_user['color'] or '')
         self.set_cookie('volume', str(self.current_user['volume']) or '100')
         self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
