@@ -226,7 +226,7 @@ export class MainMenu extends LoggingClass {
                     title: 'Account Settings',
                     content: $('<div>')
                         .append($('<div>').addClass('form-group')
-                            // Email
+                                // Email
                                 .append($('<div>').addClass('form-element')
                                     .append($('<label>', {text: 'Email Address', for: 'email'}))
                                     .append($('<input>', {
@@ -254,10 +254,21 @@ export class MainMenu extends LoggingClass {
                         ),
                     buttonText: 'Save',
                     buttonClickHandler: () => {
+                        let email = $('#email');
+                        if (!email[0].checkValidity()) {
+                            return 'That is an invalid email address.';
+                        }
+                        email = email.val();
+
+                        const password1 = $('#password1').val();
+                        const password2 = $('#password2').val();
+                        if (password1 !== password2) {
+                            return 'Passwords do not match.';
+                        }
                         this._chatClient.updateAccountSettings({
-                            email: $('#email').val(),
-                            password1: $('#password1').val(),
-                            password2: $('#password2').val()
+                            email,
+                            password1,
+                            password2
                         });
                         this.debug('Account settings saved!');
                     }
