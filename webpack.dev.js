@@ -45,10 +45,10 @@ module.exports = [
         ]
     },
     {
-        name: "chat-css",
+        name: "main-style",
         mode: "development",
         entry: {
-            chat: './static/less/chat.less'
+            'main-style': './static/less/chat.less'
         },
         module: {
             rules: [
@@ -87,15 +87,11 @@ module.exports = [
                 }
             ]
         },
-        stats: {
-            colors: true
-        },
         output: {
-            filename: 'chat.css',
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/chat.css']),
+            new CleanWebpackPlugin(['static/dist/main-style.css', 'static/dist/main-style.js', 'static/dist/fonts/']),
             new MiniCssExtractPlugin({
                 filename: "[name].css"
             })
@@ -140,22 +136,18 @@ module.exports = [
         ]
     },
     {
-        name: "login-css",
+        name: "login-style",
         mode: "development",
         entry: {
-            login: './static/less/login.less'
+            'login-style': './static/less/login.less'
         },
         module: {
             rules: [
                 {
                     test: /\.less$/,
                     use: [
-                        {
-                            loader: MiniCssExtractPlugin.loader
-                        },
-                        {
-                            loader: "css-loader"
-                        },
+                        MiniCssExtractPlugin.loader,
+                        "css-loader",
                         {
                             loader: "less-loader", options: {
                                 paths: [
@@ -174,11 +166,10 @@ module.exports = [
             colors: true
         },
         output: {
-            filename: 'login.css',
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/login.css', 'static/dist/fonts/']),
+            new CleanWebpackPlugin(['static/dist/login-style.css', 'static/dist/login-style.js']),
             new MiniCssExtractPlugin({
                 filename: "[name].css"
             })

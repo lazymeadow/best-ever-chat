@@ -70,7 +70,7 @@
               position: absolute;
               background-color: white;
               color: fade(black, 85%);
-              width: 200px;
+              min-width: 200px;
               top: 20px;
               left: -10px;
               z-index: 101;
@@ -78,6 +78,7 @@
 
               & .menu-item {
                 display: block;
+                white-space: nowrap;
                 padding: 5px;
                 opacity: .85;
 
@@ -97,7 +98,8 @@
             font-size: 1.1em;
             font-weight: bold;
             flex: 1 1 auto;
-            word-break: break-all;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
             cursor: pointer;
           }
         }
@@ -134,7 +136,7 @@
 
           & > div:not(.inline-menu) {
             display: flex;
-            height: 34px;
+            height: 2em;
             margin: -3px;
             white-space: nowrap;
             align-items: center;
@@ -218,6 +220,8 @@
         & .list-content {
           flex: 1 0 auto;
           text-overflow: ellipsis;
+          overflow-x: hidden;
+          max-width: calc(100% - 2em - 3px);
         }
 
         & .typing-status {
@@ -298,6 +302,8 @@
           visibility: hidden;
           opacity: .8;
           width: 2em;
+          height: 2em;
+          line-height: 2em;
           text-align: center;
         }
 
@@ -402,7 +408,7 @@
 
       & .chat-bar {
         flex: 0 1 auto;
-        height: 45px;
+        height: 2em;
         display: flex;
 
         & > input {
@@ -430,7 +436,7 @@
           & > .popout-option {
             display: none;
             position: absolute;
-            bottom: 45px;
+            bottom: 2em;
             right: 0;
             background-color: white;
             padding: 5px;

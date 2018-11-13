@@ -98,10 +98,12 @@ export class MainMenu extends LoggingClass {
                     },
                     buttonText: 'Save',
                     buttonClickHandler: () => {
-                        // TODO: validate before submit -> needs to stop the modal from closing if it doesn't submit. maybe the modal itself can have a validation parameter and handle that stuff?
-
                         Settings.tabTitle = $('#tab_title').val();
+                        this._chatClient.setWindowTitle();
+
                         Settings.fontSize = $('#font_size').val();
+                        $('body')[0].style.fontSize = `${Settings.fontSize}px`;
+
                         Settings.hideImages = $('#hide_images').prop('checked');
                         Settings.timestamps = $('#timestamps').val();
                         Settings.muted = $('#muted').val();

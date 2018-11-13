@@ -19,7 +19,7 @@ export class User extends LoggingClass {
                 .append($('<i>').addClass('fas fa-circle fa-stack-1x'))
                 .append($('<i>', {faction: true}).addClass(`fab fa-stack-1x fa-inverse fa-${this.faction}`));
 
-            this._userElement = $('<div>', {title: this.id})
+            this._userElement = $('<div>', {title: `${this.username} (${this.id})`})
                 .append($('<span>').addClass('message-indicator fas fa-fw fa-star'))
                 .append(this._iconElement)
                 .append($('<span>').addClass('list-content').text(this.username))
@@ -33,7 +33,7 @@ export class User extends LoggingClass {
             this._userElement.addClass(this.status)
                 .addClass(Settings.activeLogId === this.id ? 'current' : '')
                 .addClass(Settings.activeLogId === this.typing ? 'is-typing' : '')
-                .prop('title', this.id);
+                .prop('title', `${this.username} (${this.id})`);
 
             this._iconElement = this._userElement.find('.online-status');
             this._iconElement.addClass('fa-stack fa-1x')

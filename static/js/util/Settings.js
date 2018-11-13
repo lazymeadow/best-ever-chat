@@ -29,6 +29,7 @@ export class Settings {
         // set value overrides
         Settings.volume = Settings.volume || Cookies.get('volume');
         Settings.activeLogType = Settings.activeLogType || 'room';
+        $('body')[0].style.fontSize = `${Settings.fontSize}px`;
     }
 
     static get userId() {

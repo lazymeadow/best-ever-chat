@@ -45,7 +45,7 @@ export class Room extends LoggingClass {
      */
     _createRoomElement() {
         let roomElement = $('<div>');
-        let elementBody = $('<div>')
+        let elementBody = $('<div>', {title: this.name})
             .append($('<span>').addClass('message-indicator far fa-fw fa-comments'))
             .append($('<span>').addClass('list-content').text(this.name));
 
