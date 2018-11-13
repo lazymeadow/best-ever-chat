@@ -88,7 +88,7 @@ export class User extends LoggingClass {
 
     addMessage(messageData, show_indicator = true) {
         this._threadMessages.add(messageData);
-        if (show_indicator && Settings.activeLogId !== this.id) {
+        if (show_indicator) {
             this._userElement.addClass('has-messages');
         }
         return this._threadMessages.size;

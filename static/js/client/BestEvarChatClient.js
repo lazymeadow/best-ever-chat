@@ -22,6 +22,7 @@ export class BestEvarChatClient {
         this._reconnectAlert = null;
         this._reconnectTimeout = null;
         this._reconnectCount = 0;
+        this._unreadMessageCount = 0;
 
         this.connect();
     }
@@ -54,6 +55,33 @@ export class BestEvarChatClient {
 
     selectGeneralRoom() {
         this._roomManager.setActiveRoom(0);
+    }
+
+    _getTitle() {
+        let name;
+        if (Settings.activeLogType === 'thread') {
+            name = this._userManager.getActiveThreadName();
+        }
+        else {
+            name = this._roomManager.getActiveRoomName();
+        }
+        return Settings.tabTitle || `${name} | Best Evar Chat 3.0`;
+    }
+
+    setWindowTitle() {
+        document.title = this._getTitle();
+    }
+
+    _incrementUnreadMessageCount() {
+        if (!document.hasFocus()) {
+            this._unreadMessageCount++;
+            document.title = `(${this._unreadMessageCount}) ${this._getTitle()}`;
+        }
+    }
+
+    resetUnreadMessageCount() {
+        this._unreadMessageCount = 0;
+        this.setWindowTitle();
     }
 
     sendChat(messageText) {
@@ -90,12 +118,13 @@ export class BestEvarChatClient {
         }
     }
 
-    sendTyping(shouldBeTyping) {
+    sendTyping() {
         const isTyping = this._userManager.getUserTypingStatus(Settings.userId);
         if (isTyping === undefined) {
             return;
         }
-        if ((shouldBeTyping && !isTyping) || (!shouldBeTyping && isTyping)) {
+        const shouldBeTyping = $('.chat-bar').children('input').val().length > 0;
+        if ((shouldBeTyping && !(isTyping && isTyping === Settings.activeLogId)) || (!shouldBeTyping && isTyping !== false)) {
             this._send({
                 'type': 'typing',
                 'status': shouldBeTyping ? Settings.activeLogId : false
@@ -233,7 +262,7 @@ export class BestEvarChatClient {
             this._receivedUpdate(messageData);
         }
         else if (messageType === 'chat message') {
-            this._roomManager.addMessage(messageData, messageData['room id']);
+            this._receivedChatMessage(messageData);
         }
         else if (messageType === 'private message') {
             this._receivedPrivateMessage(messageData);
@@ -270,8 +299,14 @@ export class BestEvarChatClient {
         });
     }
 
+    _receivedChatMessage({'room id': roomId, ...messageData}) {
+        this._roomManager.addMessage(messageData, roomId);
+        this._incrementUnreadMessageCount();
+    }
+
     _receivedPrivateMessage(messageData) {
         this._userManager.addMessage(messageData);
+        this._incrementUnreadMessageCount();
     }
 
     _receivedInvitation({user, 'user id': userId, 'room id': roomId, 'room name': name}) {
@@ -283,6 +318,7 @@ export class BestEvarChatClient {
             dismissText: 'No, thanks.',
             dismissCallback: () => this.joinRoom(roomId, false, userId)
         });
+        this._incrementUnreadMessageCount();
     }
 
     _receivedAlert({message, alert_type}) {

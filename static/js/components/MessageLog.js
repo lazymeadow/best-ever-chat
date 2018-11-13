@@ -1,11 +1,10 @@
 import $ from 'jquery';
-import moment from 'moment';
 import imagesLoaded from 'imagesloaded';
 
 imagesLoaded.makeJQueryPlugin($);
 
-import {LoggingClass, Settings} from "../util";
-import {_parseEmojis} from "../lib";
+import {LoggingClass} from "../util";
+import {_formatTime, _parseEmojis} from "../lib";
 
 export class MessageLog extends LoggingClass {
     constructor() {

@@ -4,7 +4,6 @@
  */
 
 import $ from 'jquery';
-import {Modal} from "./components";
 import {BestEvarChatClient} from "./client";
 import {_parseEmojis} from "./lib";
 import Cookies from 'js-cookie';
@@ -19,7 +18,6 @@ if (!Cookies.get('id')) {
 }
 
 $(() => {
-// $(window).on('load', () => {
     const overlay = $('.overlay');
     overlay.hide();
 
@@ -96,7 +94,7 @@ $(() => {
             }
 
             // update typing status
-            chatClient.sendTyping(currentMessage.length > 0);
+            chatClient.sendTyping();
         });
 
     // image chat button handlers
@@ -134,6 +132,9 @@ $(() => {
         autoScroll = Math.abs(log.outerHeight(true) + log.scrollTop() - log[0].scrollHeight) < scrollThreshold;
     });
 
+    chatHistory = new ChatHistory();
+    chatClient = new BestEvarChatClient();
+
     // set idle listeners
     const resetIdleTimeout = () => {
         window.clearTimeout(idleTimeout);
@@ -149,6 +150,10 @@ $(() => {
         .click(resetIdleTimeout)
         .dblclick(resetIdleTimeout);
 
-    chatHistory = new ChatHistory();
-    chatClient = new BestEvarChatClient();
+     $(window).focus(() => {
+         chatClient.resetUnreadMessageCount();
+
+        $('#chat_text').focus();
+        $("#favicon").attr("href", "/static/favicon.png");
+    });
 });

@@ -80,18 +80,18 @@ export class RoomManager extends LoggingClass {
             }
         }
         else {
-            const roomMessageCount = this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData, messageData.username !== Settings.username);
+            const roomMessageCount = this._roomDataMap.get(parseInt(roomId, 10)).addMessage(messageData);
             if (Settings.activeLogType === 'room' && parseInt(Settings.activeLogId, 10) === parseInt(roomId, 10)) {
                 if (roomMessageCount <= 1) {
                     this._messageLog.clear();
                 }
                 this._messageLog.printMessage(messageData);
-                if (messageData.username === Settings.username) {
-                    this._soundManager.playSent();
-                }
-                else if (messageData.username !== 'Server') {
-                    this._soundManager.playReceived();
-                }
+            }
+            if (messageData.username === Settings.username) {
+                this._soundManager.playSent();
+            }
+            else if (messageData.username !== 'Server') {
+                this._soundManager.playReceived();
             }
         }
     }
@@ -105,9 +105,14 @@ export class RoomManager extends LoggingClass {
         Settings.activeLogId = parseInt(roomId, 10);
         let room = this._roomDataMap.get(parseInt(roomId, 10));
         this._messageLog.printMessages(room.messageHistory, 'There are no messages in this room. You should say something!');
-        setTitle(room.name);
+        this._chatClient.sendTyping();
+        this._chatClient.setWindowTitle();
         this._chatClient.updateUserList();
         super.debug(`Active room set to ${roomId}.`);
+    }
+
+    getActiveRoomName() {
+        return this._roomDataMap.get(parseInt(Settings.activeLogId), 10).name;
     }
 
     // Private functions

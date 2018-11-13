@@ -81,9 +81,14 @@ export class UserManager extends LoggingClass {
         let user = this._userDataMap.get(userId);
         this._messageLog.printMessages(user._threadMessages, user.id === Settings.userId ?
             'You can talk to yourself here!' : `There are no messages here. Anything you say here is just between you and ${user.username}!`);
-        setTitle('Private Message');
-        super.debug(`Active thread set to ${user.id}.`);
+        this._chatClient.sendTyping();
+        this._chatClient.setWindowTitle();
         this.updateUserList();
+        super.debug(`Active thread set to ${user.id}.`);
+    }
+
+    getActiveThreadName() {
+        return this._userDataMap.get(Settings.activeLogId).username;
     }
 
     _addUser(userData) {
