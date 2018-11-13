@@ -38,16 +38,22 @@ export class SoundManager extends LoggingClass {
     playConnected() {
         if (!Settings.muted)
             this._connectSound[0].play();
+        this.debug('Playing connected sound');
     }
 
     playDisconnected() {
         if (!Settings.muted)
             this._disconnectSound[0].play();
+        this.debug('Playing disconnected sound');
     }
 
-    playActivate() {
+    playActivate(volume) {
+        if (volume) {
+            this._activateSound.prop('volume', volume/100);
+        }
         if (!Settings.muted)
             this._activateSound[0].play();
+        this.debug('Playing activate sound');
     }
 
     updateSoundSet() {

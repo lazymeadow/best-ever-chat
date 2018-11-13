@@ -51,8 +51,10 @@ export class MainMenu extends LoggingClass {
                                         }).change(event => {
                                             volume = event.target.value;
                                             muted = parseInt(volume, 10) === 0;
-                                            console.log(volume, muted);
                                             $('#muted').val(muted);
+                                            if (!muted) {
+                                                this._chatClient._soundManager.playActivate(volume);
+                                            }
                                             $('#volume_button').html(getButtonContents());
                                         }))
                                         .append($('<div>', {id: 'volume_button'})
@@ -98,33 +100,59 @@ export class MainMenu extends LoggingClass {
                     },
                     buttonText: 'Save',
                     buttonClickHandler: () => {
-                        Settings.tabTitle = $('#tab_title').val();
-                        this._chatClient.setWindowTitle();
+                        let changesMade = false;
 
-                        Settings.fontSize = $('#font_size').val();
-                        $('body')[0].style.fontSize = `${Settings.fontSize}px`;
+                        const tabTitle = $('#tab_title').val();
+                        if (tabTitle !== Settings.tabTitle) {
+                            Settings.tabTitle = tabTitle;
+                            this._chatClient.setWindowTitle();
+                            changesMade = true;
+                        }
 
-                        Settings.hideImages = $('#hide_images').prop('checked');
-                        Settings.timestamps = $('#timestamps').val();
-                        Settings.muted = $('#muted').val();
+                        const fontSize = $('#font_size').val();
+                        if (fontSize !== Settings.fontSize) {
+                            Settings.fontSize = fontSize;
+                            $('body')[0].style.fontSize = `${Settings.fontSize}px`;
+                            changesMade = true;
+                        }
+
+                        const hideImages = $('#hide_images').prop('checked');
+                        const timeStamps = $('#timestamps').val();
+                        if (hideImages !== Settings.hideImages || timeStamps !== Settings.timestamps) {
+                            Settings.hideImages = hideImages;
+                            Settings.timestamps = timeStamps;
+                            this._chatClient.reprintLog();
+                            changesMade = true;
+                        }
+
+                        const muted = $('#muted').val() === 'true';
+                        if (muted !== Settings.muted) {
+                            Settings.muted = muted;
+                            changesMade = true;
+                            new Alert({content: muted ? 'Sounds off.' : 'Sound on.'});
+                        }
 
                         let serverChanges = {};
                         const newVolume = $('#volume').val();
                         if (newVolume !== Settings.volume) {
                             serverChanges['volume'] = newVolume;
+                            changesMade = true;
                         }
                         const newSoundSet = $('#sound_set').val();
                         if (newSoundSet !== Settings.soundSet) {
                             serverChanges['soundSet'] = newSoundSet;
+                            changesMade = true;
+                        }
+                        if (Object.keys(serverChanges).length === 0) {
+                            this._chatClient.updateClientSettings(serverChanges);
                         }
 
-                        if (Object.keys(serverChanges).length === 0) {
-                            new Alert({content: 'No changes made.'});
-                            this.debug('No changes made to client settings.');
+                        if (changesMade) {
+                            this.debug('Client settings saved!');
                         }
                         else {
-                            this._chatClient.updateClientSettings(serverChanges);
-                            this.debug('Client settings saved!');
+                            new Alert({content: 'No changes made.'});
+                            this.debug('No changes made to client settings.');
                         }
                     }
                 })

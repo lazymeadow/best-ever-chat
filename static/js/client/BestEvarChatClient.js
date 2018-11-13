@@ -79,6 +79,15 @@ export class BestEvarChatClient {
         }
     }
 
+    reprintLog() {
+        if (Settings.activeLogType === 'room') {
+            this._roomManager.setActiveRoom(Settings.activeLogId);
+        }
+        else {
+            this._userManager.setActiveThread(Settings.activeLogId);
+        }
+    }
+
     resetUnreadMessageCount() {
         this._unreadMessageCount = 0;
         this.setWindowTitle();
