@@ -4,9 +4,10 @@
   "description": "The Best Evar Chat - now with webpack!",
   "private": true,
   "scripts": {
-    "build-all": "npm install && npm run webpack",
+    "build": "npm install && npx webpack --config webpack.dev.js",
+    "build-prod": "npm install && npx webpack --config webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch",
+    "watch": "webpack --watch --config webpack.dev.js",
     "webpack": "webpack"
   },
   "repository": {
@@ -35,6 +36,7 @@
     "less-loader": "^4.1.0",
     "less-plugin-clean-css": "^1.5.1",
     "mini-css-extract-plugin": "^0.4.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
     "webpack": "^4.16.2",
     "webpack-command": "^0.4.1"
   },

@@ -1,5 +1,9 @@
+from chat.loggers import log_from_server
+
+
 class MessageQueue:
     def __init__(self, db, user_list):
+        log_from_server('info', 'Initializing message queue...')
         self.db = db
         self._user_list = user_list
 

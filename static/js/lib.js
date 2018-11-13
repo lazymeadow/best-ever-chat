@@ -17,3 +17,19 @@ export function _parseEmojis(element) {
 export function setTitle(roomName) {
     window.document.title = Settings.tabTitle || `${roomName} | Best Evar Chat 3.0`;
 }
+
+/**
+ * Formats a given timestamp according the the client settings.
+ * @param timestamp
+ * @returns string the formatted timestamp
+ * @private
+ */
+export function _formatTime(timestamp) {
+    if (Settings.timestamps === 'off') {
+        return '';
+    }
+    let format = 'HH:mm:ss';
+    if (Settings.timestamps === 'date_time')
+        format = "MM/DD/YY " + format;
+    return `[${moment.unix(timestamp).format(format)}]`;
+}

@@ -2,6 +2,7 @@ import json
 
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password
+from chat.loggers import log_from_server
 
 allowed_factions = [
     'first-order',
@@ -31,6 +32,7 @@ class UserList:
     }
 
     def __init__(self, db):
+        log_from_server('info', 'Initializing user list...')
         self.db = db
         parasites = self.db.query("SELECT id FROM parasite")
         for parasite in parasites:

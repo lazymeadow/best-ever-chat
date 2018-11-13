@@ -6,7 +6,7 @@ import {Modal} from "../components";
 
 export class RoomManager extends LoggingClass {
     constructor(chatClient, messageLog, soundManager) {
-        super();
+        super('RoomManager');
         this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._soundManager = soundManager;

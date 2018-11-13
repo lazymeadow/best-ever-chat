@@ -5,8 +5,8 @@ const CleanCSSPlugin = require('less-plugin-clean-css');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = [
-    // chat js
     {
+        name: "chat-js",
         mode: "development",
         entry: './static/js/main.js',
         module: {
@@ -44,8 +44,8 @@ module.exports = [
             })
         ]
     },
-    // chat css
     {
+        name: "chat-css",
         mode: "development",
         entry: {
             chat: './static/less/chat.less'
@@ -101,8 +101,8 @@ module.exports = [
             })
         ]
     },
-    // login js
     {
+        name: "login-js",
         mode: "development",
         entry: './static/js/login.js',
         module: {
@@ -139,8 +139,8 @@ module.exports = [
             })
         ]
     },
-    // login css
     {
+        name: "login-css",
         mode: "development",
         entry: {
             login: './static/less/login.less'

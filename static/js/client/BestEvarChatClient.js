@@ -7,7 +7,7 @@ import {Alert, MainMenu, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 
 export class BestEvarChatClient {
-    constructor(hostname = '192.168.1.4', routingPath = 'newchat') {
+    constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
 
@@ -29,7 +29,7 @@ export class BestEvarChatClient {
     // Public functions
 
     connect() {
-        this._sock = new SockJS(`https://${this._hostname}/${this._routingPath}/`);
+        this._sock = new SockJS(`http://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
             if (this._disconnectedAlert) {

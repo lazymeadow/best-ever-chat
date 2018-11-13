@@ -4,7 +4,7 @@ import {LoggingClass} from "./Logger";
 
 export class SoundManager extends LoggingClass {
     constructor() {
-        super();
+        super('SoundManager');
         this._receiveSound = $('<audio>').attr('type', 'audio/mpeg');
         this._sendSound = $('<audio>').attr('type', 'audio/mpeg');
         this._connectSound = $('<audio>').attr('type', 'audio/mpeg');

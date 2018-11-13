@@ -9,7 +9,7 @@ import {_parseEmojis} from "../lib";
 
 export class MessageLog extends LoggingClass {
     constructor() {
-        super();
+        super('MessageLog');
         this._logElement = $('#log');
     }
 
@@ -44,7 +44,7 @@ export class MessageLog extends LoggingClass {
         }
 
         // add the timestamp
-        messageContainer.append($('<span>').addClass('timestamp').text(this._formatTime(time)));
+        messageContainer.append($('<span>').addClass('timestamp').text(_formatTime(time)));
 
         // if the message is an image, create the <img> as the  message body
         if (image_url) {
@@ -102,21 +102,5 @@ export class MessageLog extends LoggingClass {
      */
     clear() {
         this._logElement.empty();
-    }
-
-    /**
-     * Formats a given timestamp according the the client settings.
-     * @param timestamp
-     * @returns string the formatted timestamp
-     * @private
-     */
-    _formatTime(timestamp) {
-        if (Settings.timestamps === 'off') {
-            return '';
-        }
-        let format = 'HH:mm:ss';
-        if (Settings.timestamps === 'date_time')
-            format = "MM/DD/YY " + format;
-        return `[${moment.unix(timestamp).format(format)}]`;
     }
 }

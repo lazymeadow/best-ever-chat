@@ -6,7 +6,7 @@ import {Alert} from "./Alert";
 
 export class MainMenu extends LoggingClass {
     constructor(chatClient) {
-        super();
+        super('MainMenu');
         this._chatClient = chatClient;
         this._menuContents = $('#main_menu').next('.popout-menu');
 

@@ -5,7 +5,7 @@ import {_parseEmojis, setTitle} from "../lib";
 
 export class UserManager extends LoggingClass {
     constructor(chatClient, messageLog, soundManager) {
-        super();
+        super('UserManager');
         this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._soundManager = soundManager;

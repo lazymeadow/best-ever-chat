@@ -1,7 +1,11 @@
+from chat.loggers import log_from_server
+
+
 class PrivateMessageMap:
     _thread_map = {}
 
     def __init__(self, user_list):
+        log_from_server('info', 'Initializing private messages...')
         self._user_list = user_list
 
     def _generate_thread_id(self, user_id1, user_id2):

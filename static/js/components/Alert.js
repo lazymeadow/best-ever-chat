@@ -4,7 +4,7 @@ import {LoggingClass} from "../util";
 
 export class Alert extends LoggingClass {
     constructor({content, type = 'fade', actionText, actionCallback, dismissText = 'Dismiss', dismissCallback}) {
-        super();
+        super('Alert');
         this.debug('Creating alert');
 
         // create hidden alert

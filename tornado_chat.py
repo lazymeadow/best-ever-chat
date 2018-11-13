@@ -43,6 +43,8 @@ http_server = None
 class Application(tornado.web.Application):
     def __init__(self, handlers, settings):
         super(Application, self).__init__(handlers, **settings)
+
+        log_from_server('info', 'Initializing DB connection...')
         # Have one global connection to the blog DB across all handlers
         self.db = torndb.Connection(
             host=DB_HOST,
@@ -95,5 +97,5 @@ if __name__ == "__main__":
 
     new_chat_router.get_connection_class().http_server = http_server
 
-    log_from_server('info', 'Server starting.')
+    log_from_server('info', 'Complete. Starting server')
     IOLoop.instance().start()

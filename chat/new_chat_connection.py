@@ -64,7 +64,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def on_message(self, message):
         json_message = json.loads(message)
-        print json_message
 
         if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
             self._send_auth_fail()
@@ -178,7 +177,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
         Broadcast a private message to the two appropriate users.
         :param recipient_id:    user receiving the message
         :param message:         message to be sent
-        :param thread_id:       id of the private message thread (can be None)
         """
 
         verified_thread_id = self._private_messages.retrieve_thread_id(self.current_user['id'], recipient_id)
@@ -302,7 +300,6 @@ class NewMultiRoomChatConnection(SockJSConnection):
         room_name = self._room_list.get_room_name(room_id)
         if accept is True:
             if self._room_list.add_user_to_room(room_id, self.current_user['id']) is True:
-                # TODO delete the invitation from the database
                 participant_list = self._room_list.get_room_participants(room_id)
                 [x._send_room_list(room_id) for x in participant_list]
                 self._broadcast_user_list(participant_list)

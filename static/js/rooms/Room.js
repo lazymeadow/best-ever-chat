@@ -5,7 +5,7 @@ import {Modal} from "../components";
 
 export class Room extends LoggingClass {
     constructor({name, owner, id, history, members: memberList}, roomManager) {
-        super();
+        super('Room');
         this._roomManager = roomManager;
 
         this.name = name;
