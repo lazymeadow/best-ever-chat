@@ -1,13 +1,12 @@
 import $ from 'jquery';
 import SockJS from 'sockjs-client';
-import {RoomManager} from "../rooms";
 import {UserManager} from "../users";
 import {Logger, Settings, SoundManager} from "../util";
-import {Alert, MainMenu, MessageLog} from "../components";
+import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 
 export class BestEvarChatClient {
-    constructor(hostname = 'localhost:6969', routingPath = 'newchat') {
+    constructor(hostname = '192.168.1.4', routingPath = 'newchat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
 
@@ -28,7 +27,7 @@ export class BestEvarChatClient {
     // Public functions
 
     connect() {
-        this._sock = new SockJS(`http://${this._hostname}/${this._routingPath}/`);
+        this._sock = new SockJS(`https://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
             if (this._disconnectedAlert) {
@@ -151,40 +150,6 @@ export class BestEvarChatClient {
         });
     }
 
-    createRoom(roomName) {
-        this._send({
-            'type': 'room action',
-            'action': 'create',
-            'owner id': Settings.userId,
-            'room name': roomName
-        });
-    }
-
-    deleteRoom(roomId) {
-        this._send({
-            'type': 'room action',
-            'action': 'delete',
-            'room id': roomId
-        });
-    }
-
-    leaveRoom(roomId) {
-        this._send({
-            'type': 'room action',
-            'action': 'leave',
-            'room id': roomId
-        });
-    }
-
-    sendInvitations(roomId, userIds) {
-        this._send({
-            'type': 'room action',
-            'action': 'invite',
-            'room id': roomId,
-            'user ids': userIds
-        });
-    }
-
     submitBug(bugData) {
         this._send({
             'type': 'bug',
@@ -196,41 +161,6 @@ export class BestEvarChatClient {
         this._send({
             'type': 'feature',
             ...featureData
-        });
-    }
-
-    updateUserSettings({username, color, faction}) {
-        this._send({
-            'type': 'settings',
-            'data': {
-                username,
-                color,
-                faction
-            }
-        });
-    }
-
-    updateClientSettings({volume, soundSet}) {
-        this._send({
-            'type': 'settings',
-            'data': {
-                volume,
-                soundSet
-            }
-        });
-    }
-
-    updateAccountSettings({email, password1, password2}) {
-        let password = {};
-        if (password1 && password2) {
-            password = {password: {password1, password2}};
-        }
-        this._send({
-            'type': 'settings',
-            'data': {
-                email,
-                ...password
-            }
         });
     }
 
