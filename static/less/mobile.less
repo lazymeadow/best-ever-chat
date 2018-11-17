@@ -5,14 +5,24 @@
 @import "common";
 @import "client-common";
 
-#header {
-  height: @headerHeight;
-}
-
 .content {
   width: 100%;
   flex-flow: column;
   font-size: 1.25em;
+
+  & > div#header {
+    display: flex;
+    height: @headerHeight;
+    flex-flow: row;
+    align-items: center;
+    justify-content: end;
+    color: white;
+    padding: 0 15px;
+
+    & .fas, & .far, & .fab {
+      font-size: 1.5em;
+    }
+  }
 
   .main {
     flex: 1 0 auto;
@@ -47,5 +57,10 @@
 
   .popout-menu {
     .popout-menu();
+
+    top: 0;
+    right: -80%;
+    bottom: 0;
+    width: 80%;
   }
 }

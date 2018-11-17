@@ -22,15 +22,21 @@ $(() => {
 
     // overlay dismisses on click
     overlay.click(() => {
-        overlay.hide();
-        $('.popout-menu').hide();
+        const popoutMenu = $('.popout-menu');
+        popoutMenu.animate({right: '-80%'}, {
+            duration: 500,
+            done: () => {
+                popoutMenu.hide();
+                overlay.hide();
+            }
+        });
     });
 
     // open main menu on click
     $('#main_menu').click(event => {
         event.stopPropagation();
         overlay.show();
-        $('.popout-menu').toggle();
+        $('.popout-menu').show().animate({right: '0'}, {duration: 500});
     });
 
     const chatBar = $('.chat-bar');

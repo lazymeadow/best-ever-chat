@@ -9,16 +9,19 @@
 
 {% block content %}
 <div id="alerts"></div>
+
 <div id="header">
-    <div id="current-user" class="active">
-        <span class="online-status"></span>
-        <span class="list-content"></span>
-    </div>
     <span>
-            <span class="fas fa-fw fa-bars" id="main_menu"></span>
-            <div class="popout-menu"></div>
-        </span>
+        <span class="fas fa-fw fa-bars" id="main_menu"></span>
+        <div class="popout-menu">
+            <div id="current-user" class="active">
+                <span class="online-status"></span>
+                <span class="list-content">placeholder</span>
+            </div>
+        </div>
+    </span>
 </div>
+
 <div class="main">
     <div id="log"></div>
 
@@ -65,4 +68,6 @@
         </div>
     </div>
 </div>
+
+<div class="overlay"></div>
 {% endblock %}
