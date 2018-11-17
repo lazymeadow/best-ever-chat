@@ -6,9 +6,13 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = [
     {
-        name: "chat-js",
+        name: "js",
         mode: "development",
-        entry: './static/js/main.js',
+        entry: {
+            main: './static/js/main.js',
+            mobile: './static/js/mobile.js',
+            login: './static/js/login.js'
+        },
         module: {
             rules: [
                 {
@@ -29,11 +33,15 @@ module.exports = [
         },
         devtool: 'inline-source-map',
         output: {
-            filename: 'main.js',
+            filename: '[name].js',
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/main.js']),
+            new CleanWebpackPlugin([
+                'static/dist/main.js',
+                'static/dist/mobile.js',
+                'static/dist/login.js'
+            ]),
             new CircularDependencyPlugin({
                 // exclude detection of files based on a RegExp
                 exclude: /a\.js|node_modules/,
@@ -45,10 +53,12 @@ module.exports = [
         ]
     },
     {
-        name: "main-style",
+        name: "style",
         mode: "development",
         entry: {
-            'main-style': './static/less/chat.less'
+            'main-style': './static/less/chat.less',
+            'mobile-style': './static/less/mobile.less',
+            'login-style': './static/less/login.less'
         },
         module: {
             rules: [
@@ -91,163 +101,15 @@ module.exports = [
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/main-style.css', 'static/dist/main-style.js', 'static/dist/fonts/']),
-            new MiniCssExtractPlugin({
-                filename: "[name].css"
-            })
-        ]
-    },
-    {
-        name: "login-js",
-        mode: "development",
-        entry: './static/js/login.js',
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    include: [
-                        path.resolve(__dirname, "static"),
-                    ],
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['env'],
-                        plugins: ["transform-object-rest-spread"]
-                    }
-                }]
-        },
-        stats: {
-            colors: true
-        },
-        devtool: 'inline-source-map',
-        output: {
-            filename: 'login.js',
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/login.js']),
-            new CircularDependencyPlugin({
-                // exclude detection of files based on a RegExp
-                exclude: /a\.js|node_modules/,
-                // add errors to webpack instead of warnings
-                failOnError: true,
-                // set the current working directory for displaying module paths
-                cwd: process.cwd(),
-            })
-        ]
-    },
-    {
-        name: "login-style",
-        mode: "development",
-        entry: {
-            'login-style': './static/less/login.less'
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.less$/,
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        "css-loader",
-                        {
-                            loader: "less-loader", options: {
-                                paths: [
-                                    path.resolve(__dirname, "static/less")
-                                ],
-                                plugins: [
-                                    new CleanCSSPlugin({advanced: true})
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        stats: {
-            colors: true
-        },
-        output: {
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/login-style.css', 'static/dist/login-style.js']),
-            new MiniCssExtractPlugin({
-                filename: "[name].css"
-            })
-        ]
-    },
-    {
-        name: "mobile-js",
-        mode: "development",
-        entry: './static/js/mobile.js',
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    include: [
-                        path.resolve(__dirname, "static"),
-                    ],
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['env'],
-                        plugins: ["transform-object-rest-spread"]
-                    }
-                }]
-        },
-        stats: {
-            colors: true
-        },
-        devtool: 'inline-source-map',
-        output: {
-            filename: 'mobile.js',
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/mobile.js']),
-            new CircularDependencyPlugin({
-                // exclude detection of files based on a RegExp
-                exclude: /a\.js|node_modules/,
-                // add errors to webpack instead of warnings
-                failOnError: true,
-                // set the current working directory for displaying module paths
-                cwd: process.cwd(),
-            })
-        ]
-    },
-    {
-        name: "mobile-style",
-        mode: "development",
-        entry: {
-            'mobile-style': './static/less/mobile.less'
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.less$/,
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        "css-loader",
-                        {
-                            loader: "less-loader", options: {
-                                paths: [
-                                    path.resolve(__dirname, "static/less")
-                                ],
-                                plugins: [
-                                    new CleanCSSPlugin({advanced: true})
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        stats: {
-            colors: true
-        },
-        output: {
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/mobile-style.css', 'static/dist/mobile-style.js']),
+            new CleanWebpackPlugin([
+                'static/dist/main-style.css',
+                'static/dist/main-style.js',
+                'static/dist/mobile-style.css',
+                'static/dist/mobile-style.js',
+                'static/dist/login-style.css',
+                'static/dist/login-style.js',
+                'static/dist/fonts/'
+            ]),
             new MiniCssExtractPlugin({
                 filename: "[name].css"
             })
