@@ -2,8 +2,8 @@
   #alerts {
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 10px;
+    right: 10px;
     border-radius: 0 0 4px 4px;
     border: 1px solid #cccccc;
     border-top: none;
@@ -16,7 +16,7 @@
     transition: top .5s ease;
 
     &:empty {
-      top: -10px;
+      border: none;
     }
 
     & > div:not(:last-child) {
