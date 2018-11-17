@@ -10,7 +10,7 @@ import torndb
 from tornado.ioloop import IOLoop
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
-    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler
+    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler, MobileHandler
 from chat.loggers import log_from_server
 from chat.message_queue import MessageQueue
 from chat.new_chat_connection import new_chat_router
@@ -83,6 +83,7 @@ if __name__ == "__main__":
     }
     handlers = [
                    (r"/", PageHandler),
+                   (r"/m", MobileHandler),
                    (r"/register", AuthCreateHandler),
                    (r"/login", AuthLoginHandler),
                    (r"/logout", AuthLogoutHandler),

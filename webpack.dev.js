@@ -174,5 +174,83 @@ module.exports = [
                 filename: "[name].css"
             })
         ]
+    },
+    {
+        name: "mobile-js",
+        mode: "development",
+        entry: './static/js/mobile.js',
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    include: [
+                        path.resolve(__dirname, "static"),
+                    ],
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['env'],
+                        plugins: ["transform-object-rest-spread"]
+                    }
+                }]
+        },
+        stats: {
+            colors: true
+        },
+        devtool: 'inline-source-map',
+        output: {
+            filename: 'mobile.js',
+            path: path.resolve(__dirname, 'static/dist')
+        },
+        plugins: [
+            new CleanWebpackPlugin(['static/dist/mobile.js']),
+            new CircularDependencyPlugin({
+                // exclude detection of files based on a RegExp
+                exclude: /a\.js|node_modules/,
+                // add errors to webpack instead of warnings
+                failOnError: true,
+                // set the current working directory for displaying module paths
+                cwd: process.cwd(),
+            })
+        ]
+    },
+    {
+        name: "mobile-style",
+        mode: "development",
+        entry: {
+            'mobile-style': './static/less/mobile.less'
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.less$/,
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        "css-loader",
+                        {
+                            loader: "less-loader", options: {
+                                paths: [
+                                    path.resolve(__dirname, "static/less")
+                                ],
+                                plugins: [
+                                    new CleanCSSPlugin({advanced: true})
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        stats: {
+            colors: true
+        },
+        output: {
+            path: path.resolve(__dirname, 'static/dist')
+        },
+        plugins: [
+            new CleanWebpackPlugin(['static/dist/mobile-style.css', 'static/dist/mobile-style.js']),
+            new MiniCssExtractPlugin({
+                filename: "[name].css"
+            })
+        ]
     }
 ];

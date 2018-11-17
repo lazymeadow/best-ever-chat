@@ -1,295 +1,297 @@
-@mobileElementPadding: 15px;
-@mobileHeaderHeight: 80px;
-@mobileTabHeight: 80px;
-@mobileChatBarHeight: 100px;
+@import "common";
 
-@media screen and (max-device-width: 768px) {
-  .content {
-    font-size: 2.5em;
-  }
-
-  // chat.less overrides
-  .header {
-    height: @mobileHeaderHeight;
-    padding: @mobileElementPadding;
-
-    span#menu-button {
-      padding: 0 @mobileElementPadding;
-      line-height: @mobileHeaderHeight;
-    }
-  }
-
-  #log {
-    top: @mobileHeaderHeight + @mobileElementPadding;
-    bottom: @mobileChatBarHeight;
-    margin: 0 0 @mobileElementPadding 0;
-    padding: @mobileElementPadding;
-    right: @rightBarWidth + @mobileElementPadding;
-    left: @mobileElementPadding;
-
-    .chat-message {
-      flex-direction: column;
-      font-size: 1em;
-    }
-  }
-
-  .right_bar {
-    top: @mobileHeaderHeight + @mobileElementPadding;
-    right: @mobileElementPadding;
-    bottom: @mobileChatBarHeight;
-  }
-
-  #emoji-list {
-    bottom: @mobileChatBarHeight - @mobileElementPadding;
-    margin: 0 @mobileElementPadding;
-    img {
-      height: 2em;
-      width: 2em;
-    }
-  }
-
-  #user_list {
-    top: @mobileHeaderHeight + @mobileElementPadding;
-    margin: 0 0 @mobileElementPadding 0;
-    right: @mobileElementPadding;
-    bottom: @mobileChatBarHeight;
-    div {
-      text-overflow: ellipsis;
-      overflow: hidden;
-      font-size: .75em;
-
-      span {
-        &.typing {
-          float: left;
-        }
-
-        &:not(.typing) {
-          float: left;
-        }
-      }
-    }
-  }
-
-  .chat-bar {
-    height: @mobileChatBarHeight;
-    padding: @mobileElementPadding;
-
-    .first {
-      display: none;
-    }
-
-    input {
-      width: 400px;
-    }
-  }
-
-  div.login {
-    width: 90%;
-    & button {
-      min-width: 125px;
-    }
-  }
-
-  input {
-    height: 75px;
-  }
-
-  input[type="radio"] {
-    width: 1em;
-    height: 1em;
-  }
-
-  #volume-slider {
-    width: 300px;
-  }
-
-  button, .button {
-    padding: 0 @mobileElementPadding * 2;
-    min-width: 50px;
-    height: 85px;
-    font-size: 1em;
-  }
-
-  .form-group {
-    padding: @mobileElementPadding;
-  }
-
-  select {
-    height: 50px;
-    font: inherit;
-    width: 500px;
-  }
-
-  // tabs.less overrides
-  .tabs {
-    height: @mobileTabHeight;
-    margin: @mobileElementPadding 0 0;
-
-    span#create-room-button {
-      line-height: @mobileTabHeight;
-      padding: 0 @mobileElementPadding;
-    }
-
-    .tab {
-      padding: 0 @mobileElementPadding * 2;
-      line-height: @mobileTabHeight;
-      margin-bottom: -1px;
-
-      &.active {
-        margin-bottom: -1px;
-      }
-    }
-  }
-
-  // menu.less overrides
-  .menu {
-    top: @mobileHeaderHeight + @mobileElementPadding / 2;
-    margin: 0 @mobileElementPadding;
-    min-width: 300px;
-
-    & span.menu-item {
-      padding: 0 @mobileElementPadding;
-      margin: @mobileElementPadding 0;
-    }
-  }
-
-  // modal.less overrides
-  #overlay {
-    align-items: stretch;
-    justify-content: stretch;
-    height: 100%;
-
-    & .modal {
-      padding: 0 @mobileElementPadding;
-      display: flex;
-      width: 100%;
-      height: 100%;
-
-      .modal-content {
-        flex: 100 0 auto;
-        order: 1;
-        height: calc(100% - @mobileHeaderHeight * 2 - @mobileTabHeight);
-        font-size: 1em;
-      }
-
-      .modal-header {
-        padding: @mobileElementPadding;
-        height: @mobileHeaderHeight;
-        order: 0;
-
-        span.close-icon {
-          width: 40px;
-        }
-      }
-
-      .modal-footer {
-        flex: 1 1 auto;
-        order: 2;
-        min-height: @mobileHeaderHeight + @mobileElementPadding;
-      }
-    }
-  }
-
-  // input-range.less overrides
-  @mobile-track-height: 30px;
-  @mobile-thumb-height: 50px;
-  @mobile-thumb-width: 30px;
-
-  input[type="range"] {
-    &::-webkit-slider-runnable-track {
-      height: @mobile-track-height;
-    }
-
-    &::-moz-range-track {
-      height: @mobile-track-height;
-    }
-
-    &::-ms-track {
-      height: @mobile-track-height;
-      border-width: @mobile-thumb-width 0;
-    }
-
-    &::-webkit-slider-thumb {
-      height: @mobile-thumb-height;
-      width: @mobile-thumb-width;
-      margin-top: (@mobile-track-height / 2) - (@mobile-thumb-height / 2);
-    }
-
-    &::-moz-range-thumb {
-      height: @mobile-thumb-height;
-      width: @mobile-thumb-width;
-    }
-
-    &::-ms-thumb {
-      height: @mobile-thumb-height;
-      width: @mobile-thumb-width;
-    }
-  }
-
-  // checkboxes.less overrides
-  @mobile-checkbox-height: 50px;
-
-  @-moz-keyframes dothabottomcheck {
-    100% {
-      height: @mobile-checkbox-height/2;
-    }
-  }
-
-  @-webkit-keyframes dothabottomcheck {
-    100% {
-      height: @mobile-checkbox-height/2;
-    }
-  }
-
-  @keyframes dothabottomcheck {
-    100% {
-      height: @mobile-checkbox-height/2;
-    }
-  }
-  @-moz-keyframes dothatopcheck {
-    100% {
-      height: @mobile-checkbox-height * 1.2;
-    }
-  }
-
-  @-webkit-keyframes dothatopcheck {
-    100% {
-      height: @mobile-checkbox-height * 1.2;
-    }
-  }
-
-  @keyframes dothatopcheck {
-    100% {
-      height: @mobile-checkbox-height * 1.2;
-    }
-  }
-
-  .check-box {
-    height: @mobile-checkbox-height;
-    width: @mobile-checkbox-height;
-
-    &::before, &::after {
-      width: @mobile-checkbox-height * .2;
-    }
-
-    &::before {
-      top: @mobile-checkbox-height * .72;
-      left: @mobile-checkbox-height * .41;
-    }
-    &::after {
-      top: @mobile-checkbox-height * .37;
-      left: @mobile-checkbox-height * .05;
-    }
-  }
-
-  input[type=checkbox]:checked + .check-box, .check-box.checked {
-    &::after {
-      height: @mobile-checkbox-height * .5;
-    }
-
-    &::before {
-      height: @mobile-checkbox-height * 1.2;
-    }
-  }
-
-}
+//@mobileElementPadding: 15px;
+//@mobileHeaderHeight: 80px;
+//@mobileTabHeight: 80px;
+//@mobileChatBarHeight: 100px;
+//
+//@media screen and (max-device-width: 768px) {
+//  .content {
+//    font-size: 2.5em;
+//  }
+//
+//  // chat.less overrides
+//  .header {
+//    height: @mobileHeaderHeight;
+//    padding: @mobileElementPadding;
+//
+//    span#menu-button {
+//      padding: 0 @mobileElementPadding;
+//      line-height: @mobileHeaderHeight;
+//    }
+//  }
+//
+//  #log {
+//    top: @mobileHeaderHeight + @mobileElementPadding;
+//    bottom: @mobileChatBarHeight;
+//    margin: 0 0 @mobileElementPadding 0;
+//    padding: @mobileElementPadding;
+//    right: @rightBarWidth + @mobileElementPadding;
+//    left: @mobileElementPadding;
+//
+//    .chat-message {
+//      flex-direction: column;
+//      font-size: 1em;
+//    }
+//  }
+//
+//  .right_bar {
+//    top: @mobileHeaderHeight + @mobileElementPadding;
+//    right: @mobileElementPadding;
+//    bottom: @mobileChatBarHeight;
+//  }
+//
+//  #emoji-list {
+//    bottom: @mobileChatBarHeight - @mobileElementPadding;
+//    margin: 0 @mobileElementPadding;
+//    img {
+//      height: 2em;
+//      width: 2em;
+//    }
+//  }
+//
+//  #user_list {
+//    top: @mobileHeaderHeight + @mobileElementPadding;
+//    margin: 0 0 @mobileElementPadding 0;
+//    right: @mobileElementPadding;
+//    bottom: @mobileChatBarHeight;
+//    div {
+//      text-overflow: ellipsis;
+//      overflow: hidden;
+//      font-size: .75em;
+//
+//      span {
+//        &.typing {
+//          float: left;
+//        }
+//
+//        &:not(.typing) {
+//          float: left;
+//        }
+//      }
+//    }
+//  }
+//
+//  .chat-bar {
+//    height: @mobileChatBarHeight;
+//    padding: @mobileElementPadding;
+//
+//    .first {
+//      display: none;
+//    }
+//
+//    input {
+//      width: 400px;
+//    }
+//  }
+//
+//  div.login {
+//    width: 90%;
+//    & button {
+//      min-width: 125px;
+//    }
+//  }
+//
+//  input {
+//    height: 75px;
+//  }
+//
+//  input[type="radio"] {
+//    width: 1em;
+//    height: 1em;
+//  }
+//
+//  #volume-slider {
+//    width: 300px;
+//  }
+//
+//  button, .button {
+//    padding: 0 @mobileElementPadding * 2;
+//    min-width: 50px;
+//    height: 85px;
+//    font-size: 1em;
+//  }
+//
+//  .form-group {
+//    padding: @mobileElementPadding;
+//  }
+//
+//  select {
+//    height: 50px;
+//    font: inherit;
+//    width: 500px;
+//  }
+//
+//  // tabs.less overrides
+//  .tabs {
+//    height: @mobileTabHeight;
+//    margin: @mobileElementPadding 0 0;
+//
+//    span#create-room-button {
+//      line-height: @mobileTabHeight;
+//      padding: 0 @mobileElementPadding;
+//    }
+//
+//    .tab {
+//      padding: 0 @mobileElementPadding * 2;
+//      line-height: @mobileTabHeight;
+//      margin-bottom: -1px;
+//
+//      &.active {
+//        margin-bottom: -1px;
+//      }
+//    }
+//  }
+//
+//  // menu.less overrides
+//  .menu {
+//    top: @mobileHeaderHeight + @mobileElementPadding / 2;
+//    margin: 0 @mobileElementPadding;
+//    min-width: 300px;
+//
+//    & span.menu-item {
+//      padding: 0 @mobileElementPadding;
+//      margin: @mobileElementPadding 0;
+//    }
+//  }
+//
+//  // modal.less overrides
+//  #overlay {
+//    align-items: stretch;
+//    justify-content: stretch;
+//    height: 100%;
+//
+//    & .modal {
+//      padding: 0 @mobileElementPadding;
+//      display: flex;
+//      width: 100%;
+//      height: 100%;
+//
+//      .modal-content {
+//        flex: 100 0 auto;
+//        order: 1;
+//        height: calc(100% - @mobileHeaderHeight * 2 - @mobileTabHeight);
+//        font-size: 1em;
+//      }
+//
+//      .modal-header {
+//        padding: @mobileElementPadding;
+//        height: @mobileHeaderHeight;
+//        order: 0;
+//
+//        span.close-icon {
+//          width: 40px;
+//        }
+//      }
+//
+//      .modal-footer {
+//        flex: 1 1 auto;
+//        order: 2;
+//        min-height: @mobileHeaderHeight + @mobileElementPadding;
+//      }
+//    }
+//  }
+//
+//  // input-range.less overrides
+//  @mobile-track-height: 30px;
+//  @mobile-thumb-height: 50px;
+//  @mobile-thumb-width: 30px;
+//
+//  input[type="range"] {
+//    &::-webkit-slider-runnable-track {
+//      height: @mobile-track-height;
+//    }
+//
+//    &::-moz-range-track {
+//      height: @mobile-track-height;
+//    }
+//
+//    &::-ms-track {
+//      height: @mobile-track-height;
+//      border-width: @mobile-thumb-width 0;
+//    }
+//
+//    &::-webkit-slider-thumb {
+//      height: @mobile-thumb-height;
+//      width: @mobile-thumb-width;
+//      margin-top: (@mobile-track-height / 2) - (@mobile-thumb-height / 2);
+//    }
+//
+//    &::-moz-range-thumb {
+//      height: @mobile-thumb-height;
+//      width: @mobile-thumb-width;
+//    }
+//
+//    &::-ms-thumb {
+//      height: @mobile-thumb-height;
+//      width: @mobile-thumb-width;
+//    }
+//  }
+//
+//  // checkboxes.less overrides
+//  @mobile-checkbox-height: 50px;
+//
+//  @-moz-keyframes dothabottomcheck {
+//    100% {
+//      height: @mobile-checkbox-height/2;
+//    }
+//  }
+//
+//  @-webkit-keyframes dothabottomcheck {
+//    100% {
+//      height: @mobile-checkbox-height/2;
+//    }
+//  }
+//
+//  @keyframes dothabottomcheck {
+//    100% {
+//      height: @mobile-checkbox-height/2;
+//    }
+//  }
+//  @-moz-keyframes dothatopcheck {
+//    100% {
+//      height: @mobile-checkbox-height * 1.2;
+//    }
+//  }
+//
+//  @-webkit-keyframes dothatopcheck {
+//    100% {
+//      height: @mobile-checkbox-height * 1.2;
+//    }
+//  }
+//
+//  @keyframes dothatopcheck {
+//    100% {
+//      height: @mobile-checkbox-height * 1.2;
+//    }
+//  }
+//
+//  .check-box {
+//    height: @mobile-checkbox-height;
+//    width: @mobile-checkbox-height;
+//
+//    &::before, &::after {
+//      width: @mobile-checkbox-height * .2;
+//    }
+//
+//    &::before {
+//      top: @mobile-checkbox-height * .72;
+//      left: @mobile-checkbox-height * .41;
+//    }
+//    &::after {
+//      top: @mobile-checkbox-height * .37;
+//      left: @mobile-checkbox-height * .05;
+//    }
+//  }
+//
+//  input[type=checkbox]:checked + .check-box, .check-box.checked {
+//    &::after {
+//      height: @mobile-checkbox-height * .5;
+//    }
+//
+//    &::before {
+//      height: @mobile-checkbox-height * 1.2;
+//    }
+//  }
+//
+//}

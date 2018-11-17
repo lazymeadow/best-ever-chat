@@ -26,6 +26,17 @@ class PageHandler(BaseHandler):
         self.render2('index.html', emoji_list=self.settings['emojis'])
 
 
+class MobileHandler(BaseHandler):
+    """Regular HTTP handler to serve the chatroom page"""
+
+    @tornado.web.authenticated
+    def get(self):
+        self.set_cookie('volume', str(self.current_user['volume']) or '100')
+        self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
+        self.set_cookie('id', self.current_user['id'])
+        self.render2('mobile.html', emoji_list=self.settings['emojis'])
+
+
 class ValidateHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
