@@ -1,5 +1,5 @@
 /**
- * BEST EVAR CHAT CLIENT 3.0.0
+ * BEST EVAR CHAT 3.0.0 WEB CLIENT
  * @author Audrey Mavra McCormick
  */
 

@@ -1,40 +1,21 @@
-@serverColor: #000;
-@clientColor: #000;
-@privateMessageColor: #567f8c;
-
-@overlayColor: fade(@dark, 75%);
-@headerHeight: 30px;
 @chatBarHeight: 45px;
-@elementPadding: 5px;
-
-@fa-font-path: '../../node_modules/@fortawesome/fontawesome-free/webfonts';
-@import '../../node_modules/@fortawesome/fontawesome-free/css/all.css';
+@popoutIndicatorSize: 10px;
 
 @import 'colorpicker';
 
 @import 'common';
+@import 'client-common';
 
 @import 'input-range';
-@import 'checkboxes';
 @import 'modal';
 @import 'alert';
 
 .content {
-  img.emoji {
-    height: 1.1em;
-    width: 1.1em;
-    margin: 0 .05em 0 .1em;
-  }
-
   button, & :not(.chat-bar) > .button {
     min-width: 80px;
   }
 
-  .text-danger {
-    color: @errorRed;
-  }
-
-  & > div:not(#alerts):not(.login):not(.not-found) {
+  & > div:not(#alerts) {
     &.left {
       flex: 1 0 auto;
       color: white;
@@ -65,31 +46,7 @@
             cursor: pointer;
 
             & > .popout-menu {
-              display: none;
-              position: absolute;
-              background-color: white;
-              color: fade(black, 85%);
-              min-width: 200px;
-              top: 20px;
-              left: -10px;
-              z-index: 101;
-              margin-top: 5px;
-
-              & .menu-item {
-                display: block;
-                white-space: nowrap;
-                padding: 5px;
-                opacity: .85;
-
-                & > .fas, & > .far, & > .fab {
-                  margin-right: 5px;
-                }
-
-                &:hover {
-                  background-color: @lightButtonColor;
-                  cursor: pointer;
-                }
-              }
+              .popout-menu();
             }
           }
 
@@ -329,181 +286,6 @@
       background-color: white;
       z-index: 10;
       width: ~"calc(100% - 200px)";
-
-      & #log {
-        flex: 1 0 auto;
-        border-bottom: 1px solid @lightBorderColor;
-        overflow: auto;
-        height: ~"calc(100% - 45px)";
-        padding: 5px;
-        display: flex;
-        flex-direction: column;
-
-        & .chat-message {
-          display: flex;
-          flex: 0 0 auto;
-
-          &:first-child {
-            margin-top: auto;
-          }
-
-          & .timestamp {
-            flex: 0 0 auto;
-            padding-right: 5px;
-            opacity: .5;
-            color: black;
-          }
-
-          &.main-message {
-            color: @clientColor;
-          }
-
-          &.server-message {
-            color: @serverColor;
-          }
-
-          &.private-message {
-            color: @privateMessageColor;
-
-            & .message {
-              font-style: italic;
-            }
-          }
-
-          & .message {
-            flex: 1 1 auto;
-
-            & span:last-child {
-              overflow-wrap: break-word;
-              hyphens: auto;
-            }
-
-            & > .username {
-              vertical-align: top;
-              font-weight: bold;
-            }
-          }
-
-          & .image-wrapper {
-            display: inline-block;
-            background-color: darken(@lightest, 5%);
-            color: @backgroundColor;
-            font-weight: bold;
-            padding: 0 @elementPadding;
-            border-radius: 3px;
-            min-width: 150px;
-            margin-bottom: @elementPadding;
-
-            & span {
-              display: block;
-            }
-
-            & img {
-              max-width: 300px;
-              max-height: 300px;
-            }
-          }
-        }
-      }
-
-      & .chat-bar {
-        flex: 0 1 auto;
-        height: 2em;
-        display: flex;
-
-        & > input {
-          flex: 1 1 auto;
-          border: none;
-          min-width: 0;
-        }
-
-        & > .button {
-          flex: 0 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 5px 10px;
-          border-left: 1px solid lightgrey;
-          position: relative;
-          cursor: pointer;
-          background-color: @lightest;
-          color: @dark;
-
-          & > .fas, & > .far, & > .fab {
-            font-size: 1.5em;
-          }
-
-          & > .popout-option {
-            display: none;
-            position: absolute;
-            bottom: 2em;
-            right: 0;
-            background-color: white;
-            padding: 5px;
-            border: 1px solid @lightBorderColor;
-            z-index: 101;
-            margin-right: 3px;
-            width: max-content;
-            width: -moz-max-content;
-            cursor: default;
-
-            & img.emoji {
-              height: 1.5em;
-              width: 1.5em;
-              cursor: pointer;
-            }
-
-            & > .popout-indicator {
-              width: 0;
-              height: 0;
-              border-left: 10px solid transparent;
-              border-right: 10px solid transparent;
-              border-top: 10px solid @lightBorderColor;
-              position: absolute;
-              bottom: -10px;
-              right: 10px;
-              z-index: 102;
-              cursor: default;
-
-              &:before {
-                content: " ";
-                border-left: 10px solid transparent;
-                border-right: 10px solid transparent;
-                border-top: 10px solid white;
-                position: absolute;
-                top: -12px;
-                left: -10px;
-              }
-            }
-
-            .form-group {
-              display: flex;
-              align-items: stretch;
-
-              & > label, & > input, & > button {
-                flex: 1 0 auto;
-              }
-
-              & > label {
-                align-self: center;
-              }
-
-              & > input, & > button {
-                margin: 0 5px;
-              }
-
-              & > button {
-                padding: 0 10px;
-              }
-
-              & > .check-box {
-                margin: 0 5px;
-              }
-            }
-          }
-
-        }
-      }
     }
   }
 }
