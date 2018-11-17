@@ -34,6 +34,8 @@ $(() => {
         $('.popout-menu').show().animate({right: '0'}, {duration: 500});
     });
 
+    $('#logout').click(() => window.location = '/logout');
+
     preClientInit();
     postClientInit(new MobileClient());
 });
