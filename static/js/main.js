@@ -154,6 +154,5 @@ $(() => {
          chatClient.resetUnreadMessageCount();
 
         $('#chat_text').focus();
-        $("#favicon").attr("href", "/static/favicon.png");
     });
 });

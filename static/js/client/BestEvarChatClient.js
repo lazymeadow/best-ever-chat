@@ -76,6 +76,7 @@ export class BestEvarChatClient {
         if (!document.hasFocus()) {
             this._unreadMessageCount++;
             document.title = `(${this._unreadMessageCount}) ${this._getTitle()}`;
+            $("#favicon").attr("href", "/static/favicon2.png");
         }
     }
 
@@ -91,6 +92,7 @@ export class BestEvarChatClient {
     resetUnreadMessageCount() {
         this._unreadMessageCount = 0;
         this.setWindowTitle();
+        $("#favicon").attr("href", "/static/favicon.png");
     }
 
     sendChat(messageText) {
