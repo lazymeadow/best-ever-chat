@@ -94,12 +94,20 @@ export class BestEvarChatClient {
     }
 
     sendChat(messageText) {
-        const roomId = Settings.activeLogType === 'room' ? parseInt(Settings.activeLogId, 10) : Settings.activeLogId;
-        this._send({
-            'type': 'chat message',
-            'message': messageText,
-            'room id': roomId
-        });
+        if (Settings.activeLogType === 'room') {
+            this._send({
+                'type': 'chat message',
+                'message': messageText,
+                'room id': parseInt(Settings.activeLogId, 10)
+            });
+        }
+        else {
+            this._send({
+                'type': 'private message',
+                'message': messageText,
+                'recipient id': Settings.activeLogId
+            });
+        }
     }
 
     updateUserList() {
