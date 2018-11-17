@@ -94,20 +94,12 @@ export class BestEvarChatClient {
     }
 
     sendChat(messageText) {
-        if (Settings.activeLogType === 'room') {
-            this._send({
-                'type': 'chat message',
-                'message': messageText,
-                'room id': parseInt(Settings.activeLogId, 10)
-            });
-        }
-        else {
-            this._send({
-                'type': 'private message',
-                'message': messageText,
-                'recipient id': Settings.activeLogId
-            });
-        }
+        const roomId = Settings.activeLogType === 'room' ? parseInt(Settings.activeLogId, 10) : Settings.activeLogId;
+        this._send({
+            'type': 'chat message',
+            'message': messageText,
+            'room id': roomId
+        });
     }
 
     updateUserList() {
@@ -142,11 +134,12 @@ export class BestEvarChatClient {
     }
 
     sendImage(imageUrl, nsfw) {
+        const roomId = Settings.activeLogType === 'room' ? parseInt(Settings.activeLogId, 10) : Settings.activeLogId;
         this._send({
             'type': 'image',
             'image url': imageUrl,
             'nsfw': nsfw,
-            'room id': Settings.activeLogId
+            'room id': roomId
         });
     }
 

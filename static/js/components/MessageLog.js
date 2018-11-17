@@ -5,6 +5,7 @@ imagesLoaded.makeJQueryPlugin($);
 
 import {LoggingClass} from "../util";
 import {_formatTime, _parseEmojis} from "../lib";
+import {Settings} from "../util/Settings";
 
 export class MessageLog extends LoggingClass {
     constructor() {
@@ -49,7 +50,7 @@ export class MessageLog extends LoggingClass {
         if (image_url) {
             let imageElement = $('<a>').prop('href', image_url).prop('target', '_blank')
                 .append($('<img>').prop('src', image_src_url));
-            let hideImage = JSON.parse(localStorage.getItem('hideImages') || 'true') || nsfw_flag;
+            let hideImage = Settings.hideImages || nsfw_flag;
             hideImage ? imageElement.hide() : imageElement.show();
             message = $('<div>').addClass('image-wrapper')
                 .append($('<span>').text((hideImage ? 'show' : 'hide') + ' image' + (nsfw_flag ? ' -- NSFW!' : ''))
