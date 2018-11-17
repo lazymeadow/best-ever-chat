@@ -49,7 +49,7 @@ export class Room extends LoggingClass {
             .append($('<span>').addClass('message-indicator far fa-fw fa-comments'))
             .append($('<span>').addClass('list-content').text(this.name));
 
-        if (this.id > 0) {
+        if (this.id > 0 && this._roomManager.allowRoomEdits) {
             let menu = $('<div>').addClass('inline-menu');
             let inviteItem = $('<span>').addClass('menu-item').text('Invite Users').prepend($('<span>').addClass('fas fa-fw fa-user-plus'))
                 .click(() => {
