@@ -5,7 +5,8 @@
 
 import $ from 'jquery';
 import Cookies from 'js-cookie';
-import {_parseEmojis} from "./lib";
+import {MobileClient} from "./client";
+import {preClientInit, postClientInit} from "./lib";
 
 if (!Cookies.get('id')) {
     location.reload();
@@ -13,14 +14,8 @@ if (!Cookies.get('id')) {
 
 $(() => {
     const overlay = $('.overlay');
-    overlay.hide();
 
-    // dismiss popout menus when clicking away from them
-    $('body').click(() => {
-        $('.popout-option').hide();
-    });
-
-    // overlay dismisses on click
+    // overlay dismisses on click and slides menu out
     overlay.click(() => {
         const popoutMenu = $('.popout-menu');
         popoutMenu.animate({right: '-80%'}, {
@@ -32,36 +27,13 @@ $(() => {
         });
     });
 
-    // open main menu on click
+    // slide in main menu on click and show overlay
     $('#main_menu').click(event => {
         event.stopPropagation();
         overlay.show();
         $('.popout-menu').show().animate({right: '0'}, {duration: 500});
     });
 
-    const chatBar = $('.chat-bar');
-
-    // add popout handlers on click for image chat and emoji list
-    chatBar.children('.button').each((index, element) => {
-        const popoutOption = $(element).children('.popout-option');
-
-        // prevent clicking the child from toggling itself
-        popoutOption.click(event => event.stopPropagation());
-
-        $(element).click(event => {
-            event.stopPropagation();
-            if (popoutOption.is(':visible')) {
-                popoutOption.hide();
-            } else {
-                // hide all popouts
-                $('.popout-option').hide();
-                // toggle the child
-                popoutOption.show();
-            }
-        });
-    });
-
-
-    // parse emoji list and button
-    _parseEmojis();
+    preClientInit();
+    postClientInit(new MobileClient());
 });

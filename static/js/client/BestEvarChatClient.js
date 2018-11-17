@@ -12,7 +12,6 @@ export class BestEvarChatClient {
         this._routingPath = routingPath;
 
         Settings.init();
-        new MainMenu(this);
 
         this._messageLog = new MessageLog();
         this._soundManager = new SoundManager();

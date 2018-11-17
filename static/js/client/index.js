@@ -1,5 +1,7 @@
-import {BestEvarChatClient} from './BestEvarChatClient';
+import {DesktopClient} from './DesktopClient';
+import {MobileClient} from './MobileClient';
 
 export {
-    BestEvarChatClient
+    DesktopClient,
+    MobileClient
 };
