@@ -25,7 +25,7 @@ permissions to the `bestchat` schema: DELETE, EXECUTE, INSERT, SELECT, SHOW, VIE
 
 
 ## To run:
-1. `npm build-all`
+1. `npm build`
 3. `python tornado_chat.py`
 
 
