@@ -6,7 +6,7 @@ import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 
 export class BestEvarChatClient {
-    constructor(hostname = '192.168.1.4', routingPath = 'newchat') {
+    constructor(hostname = 'bestevarchat.com', routingPath = 'chat') {
         this._hostname = hostname;
         this._routingPath = routingPath;
 

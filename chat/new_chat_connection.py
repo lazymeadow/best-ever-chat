@@ -445,8 +445,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                                      'data': new_message})
 
 
-new_chat_router = SockJSRouter(NewMultiRoomChatConnection, prefix='/newchat', user_settings={
-    'sockjs_url': 'https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js',
+new_chat_router = SockJSRouter(NewMultiRoomChatConnection, prefix='/chat', user_settings={
     'disabled_transports': [
         'xhr',
         'xhr_streaming',

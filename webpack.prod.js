@@ -7,9 +7,13 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 module.exports = [
     {
-        name: "chat-js",
+        name: "js",
         mode: "production",
-        entry: './static/js/main.js',
+        entry: {
+            main: './static/js/main.js',
+            mobile: './static/js/mobile.js',
+            login: './static/js/login.js'
+        },
         module: {
             rules: [
                 {
@@ -26,11 +30,15 @@ module.exports = [
             ]
         },
         output: {
-            filename: 'main.js',
+            filename: '[name].js',
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/main.js']),
+            new CleanWebpackPlugin([
+                'static/dist/main.js',
+                'static/dist/mobile.js',
+                'static/dist/login.js'
+            ]),
             new CircularDependencyPlugin({
                 // exclude detection of files based on a RegExp
                 exclude: /a\.js|node_modules/,
@@ -42,22 +50,20 @@ module.exports = [
         ]
     },
     {
-        name: "main-style",
+        name: "style",
         mode: "production",
         entry: {
-            'main-style': './static/less/chat.less'
+            'main-style': './static/less/chat.less',
+            'mobile-style': './static/less/mobile.less',
+            'login-style': './static/less/login.less'
         },
         module: {
             rules: [
                 {
                     test: /\.less$/,
                     use: [
-                        {
-                            loader: MiniCssExtractPlugin.loader
-                        },
-                        {
-                            loader: "css-loader"
-                        },
+                        MiniCssExtractPlugin.loader,
+                        "css-loader",
                         {
                             loader: "less-loader",
                             options: {
@@ -88,95 +94,21 @@ module.exports = [
             path: path.resolve(__dirname, 'static/dist')
         },
         plugins: [
-            new CleanWebpackPlugin(['static/dist/main-style.css', 'static/dist/main-style.js', 'static/dist/fonts/']),
-            new MiniCssExtractPlugin({
-                filename: "[name].css"
-            })
-        ]
-    },
-    {
-        name: "login-js",
-        mode: "production",
-        entry: './static/js/login.js',
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    include: [
-                        path.resolve(__dirname, "static"),
-                    ],
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['env'],
-                        plugins: ["transform-object-rest-spread"]
-                    }
-                }]
-        },
-        output: {
-            filename: 'login.js',
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/login.js']),
-            new CircularDependencyPlugin({
-                // exclude detection of files based on a RegExp
-                exclude: /a\.js|node_modules/,
-                // add errors to webpack instead of warnings
-                failOnError: true,
-                // set the current working directory for displaying module paths
-                cwd: process.cwd(),
-            })
-        ]
-    },
-    {
-        name: "login-style",
-        mode: "production",
-        entry: {
-            'login-style': './static/less/login.less'
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.less$/,
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        "css-loader",
-                        {
-                            loader: "less-loader", options: {
-                                paths: [
-                                    path.resolve(__dirname, "static/less")
-                                ],
-                                plugins: [
-                                    new CleanCSSPlugin({advanced: true})
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        stats: 'verbose',
-        output: {
-            path: path.resolve(__dirname, 'static/dist')
-        },
-        plugins: [
-            new CleanWebpackPlugin(['static/dist/login-style.css', 'static/dist/login-style.js']),
+            new CleanWebpackPlugin([
+                'static/dist/main-style.css',
+                'static/dist/main-style.js',
+                'static/dist/mobile-style.css',
+                'static/dist/mobile-style.js',
+                'static/dist/login-style.css',
+                'static/dist/login-style.js',
+                'static/dist/fonts/'
+            ]),
             new MiniCssExtractPlugin({
                 filename: "[name].css"
             })
         ],
         optimization: {
-            minimizer: [new OptimizeCSSAssetsPlugin({})],
-            splitChunks: {
-                cacheGroups: {
-                    styles: {
-                        name: 'styles',
-                        test: /\.css$/,
-                        chunks: 'all',
-                        enforce: true
-                    }
-                }
-            }
+            minimizer: [new OptimizeCSSAssetsPlugin({})]
         }
     }
 ];

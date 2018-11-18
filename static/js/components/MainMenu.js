@@ -425,7 +425,7 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'About',
-                    content: $('<div>').text('Figure out a way to get this dynamically populated.'),
+                    content: $('<div>').append('<h3>Welcome to Best Evar Chat 3.0!</h3><em>November 24th, 2018</em><p>It\'s here!</p>'),
                     buttonText: 'Unbelievable!',
                     buttonClickHandler: () => false
                 });
