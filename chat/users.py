@@ -89,7 +89,7 @@ class UserList:
 
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username']),
+        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
                       key=lambda user: user['status'])
 
     def get_all_usernames(self):

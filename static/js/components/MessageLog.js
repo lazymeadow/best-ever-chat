@@ -94,6 +94,7 @@ export class MessageLog extends LoggingClass {
         else {
             this._logElement.html(`<div class="chat-message"><em>${emptyMessage}</em></div>`);
         }
+        _parseEmojis();
         super.debug('Message log printed.');
     }
 
