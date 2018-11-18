@@ -149,8 +149,9 @@
       }
 
       & #user-list {
-        border-bottom: 2px solid darken(@backgroundColor, 3%);
         .panel();
+        border-bottom: 2px solid darken(@backgroundColor, 3%);
+        max-height: calc(50% - 24px);  // 24 for half the "current user" div
 
         & > div {
           .user-element();
