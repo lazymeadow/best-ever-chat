@@ -15,8 +15,7 @@ if (!Cookies.get('id')) {
 $(() => {
     const overlay = $('.overlay');
 
-    // overlay dismisses on click and slides menu out
-    overlay.click(() => {
+    const hideMenu = () => {
         const popoutMenu = $('.popout-menu');
         popoutMenu.animate({right: '-80%'}, {
             duration: 500,
@@ -25,7 +24,12 @@ $(() => {
                 overlay.hide();
             }
         });
-    });
+    };
+
+    // overlay dismisses on click and slides menu out
+    overlay.click(hideMenu);
+
+    $('.popout-menu').children().click(hideMenu);
 
     // slide in main menu on click and show overlay
     $('#main_menu').click(event => {

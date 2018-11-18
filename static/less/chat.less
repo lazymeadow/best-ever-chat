@@ -154,82 +154,16 @@
         .panel();
 
         & > div {
-          padding: 3px;
-          display: flex;
-          align-items: center;
+          .user-element();
+
           &:hover {
             cursor: pointer;
             background-color: lighten(@backgroundColor, 20%);
-          }
-
-          & .message-indicator {
-            visibility: hidden;
-            color: @errorRed;
-            position: absolute;
-            margin-top: -5px;
-            margin-left: 3px;
-            font-size: 10px;
-            z-index: 1;
-          }
-        }
-
-        & .online-status {
-          flex: 0 0 auto;
-        }
-
-        & .list-content {
-          flex: 1 0 auto;
-          text-overflow: ellipsis;
-          overflow-x: hidden;
-          max-width: calc(100% - 2em - 3px);
-          white-space: nowrap;
-        }
-
-        & .typing-status {
-          visibility: hidden;
-          flex: 0 0 auto;
-          margin-right: 6px;
-        }
-
-        & .is-typing .typing-status {
-          visibility: visible;
-        }
-
-        & .active .online-status {
-          visibility: visible;
-          color: #34b93d;
-        }
-
-        & .idle .online-status {
-          visibility: visible;
-          opacity: .35;
-        }
-
-        & .offline {
-          & .list-content {
-            opacity: .5;
-          }
-
-          & .online-status {
-            visibility: hidden;
-          }
-
-          & .typing-status {
-            visibility: hidden;
           }
         }
 
         & .current {
           .selected-panel-item();
-        }
-
-        & .has-messages {
-          font-weight: bold;
-          letter-spacing: .5px;
-
-          & .message-indicator {
-            visibility: visible;
-          }
         }
       }
 
@@ -255,28 +189,17 @@
           }
         }
 
+        & > div {
+          .room-element();
+          & .message-indicator {
+            width: 2em;
+            height: 2em;
+            line-height: 2em;
+          }
+        }
+
         & > div:not(.rooms-header) > div:first-child:hover {
           background-color: lighten(@backgroundColor, 20%);
-        }
-
-        & .message-indicator {
-          visibility: hidden;
-          opacity: .8;
-          width: 2em;
-          height: 2em;
-          line-height: 2em;
-          text-align: center;
-        }
-
-        & > .has-messages {
-          & .list-content {
-            font-weight: bold;
-            letter-spacing: .5px;
-          }
-
-          & .message-indicator {
-            visibility: visible;
-          }
         }
 
         & .current {

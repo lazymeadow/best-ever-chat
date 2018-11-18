@@ -67,5 +67,62 @@
     right: -80%;
     bottom: 0;
     width: 80%;
+    overflow-y: auto;
+
+    & #user-list:not(:empty) {
+      border-top: 1px solid @lightBorderColor;
+      border-bottom: 1px solid @lightBorderColor;
+    }
+
+    & #user-list, & #room-list {
+      max-height: calc(50% - 42px);
+      overflow-y: auto;
+    }
+
+    & .current {
+      background-color: @lightButtonColor;
+    }
+
+    & #current-user {
+      .user-element();
+
+      border-top: 1px solid @lightBorderColor;
+
+      &:hover {
+        background-color: @buttonHoverColor;
+        cursor: pointer;
+      }
+    }
+
+    & .list-content {
+      text-overflow: ellipsis;
+      overflow-x: hidden;
+      white-space: nowrap;
+      flex: 1 1 auto;
+    }
+
+    & #room-list > div {
+      .room-element();
+
+      &:hover {
+        background-color: @buttonHoverColor;
+        cursor: pointer;
+      }
+    }
+
+    & #user-list > div {
+      .user-element();
+
+      &:hover {
+        background-color: @buttonHoverColor;
+        cursor: pointer;
+      }
+    }
+
+    & #room-list > div > div, & #user-list > div {
+      display: flex;
+      white-space: nowrap;
+      align-items: center;
+    }
   }
 }
