@@ -118,11 +118,14 @@ div.login, div.not-found, div.form {
 }
 
 .content {
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  bottom: 0;
   width: 100vw;
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
+  overflow: auto;
 
   & > div:not(#alerts):not(#header):not(.login):not(.not-found) {
     display: flex;
