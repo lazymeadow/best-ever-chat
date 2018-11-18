@@ -5,10 +5,23 @@ from tornado import concurrent
 executor = concurrent.futures.ThreadPoolExecutor(2)
 
 
-class TemplateRendering:
-    """
-    A simple class to hold methods for rendering templates.
-    """
+class BaseHandler(tornado.web.RequestHandler):
+    @property
+    def db(self):
+        return self.application.db
+
+    @property
+    def user_list(self):
+        return self.application.user_list
+
+    @property
+    def room_list(self):
+        return self.application.room_list
+
+    def get_current_user(self):
+        user_id = self.get_secure_cookie("parasite")
+        if not user_id: return None
+        return self.user_list.get_user(user_id)
 
     def render_template(self, template_name, **kwargs):
         template_dirs = []
@@ -25,25 +38,6 @@ class TemplateRendering:
             raise TemplateNotFound(template_name)
         content = template.render(kwargs)
         return content
-
-
-class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
-    @property
-    def db(self):
-        return self.application.db
-
-    def get_current_user(self):
-        user_id = self.get_secure_cookie("parasite")
-        if not user_id: return None
-        return self.db.get("SELECT * FROM parasite WHERE id = %s", str(user_id))
-
-    def check_unique_user(self, user_id):
-        return self.db.get("SELECT id FROM parasite LIMIT 1") is None
-
-    """
-    RequestHandler already has a `render()` method. I'm writing another
-    method `render2()` and keeping the API almost same.
-    """
 
     def render2(self, template_name, **kwargs):
         """

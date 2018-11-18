@@ -3,7 +3,7 @@
 {% set title = 'Register' %}
 
 {% block includes %}
-<link rel="stylesheet" href="static/dist/login.css" type="text/css"/>
+<link rel="stylesheet" href="/static/login-style.css" type="text/css"/>
 {% endblock %}
 
 {% block content %}
@@ -20,19 +20,35 @@
         <div class="form-group">
             <div class="form-element">
                 <label for="parasite">Username</label>
-                <input type=text name="parasite" id="parasite" required value="{{username}}"/>
+                <input type=text
+                       name="parasite"
+                       id="parasite"
+                       required
+                       value="{{username}}"
+                       autocomplete="username"/>
             </div>
             <div class="form-element">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" required/>
+                <input type="password"
+                       name="password"
+                       id="password"
+                       required autocomplete="new-password"/>
             </div>
             <div class="form-element">
                 <label for="password2">Confirm</label>
-                <input type="password" name="password2" id="password2" required/>
+                <input type="password"
+                       name="password2"
+                       id="password2"
+                       required
+                       autocomplete="new-password"/>
             </div>
             <div class="form-element">
                 <label for="email">Email</label>
-                <input type=email name="email" id="email" required value="{{email}}"/>
+                <input type=email
+                       name="email"
+                       id="email"
+                       required
+                       value="{{email}}"/>
             </div>
             {{ xsrf_form_html() }}
             <div class="form-element">

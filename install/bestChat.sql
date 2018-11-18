@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `bestchat` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE  IF NOT EXISTS `bestchat` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 USE `bestchat`;
 -- MySQL dump 10.13  Distrib 5.6.24, for Win64 (x86_64)
 --
@@ -18,28 +18,57 @@ USE `bestchat`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `invitations`
+--
+
+DROP TABLE IF EXISTS `invitations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `invitations` (
+  `room_id` int(11) NOT NULL DEFAULT '0',
+  `parasite_id` varchar(128) NOT NULL DEFAULT '',
+  `content` varchar(2048) DEFAULT NULL,
+  PRIMARY KEY (`room_id`,`parasite_id`),
+  KEY `invitations_parasite_id_fk` (`parasite_id`),
+  CONSTRAINT `invitations_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`),
+  CONSTRAINT `invitations_rooms_id_fk` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `parasite`
 --
 
-# !!! uncomment if you are creating a new database
+DROP TABLE IF EXISTS `parasite`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `parasite` (
+  `id` varchar(128) NOT NULL,
+  `password` varchar(64) NOT NULL,
+  `username` varchar(32) DEFAULT NULL,
+  `email` varchar(128) DEFAULT NULL,
+  `reset_token` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `parasite_id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-# DROP TABLE IF EXISTS `parasite`;
-# /*!40101 SET @saved_cs_client     = @@character_set_client */;
-# /*!40101 SET character_set_client = utf8 */;
-# CREATE TABLE `parasite` (
-#   `id` varchar(128) NOT NULL,
-#   `password` varchar(64) NOT NULL,
-#   `color` varchar(7) DEFAULT '#555555',
-#   `sound` int(11) DEFAULT NULL,
-#   `username` varchar(32) DEFAULT NULL,
-#   `soundSet` varchar(3) DEFAULT NULL,
-#   `email` varchar(128) DEFAULT NULL,
-#   `reset_token` varchar(64) DEFAULT NULL,
-#   `faction` varchar(16) NOT NULL DEFAULT 'rebel',
-#   PRIMARY KEY (`id`),
-#   UNIQUE KEY `parasite_id_UNIQUE` (`id`)
-# ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-# /*!40101 SET character_set_client = @saved_cs_client */;
+--
+-- Table structure for table `parasite_config`
+--
+
+DROP TABLE IF EXISTS `parasite_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `parasite_config` (
+  `parasite_id` varchar(128) NOT NULL,
+  `name` varchar(16) NOT NULL,
+  `value` varchar(64) NOT NULL,
+  PRIMARY KEY (`parasite_id`,`name`),
+  KEY `parasite_config_parasite_id_fk` (`parasite_id`),
+  CONSTRAINT `parasite_config_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `room_access`
@@ -57,7 +86,7 @@ CREATE TABLE `room_access` (
   KEY `in_rooms_parasite_id_fk` (`parasite_id`),
   CONSTRAINT `in_rooms_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`),
   CONSTRAINT `in_rooms_rooms_id_fk` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +104,7 @@ CREATE TABLE `rooms` (
   UNIQUE KEY `rooms_id_uindex` (`id`),
   KEY `rooms_parasite_id_fk` (`owner`),
   CONSTRAINT `rooms_parasite_id_fk` FOREIGN KEY (`owner`) REFERENCES `parasite` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -87,4 +116,4 @@ CREATE TABLE `rooms` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-20 11:46:32
+-- Dump completed on 2018-11-17 19:56:51

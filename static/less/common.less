@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css?family=Amiko');
+
+@import 'checkboxes';
+
+@dark: #4A4A4A;
+@bodyColor: #222222;
+@lightButtonColor: #C6E2EB;
+@borderColor: @dark;
+@lightBorderColor: lightgrey;
+@backgroundColor: #25687D;
+@lightBackgroundColor: #C9C9C9;
+@lightest: #FCFCFC;
+@buttonHoverColor: darken(@lightButtonColor, 15%);
+@errorRed: #CC0000;
+
+body {
+  background: @backgroundColor;
+  font: 14px 'Amiko', san-serif;
+  color: @bodyColor;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+div {
+  padding: 0;
+  margin: 0;
+}
+
+h1 {
+  font-size: 2em;
+  margin: 0;
+  font-weight: normal;
+}
+
+div.login, div.not-found, div.form {
+  width: 500px;
+  padding: 25px;
+  margin-left: auto;
+  margin-right: auto;
+  background: @lightest;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  align-self: center;
+  align-items: center;
+
+  a {
+    font-size: .75em;
+    color: darken(@lightBackgroundColor, 25%);
+  }
+
+  p {
+    margin: 0 20px;
+    text-align: center;
+  }
+
+  label {
+    flex: 0 0 auto;
+    align-self: center;
+    margin-right: 10px;
+
+    &.check-box {
+      margin-right: 0;
+      margin-left: 0;
+    }
+  }
+
+  button {
+    min-width: 110px;
+    margin-top: 10px;
+
+    &.primary {
+      justify-self: end;
+    }
+  }
+
+  input, textarea {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    width: 250px;
+  }
+
+  & .message {
+    flex: 1 1 auto;
+    padding-top: 10px;
+    min-height: 19px;
+    text-align: center;
+
+    &.error {
+      color: @errorRed;
+    }
+  }
+
+  .form-group {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+
+    &.check-box {
+      flex-direction: row;
+
+      & label {
+        font-size: .9em;
+      }
+    }
+  }
+
+  .form-element {
+    flex: 1 0 auto;
+    display: flex;
+    width: 350px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+}
+
+.content {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
+  overflow: auto;
+
+  & > div:not(#alerts):not(#header):not(.login):not(.not-found) {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  input, textarea {
+    font: 1em 'Amiko', sans-serif;
+    padding: 3px 5px;
+  }
+
+  input {
+    &:not([type=range]) {
+      border: 1px solid @lightBorderColor;
+    }
+
+    &[type=checkbox] {
+      display: none;
+    }
+  }
+
+  textarea {
+      border: 1px solid @lightBorderColor;
+  }
+
+  button, .button {
+    font: 1em 'Amiko', sans-serif;
+    border: none;
+    background-color: @backgroundColor;
+    color: white;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: darken(@backgroundColor, 10%);
+    }
+
+    &.secondary {
+      background-color: @lightest;
+      border: solid 1px @lightBorderColor;
+      color: @backgroundColor;
+
+      &:hover {
+        background: lighten(@lightBackgroundColor, 10%);
+      }
+    }
+
+    &.cancel {
+      background: lighten(@lightBackgroundColor, 10%);
+      color: darken(@lightBackgroundColor, 25%);
+
+      &:hover {
+        background: @lightBackgroundColor;
+        color: darken(@lightBackgroundColor, 35%);
+      }
+    }
+  }
+}

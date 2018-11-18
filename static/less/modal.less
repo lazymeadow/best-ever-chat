@@ -1,86 +1,43 @@
-#overlay {
-  display: flex;
-  z-index: 99;
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  background: @overlayColor;
-  align-items: center;
-  justify-content: center;
-
-  & #settings .modal-content, & #information .modal-content {
-    min-height: 375px;
-  }
-
-  .modal {
+.overlay {
+  & > .modal {
+    background-color: white;
+    min-width: 300px;
+    max-width: 540px;
+    min-height: 50px;
     display: flex;
     z-index: 100;
-    width: 500px;
-    padding: @elementPadding 0;
-    background: @lightest;
-    border: solid 1px @borderColor;
-    border-radius: 3px;
     flex: 0 1 auto;
     flex-direction: column;
+    padding: 10px 20px;
+    margin: 10px;
+    align-self: center;
+    align-items: center;
 
-    .close {
-      float: right;
-      border: none;
-      padding: 0;
-      margin: 0;
-      color: @backgroundColor;
-      background: @lightest;
+    h1 {
+      margin-bottom: 29px;
+    }
+    .message {
+      max-width: 400px;
     }
 
-    .modal-header {
-      flex: 0 0 auto;
-      padding: @elementPadding;
-      margin: 0;
+    .form-element {
+      margin: 10px 0;
+    }
 
-      .modal-title {
-        font-size: 1.5em;
-        font-weight: bold;
-      }
+    input {
+      margin: 0
+    }
 
-      span.close-icon {
+    button {
+      margin: 10px 0;
+
+      &:not(.secondary) {
         float: right;
-        width: 20px;
-        height: 100%;
-        color: @lightBackgroundColor;
-        cursor: pointer;
       }
     }
 
-    .modal-content {
-      border-top: 1px solid @lightBackgroundColor;
-      border-bottom: 1px solid @lightBackgroundColor;
-      flex: 1 0 auto;
-      padding: @elementPadding;
-      margin: 0;
-      overflow-y: auto;
-      height: 100%;
-    }
-
-    .modal-footer {
-      flex: 0 0 auto;
-      padding: @elementPadding;
-
-      button {
-        min-width: 100px;
-        border: none;
-      }
-
-      .modal-submit {
-        float: right;
-        .primary-button;
-      }
-
-      .modal-cancel {
-        float: left;
-        .cancel-button;
-      }
+    .form-group, .form-element {
+      width: 400px;
     }
   }
 }

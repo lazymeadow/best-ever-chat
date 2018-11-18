@@ -8,7 +8,7 @@ import struct
 from tornado.escape import xhtml_unescape
 
 from ruleset import unicode_replace, \
-    shortcode_replace, ascii_replace, category_replace
+    shortcode_replace, ascii_replace
 
 chr = unichr
 
@@ -17,16 +17,20 @@ class Emoji(object):
     ascii = False
     unicode_alt = True
     sprites = False
-    ignored_regexp = '<(?:object|embed|svg|img|div|span|p|a)[^>]*>.*?<\/(?:object|embed|svg|img|div|span|p|a)>'
+    ignored_regexp = '<(?:object|embed|svg|img|div|span|p|a)[^>]*>|<\/(?:object|embed|svg|img|div|span|p|a)>'
     unicode_regexp = "(" + '|'.join(
         [re.escape(x.decode("utf-8")) for x in sorted(unicode_replace.keys(), key=len, reverse=True)]) + ")"
     shortcode_regexp = ':([-+\\w]+):'
-    ascii_regexp = r"\B(((&gt;)|(&#39;)|[>\'O0])?[;\*X:=8B\#%]((&#39;)|\')?-?[\)\]D\*/\\\(\[\$|\#PpboO0SX@L])|" \
-                   r"([oO-]_+[oO-])|(((&gt;)|>)\.?((&lt;)|<))|([\(\[D]-?[:=])|(((&lt;)|<)[\\/]?3)\B"
-    shortcode_compiled = re.compile(ignored_regexp + "|(" + shortcode_regexp + ")",
-                                    re.IGNORECASE)
+    ascii_regexp = r"(\A|(?<=\s))(" \
+                   r"(?#1: Right-side up)((?#halos/eyebrows/sweat)[0O>']?(?#eyes)[:=;B*#8X%](?#tears)'?(?#noses)-?" \
+                   r"(?#mouths)[\\/\(\)D*#$|\]\[@o0OXPpbSL])|" \
+                   r"(?#2: Upside down)((?#mouths)[\(\[D](?#noses)[-]?(?#eyes)[:=])|" \
+                   r"(?#3: Horizontal faces)((?#left eye)[oO>-](?#mouth)(.|_+)?(?#right eye)[oO<-])|" \
+                   r"(?#hearts)(<[\\/]?3))(\Z|\s)"
     unicode_compiled = re.compile(ignored_regexp + "|(" + unicode_regexp + ")",
                                   re.UNICODE)
+    shortcode_compiled = re.compile(ignored_regexp + "|(" + shortcode_regexp + ")",
+                                    re.IGNORECASE)
     ascii_compiled = re.compile(ignored_regexp + "|(" + ascii_regexp + ")")
 
     @classmethod

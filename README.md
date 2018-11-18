@@ -25,10 +25,8 @@ permissions to the `bestchat` schema: DELETE, EXECUTE, INSERT, SELECT, SHOW, VIE
 
 
 ## To run:
-1. `lessc ./static/less/chat.less ./static/chat.css --clean-css="--s1 --advanced --compatibility=ie8"`
-
-
-2. `python tornado_chat.py`
+1. `npm build-all`
+3. `python tornado_chat.py`
 
 
 ---

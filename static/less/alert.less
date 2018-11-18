@@ -1,0 +1,42 @@
+.content {
+  #alerts {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #cccccc;
+    border-top: none;
+    margin: 0 auto;
+    max-width: 500px;
+    background-color: #f0f0f0;
+    color: #4A4A4A;
+    z-index: 11;
+    text-align: center;
+    transition: top .5s ease;
+
+    &:empty {
+      border: none;
+    }
+
+    & > div:not(:last-child) {
+      border-bottom: 1px solid #cccccc;
+    }
+
+    & > div {
+      padding: 5px 3px;
+
+      & div.alert-actions {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 2 * @elementPadding;
+
+        & span {
+          color: #25687D;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

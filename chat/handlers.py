@@ -1,15 +1,14 @@
 import json
-from email.mime.text import MIMEText
-from smtplib import SMTP
+from random import randint
 
-import bcrypt
 import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
 from tornado.escape import url_escape
 
-from chat.chat_core import users
-from chat.custom_render import BaseHandler, executor
+from chat.custom_render import BaseHandler
+from chat.emails import send_reset_email
+from chat.lib import hash_password, check_password
 
 
 class PageHandler(BaseHandler):
@@ -17,14 +16,25 @@ class PageHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.set_cookie('username', url_escape(self.current_user.username, plus=False) or '')
-        self.set_cookie('color', self.current_user.color or '')
-        self.set_cookie('sounds', str(self.current_user.sound) or '100')
-        self.set_cookie('sound_set', self.current_user.soundSet or 'AIM')
-        self.set_cookie('email', self.current_user.email or '')
-        self.set_cookie('faction', self.current_user.faction or 'rebel')
-        self.set_cookie('id', self.current_user.id)
+        self.set_cookie('username', url_escape(self.current_user['username'], plus=False) or '')
+        self.set_cookie('color', self.current_user['color'] or '')
+        self.set_cookie('volume', str(self.current_user['volume']) or '100')
+        self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
+        self.set_cookie('email', self.current_user['email'] or '')
+        self.set_cookie('faction', self.current_user['faction'] or 'rebel')
+        self.set_cookie('id', self.current_user['id'])
         self.render2('index.html', emoji_list=self.settings['emojis'])
+
+
+class MobileHandler(BaseHandler):
+    """Regular HTTP handler to serve the chatroom page"""
+
+    @tornado.web.authenticated
+    def get(self):
+        self.set_cookie('volume', str(self.current_user['volume']) or '100')
+        self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
+        self.set_cookie('id', self.current_user['id'])
+        self.render2('mobile.html', emoji_list=self.settings['emojis'])
 
 
 class ValidateHandler(BaseHandler):
@@ -34,10 +44,12 @@ class ValidateHandler(BaseHandler):
         if new_name is None or new_name == '':
             self.write(json.dumps(False))
             return
-        if new_name == self.get_argument('username', default=None, strip=True):
+        if new_name == self.get_argument('username', default=None, strip=True) or new_name == self.get_argument('id',
+                                                                                                                default=None,
+                                                                                                                strip=True):
             self.write(json.dumps(True))
             return
-        self.write(json.dumps(new_name not in users.keys()))
+        self.write(json.dumps(self.user_list.is_valid_username(new_name)))
 
 
 class AuthCreateHandler(BaseHandler):
@@ -46,51 +58,49 @@ class AuthCreateHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        if not self.check_unique_user(self.get_argument("parasite")):
-            self.render2("create_user.html")
+        parasite = self.get_argument("parasite")
+
+        if self.user_list.is_existing_user(parasite):
+            self.render2("create_user.html", error="Invalid username.")
+            return
         if self.get_argument("password") == self.get_argument("password2"):
-            hashed_password = yield executor.submit(
-                bcrypt.hashpw, escape.utf8(self.get_argument("password")),
-                bcrypt.gensalt())
-            parasite_id = self.db.execute(
-                "INSERT INTO parasite (id, email, password, username) "
-                "VALUES (%s, %s, %s, _utf8mb4%s)",
-                self.get_argument("parasite"), self.get_argument("email"), hashed_password,
-                self.get_argument("parasite"))
-            self.set_secure_cookie("parasite", str(parasite_id), expires_days=182)
-            self.redirect(self.get_argument("next", "/"))
+            hashed_password = yield hash_password(escape.utf8(self.get_argument("password")))
+            username = parasite if self.user_list.is_valid_username(parasite) else '{}_{}'.format(parasite,
+                                                                                                  randint(1000, 9999))
+            self.db.execute(
+                "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, _utf8mb4%s)",
+                parasite, self.get_argument("email"), hashed_password, username)
+            self.user_list.load_user(parasite)
+            self.room_list.add_user_to_member_list(0, parasite)
+            self.render2("login.html", username=parasite, location='login')
         else:
-            self.render2("create_user.html", error="incorrect password")
+            self.render2("create_user.html", username=parasite, email=self.get_argument("email"),
+                         error="Password entries must match.")
 
 
 class AuthLoginHandler(BaseHandler):
     def get(self):
+        if self.get_secure_cookie("parasite"):
+            self.redirect(self.get_argument("next", "/"))
         self.render2("login.html", error=self.get_argument("error", default=None))
 
     @gen.coroutine
     def post(self):
-        parasite = self.db.get("SELECT * FROM parasite WHERE id = %s", self.get_argument("parasite"))
-        if not parasite:
-            self.render2("login.html", error="user not found")
-            return
-        hashed_password = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            tornado.escape.utf8(parasite.password))
-        if hashed_password == parasite.password:
-            self.set_secure_cookie("parasite", str(parasite.id))
-            self.redirect(self.get_argument("next", "/"))
-        else:
-            self.render2("login.html", error="incorrect password")
+        parasite = self.user_list.get_user(self.get_argument('parasite'))
+        try:
+            if check_password(self.get_argument('password'), parasite['password']):
+                self.set_secure_cookie("parasite", str(parasite['id']), expires_days=90)
+                self.redirect(self.get_argument("next", "/"))
+            else:
+                self.render2("login.html", error="Incorrect username or password.")
+        except:
+            self.render2("login.html", error="Incorrect username or password.")
 
 
 class AuthLogoutHandler(BaseHandler):
     def get(self):
-        self.clear_cookie("parasite")
-        self.clear_cookie("username")
-        self.clear_cookie("color")
-        self.clear_cookie("sounds")
-        self.clear_cookie("soundSet")
-        self.redirect(self.get_argument("next", "/"))
+        self.clear_all_cookies()
+        self.redirect("login")
 
 
 class AuthPasswordResetHandler(BaseHandler):
@@ -99,14 +109,14 @@ class AuthPasswordResetHandler(BaseHandler):
         try:
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
-            parasite = serializer.loads(token, max_age=86400)  # do i really have to do 24hrs in secs?
-            parasiteId = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
-            if parasiteId is not None and parasiteId.reset_token == token:
+            parasite = serializer.loads(token, max_age=86400)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            if parasite_record is not None and parasite_record.reset_token == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
-                self.redirect("login?error=Invalid reset link.")
-        except:
-            self.redirect("login?error=Invalid reset link.")
+                self.render2("login.html", error="Invalid reset link.", location="login")
+        except Exception as e:
+            self.render2("login.html", error="Invalid reset link.", location="login")
 
     @gen.coroutine
     def post(self):
@@ -114,20 +124,16 @@ class AuthPasswordResetHandler(BaseHandler):
         try:
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
-            parasite = serializer.loads(token, max_age=86400)  # do i really have to do 24hrs in secs?
-            parasiteId = self.db.get("SELECT id, reset_token FROM parasite WHERE id = %s", parasite)
-            if parasiteId is not None and self.get_argument("password") == self.get_argument(
-                    "password2") and parasiteId.reset_token == token:
-                hashed_password = yield executor.submit(
-                    bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-                    bcrypt.gensalt())
-                self.db.execute("UPDATE parasite SET password = %s, reset_token='' WHERE id = %s", hashed_password,
-                                parasite)
-                self.redirect("login?error=Password reset. Please login.")
+            parasite = serializer.loads(token, max_age=86400)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            if parasite_record is not None and self.get_argument("password") == self.get_argument(
+                    "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
+                parasite, self.get_argument("password"), check_match=False):
+                self.render2("login.html", message="Password reset successful.", location="login")
             else:
-                self.redirect("login?error=Password reset failed.")
+                self.render2("login.html", error="Password reset failed.", location="login")
         except:
-            self.redirect("login?error=Password reset failed.")
+            self.render2("login.html", error="Password reset failed.", location="login")
 
 
 class AuthPasswordResetRequestHandler(BaseHandler):
@@ -136,41 +142,28 @@ class AuthPasswordResetRequestHandler(BaseHandler):
 
     def post(self):
         parasite = self.get_argument("parasite")
-        parasite_email = self.db.get("SELECT email FROM parasite WHERE id = %s", parasite)
-        if parasite_email is not None:
+        if self.user_list.is_existing_user(parasite):
+            user = self.user_list.get_user(parasite)
             # Generate a link
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             string = serializer.dumps(parasite)
             self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
-            send_email(parasite_email.email, parasite, string)
+            send_reset_email(user['email'], parasite, string)
 
-        self.redirect(
-            "login?error=A password reset email has been sent for {}. Check your spam folder!".format(parasite))
+        self.render2("login.html", location='login',
+                     message="A password reset email has been sent for {}. Check your spam folder!".format(parasite),
+                     username=parasite)
 
 
-def send_email(email, user, token):
-    link = 'http://bestevarchat.com/reset_password?token=' + token
-    # Create a text/plain message
-    msg = MIMEText('Well, someone has requested as password reset for {}.\n\n'
-                   'If it wasn\'t you, then please, let me know. '
-                   'Otherwise, here\'s a link for you...'
-                   'You\'d better hurry, it\'ll only be good for 24 hours. \n\n'
-                   '{}'.format(user, link))
+class Chat404Handler(BaseHandler):
+    def prepare(self):
+        self.set_status(404)
+        self.render2("404.html")
 
-    # me == the sender's email address
-    me = 'server@bestevarchat.com'
-    # you == the recipient's email address
-    you = email
+    def get(self):
+        pass
 
-    msg['Subject'] = '[Best Evar Chat] You appear to have forgotten your password'
-    msg['From'] = me
-    msg['To'] = you
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-
-    s = SMTP('localhost')
-    s.sendmail(me, you, msg.as_string())
-    s.quit()
+    def post(self):
+        pass

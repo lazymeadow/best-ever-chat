@@ -1,0 +1,51 @@
+{
+  "name": "best-evar-chat",
+  "version": "3.0.0",
+  "description": "The Best Evar Chat - now with webpack!",
+  "private": true,
+  "scripts": {
+    "build": "npm install && npx webpack --config webpack.dev.js",
+    "build-prod": "npm install && npx webpack --config webpack.prod.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch --config webpack.dev.js",
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazymeadow/best-ever-chat.git"
+  },
+  "author": "Audrey Mavra McCormick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lazymeadow/best-ever-chat/issues"
+  },
+  "homepage": "https://github.com/lazymeadow/best-ever-chat#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-runtime": "^6.26.0",
+    "circular-dependency-plugin": "^5.0.2",
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "file-loader": "^1.1.11",
+    "@fortawesome/fontawesome-free": "^5.2.0",
+    "less": "^3.8.0",
+    "less-loader": "^4.1.0",
+    "less-plugin-clean-css": "^1.5.1",
+    "mini-css-extract-plugin": "^0.4.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "webpack": "^4.16.2",
+    "webpack-command": "^0.4.1"
+  },
+  "dependencies": {
+    "imagesloaded": "^4.1.4",
+    "jquery": "^3.3.1",
+    "js-cookie": "^2.2.0",
+    "moment": "^2.22.2",
+    "sockjs-client": "^1.3.0",
+    "twemoji": "^11.0.0"
+  }
+}
