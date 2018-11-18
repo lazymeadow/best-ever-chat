@@ -67,7 +67,27 @@
     right: -80%;
     bottom: 0;
     width: 80%;
-    overflow-y: auto;
+    overflow: hidden;
+
+    & > .inline-menu {
+      display: none;
+      margin: 3px -3px -3px;
+
+      & .menu-item {
+        opacity: .85;
+        padding: 7px 3px 7px 23px;
+        display: block;
+        cursor: pointer;
+
+        &:hover {
+          background-color: @buttonHoverColor;
+        }
+
+        & > .fas, & > .far, & > .fab {
+          padding-right: 3px;
+        }
+      }
+    }
 
     & #user-list:not(:empty) {
       border-top: 1px solid @lightBorderColor;
@@ -75,7 +95,7 @@
     }
 
     & #user-list, & #room-list {
-      max-height: calc(50% - 42px);
+      max-height: calc(50% - 21px - 81px); // 21 for half the current user, 81 for half the expected menu items
       overflow-y: auto;
     }
 
@@ -123,6 +143,16 @@
       display: flex;
       white-space: nowrap;
       align-items: center;
+    }
+  }
+}
+
+.overlay {
+   & > .modal {
+    width: auto;
+
+    & .form-group, & .form-element {
+      width: auto;
     }
   }
 }

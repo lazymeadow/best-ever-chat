@@ -6,7 +6,15 @@ import {Settings} from "../util";
 export class DesktopClient extends BestEvarChatClient {
     constructor() {
         super();
-        new MainMenu(this);
+        new MainMenu(this, {
+            clientSettings: true,
+            userSettings: true,
+            accountSettings: true,
+            bugReport: true,
+            featureRequest: true,
+            about: true,
+            adminTools: true
+        });
         this._roomManager = new AdvancedRoomManager(this, this._messageLog, this._soundManager);
     }
 
