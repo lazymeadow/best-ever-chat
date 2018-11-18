@@ -16,6 +16,11 @@ class PageHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
+        # NOTE: This will only work if the http/proxy server is attaching the query param on mobile user agent detection.
+        mobile = self.get_query_argument('mobile', False)
+        if mobile is not False:
+            self.redirect(self.get_argument("next", "/m"))
+            return
         self.set_cookie('username', url_escape(self.current_user['username'], plus=False) or '')
         self.set_cookie('color', self.current_user['color'] or '')
         self.set_cookie('volume', str(self.current_user['volume']) or '100')
