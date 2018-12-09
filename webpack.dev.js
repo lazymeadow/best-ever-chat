@@ -11,6 +11,7 @@ module.exports = [
         entry: {
             main: './static/js/main.js',
             mobile: './static/js/mobile.js',
+            electron: './static/js/electron.js',
             login: './static/js/login.js'
         },
         module: {
@@ -40,6 +41,7 @@ module.exports = [
             new CleanWebpackPlugin([
                 'static/dist/main.js',
                 'static/dist/mobile.js',
+                'static/dist/electron.js',
                 'static/dist/login.js'
             ]),
             new CircularDependencyPlugin({

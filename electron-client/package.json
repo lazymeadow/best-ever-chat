@@ -1,0 +1,19 @@
+{
+  "name": "best-evar-electron-chat",
+  "version": "1.0.0",
+  "description": "Best Evar Chat in Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazymeadow/best-ever-chat.git"
+  },
+  "author": "Audrey Mavra McCormick",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^3.0.7",
+    "node-notifier": "^5.3.0"
+  }
+}

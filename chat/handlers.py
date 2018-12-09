@@ -18,8 +18,12 @@ class PageHandler(BaseHandler):
     def get(self):
         # NOTE: This will only work if the http/proxy server is attaching the query param on mobile user agent detection.
         mobile = self.get_query_argument('mobile', False)
+        electron = self.get_query_argument('electron', False)
         if mobile is not False:
             self.redirect(self.get_argument("next", "/m"))
+            return
+        if electron is not False:
+            self.redirect(self.get_argument("next", "/e"))
             return
         self.set_cookie('username', url_escape(self.current_user['username'], plus=False) or '')
         self.set_cookie('color', self.current_user['color'] or '')
@@ -32,7 +36,7 @@ class PageHandler(BaseHandler):
 
 
 class MobileHandler(BaseHandler):
-    """Regular HTTP handler to serve the chatroom page"""
+    """Regular HTTP handler to serve the mobile chatroom page"""
 
     @tornado.web.authenticated
     def get(self):
@@ -40,6 +44,21 @@ class MobileHandler(BaseHandler):
         self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
         self.set_cookie('id', self.current_user['id'])
         self.render2('mobile.html', emoji_list=self.settings['emojis'])
+
+
+class ElectronHandler(BaseHandler):
+    """Regular HTTP handler to serve the elctron chatroom page"""
+
+    @tornado.web.authenticated
+    def get(self):
+        self.set_cookie('username', url_escape(self.current_user['username'], plus=False) or '')
+        self.set_cookie('color', self.current_user['color'] or '')
+        self.set_cookie('volume', str(self.current_user['volume']) or '100')
+        self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
+        self.set_cookie('email', self.current_user['email'] or '')
+        self.set_cookie('faction', self.current_user['faction'] or 'rebel')
+        self.set_cookie('id', self.current_user['id'])
+        self.render2('electron.html', emoji_list=self.settings['emojis'])
 
 
 class ValidateHandler(BaseHandler):
@@ -106,6 +125,12 @@ class AuthLogoutHandler(BaseHandler):
     def get(self):
         self.clear_all_cookies()
         self.redirect("login")
+
+
+class AuthTokenHandler(BaseHandler):
+    def get(self):
+        token = self.xsrf_token
+        self.write(dict(_xsrf=token))
 
 
 class AuthPasswordResetHandler(BaseHandler):

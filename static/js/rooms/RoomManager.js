@@ -101,6 +101,12 @@ export class RoomManager extends LoggingClass {
         return this._roomDataMap.get(parseInt(Settings.activeLogId, 10)).name;
     }
 
+    getRoomName(roomId) {
+        if (this._roomDataMap.has(roomId)) {
+            return this._roomDataMap.get(roomId).name;
+        }
+    }
+
     // Private functions
 
     _addRoom(roomData) {
