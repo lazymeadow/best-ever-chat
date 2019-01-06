@@ -425,7 +425,9 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'About',
-                    content: $('<div>').append('<h3>Welcome to Best Evar Chat 3.0!</h3><em>November 18th, 2018</em><p>It\'s here!</p>'),
+                    content: $('<div>')
+                        .append('<h3>3.0.1: Bug Fixes!</h3><em>January 5th, 2019</em><p>Enforcing limit on private message threads. Memory usage was getting out of hand (you know who you are).</p>')
+                        .append('<h3>Welcome to Best Evar Chat 3.0!</h3><em>November 18th, 2018</em><p>It\'s here!</p>'),
                     buttonText: 'Unbelievable!',
                     buttonClickHandler: () => false
                 });

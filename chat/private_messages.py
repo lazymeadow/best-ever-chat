@@ -1,3 +1,6 @@
+from collections import deque
+
+from chat.lib import MAX_DEQUE_LENGTH
 from chat.loggers import log_from_server
 
 
@@ -19,7 +22,7 @@ class PrivateMessageMap:
 
         if thread_id not in self._thread_map.keys():
             self._thread_map[thread_id] = {
-                'messages': [],
+                'messages': deque(maxlen=MAX_DEQUE_LENGTH),
                 'user_1': user_id1,
                 'user_2': user_id2
             }
