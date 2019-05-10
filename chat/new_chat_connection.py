@@ -2,6 +2,7 @@ import json
 from time import time
 
 from boto3 import resource
+from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
@@ -120,6 +121,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def on_close(self):
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._user_list.update_user_typing_status(self.current_user['id'], False)
+        self._user_list.update_user_last_active(self.current_user['id'], datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         self._broadcast_user_list()
         if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
             self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))

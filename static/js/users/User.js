@@ -2,7 +2,7 @@ import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 
 export class User extends LoggingClass {
-    constructor({username, color, faction, status, typing, id}, userManager) {
+    constructor({username, color, faction, status, typing, id, lastActive}, userManager) {
         super('User');
         this._userManager = userManager;
 
@@ -12,6 +12,7 @@ export class User extends LoggingClass {
         this.status = status;
         this.typing = typing;
         this.id = id;
+        this.lastActive= lastActive;
         this._threadMessages = new Set();
 
         if (this.id !== Settings.userId) {

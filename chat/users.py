@@ -28,7 +28,8 @@ class UserList:
         'faction': 'rebel',
         'soundSet': 'AIM',
         'volume': '100',
-        'typing': False
+        'typing': False,
+        'lastActive': None
     }
 
     def __init__(self, db):
@@ -71,10 +72,12 @@ class UserList:
 
     def load_user(self, user_id):
         user = self.db.get(
-            "SELECT id, password, username, email, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
+            "SELECT id, password, username, email, last_active as lastActive, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
             user_id)
         if user['conf']:
             user.update(dict([config.split(':') for config in user['conf'].split(',')]))
+        if user['lastActive']:
+            user['lastActive'] = user['lastActive'].strftime('%Y-%m-%d %H:%M:%S')
         if user['id'] not in self._user_map.keys():
             # this means this is a probably NEW user, created since the server was started.
             new_user = self._user_defaults.copy()
@@ -148,6 +151,11 @@ class UserList:
                 "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
                 conf_name, conf_value, user_id, conf_value)
             return True
+
+    def update_user_last_active(self, user_id, last_active = None):
+        if self._user_map.has_key(user_id):
+            self._user_map[user_id]['lastActive'] = last_active
+        self.db.update("UPDATE parasite SET last_active = %s WHERE id = %s", last_active, user_id)
 
     def add_participant(self, participant):
         self._participants.add(participant)

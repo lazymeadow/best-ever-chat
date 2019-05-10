@@ -48,6 +48,7 @@ CREATE TABLE `parasite` (
   `username` varchar(32) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
   `reset_token` varchar(64) DEFAULT NULL,
+  `last_active` DATETIME DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parasite_id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
