@@ -192,7 +192,7 @@ export class MainMenu extends LoggingClass {
                         serverChanges['soundSet'] = newSoundSet;
                         changesMade = true;
                     }
-                    if (Object.keys(serverChanges).length === 0) {
+                    if (Object.keys(serverChanges).length > 0) {
                         this._chatClient.updateClientSettings(serverChanges);
                     }
 
