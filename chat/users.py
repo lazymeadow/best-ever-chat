@@ -1,5 +1,7 @@
 import json
 
+from datetime import datetime
+
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password
 from chat.loggers import log_from_server
@@ -152,13 +154,17 @@ class UserList:
                 conf_name, conf_value, user_id, conf_value)
             return True
 
-    def update_user_last_active(self, user_id, last_active = None):
+    def update_user_last_active(self, user_id):
         if self._user_map.has_key(user_id):
-            self._user_map[user_id]['lastActive'] = last_active
-        self.db.update("UPDATE parasite SET last_active = %s WHERE id = %s", last_active, user_id)
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S');
+            self._user_map[user_id]['lastActive'] = now
+            self.db.update("UPDATE parasite SET last_active = %s WHERE id = %s", now, user_id)
 
     def add_participant(self, participant):
         self._participants.add(participant)
+
+    def remove_participant(self, participant):
+        self._participants.discard(participant)
 
     def get_all_participants(self, exclude=None):
         if exclude is not None:

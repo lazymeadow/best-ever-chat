@@ -44,6 +44,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         was_offline = self.current_user['status'] == 'offline'
 
         self._user_list.update_user_status(parasite, 'active')
+        self._user_list.update_user_last_active(self.current_user['id'])
 
         self._broadcast_user_list()
         self._send_room_list()
@@ -121,7 +122,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def on_close(self):
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._user_list.update_user_typing_status(self.current_user['id'], False)
-        self._user_list.update_user_last_active(self.current_user['id'], datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+        self._user_list.update_user_last_active(self.current_user['id'])
+        self._user_list.remove_participant(self)
         self._broadcast_user_list()
         if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
             self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
