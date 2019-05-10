@@ -1,6 +1,6 @@
 {
   "name": "best-evar-chat",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "The Best Evar Chat - now with webpack!",
   "private": true,
   "scripts": {

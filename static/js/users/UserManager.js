@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 import {User} from "./User";
-import {_parseEmojis, setTitle} from "../lib";
+import {_focusChatBar, _parseEmojis, setTitle} from "../lib";
 
 export class UserManager extends LoggingClass {
     constructor(chatClient, messageLog, soundManager) {
@@ -83,6 +83,7 @@ export class UserManager extends LoggingClass {
             'You can talk to yourself here!' : `There are no messages here. Anything you say here is just between you and ${user.username}!`);
         this._chatClient.sendTyping();
         this._chatClient.setWindowTitle();
+        _focusChatBar();
         this.updateUserList();
         super.debug(`Active thread set to ${user.id}.`);
     }

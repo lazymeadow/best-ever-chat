@@ -426,6 +426,7 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>3.0.2</h3><em>May 10th, 2019</em><p>Chat input will focus on window focus, room select, and thread select.</p>')
                         .append('<h3>3.0.1: Bug Fixes!</h3><em>January 5th, 2019</em><p>Enforcing limit on private message threads. Memory usage was getting out of hand (you know who you are).</p>')
                         .append('<h3>Welcome to Best Evar Chat 3.0!</h3><em>November 18th, 2018</em><p>It\'s here!</p>'),
                     buttonText: 'Unbelievable!',

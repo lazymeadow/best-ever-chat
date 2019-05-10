@@ -3,7 +3,7 @@ import twemoji from "twemoji";
 import moment from 'moment';
 import {ChatHistory, Settings} from "./util";
 
-export const CLIENT_VERSION = '3.0.1';
+export const CLIENT_VERSION = '3.0.2';
 export const MAX_RETRIES = 3;
 
 let idleTimeout;
@@ -33,6 +33,10 @@ export function _formatTime(timestamp) {
     if (Settings.timestamps === 'date_time')
         format = "MM/DD/YY " + format;
     return `[${moment.unix(timestamp).format(format)}]`;
+}
+
+export function _focusChatBar() {
+    $('.chat-bar').children('input').focus();
 }
 
 /**
@@ -166,6 +170,6 @@ export function postClientInit(chatClient) {
     $(window).focus(() => {
         chatClient.resetUnreadMessageCount();
 
-        $('#chat_text').focus();
+        _focusChatBar();
     });
 }

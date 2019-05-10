@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import {LoggingClass, Settings} from "../util";
 import {Room} from "./Room";
-import {_parseEmojis, setTitle} from '../lib';
+import {_focusChatBar, _parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
     constructor(chatClient, messageLog, soundManager, className='RoomManager') {
@@ -94,6 +94,7 @@ export class RoomManager extends LoggingClass {
         this._chatClient.sendTyping();
         this._chatClient.setWindowTitle();
         this._chatClient.updateUserList();
+        _focusChatBar();
         super.debug(`Active room set to ${roomId}.`);
     }
 
