@@ -1,6 +1,6 @@
 {
   "name": "best-evar-chat",
-  "version": "3.0.2",
+  "version": "3.1.1",
   "description": "The Best Evar Chat - now with webpack!",
   "private": true,
   "scripts": {
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "imagesloaded": "^4.1.4",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "js-cookie": "^2.2.0",
     "moment": "^2.22.2",
     "sockjs-client": "^1.3.0",
