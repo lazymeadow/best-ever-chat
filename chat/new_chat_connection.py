@@ -374,9 +374,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
             message = preprocess_message(
                 '{} #{} created! View it at {}'.format(type.title(), issue_json['number'], issue_json['html_url']),
                 emoji)
-            self._send_from_server(message)
+            self._send_alert(message, 'dismiss')
         else:
-            self._send_from_server('Failed to create {}! ({})'.format(type, issue_json['message']))
+            self._send_alert('Failed to create {}! ({})'.format(type, issue_json['message']), 'dismiss')
 
     ### GENERAL HELPER FUNCTIONS
 
