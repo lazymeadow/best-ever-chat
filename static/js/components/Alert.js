@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import {LoggingClass} from "../util";
+import {_parseEmojis} from "../lib";
 
 
 export class Alert extends LoggingClass {
@@ -33,6 +34,9 @@ export class Alert extends LoggingClass {
 
         // append hidden alert
         this.alertsBox.prepend(this.alert);
+        // process emojis in the alerts box
+        _parseEmojis(this.alertsBox[0]);
+
         // slideDown alert
         this.alert.slideDown(500);
         // if previously empty, slideDown alerts box
