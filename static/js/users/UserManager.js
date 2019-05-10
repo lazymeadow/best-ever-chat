@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import moment from 'moment';
 import {LoggingClass, Settings} from "../util";
 import {User} from "./User";
 import {_focusChatBar, _parseEmojis, setTitle} from "../lib";
@@ -9,8 +10,18 @@ export class UserManager extends LoggingClass {
         this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._soundManager = soundManager;
-        this._userListElement = $('#user-list');
+        this._activeUserListElement = $('#active-user-list');
+        this._inactiveUserListElement = $('#inactive-user-list');
         this._userDataMap = new Map();
+
+        this._inactiveUserListElement.hide();
+        const inactiveUserToggle = $('#inactive-user-toggle');
+        inactiveUserToggle.click(() => {
+            this._inactiveUserListElement.toggle();
+            this._inactiveUserListElement.is(':visible')
+                ? inactiveUserToggle.text('Show less users')
+                : inactiveUserToggle.text('Show more users');
+        });
     }
 
     getUserStatus(userId) {
@@ -32,15 +43,14 @@ export class UserManager extends LoggingClass {
             })
         }
         else {
-            this._userListElement.empty();
+            this._activeUserListElement.empty();
+            this._inactiveUserListElement.empty();
             newUsers.forEach((userData) => {
                 this._addUser(userData);
             });
-            _parseEmojis(this._userListElement[0]);
+            _parseEmojis($('#user-list')[0]);
         }
     }
-
-
 
     addPrivateMessageThreads(threads) {
         threads.forEach((thread) => {
@@ -104,6 +114,13 @@ export class UserManager extends LoggingClass {
             user = new User(userData, this);
             this._userDataMap.set(userData['id'], user);
         }
-        this._userListElement.append(user.template);
+
+        // a user can be in the active list if they've been active in the last week
+        if (user.lastActive && moment(user.lastActive).isSameOrAfter(moment().subtract(7, 'days').utc())) {
+            this._activeUserListElement.append(user.template);
+        }
+        else {
+            this._inactiveUserListElement.append(user.template);
+        }
     }
 }

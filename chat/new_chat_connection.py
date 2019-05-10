@@ -2,13 +2,14 @@ import json
 from time import time
 
 from boto3 import resource
+from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue
 from chat.loggers import log_from_client, log_from_server
 
-CLIENT_VERSION = '3.0.2'
+CLIENT_VERSION = '3.1.0'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
@@ -43,6 +44,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         was_offline = self.current_user['status'] == 'offline'
 
         self._user_list.update_user_status(parasite, 'active')
+        self._user_list.update_user_last_active(self.current_user['id'])
 
         self._broadcast_user_list()
         self._send_room_list()
@@ -120,6 +122,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def on_close(self):
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._user_list.update_user_typing_status(self.current_user['id'], False)
+        self._user_list.update_user_last_active(self.current_user['id'])
+        self._user_list.remove_participant(self)
         self._broadcast_user_list()
         if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
             self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
