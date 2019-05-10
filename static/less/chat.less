@@ -151,6 +151,13 @@
       & #user-list {
         .panel();
 
+        & .users-header {
+          border-bottom: 2px solid darken(@backgroundColor, 3%);
+          padding: 15px 7px 7px 10px;
+          display: flex;
+          width: ~"calc(100% - 15px)";
+        }
+
         #inactive-user-toggle {
           padding: 7px 3px 7px 23px;
           width: ~"calc(100% - 26px)";
