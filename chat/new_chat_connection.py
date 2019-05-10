@@ -9,7 +9,7 @@ from tornado.escape import xhtml_escape, to_unicode
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue
 from chat.loggers import log_from_client, log_from_server
 
-CLIENT_VERSION = '3.0.2'
+CLIENT_VERSION = '3.1.0'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
