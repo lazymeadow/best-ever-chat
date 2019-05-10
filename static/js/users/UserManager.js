@@ -34,7 +34,7 @@ export class UserManager extends LoggingClass {
         else {
             this._userListElement.empty();
             newUsers.forEach((userData) => {
-                this._addUser(userData)
+                this._addUser(userData);
             });
             _parseEmojis(this._userListElement[0]);
         }
@@ -105,9 +105,5 @@ export class UserManager extends LoggingClass {
             this._userDataMap.set(userData['id'], user);
         }
         this._userListElement.append(user.template);
-    }
-
-    tmp_getUserIdList() {
-        return this._userDataMap.keys();
     }
 }

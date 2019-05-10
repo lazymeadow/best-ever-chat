@@ -62,7 +62,9 @@ export class User extends LoggingClass {
     updateUser({username, color, faction, status, typing}) {
         if (username !== this.username) {
             this.username = username;
-            this._userElement.find('.list-content').text(this.username);
+            this._userElement.find('.list-content')
+                .text(this.username)
+                .prop('title', `${this.username} (${this.id})`);
         }
         if (faction !== this.faction) {
             const oldFaction = this.faction;
