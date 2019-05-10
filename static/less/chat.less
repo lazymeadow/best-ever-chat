@@ -151,7 +151,14 @@
       & #user-list {
         .panel();
 
-        & > div {
+        #inactive-user-toggle {
+          padding: 7px 3px 7px 23px;
+          width: ~"calc(100% - 26px)";
+          font-size: .9em;
+          opacity: .75;
+        }
+
+        & div div {
           .user-element();
 
           &:hover {
