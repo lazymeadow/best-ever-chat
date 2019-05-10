@@ -60,7 +60,7 @@ export class User extends LoggingClass {
         }
     }
 
-    updateUser({username, color, faction, status, typing}) {
+    updateUser({username, color, faction, status, typing, lastActive}) {
         if (username !== this.username) {
             this.username = username;
             this._userElement.find('.list-content')
@@ -82,6 +82,7 @@ export class User extends LoggingClass {
             this._userElement.click(() => this._selectThisThread());
         }
         this.color = color;
+        this.lastActive = lastActive;
     }
 
 
