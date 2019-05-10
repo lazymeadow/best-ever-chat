@@ -24,6 +24,10 @@
       margin: 10px 0;
     }
 
+    .form-group .form-element {
+      width: 375px;
+    }
+
     input {
       margin: 0
     }
@@ -36,8 +40,15 @@
       }
     }
 
+    & > div > div:nth-of-type(2) {
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
     .form-group, .form-element {
       width: 400px;
+      align-items: center;
     }
   }
 }
