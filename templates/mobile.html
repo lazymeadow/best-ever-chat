@@ -3,16 +3,16 @@
 {% set title = "Loading..." %}
 
 {% block includes %}
-<link rel="stylesheet" href="/static/mobile-style.css" type="text/css"/>
-<script src="/static/mobile.js"></script>
+    <link rel="stylesheet" href="/static/mobile-style.css" type="text/css"/>
+    <script src="/static/mobile.js"></script>
 {% endblock %}
 
 {% block content %}
-<div id="alerts"></div>
+    <div id="alerts"></div>
 
-<div id="header">
-    <div id="current-log-name"></div>
-    <span>
+    <div id="header">
+        <div id="current-log-name"></div>
+        <span>
         <span class="fas fa-fw fa-bars" id="main_menu"></span>
         <div class="popout-menu mobile">
             <div></div>
@@ -24,54 +24,71 @@
             <div id="room-list"></div>
         </div>
     </span>
-</div>
+    </div>
 
-<div class="main">
-    <div id="log"></div>
+    <div class="main">
+        <div id="log"></div>
 
-    <div class="chat-bar">
-        <input type="text" placeholder="..." tabindex="0"/>
-        <div class="button">
-            😃
-            <div class="popout-option">
-                <div id="emoji_list">
-                    <table>
-                        {% for emojis in emoji_list | batch(9) %}
-                        <tr>
-                            {% for emoji in emojis %}
-                            <td>
-                                <span>{{ emoji }}</span>
-                            </td>
+        <div class="chat-bar">
+            <input type="text" placeholder="..." tabindex="0"/>
+            <div class="button">
+                😃
+                <div class="popout-option">
+                    <div id="emoji_list">
+                        <table>
+                            {% for emojis in emoji_list | batch(9) %}
+                                <tr>
+                                    {% for emoji in emojis %}
+                                        <td>
+                                            <span>{{ emoji }}</span>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
                             {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="popout-indicator"></div>
-            </div>
-        </div>
-        <div class="button">
-            <span class="far fa-fw fa-image"></span>
-            <div class="popout-option">
-                <div class="form-group">
-                    <label for="image_url">
-                        Image url:
-                    </label>
-                    <input id="image_url" name="url" type="url" tabindex="1"/>
-                </div>
-                <div class="form-group">
-                    <div class="form-element">
-                        <label>NSFW:</label>
-                        <input id="image_nsfw" name="nsfw" type="checkbox"/>
-                        <label class="check-box" for="image_nsfw" tabindex="1"></label>
+                        </table>
                     </div>
-                    <button id="image_chat_button" type="button" tabindex="1">Send</button>
+                    <div class="popout-indicator"></div>
                 </div>
-                <div class="popout-indicator"></div>
+            </div>
+            <div class="button">
+                <span class="far fa-fw fa-image"></span>
+                <div class="popout-option">
+                    <div class="form-group">
+                        <label for="image_url">
+                            Image url:
+                        </label>
+                        <input id="image_url" name="url" type="url" tabindex="1"/>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-element">
+                            <label>NSFW:</label>
+                            <input id="image_nsfw" name="nsfw" type="checkbox"/>
+                            <label class="check-box" for="image_nsfw" tabindex="1"></label>
+                        </div>
+                        <button id="image_chat_button" type="button" tabindex="1">Send</button>
+                    </div>
+                    <div class="popout-indicator"></div>
+                </div>
+            </div>
+            <div class="button">
+                <span class="far fa-fw fa-file-image"></span>
+                <div class="popout-option">
+                    <div class="form-group">
+                        <input id="image_upload" name="image" type="file" tabindex="1"/>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-element">
+                            <label>NSFW:</label>
+                            <input id="image_upload_nsfw" name="nsfw" type="checkbox"/>
+                            <label class="check-box" for="image_upload_nsfw" tabindex="1"></label>
+                        </div>
+                        <button id="image_upload_button" type="button" tabindex="1">Send</button>
+                    </div>
+                    <div class="popout-indicator"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="overlay"></div>
+    <div class="overlay"></div>
 {% endblock %}

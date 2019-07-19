@@ -101,12 +101,8 @@
           align-items: stretch;
           margin: 10px 5px;
 
-          & > input, & > button {
+          & > label, & > input, & > button {
             flex: 1 0 auto;
-          }
-
-          & > label {
-            flex: 0 0 auto;
           }
 
           & > label {
@@ -123,6 +119,12 @@
 
           & > .check-box {
             margin: 0 5px;
+          }
+
+          & > .form-element {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
           }
         }
       }
