@@ -42,6 +42,11 @@
             float: right;
             position: relative;
             cursor: pointer;
+            display: flex;
+            width: 25px;
+            height: 25px;
+            align-items: center;
+            justify-content: center;
 
             & > .popout-menu {
               .popout-menu();
@@ -60,6 +65,7 @@
             overflow-x: hidden;
             text-overflow: ellipsis;
             cursor: pointer;
+            white-space: nowrap;
           }
         }
 
@@ -182,7 +188,8 @@
       & #room-list {
         .panel();
         border-bottom: 2px solid darken(@backgroundColor, 3%);
-        max-height: calc(50% - 24px);  // 24 for half the "current user" div
+        max-height: calc(50% - 24px);  // 24 for half
+        // the "current user" div
 
         & .rooms-header {
           border-bottom: 2px solid darken(@backgroundColor, 3%);

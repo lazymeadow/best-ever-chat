@@ -53,7 +53,12 @@ export class User extends LoggingClass {
 
     updateTypingStatus() {
         if ((Settings.activeLogId === this.typing) || (Settings.activeLogId === this.id && Settings.userId === this.typing)) {
-            this._userElement.addClass('is-typing');
+            if (Settings.activeLogType === 'thread' && this.typing !== Settings.userId) {
+                this._userElement.removeClass('is-typing');
+            }
+            else {
+                this._userElement.addClass('is-typing');
+            }
         }
         else {
             this._userElement.removeClass('is-typing');
