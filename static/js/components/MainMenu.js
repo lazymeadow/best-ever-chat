@@ -426,6 +426,7 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>3.2.0</h3><em>July 19th, 2019</em><p>Fixes some image sharing bugs.</p><p>IMAGE UPLOAD!!!!</p>')
                         .append('<h3>3.1.1</h3><em>May 10th, 2019</em><p>Fixes but that prevented users from moving out of the inactive list when connecting.</p><p>Parses emojis in alerts.</p>')
                         .append('<h3>3.1.0</h3><em>May 10th, 2019</em><p>We are all sick and tired of seeing all those users that will never log in again. Now they\'re under a fold, so you can ignore them completely for the rest of your life!</p>')
                         .append('<h3>3.0.2</h3><em>May 10th, 2019</em><p>Chat input will focus on window focus, room select, and thread select.</p>')
