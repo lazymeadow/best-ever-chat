@@ -20,7 +20,7 @@ export class UserManager extends LoggingClass {
             event.stopPropagation();
             this._inactiveUserListElement.toggle();
             this._inactiveUserListElement.is(':visible')
-                ? inactiveUserToggle.text('Show less users')
+                ? inactiveUserToggle.text('Show fewer users')
                 : inactiveUserToggle.text('Show more users');
         });
     }
