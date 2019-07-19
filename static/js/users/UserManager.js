@@ -16,7 +16,8 @@ export class UserManager extends LoggingClass {
 
         this._inactiveUserListElement.hide();
         const inactiveUserToggle = $('#inactive-user-toggle');
-        inactiveUserToggle.click(() => {
+        inactiveUserToggle.click(event => {
+            event.stopPropagation();
             this._inactiveUserListElement.toggle();
             this._inactiveUserListElement.is(':visible')
                 ? inactiveUserToggle.text('Show less users')
