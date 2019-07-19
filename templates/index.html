@@ -64,10 +64,27 @@
                         Image url:
                     </label>
                     <input id="image_url" name="url" type="url" tabindex="1"/>
+                </div>
+                <div class="form-group">
                     <label>NSFW:</label>
-                    <input id="image_nsfw" name="nsfw" type="checkbox"/>
-                    <label class="check-box" for="image_nsfw" tabindex="1"></label>
+                    <input id="image_url_nsfw" name="nsfw" type="checkbox"/>
+                    <label class="check-box" for="image_url_nsfw" tabindex="1"></label>
                     <button id="image_chat_button" type="button" tabindex="1">Send</button>
+                </div>
+                <div class="popout-indicator"></div>
+            </div>
+        </div>
+        <div class="button">
+            <span class="far fa-fw fa-file-image"></span>
+            <div class="popout-option">
+                <div class="form-group">
+                    <input id="image_upload" name="image" type="file" tabindex="1"/>
+                </div>
+                <div class="form-group">
+                    <label>NSFW:</label>
+                    <input style="width: 20px" id="image_upload_nsfw" name="nsfw" type="checkbox"/>
+                    <label class="check-box" for="image_upload_nsfw" tabindex="1"></label>
+                    <button id="image_upload_button" type="button" tabindex="1">Send</button>
                 </div>
                 <div class="popout-indicator"></div>
             </div>

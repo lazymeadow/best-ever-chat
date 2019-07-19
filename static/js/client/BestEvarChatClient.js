@@ -150,6 +150,17 @@ export class BestEvarChatClient {
         });
     }
 
+    sendImageUpload(imageData, imageType, nsfw) {
+        const roomId = Settings.activeLogType === 'room' ? parseInt(Settings.activeLogId, 10) : Settings.activeLogId;
+        this._send({
+            'type': 'image upload',
+            'image data': imageData,
+            'image type': imageType,
+            'nsfw': nsfw,
+            'room id': roomId
+        });
+    }
+
     submitBug(bugData) {
         this._send({
             'type': 'bug',

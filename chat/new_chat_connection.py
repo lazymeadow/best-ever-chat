@@ -6,7 +6,7 @@ from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
-from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue
+from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
 
 CLIENT_VERSION = '3.1.1'
@@ -88,8 +88,26 @@ class NewMultiRoomChatConnection(SockJSConnection):
         elif message_type == 'private message':
             self._broadcast_private_message(json_message['recipient id'], json_message['message'])
         elif message_type == 'image':
-            self._broadcast_image(json_message['user id'], json_message['image url'], json_message['room id'],
-                                  json_message['nsfw'])
+            destination_is_thread = json_message['room id'] in self._user_list.get_all_usernames()
+            # if the url doesn't look like an image, just send it as a normal chat
+            if not is_image_url(json_message['image url']):
+                if destination_is_thread:
+                    self._broadcast_private_message(json_message['room id'], json_message['image url'])
+                else:
+                    self._broadcast_chat_message(json_message['user id'], json_message['image url'],
+                                                 json_message['room id'])
+            else:
+                image_src_url = retrieve_image_in_s3(json_message['image url'], self._bucket)
+
+                self._broadcast_image(json_message['user id'], image_src_url, json_message['room id'],
+                                      json_message['nsfw'], json_message['image url'])
+        elif message_type == 'image upload':
+            image_url = upload_to_s3(json_message['image data'], json_message['image type'], self._bucket)
+            if image_url is not None:
+                self._broadcast_image(json_message['user id'], image_url, json_message['room id'],
+                                      json_message['nsfw'])
+            else:
+                self._send_alert('Failed to send uploaded image.', 'dismiss')
         elif message_type == 'room action':
             if json_message['action'] == 'create':
                 self._create_room(json_message['room name'])
@@ -162,7 +180,9 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         # if the message consists only of an image url, let's convert it to an image message, automatically sfw.
         if is_image_url(message):
-            self._broadcast_image(user_id, message, room_id)
+            # get the s3 img url
+            image_src_url = retrieve_image_in_s3(message, self._bucket)
+            self._broadcast_image(user_id, image_src_url, room_id, original_url=message)
             return
 
         user = self._user_list.get_user(user_id)
@@ -186,7 +206,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         # if the message consists only of an image url, let's convert it to an image message, automatically sfw.
         if is_image_url(message):
-            self._broadcast_image(self.current_user['id'], message, recipient_id)
+            # get the s3 image url
+            image_src_url = retrieve_image_in_s3(message, self._bucket)
+            # send the image as an image message instead
+            self._broadcast_image(self.current_user['id'], image_src_url, recipient_id, original_url=message)
             return
 
         user = self._user_list.get_user(self.current_user['id'])
@@ -201,56 +224,46 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._private_messages.add_pm_to_thread(new_pm, self.current_user['id'], recipient_id, verified_thread_id)
 
-    def _broadcast_image(self, user_id, image_url, destination_id, nsfw_flag=False):
+    def _broadcast_image(self, user_id, image_url, destination_id, nsfw_flag=False, original_url=None):
         """
-        Broadcast an image message to the given room. Stores the image in the s3 bucket, if available, setting the img
-        tag's src to the cache. If s3 is unavailable, the img src is the original url. Images are wrapping in an a tag
-        with the original url as the href.
+        Broadcast an image message to the given room. The client can link to the image with the 'image url'
+        property, and the source url is 'image src url'. This allows <img> to be wrapped in <a> with a different
+        location to display images from the cache, but still provide the original source.
         :param user_id: user sending the message
-        :param image_url: url of the image
+        :param image_url: url of the image for loading
         :param destination_id: room or thread receiving the message
         :param nsfw_flag: true if image is nsfw
+        :param original_url if not None, is the original source url
         """
         # if the room id is a user's id, then process it as a thread
         destination_is_thread = destination_id in self._user_list.get_all_usernames()
 
-        # if the url doesn't look like an image, just send it as a normal chat
-        if not is_image_url(image_url):
-            if destination_is_thread:
-                self._broadcast_private_message(destination_id, image_url)
-            else:
-                self._broadcast_chat_message(user_id, image_url, destination_id)
-            return
-
-        image_src_url = retrieve_image_in_s3(image_url, self._bucket)
         user = self._user_list.get_user(user_id)
 
+        img_msg = {
+            'username': user['username'],
+            'color': user['color'],
+            'image url': xhtml_escape(original_url if original_url is not None else image_url),
+            'image src url': xhtml_escape(image_url),
+            'nsfw flag': nsfw_flag,
+            'time': time()
+        }
+
         if destination_is_thread:
-            new_pm = {'sender id': self.current_user['id'],
-                      'recipient id': destination_id,
-                      'username': user['username'],
-                      'color': user['color'],
-                      'image url': xhtml_escape(image_url),
-                      'image src url': xhtml_escape(image_src_url),
-                      'time': time()}
+            img_msg['sender id'] = self.current_user['id']
+            img_msg['recipient id'] = destination_id
             verified_thread_id = self._private_messages.retrieve_thread_id(self.current_user['id'], destination_id)
             self.broadcast(self._private_messages.get_thread_participants(verified_thread_id),
                            {'type': 'private message',
-                            'data': new_pm})
+                            'data': img_msg})
 
-            self._private_messages.add_pm_to_thread(new_pm, self.current_user['id'], destination_id,
+            self._private_messages.add_pm_to_thread(img_msg, self.current_user['id'], destination_id,
                                                     verified_thread_id)
         else:
-            new_message = {'username': user['username'],
-                           'color': user['color'],
-                           'image url': xhtml_escape(image_url),
-                           'image src url': xhtml_escape(image_src_url),
-                           'nsfw flag': nsfw_flag,
-                           'time': time(),
-                           'room id': destination_id}
+            img_msg['room id'] = destination_id
             self.broadcast(self._room_list.get_room_participants(destination_id), {'type': 'chat message',
-                                                                                   'data': new_message})
-            self._room_list.add_message_to_history(destination_id, new_message)
+                                                                                   'data': img_msg})
+            self._room_list.add_message_to_history(destination_id, img_msg)
 
     def _broadcast_user_list(self, participant_list=None):
         self.broadcast(participant_list or self._user_list.get_all_participants(),

@@ -119,6 +119,27 @@ export function postClientInit(chatClient) {
         }
     });
 
+    let imageData;
+    // listen for an image file upload
+    $('#image_upload').on('change', function () {
+        const fileReader = new FileReader();
+        fileReader.onload = function () {
+            imageData = fileReader.result;
+        };
+        fileReader.readAsDataURL($('#image_upload').prop('files')[0]);
+    });
+
+    // image upload button handlers
+    const image_upload = () => {
+        const imageUploadElement = $('#image_upload');
+        chatClient.sendImageUpload(imageData, imageUploadElement.prop('files')[0].type, $('#image_upload_nsfw').is(':checked'));
+        $('.popout-option').hide();
+        imageUploadElement.val('');
+    };
+
+    $('#image_upload_button').click(image_upload);
+
+
     $('.chat-bar').children('input')
         .keyup(event => {
             let chatInput = $(event.target);
