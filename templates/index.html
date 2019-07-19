@@ -3,78 +3,99 @@
 {% set title = "Loading..." %}
 
 {% block includes %}
-<link rel="stylesheet" href="/static/main-style.css" type="text/css"/>
-<script src="/static/main.js"></script>
+    <link rel="stylesheet" href="/static/main-style.css" type="text/css"/>
+    <script src="/static/main.js"></script>
 {% endblock %}
 
 {% block content %}
-<div id="alerts"></div>
+    <div id="alerts"></div>
 
-<div class="left">
-    <div id="current-user" class="active">
-        <span class="online-status"></span>
-        <span class="list-content"></span>
-        <span>
+    <div class="left">
+        <div id="current-user" class="active">
+            <span class="online-status"></span>
+            <span class="list-content"></span>
+            <span>
             <span class="fas fa-fw fa-caret-down" id="main_menu"></span>
             <div class="popout-menu"></div>
         </span>
-    </div>
-    <div id="room-list">
-        <div class="rooms-header">
-            <span>Rooms</span>
-            <span id="add-room" class="fas fa-fw fa-plus"></span>
+        </div>
+        <div id="room-list">
+            <div class="rooms-header">
+                <span>Rooms</span>
+                <span id="add-room" class="fas fa-fw fa-plus"></span>
+            </div>
+        </div>
+        <div id="user-list">
+            <div class="users-header">
+                <span>Users</span>
+            </div>
+            <div id="active-user-list"></div>
+            <div id="inactive-user-toggle">Show more users</div>
+            <div id="inactive-user-list"></div>
         </div>
     </div>
-    <div id="user-list">
-        <div class="users-header">
-            <span>Users</span>
-        </div>
-        <div id="active-user-list"></div>
-        <div id="inactive-user-toggle">Show more users</div>
-        <div id="inactive-user-list"></div>
-    </div>
-</div>
-<div class="right">
-    <div id="log"></div>
+    <div class="right">
+        <div id="log"></div>
 
-    <div class="chat-bar">
-        <input type="text" placeholder="..." tabindex="0"/>
-        <div class="button">
-            😃
-            <div class="popout-option">
-                <table id="emoji_list">
-                    {% for emojis in emoji_list | batch(12) %}
-                    <tr>
-                        {% for emoji in emojis %}
-                        <td>
-                            <span>{{ emoji }}</span>
-                        </td>
+        <div class="chat-bar">
+            <input type="text" placeholder="..." tabindex="0"/>
+            <div class="button">
+                😃
+                <div class="popout-option">
+                    <table id="emoji_list">
+                        {% for emojis in emoji_list | batch(12) %}
+                            <tr>
+                                {% for emoji in emojis %}
+                                    <td>
+                                        <span>{{ emoji }}</span>
+                                    </td>
+                                {% endfor %}
+                            </tr>
                         {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </table>
-                <div class="popout-indicator"></div>
-            </div>
-        </div>
-        <div class="button">
-            <span class="far fa-fw fa-image"></span>
-            <div class="popout-option">
-                <div class="form-group">
-                    <label for="image_url">
-                        Image url:
-                    </label>
-                    <input id="image_url" name="url" type="url" tabindex="1"/>
-                    <label>NSFW:</label>
-                    <input id="image_nsfw" name="nsfw" type="checkbox"/>
-                    <label class="check-box" for="image_nsfw" tabindex="1"></label>
-                    <button id="image_chat_button" type="button" tabindex="1">Send</button>
+                    </table>
+                    <div class="popout-indicator"></div>
                 </div>
-                <div class="popout-indicator"></div>
+            </div>
+            <div class="button">
+                <span class="far fa-fw fa-image"></span>
+                <div class="popout-option">
+                    <div class="form-group">
+                        <label for="image_url">
+                            Image url:
+                        </label>
+                        <input id="image_url" name="url" type="url" tabindex="1"/>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-element">
+                            <label>NSFW:</label>
+                            <input id="image_url_nsfw" name="nsfw" type="checkbox"/>
+                            <label class="check-box" for="image_url_nsfw" tabindex="1"></label>
+                        </div>
+                        <button id="image_chat_button" type="button" tabindex="1">Send</button>
+                    </div>
+                    <div class="popout-indicator"></div>
+                </div>
+            </div>
+            <div class="button">
+                <span class="far fa-fw fa-file-image"></span>
+                <div class="popout-option">
+                    <div class="form-group">
+                        <input id="image_upload" name="image" type="file" tabindex="1"/>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-element">
+                            <label>NSFW:</label>
+                            <input id="image_upload_nsfw" name="nsfw" type="checkbox"/>
+                            <label class="check-box" for="image_upload_nsfw" tabindex="1"></label>
+                        </div>
+                        <button id="image_upload_button" type="button" tabindex="1">Send</button>
+                    </div>
+                    <div class="popout-indicator"></div>
+                </div>
             </div>
         </div>
+
     </div>
 
-</div>
-
-<div class="overlay"></div>
+    <div class="overlay"></div>
 {% endblock %}

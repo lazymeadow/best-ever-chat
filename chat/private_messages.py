@@ -18,6 +18,10 @@ class PrivateMessageMap:
         return thread_id == self._generate_thread_id(user_id1, user_id2)
 
     def retrieve_thread_id(self, user_id1, user_id2):
+        all_usernames = self._user_list.get_all_usernames()
+        if user_id1 not in all_usernames or user_id2 not in all_usernames:
+            return None
+
         thread_id = self._generate_thread_id(user_id1, user_id2)
 
         if thread_id not in self._thread_map.keys():
