@@ -19,7 +19,7 @@ emoji = Emoji()
 
 def is_image_url(text):
     parsed_url = urlparse(text)
-    return bool(parsed_url.scheme) and (len(re.findall(r"\.(jpg|jpeg|gif|png)", parsed_url.path)) > 0)
+    return bool(parsed_url.scheme) and (len(re.findall(r"\.(jpg|jpeg|gif|png|bmp)", parsed_url.path.lower())) > 0)
 
 
 def preprocess_message(message, emoji_processor):
@@ -33,7 +33,7 @@ def preprocess_message(message, emoji_processor):
     message_text = emoji_processor.ascii_to_unicode(message_text)
     # remove any raw script, audio, or video tags that are left
     if message.find('<script') >= 0 or message.find('<audio') >= 0 or message.find('<video') >= 0 or message.find(
-            '<iframe') >= 0:
+            '<iframe') >= 0 or message.find('<img') >= 0:
         message_text = xhtml_escape(message_text)
 
     return message_text
