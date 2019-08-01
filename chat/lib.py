@@ -19,7 +19,7 @@ emoji = Emoji()
 
 def is_image_url(text):
     parsed_url = urlparse(text)
-    return bool(parsed_url.scheme) and (len(re.findall(r"\.(jpg|jpeg|gif|png)", parsed_url.path)) > 0)
+    return bool(parsed_url.scheme) and (len(re.findall(r"\.(jpg|jpeg|gif|png|bmp)", parsed_url.path.lower())) > 0)
 
 
 def preprocess_message(message, emoji_processor):
