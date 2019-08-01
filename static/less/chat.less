@@ -28,11 +28,12 @@
         align-items: center;
 
         &.current {
-          background-color: lighten(@backgroundColor, 10%);
+          background-color: lighten(@backgroundColor, 20%);
         }
 
         &:hover {
-          background-color: lighten(@backgroundColor, 20%);
+          background-color: lighten(@backgroundColor, 30%);
+          color: @bodyColor;
         }
 
         & > span {
@@ -138,7 +139,8 @@
               cursor: pointer;
 
               &:hover {
-                background-color: lighten(@backgroundColor, 20%);
+                background-color: lighten(@backgroundColor, 30%);
+                color: @bodyColor;
               }
 
               & > .fas, & > .far, & > .fab {
@@ -151,7 +153,8 @@
       }
 
       .selected-panel-item() {
-        background-color: lighten(@backgroundColor, 10%);
+        background-color: lighten(@backgroundColor, 20%);
+        font-weight: bold;
       }
 
       & #user-list {
@@ -177,7 +180,8 @@
 
           &:hover {
             cursor: pointer;
-            background-color: lighten(@backgroundColor, 20%);
+            background-color: lighten(@backgroundColor, 30%);
+            color: @bodyColor;
           }
         }
 
@@ -221,7 +225,8 @@
         }
 
         & > div:not(.rooms-header) > div:first-child:hover {
-          background-color: lighten(@backgroundColor, 20%);
+          background-color: lighten(@backgroundColor, 30%);
+          color: @bodyColor;
         }
 
         & .current {
