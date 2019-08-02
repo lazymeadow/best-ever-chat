@@ -15,7 +15,7 @@ export class DesktopClient extends BestEvarChatClient {
             about: true,
             adminTools: true
         });
-        this._roomManager = new AdvancedRoomManager(this, this._messageLog, this._soundManager);
+        this._roomManager = new AdvancedRoomManager(this, this._messageLog, this._soundManager, this._notificationManager);
     }
 
     createRoom(roomName) {
@@ -86,5 +86,4 @@ export class DesktopClient extends BestEvarChatClient {
             }
         });
     }
-
 }

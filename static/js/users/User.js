@@ -100,6 +100,9 @@ export class User extends LoggingClass {
         if (show_indicator) {
             this._userElement.addClass('has-messages');
         }
+        if (messageData.username !== Settings.username) {
+            this._userManager.notifyClient(messageData.username);
+        }
         return this._threadMessages.size;
     }
 

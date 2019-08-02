@@ -1,9 +1,10 @@
 import $ from 'jquery';
 import SockJS from 'sockjs-client';
 import {UserManager} from "../users";
-import {Logger, Settings, SoundManager} from "../util";
+import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
+
 
 export class BestEvarChatClient {
     constructor(hostname = 'bestevarchat.com', routingPath = 'chat') {
@@ -15,6 +16,7 @@ export class BestEvarChatClient {
         this._messageLog = new MessageLog();
         this._soundManager = new SoundManager();
         this._userManager = new UserManager(this, this._messageLog, this._soundManager);
+        this._notificationManager = new NotificationManager((alertData) => new Alert(alertData));
         this._disconnectedAlert = null;
         this._reconnectAlert = null;
         this._reconnectTimeout = null;
@@ -62,7 +64,7 @@ export class BestEvarChatClient {
         else {
             name = this._roomManager.getActiveRoomName();
         }
-        return Settings.tabTitle || `${name} | Best Evar Chat 3.0`;
+        return Settings.tabTitle || `${name} | Best Evar Chat ${CLIENT_VERSION}`;
     }
 
     setWindowTitle() {
@@ -75,6 +77,21 @@ export class BestEvarChatClient {
             document.title = `(${this._unreadMessageCount}) ${this._getTitle()}`;
             $("#favicon").attr("href", "/static/favicon2.png");
         }
+    }
+
+    sendMessageNotification(title, body, which_cat) {
+        if (this._unreadMessageCount > 1) {
+            body = `${this._unreadMessageCount} new messages`
+        }
+        this._notificationManager.sendMessageNotification(title, body, which_cat);
+    }
+
+    disableNotifications() {
+        this._notificationManager.disableNotifications();
+    }
+
+    enableNotifications() {
+        this._notificationManager.enableNotifications();
     }
 
     reprintLog() {
@@ -276,9 +293,11 @@ export class BestEvarChatClient {
         new Alert({content: message, type: alert_type});
         if (message.includes('offline')) {
             this._soundManager.playDisconnected();
+            this._notificationManager.sendStatusNotification(message, '', 'sleep');
         }
         else if (message.includes('online')) {
             this._soundManager.playConnected();
+            this._notificationManager.sendStatusNotification(message, '', 'walk');
         }
     }
 

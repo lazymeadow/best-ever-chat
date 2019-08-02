@@ -4,7 +4,7 @@ import {Room} from "./Room";
 import {_focusChatBar, _parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor(chatClient, messageLog, soundManager, className='RoomManager') {
+    constructor(chatClient, messageLog, soundManager, className = 'RoomManager') {
         super(className);
         this._chatClient = chatClient;
         this._messageLog = messageLog;
@@ -80,6 +80,10 @@ export class RoomManager extends LoggingClass {
                 this._soundManager.playReceived();
             }
         }
+    }
+
+    notifyClient(metadata) {
+        this._chatClient.sendMessageNotification(`New Message in ${metadata.name}`, `from: ${metadata.user}`, 'tied');
     }
 
     /**
