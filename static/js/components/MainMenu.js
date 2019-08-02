@@ -5,7 +5,7 @@ import {BestColorPicker} from "./BestColorPicker";
 import {Alert} from "./Alert";
 
 export class MainMenu extends LoggingClass {
-    constructor(chatClient, {clientSettings, userSettings, accountSettings, bugReport, featureRequest, about, adminTools}) {
+    constructor(chatClient, {clientSettings, userSettings, accountSettings, bugReport, featureRequest, about, moderatorTools, adminTools}) {
         super('MainMenu');
         this._chatClient = chatClient;
 
@@ -36,7 +36,10 @@ export class MainMenu extends LoggingClass {
         if (about) {
             this._addAbout();
         }
-        if (adminTools && Settings.userId === 'audrey') {
+        if (moderatorTools && Settings.userIsModerator()) {
+            this._addModeratorTools();
+        }
+        if (adminTools && Settings.userIsAdmin()) {
             this._addAdminTools();
         }
         this._menuContents.append(this._new_menu_item(
@@ -456,7 +459,35 @@ export class MainMenu extends LoggingClass {
         ));
     }
 
+    _addModeratorTools() {
+        const toolMenu = $('<select>', {id: 'tool'})
+                            .append($('<option>', {value: '0', text: 'Here is one'}));
+        toolMenu.change(event => {
+            console.log($(this).val());
+        });
+        this._menuContents.append(this._new_menu_item(
+            'Moderator Menu',
+            ['fas', 'user-shield'],
+            () => {
+                new Modal({
+                    showCancel: false,
+                    title: 'Super Secret Stuff',
+                    content: $('<div>')
+                        .append($('<label>', {text: 'Pick One', for: 'tool'}))
+                        .append(toolMenu),
+                    buttonText: '1337',
+                    buttonClickHandler: () => false
+                });
+            }
+        ));
+    }
+
     _addAdminTools() {
+        const toolMenu = $('<select>', {id: 'tool'})
+                            .append($('<option>', {value: '0', text: 'Send an Alert'}));
+        toolMenu.change(event => {
+            console.log($(this).val());
+        });
         this._menuContents.append(this._new_menu_item(
             'Admin Tools',
             ['fas', 'feather-alt'],
@@ -464,7 +495,9 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: $('<div>').text('yeah you know this is where the cool kids go'),
+                    content: $('<div>')
+                        .append($('<label>', {text: 'Pick One', for: 'tool'}))
+                        .append(toolMenu),
                     buttonText: '1337',
                     buttonClickHandler: () => false
                 });

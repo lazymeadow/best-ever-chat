@@ -13,6 +13,7 @@ export class DesktopClient extends BestEvarChatClient {
             bugReport: true,
             featureRequest: true,
             about: true,
+            moderatorTools: true,
             adminTools: true
         });
         this._roomManager = new AdvancedRoomManager(this, this._messageLog, this._soundManager, this._notificationManager);

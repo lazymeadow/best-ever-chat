@@ -31,7 +31,8 @@ class UserList:
         'soundSet': 'AIM',
         'volume': '100',
         'typing': False,
-        'lastActive': None
+        'lastActive': None,
+        'permission': 'user'
     }
 
     def __init__(self, db):
