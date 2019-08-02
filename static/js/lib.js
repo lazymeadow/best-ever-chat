@@ -188,8 +188,14 @@ export function postClientInit(chatClient) {
         .click(resetIdleTimeout)
         .dblclick(resetIdleTimeout);
 
+    $(window).blur(() => {
+        chatClient.enableNotifications();
+    });
+
     $(window).focus(() => {
         chatClient.resetUnreadMessageCount();
+
+        chatClient.disableNotifications();
 
         _focusChatBar();
     });
