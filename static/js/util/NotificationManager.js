@@ -7,6 +7,9 @@ export default class NotificationManager extends LoggingClass {
         this._createAlert = createAlert;
         this._enabled = false;
         this._timeout = null;
+        this._timeoutLevel = 0;
+        // 3s, 10s, 1m, 3m, 5m
+        this._timeoutLevels = [3, 10, 60, 500, 600];
         this._dontBother = false;
     }
 
@@ -18,17 +21,23 @@ export default class NotificationManager extends LoggingClass {
     disableNotifications() {
         console.log('Notifications disabled');
         this._enabled = false;
+        this._timeoutLevel = 0;
+        window.clearTimeout(this._timeout);
+        this._timeout = null;
     }
 
     _startNotificationTimeout() {
         this._timeout = window.setTimeout(() => {
             this._timeout = null;
-        }, 10 * 1000);  // ten second pause
+            if (this._timeoutLevel < this._timeoutLevels.length) {
+                this._timeoutLevel++;
+            }
+        }, this._timeoutLevels[this._timeoutLevel] * 1000);
     }
 
     _doPermissionsOrNotification(notificationTitle, notificationOptions) {
         if (window.Notification && Notification.permission === "granted") {
-            const notification = new Notification(notificationTitle, {
+            new Notification(notificationTitle, {
                 tag: 'chatNotification',
                 silent: true,
                 renotify: true,
