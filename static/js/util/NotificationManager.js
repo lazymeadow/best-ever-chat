@@ -2,8 +2,9 @@ import $ from 'jquery';
 import {LoggingClass} from "./Logger";
 
 export default class NotificationManager extends LoggingClass {
-    constructor() {
+    constructor(createAlert) {
         super('NotificationManager');
+        this._createAlert = createAlert;
         this._enabled = false;
         this._timeout = null;
         this._dontBother = false;
@@ -23,55 +24,73 @@ export default class NotificationManager extends LoggingClass {
         this._timeout = window.setTimeout(() => {
             this._timeout = null;
         }, 10 * 1000);  // ten second pause
-        // }, 3 * 60 * 1000);  // three minute pause
     }
 
-    _getNotification(title, body) {
-        const notification = new Notification(title, {
+    _doPermissionsOrNotification(notificationTitle, notificationOptions) {
+        if (window.Notification && Notification.permission === "granted") {
+            const notification = new Notification(notificationTitle, {
+                tag: 'chatNotification',
+                silent: true,
+                renotify: true,
+                icon: 'static/favicon.png',
+                ...notificationOptions
+            });
+            this._startNotificationTimeout();
+        }
+        else if (window.Notification && Notification.permission !== "denied") {
+            // dontBother is true if they didn't engage in turning on notifications. just ask the one time per session.
+            if (this._dontBother) {
+                return;
+            }
+            this._dontBother = true;  // don't bother them more than once
+            $(window).one('focus', {}, () => {
+                this._createAlert({
+                    content: 'You missed some messages while you were away. Turn on notifications to stop ignoring everyone!',
+                    type: 'actionable',
+                    actionText: 'Grant permissions',
+                    actionCallback: () => Notification.requestPermission().then(perm => {
+                        if (perm !== 'default') {
+                            this._createAlert({
+                                content: perm === 'granted'
+                                    ? 'Nice! Go into client settings for more options.'
+                                    : 'Okay, you won\'t get any notifications. I hope you enjoy being lonely.'
+                            })
+                        }
+                    })
+                });
+            });
+        }
+    }
+
+    sendStatusNotification(title, body, whichCat) {
+        if (!this._enabled) {  // status notifications ignore the timeout?
+            return;
+        }
+
+        const image = `static/iconka_cat_power/cat_${whichCat}.png`;
+        const options = {
             body,
-            silent: true,
-
-            badge: 'static/iconka_cat_power/cat_purr.png',
-            image: 'static/iconka_cat_power/cat_purr.png',
-            icon: 'static/iconka_cat_power/cat_purr.png',
-        });
-        setTimeout(notification.close.bind(notification), 4000);
+            tag: 'chatStatusNotification',
+            badge: image,
+            image: image,
+        };
+        this._doPermissionsOrNotification(title, options);
     }
 
-    sendNotification(title, body, createAlert) {
+
+    sendMessageNotification(title, body, whichCat) {
+        // if notifications are currently disabled (the window is focused) or are in timeout, just don't
         if (!this._enabled || this._timeout) {
             return;
         }
 
-        if (window.Notification && Notification.permission === "granted") {
-            this._getNotification(title, body);
-            this._startNotificationTimeout();
-        }
-        else if (window.Notification && Notification.permission !== "denied") {
-            // dontBother is true if they didn't engage in turning on notifications.
-            // just ask the one time per session.
-            if (!this._dontBother) {
-                $(window).one('focus', {}, () => {
-                    createAlert({
-                        content: 'You missed some messages while you were away. Turn on notifications to stop ignoring everyone!',
-                        type: 'actionable',
-                        actionText: 'Grant permissions',
-                        actionCallback: () => Notification.requestPermission().then(perm => {
-                            if (perm === 'default') {
-                                this._dontBother = true;
-                            }
-                            else {
-                                createAlert({
-                                    content: perm === 'granted'
-                                        ? 'Nice, now you\'ll know what\'s up. Go into client settings for more options.'
-                                        : 'Okay, you won\'t get any notifications. I hope you enjoy being lonely.'
-                                })
-                            }
-                        }),
-                        dismissCallback: () => this._dontBother = true
-                    });
-                });
-            }
-        }
+        const image = `static/iconka_cat_power/cat_${whichCat}.png`;
+        const options = {
+            body,
+            tag: 'chatMessageNotification',
+            badge: image,
+            image: image,
+        };
+        this._doPermissionsOrNotification(title, options);
     }
 }

@@ -86,6 +86,10 @@ export class UserManager extends LoggingClass {
         }
     }
 
+    notifyClient(username) {
+        this._chatClient.sendMessageNotification('Private message from ' + username, '', 'tied');
+    }
+
     setActiveThread(userId) {
         Settings.activeLogType = 'thread';
         Settings.activeLogId = userId;

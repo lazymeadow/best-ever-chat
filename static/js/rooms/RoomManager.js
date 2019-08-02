@@ -83,7 +83,7 @@ export class RoomManager extends LoggingClass {
     }
 
     notifyClient(metadata) {
-        return;
+        this._chatClient.sendMessageNotification(`New Message in ${metadata.name}`, `from: ${metadata.user}`, 'tied');
     }
 
     /**
