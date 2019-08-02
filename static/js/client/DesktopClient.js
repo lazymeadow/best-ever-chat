@@ -1,5 +1,5 @@
 import {BestEvarChatClient} from "./BestEvarChatClient";
-import {MainMenu} from "../components";
+import {Alert, MainMenu} from "../components";
 import {AdvancedRoomManager} from "../rooms/";
 import {NotificationManager, Settings} from "../util";
 
@@ -20,8 +20,7 @@ export class DesktopClient extends BestEvarChatClient {
     }
 
     sendNotification(title, body) {
-        console.log('sending notification');
-        this._notificationManager.sendNotification(title, body);
+        this._notificationManager.sendNotification(title, body, (alertData) => new Alert(alertData));
 
     }
 
