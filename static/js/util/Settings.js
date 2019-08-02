@@ -143,6 +143,14 @@ export class Settings {
         localStorage.setItem(`${Settings.userId}.timestamps`, timestamps);
     }
 
+    static get notifications() {
+        return localStorage.getItem(`${Settings.userId}.notifications`) || 'all';
+    }
+
+    static set notifications(notifications) {
+        localStorage.setItem(`${Settings.userId}.notifications`, notifications);
+    }
+
     static get email() {
         return localStorage.getItem(`${Settings.userId}.email`) || '';
     }

@@ -145,6 +145,15 @@ export class MainMenu extends LoggingClass {
                                         .append($('<option>', {value: 'off', text: 'Off'}))
                                         .val(Settings.timestamps)
                                     ))
+                                // Notifications
+                                .append($('<div>').addClass('form-element')
+                                    .append($('<label>', {text: 'Notifications', for: 'notifications'}))
+                                    .append($('<select>', {id: 'notifications'})
+                                        .append($('<option>', {value: 'all', text: 'All'}))
+                                        .append($('<option>', {value: 'message', text: 'Just Messages'}))
+                                        .append($('<option>', {value: 'status', text: 'Just Status'}))
+                                        .val(Settings.notifications)
+                                    ))
                         );
                 },
                 buttonText: 'Save',
@@ -179,6 +188,12 @@ export class MainMenu extends LoggingClass {
                         Settings.muted = muted;
                         changesMade = true;
                         new Alert({content: muted ? 'Sounds off.' : 'Sound on.'});
+                    }
+
+                    const notifications = $('#notifications').val();
+                    if (notifications !== Settings.notifications) {
+                        Settings.notifications = notifications;
+                        changesMade = true;
                     }
 
                     let serverChanges = {};
@@ -291,11 +306,11 @@ export class MainMenu extends LoggingClass {
                                 }).val(Settings.email)))
                             // Password
                             .append($('<div>').addClass('form-element')
-                                .append($('<label>', {text: 'Change Password', for: 'password1'}))
+                                .append($('<label>', {text: 'New Password', for: 'password1'}))
                                 .append($('<input>', {
                                     id: 'password1',
                                     type: 'password',
-                                    placeholder: 'New password',
+                                    placeholder: 'Type password',
                                     autocomplete: "new-password"
                                 })))
                             .append($('<div>').addClass('form-element')

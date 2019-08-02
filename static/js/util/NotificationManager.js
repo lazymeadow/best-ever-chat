@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import {LoggingClass} from "./Logger";
+import {Settings} from "./Settings";
 
 export default class NotificationManager extends LoggingClass {
     constructor(createAlert) {
@@ -76,6 +77,10 @@ export default class NotificationManager extends LoggingClass {
             return;
         }
 
+        if (!(Settings.notifications === 'all' || Settings.notifications === 'status')) {
+            return;
+        }
+
         const image = `static/iconka_cat_power/cat_${whichCat}.png`;
         const options = {
             body,
@@ -90,6 +95,10 @@ export default class NotificationManager extends LoggingClass {
     sendMessageNotification(title, body, whichCat) {
         // if notifications are currently disabled (the window is focused) or are in timeout, just don't
         if (!this._enabled || this._timeout) {
+            return;
+        }
+
+        if (!(Settings.notifications === 'all' || Settings.notifications === 'message')) {
             return;
         }
 
