@@ -64,7 +64,7 @@ export class BestEvarChatClient {
         else {
             name = this._roomManager.getActiveRoomName();
         }
-        return Settings.tabTitle || `${name} | Best Evar Chat 3.0`;
+        return Settings.tabTitle || `${name} | Best Evar Chat ${CLIENT_VERSION}`;
     }
 
     setWindowTitle() {

@@ -441,14 +441,15 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>3.3.0</h3><em>August 2nd, 2019</em><p>Good news, everyone!</p><p>There\'s no longer any excuse for missing messages. Best Evar Chat 3.3 supports notifications!</p>')
                         .append('<h3>3.2.1</h3><em>July 19th, 2019</em><p>Fixes various bugs. I\'m not going to list them all, they\'re not that important.</p>')
                         .append('<h3>3.2.0</h3><em>July 19th, 2019</em><p>Fixes some image sharing bugs.</p><p>IMAGE UPLOAD!!!!</p>')
-                        .append('<h3>3.1.1</h3><em>May 10th, 2019</em><p>Fixes but that prevented users from moving out of the inactive list when connecting.</p><p>Parses emojis in alerts.</p>')
+                        .append('<h3>3.1.1</h3><em>May 10th, 2019</em><p>Fixes bug that prevented users from moving out of the inactive list when connecting.</p><p>Parses emojis in alerts.</p>')
                         .append('<h3>3.1.0</h3><em>May 10th, 2019</em><p>We are all sick and tired of seeing all those users that will never log in again. Now they\'re under a fold, so you can ignore them completely for the rest of your life!</p>')
                         .append('<h3>3.0.2</h3><em>May 10th, 2019</em><p>Chat input will focus on window focus, room select, and thread select.</p>')
                         .append('<h3>3.0.1: Bug Fixes!</h3><em>January 5th, 2019</em><p>Enforcing limit on private message threads. Memory usage was getting out of hand (you know who you are).</p>')
                         .append('<h3>Welcome to Best Evar Chat 3.0!</h3><em>November 18th, 2018</em><p>It\'s here!</p>'),
-                    buttonText: 'Unbelievable!',
+                    buttonText: 'Fantastic!',
                     buttonClickHandler: () => false
                 });
             }
