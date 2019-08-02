@@ -23,4 +23,9 @@ export class AdvancedRoomManager extends RoomManager {
             });
         });
     }
+
+    notifyClient(metadata) {
+        console.log('notifyClient', metadata);
+        this._chatClient.sendNotification(`New Message in ${metadata.name}`, `from: ${metadata.user}`);
+    }
 }

@@ -1,7 +1,7 @@
 import {BestEvarChatClient} from "./BestEvarChatClient";
 import {MainMenu} from "../components";
 import {AdvancedRoomManager} from "../rooms/";
-import {Settings} from "../util";
+import {NotificationManager, Settings} from "../util";
 
 export class DesktopClient extends BestEvarChatClient {
     constructor() {
@@ -15,7 +15,22 @@ export class DesktopClient extends BestEvarChatClient {
             about: true,
             adminTools: true
         });
+        this._notificationManager = new NotificationManager();
         this._roomManager = new AdvancedRoomManager(this, this._messageLog, this._soundManager, this._notificationManager);
+    }
+
+    sendNotification(title, body) {
+        console.log('sending notification');
+        this._notificationManager.sendNotification(title, body);
+
+    }
+
+    disableNotifications() {
+        this._notificationManager.disableNotifications();
+    }
+
+    enableNotifications() {
+        this._notificationManager.enableNotifications();
     }
 
     createRoom(roomName) {
@@ -86,4 +101,5 @@ export class DesktopClient extends BestEvarChatClient {
             }
         });
     }
+
 }

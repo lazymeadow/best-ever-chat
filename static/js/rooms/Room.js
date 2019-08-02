@@ -28,10 +28,8 @@ export class Room extends LoggingClass {
 
     addMessage(messageData) {
         this._messageHistory.add(messageData);
-        if (messageData.username !== Settings.username) {
-            if (parseInt(Settings.activeLogId, 10) !== this.id && messageData.username !== 'Server') {
-                this._roomElement.addClass('has-messages');
-            }
+        if (messageData.username !== Settings.username && parseInt(Settings.activeLogId, 10) !== this.id && messageData.username !== 'Server') {
+            this._roomElement.addClass('has-messages');
             this._roomManager.notifyClient({name: this.name, user: messageData.username});
         }
         return this._messageHistory.size;
