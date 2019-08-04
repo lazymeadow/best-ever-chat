@@ -15,12 +15,10 @@ export default class NotificationManager extends LoggingClass {
     }
 
     enableNotifications() {
-        console.log('Notifications enabled');
         this._enabled = true;
     }
 
     disableNotifications() {
-        console.log('Notifications disabled');
         this._enabled = false;
         this._timeoutLevel = 0;
         window.clearTimeout(this._timeout);

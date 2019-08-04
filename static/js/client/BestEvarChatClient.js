@@ -302,30 +302,48 @@ export class BestEvarChatClient {
     }
 
     _attemptReconnect() {
+        const alertDelay = 3500;  // same as alert fade length
+
+        // if not already present, show the disconnected alert
         if (!this._disconnectedAlert) {
             this._disconnectedAlert = new Alert({content: 'Connection lost!!', type: 'permanent'});
         }
 
+        // remove any lingering reconnect alert
+        if (this._reconnectAlert) {
+            this._reconnectAlert.remove();
+            this._reconnectAlert = null;
+        }
+        // clear existing timeout
+        window.clearTimeout(this._reconnectTimeout);
+        // define timeout callback
         const reconnect = () => {
-            this._reconnectCount++;
             new Alert({content: `Attempting to reconnect to the server ... (${this._reconnectCount}/${MAX_RETRIES})`});
             this.connect();
         };
-        window.clearTimeout(this._reconnectTimeout);
 
-        if (this._reconnectCount < MAX_RETRIES) {
-            this._reconnectTimeout = window.setTimeout(reconnect, 1000);
+        // do the automatic reconnection attempts
+        this._reconnectCount++;
+        if (this._reconnectCount <= MAX_RETRIES) {
+            this._reconnectTimeout = window.setTimeout(
+                reconnect,
+                // first attempt is immediate, all subsequent are delayed
+                this._reconnectCount === 1 ? 0 : alertDelay
+            );
         }
         else if (!this._reconnectAlert) {
-            this._reconnectAlert = new Alert({
-                content: 'Failed to open connection to server.',
-                type: 'actionable',
-                actionText: 'Retry',
-                actionCallback: () => {
-                    this._reconnectCount = 0;
-                    this._attemptReconnect();
-                }
-            });
+            // automatic retries failed, show a new reconnect alert after delay
+            this._reconnectTimeout = window.setTimeout(() => {
+                this._reconnectAlert = new Alert({
+                    content: 'Failed to open connection to server.',
+                    type: 'dismiss',
+                    dismissText: 'Retry',
+                    dismissCallback: () => {
+                        this._reconnectCount = 0;
+                        this._attemptReconnect();
+                    }
+                });
+            }, alertDelay);
         }
     }
 }
