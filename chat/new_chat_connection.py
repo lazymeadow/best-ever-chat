@@ -57,10 +57,13 @@ class NewMultiRoomChatConnection(SockJSConnection):
         log_from_server('debug', 'Client ({}:{}) connected successfully.'.format(parasite, self.session.session_id))
 
         # send queued messages
-        messages = self._message_queue.get_invitations(self.current_user['id'])
+        messages = self._message_queue.get_all(self.current_user['id'])
         for message in messages:
+            message_data = json.loads(message['content'])
+            if 'id' in message.keys():
+                message_data['id'] = message['id']
             self.send({'type': message['type'],
-                       'data': json.loads(message['content'])})
+                       'data': message_data})
 
         log_from_server('debug', 'Sent client {} {} queued messages.'.format(parasite, len(messages)))
 
@@ -132,8 +135,16 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert('How did you mess up a perfectly good client version number?', 'permanent')
         elif message_type == 'settings':
             self._update_settings(json_message['data'])
+        elif message_type == 'remove alert':
+            self._message_queue.remove_alert(json_message['user id'], json_message['id'])
         elif message_type == 'bug' or message_type == 'feature':
             self._send_to_github(message_type, json_message['title'], json_message['body'])
+        elif message_type == 'data request':
+            log_from_server('info', 'Request for:' + json_message['data type'])
+            self._handle_data_request(json_message['data type'])
+        elif message_type == 'admin request':
+            log_from_server('info', 'Request for:' + json_message['request type'])
+            self._handle_admin_request(json_message['request type'], json_message['data'])
         else:
             print 'Received: ' + str(json_message)
 
@@ -421,6 +432,60 @@ class NewMultiRoomChatConnection(SockJSConnection):
         else:
             self._send_alert('Failed to create {}! ({})'.format(type, issue_json['message']), 'dismiss')
 
+    def _handle_data_request(self, data_type):
+        data = None
+        data_error = None
+        # admins only: grant mod, revoke mod, grant admin, revoke admin
+        if data_type == 'grant mod':
+            if self.current_user['permission'] != 'admin':
+                data_error = 'Insufficient permissions'
+            else:
+                log_from_server('info', 'Fulfilling request for: ' + data_type)
+                data = self._user_list.get_users()
+        # admins only: grant mod, revoke mod, grant admin, revoke admin
+        elif data_type == 'revoke mod':
+            if self.current_user['permission'] != 'admin':
+                data_error = 'Insufficient permissions'
+            else:
+                log_from_server('info', 'Fulfilling request for: ' + data_type)
+                data = self._user_list.get_moderators()
+        self.send({
+            'type': 'data response',
+            'data': {
+                'request': data_type,
+                'data': data,
+                'error': data_error
+            }
+        })
+
+    def _handle_admin_request(self, request_type, data):
+        if self.current_user['permission'] != 'admin':
+            pass
+        else:
+            if request_type == 'grant mod':
+                self._user_list.update_user_conf(data['parasite'], 'permission', 'mod')
+                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
+                    "type": "update",
+                    "data": {'permission': 'mod'}
+                })
+                mod_alert_data = {
+                    'type': 'dismiss',
+                    'message': 'You are now a moderator. You have access to the moderator tools. For great justice.',
+                    'dismissText': 'What you say !!'
+                }
+                self._message_queue.add_alert(data['parasite'], json.dumps(mod_alert_data))
+                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
+                    'type': 'alert',
+                    'data': mod_alert_data
+                })
+
+            elif request_type == 'revoke mod':
+                self._user_list.update_user_conf(data['parasite'], 'permission', 'user')
+                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
+                    "type": "update",
+                    "data": {'permission': 'user'}
+                })
+
     ### GENERAL HELPER FUNCTIONS
 
     def _send_auth_fail(self):
@@ -445,7 +510,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :return:
         """
         self.send({'type': 'alert', 'data': {'message': message,
-                                             'alert_type': alert_type}})
+                                             'type': alert_type}})
 
     def _send_from_server(self, message, room_id=None):
         """

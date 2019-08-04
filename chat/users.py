@@ -75,7 +75,7 @@ class UserList:
 
     def load_user(self, user_id):
         user = self.db.get(
-            "SELECT id, password, username, email, last_active as lastActive, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
+            "SELECT id, password, username, email, last_active AS lastActive, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
             user_id)
         if user['conf']:
             user.update(dict([config.split(':') for config in user['conf'].split(',')]))
@@ -95,8 +95,9 @@ class UserList:
 
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
-                      key=lambda user: user['status'])
+        return sorted(
+            sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
+            key=lambda user: user['status'])
 
     def get_all_usernames(self):
         return [x for x in self._user_map]
@@ -174,6 +175,18 @@ class UserList:
 
     def get_user_participants(self, user_id):
         return [x for x in self._participants if x.current_user['id'] == user_id]
+
+    def _get_user_list_by_perm(self, perm):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if self._user_map[item]['permission'] == perm]
+
+    def get_users(self):
+        return self._get_user_list_by_perm('user')
+
+    def get_moderators(self):
+        return self._get_user_list_by_perm('mod')
+
+    def get_admins(self):
+        return self._get_user_list_by_perm('admin')
 
     def __str__(self):
         return json.dumps(self.get_user_list())

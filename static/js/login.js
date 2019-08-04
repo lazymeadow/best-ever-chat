@@ -18,6 +18,5 @@ $(function () {
         else {
             localStorage.removeItem('last_login');
         }
-        console.log('set last login', localStorage.getItem('last_login'));
     });
 });
