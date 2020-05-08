@@ -170,6 +170,10 @@
                     configurable). this always comes from the server sorted by time.
                 </dd>
             </dl>
+			<h4>i. Invitations</h4>
+			<p>
+				Invitations are sent between clients to offer parasites to join a room. An invitation is sent from the server to the invitee's client An invitation is persistent - if a parasite is offline, the invitation will appear when they are next online, and will remain available until removed from the server by accepting to declining.
+			</p>
             <h3>d. Thread</h3>
             <p>
                 A Thread is used for Private Messages between two Parasites ONLY. The two parasites in a thread can never
@@ -202,6 +206,7 @@
                     href="https://github.com/sockjs/sockjs-client">SockJS-client ^1.3.0</a>). The server accepts certain message
                 'types' through the socket from the client, and the client must handle the messages sent by the server.
             </p>
+			<p>Yes, the keys have spaces. I like it. You can write your own chat server if you don't.</p>
             <h4>i. Client Originating Messages (client =&gt; server)</h4>
             <p>
                 Client messages are asking the server to mutate state based on parasite actions. Each message type requires
@@ -265,21 +270,108 @@
 				</dd>
                 <dt>room action</dt>
 				<dd>
-					<dl>
-						<dt>image data</dt>
-						<dd>the base64 encoded content of an image file</dd>
-						<dt>image type</dt>
-						<dd>the mime type of the file, based on a web upload. not sure what this needs to be otherwise.</dd>
-						<dt>nsfw</dt>
-						<dd>the nsfw flag</dd>
-					</dl>
+					there are four actions that can be taken, ['create', 'delete', 'join', 'leave', 'invite']:
+					<ul>
+						<li>
+							'create'
+							<br/>
+							anybody can create a new room
+							<dl>
+								<dt>action</dt>
+								<dd>create</dd>
+								<dt>room name</dt>
+								<dd>name of the room to make</dd>
+							</dl>
+						</li>
+						<li>
+							'delete'
+							<br/>
+							this action is only available to the room owner
+							<dl>
+								<dt>room id</dt>
+								<dd>id of the room to delete.</dd>
+							</dl>
+						</li>
+						<li>
+							'join'
+							<br/>
+							an invition will prompt a parasite to take this action in the client, but it isn't necessary for the server logic.
+							<dl>
+								<dt>room id</dt>
+								<dd>id of the room to join</dd>
+								<dt>accept</dt>
+								<dd>TRUE if an invitation is being accepted. if FALSE, the inviter will receive an Alert saying their invitation was declined. (i think server's got a bug where if no inviter is specified, it will error)</dd>
+								<dt>inviter id</dt>
+								<dd>the id of the parasite who sent the invitation</dd>
+							</dl>
+						</li>
+						<li>
+							'leave'
+							<br/>
+							a parasite can only leave a room if they're in it.
+							<dl>
+								<dt>room id</dt>
+								<dd>the room to leave</dd>
+							</dl>
+						</li>
+						<li>
+							'invite'
+							<br/>
+							send bulk invitations to other parasites to join a room, available to any member of the room. 
+							<dl>
+								<dt>user ids</dt>
+								<dd>
+									this key should really be 'parasite ids' but i'm not changing it. json array of parasite ids to send invitations to.
+								</dd>
+								<dt>room id</dt>
+								<dd>the room the parasites are being invited to</dd>
+							</dl>
+						</li>
+					</ul>
 				</dd>
                 <dt>status</dt>
+				<dd>
+					<dl>
+						<dt>status</dt>
+						<dd>one of ['offline', 'active', 'idle']. other values are ignored.</dd>
+					</dl>
+				</dd>
                 <dt>typing</dt>
+				<dd>
+					<dl>
+						<dt>status</dt>
+						<dd>TRUE means the user is currently typing.</dd>
+					</dl>
+				</dd>
                 <dt>version</dt>
+				<dd>
+					<dt>client version</dt>
+					<dd>
+						the provided client version string, with format "#.#.#", is compared to the current version the server is expecting. mismatches will prompt the parasite to reload their page to receive a new client.
+					</dd>
+				</dd>
                 <dt>settings</dt>
+				<dd>there's a lot of settings and i really don't want to outline them right this minute, ok?</dd>
                 <dt>bug</dt>
+				<dd>
+					this will create an issue on github for the best-ever-chat repo with the label 'bug'. the server must have a valid github username and token in order to utilize the rest api to create an issue.
+					<dl>
+						<dt>title</dt>
+						<dd>the title of the issue to create</dd>
+						<dt>body</dt>
+						<dd>the body of the issue</dd>
+					</dl>
+				</dd>
                 <dt>feature</dt>
+				<dd>
+					this will create an issue on github for the best-ever-chat repo with the label 'feature'. the server must have a valid github username and token in order to utilize the rest api to create an issue.
+					<dl>
+						<dt>title</dt>
+						<dd>the title of the issue to create</dd>
+						<dt>body</dt>
+						<dd>the body of the issue</dd>
+					</dl>
+				</dd>
             </dl>
             <h4>ii. Server Originating Messages (server =&gt; client)</h4>
             <p>
