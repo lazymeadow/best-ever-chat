@@ -25,7 +25,7 @@
 			<dt>email</dt>
 			<dd>ya</dd>
 			<dt>last_active</dt>
-			<dd>Timestamp of the last known activity for this parasite. This is used to filter users for display on the client.</dd>
+			<dd>Timestamp of the last known activity for this parasite. This is used to filter parasites for display on the client.</dd>
 			<dt>typing</dt>
 			<dd>This is set to TRUE via a socket message. TRUE means a typing indicator should be displayed on the client.
 			<dt>status</dt>
@@ -36,7 +36,7 @@
 		</p>
 		<dl>
 			<dt>faction</dt>
-			<dd>Very important, it is the icon to use for this user's status in the user list. It shows when they are active. It is beautiful. Values correspond directly to <a href="https://fontawesome.com/icons">font awesome 5 star wars icons</a>. while any string is "valid", the ones that will actually work are: [first-order/first-order-alt/empire/galactic-republic/galactic-senate/jedi-order/mandalorian/old-republic/rebel/sith/trade-federation]
+			<dd>Very important, it is the icon to use for this parasite's status in the user list. It shows when they are active. It is beautiful. Values correspond directly to <a href="https://fontawesome.com/icons">font awesome 5 star wars icons</a>. while any string is "valid", the ones that will actually work are: [first-order/first-order-alt/empire/galactic-republic/galactic-senate/jedi-order/mandalorian/old-republic/rebel/sith/trade-federation]
 			<dt>color</dt>
 			<dd>Hex value of the color to display this parasite has chosen for their chat messages. There is no server side validation for the colors, but the web client displays a color picker with the following options that are relatively legible on a white background: ['#555555', '#ff5555', '#ee7733', '#0fba0f', '#10b1c9', '#5555ff', '#bc84e0', '#f27e95', '#775634', '#991111', '#aa3300', '#118822', '#186f7d', '#18187d', '#663388', '#b51ba6']</dd>
 			<dt>soundSet</dt>
@@ -44,8 +44,73 @@
 			<dt>volume</dt>
 			<dd>Default client volume level. This is set whenever a clients volume changes. Clients can have local overrides for this value, but a connection from a new client will use this value initially.</dd>
 		</dl>
-		<h3>b. Room</h3>
-		<h3>c. Thread</h3>
+		<h3>d. Message</h3>
+		<p>A message is the thing that makes this a chat. This is different from a "Socket Message" (section 2.e), which is what goes between the client and the server.</p>
+		<p>Messages are ONLY saved in memory. Server restarts clear ALL messages from ALL places.</p>
+		<p>Messages are partially sanitized by the server before sending out to clients. A preprocessing function is run on every message to do the following:</p>
+		<ol>
+			<li>Find urls in the message body and wrap in &lt;a&gt;</li>
+			<li>Convert emoji shortcodes to unicode characters</li>
+			<li>Convert ascii emoticons to unicode characters</li>
+			<li>Escape any xhtml in the message if any unacceptable usages are found [script, audio, video, iframe, img]
+		</ol>
+		<p>There are three types of messages - 'chat message', 'private message', and 'image'. 
+		<h4>i. Chat Message</h4>
+		<p>Chat messages are what live in Rooms (section 2.c). They have several attributes:</p>
+		<dl>
+			<dt>username</dt>
+			<dd>The display name of the parasite who sent them message. Not the id! The client doesn't have to figure it out. This preserves display name changes in the history.</dd>
+			<dt>room id</dt>
+			<dd>ID of the room the message was sent to</dd>
+			<dt>message</dt>
+			<dd>Contents of the message</dd>
+			<dt>time</dt>
+			<dd>unix timestamp when server received message</dd>
+			<dt>color</dt>
+			<dd>color to use when displaying this message, based on the parasite's settings at the time the server received the message.</dd>
+		</dl>
+		<h4>ii. Private Message</h4>
+		<p>Private messages are what live in Threads (section 2.d).</p>
+		<p>A Private Message has the following attributes different from a Chat Message:</p>
+		<dl>
+			<dt style="text-decoration: line-through;">room id</dt>
+			<dd>A Private Message does not need a room id</dd>
+			<dt>sender id</dt>
+			<dd>there are two users in a thread, and knowing who sent or received is important</dd>
+			<dt>recipient id</dt>
+			<dd>same as sender id</dd>
+		</dl>
+		<h4>iii. Image</h4>
+		<p>Image messages contain ONLY media content. These messages can live in either Rooms OR Threads.</p>
+		<p>An Image message's attributes vary depending on the destination. Image messages going to a Room look like a chat message, and Image messages going to a Thread look like a private message.
+		<dl>
+		<dt>
+			<dt style="text-decoration: line-through;">message</dt>
+			<dd>There is no message content, only image</dd>
+			<dt>image url</dt>
+			<dd>The original URL of the image. For image uploads, this will be the same as the image src url.</dd>
+			<dt>image src url</dt>
+			<dd>The URL used to display the image in the client. This is generally a URL pointing to the s3 bucket serving as the best evar image cache.</dd>
+			<dt>nsfw flag</dt>
+			<dd>If this is TRUE, the image should be hidden by default in the client (collapsed) and marked as NSFW.</dd>
+		</dl>
+		<h3>c. Room</h3>
+		<p>A room is a bucket of messages to which 1+ parasite have access. A room is created by a parasite, the "owner", who can also delete the room. Other parasites can be invited to the room, and can "Leave" if they join it. But only the original owner can delete it. The only room that cannot be joined, left, or deleted is room id 0, "General". This room has no owner and everyone is stuck in it forever. This forces public interaction.</p>
+		<p>A room has several attributes:</p>
+		<dl>
+			<dt>id</dt>
+			<dd>Every room has an unique id.</dd>
+			<dt>name</dt>
+			<dd>room names don't have to be unique. you can confuse the shit out of everyone.</dd>
+			<dt>owner</dt>
+			<dd>this is a parasite id. every room except "General" has a non-null owner.</dd>
+			<dt>members</dt>
+			<dd>A Set of the ids of parasites in the room. For room id 0, this is just everyone.</dd>
+			<dt>history</dt>
+			<dd>a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this is 200, but one day might be configurable). this always comes from the server sorted by time.</dd>
+		</dl>
+		<h3>d. Thread</h3>
+		<h3>e. Socket Message</h3>
 	</section>
 	<section>
 		<h2>3. REST Endpoints</h2>
@@ -56,17 +121,17 @@
 			<dt>/m</dt>
 			<dd>this is the mobile site, GET only bro</dd>
 			<dt>/register <em>AUTHENTICATED!</em></dt>
-			<dd>GET returns the static registration page. POST - this one registers new users. Give it "parasite", "password", "password2", "email". all of them are required.</dd>
+			<dd>GET returns the static registration page. POST - this one registers new parasites. Give it "parasite", "password", "password2", "email". all of them are required.</dd>
 			<dt>/login</dt>
-			<dd>this one authenticates a user</dd>
+			<dd>this one authenticates a parasite</dd>
 			<dt>/logout</dt>
-			<dd>this one makes the user not authenticated anymore</dd>
+			<dd>this one makes the parasite not authenticated anymore</dd>
 			<dt>/forgot_password</dt>
 			<dd>this one triggers the forgot password email</dd>
 			<dt>/reset_password</dt>
 			<dd>this one actually does the password reset</dd>
 			<dt>/validate_username <em>AUTHENTICATED!</em></dt>
-			<dd>POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to REGISTRATION (new user name, aka "parasite"/"id") and DISPLAY NAMES (aka "username"). Stupidly, existing display names are checked when validating a new registration. Just pretend that makes sense.</dd>
+			<dd>POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to REGISTRATION (new parasite id) and DISPLAY NAMES (aka "username"). Stupidly, existing display names are checked when validating a new registration. Just pretend that makes sense.</dd>
 		</dl>
 	</section>
   </body>
