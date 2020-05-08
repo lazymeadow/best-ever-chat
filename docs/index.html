@@ -1,5 +1,73 @@
 <html>
   <body>
-    <h1>Here they be</h1>
+    <h1>Best Ever Chat Docs</h1>
+	<p><em>Is very important</em></p>
+	<section>
+		<h2>How it do work</h2>
+		<p>Authenticate via REST. Connect to socket. Send data over socket in correct format, receive and parse data from socket and be best chat.</p>
+	</section>
+	<section>
+		<h2>2. What is these datas and entities</h2>
+		<h3>a. Parasite (User)</h3>
+		<p>
+			This is the user entity. It's called a parasite because that's what a user is doing. Leeching all of the server resources in order to participate in digital social interaction.
+		</p>
+		<p>
+			A parasite has several attributes:
+		</p>
+		<dl>
+			<dt>id</dt>
+			<dd>Traditional "username"/"user id". utf8 string, varchar(128) in db. must be unique</dd>
+			<dt>password</dt>
+			<dd>duh</dd>
+			<dt>username</dt>
+			<dd>This is used as a "display name". This must be unique, except that it can match this parasite's id.</dd>
+			<dt>email</dt>
+			<dd>ya</dd>
+			<dt>last_active</dt>
+			<dd>Timestamp of the last known activity for this parasite. This is used to filter users for display on the client.</dd>
+			<dt>typing</dt>
+			<dd>This is set to TRUE via a socket message. TRUE means a typing indicator should be displayed on the client.
+			<dt>status</dt>
+			<dd>One of: [offline/active/idle]. Set via socket message. </dd>
+		</dl>
+		<p>
+			A parasite also has some optional settings, which are included in the parasite entity:
+		</p>
+		<dl>
+			<dt>faction</dt>
+			<dd>Very important, it is the icon to use for this user's status in the user list. It shows when they are active. It is beautiful. Values correspond directly to <a href="https://fontawesome.com/icons">font awesome 5 star wars icons</a>. while any string is "valid", the ones that will actually work are: [first-order/first-order-alt/empire/galactic-republic/galactic-senate/jedi-order/mandalorian/old-republic/rebel/sith/trade-federation]
+			<dt>color</dt>
+			<dd>Hex value of the color to display this parasite has chosen for their chat messages. There is no server side validation for the colors, but the web client displays a color picker with the following options that are relatively legible on a white background: ['#555555', '#ff5555', '#ee7733', '#0fba0f', '#10b1c9', '#5555ff', '#bc84e0', '#f27e95', '#775634', '#991111', '#aa3300', '#118822', '#186f7d', '#18187d', '#663388', '#b51ba6']</dd>
+			<dt>soundSet</dt>
+			<dd>Parasites can choose between AIM sounds and MSN sounds straight out of the year 2000. Therefore, valid values are ['AIM', 'MSN']. If an different value is set, the client should default to AIM. This is not negotiable. AIM is the default. Client code will not be merge into master if it is not using AIM as the default.</dd>
+			<dt>volume</dt>
+			<dd>Default client volume level. This is set whenever a clients volume changes. Clients can have local overrides for this value, but a connection from a new client will use this value initially.</dd>
+		</dl>
+		<h3>b. Room</h3>
+		<h3>c. Thread</h3>
+	</section>
+	<section>
+		<h2>3. REST Endpoints</h2>
+		<p>GET on these endpoints generally returns to you a static webpage. Mostly you use a POST.</p>
+		<dl>
+			<dt>/</dt>
+			<dd>this is the main page, GET only bro</dd>
+			<dt>/m</dt>
+			<dd>this is the mobile site, GET only bro</dd>
+			<dt>/register <em>AUTHENTICATED!</em></dt>
+			<dd>GET returns the static registration page. POST - this one registers new users. Give it "parasite", "password", "password2", "email". all of them are required.</dd>
+			<dt>/login</dt>
+			<dd>this one authenticates a user</dd>
+			<dt>/logout</dt>
+			<dd>this one makes the user not authenticated anymore</dd>
+			<dt>/forgot_password</dt>
+			<dd>this one triggers the forgot password email</dd>
+			<dt>/reset_password</dt>
+			<dd>this one actually does the password reset</dd>
+			<dt>/validate_username <em>AUTHENTICATED!</em></dt>
+			<dd>POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to REGISTRATION (new user name, aka "parasite"/"id") and DISPLAY NAMES (aka "username"). Stupidly, existing display names are checked when validating a new registration. Just pretend that makes sense.</dd>
+		</dl>
+	</section>
   </body>
 </html>
