@@ -101,7 +101,7 @@
                     out. This preserves display name changes in the history.
                 </dd>
                 <dt>room id</dt>
-                <dd>ID of the room the message was sent to</dd>
+                <dd>ID of the room the message was sent to. if this is not set, it means the message is "global", and goes to all rooms</dd>
                 <dt>message</dt>
                 <dd>Contents of the message</dd>
                 <dt>time</dt>
@@ -196,7 +196,25 @@
 			<h3>e. Alerts</h3>
 			<p>
 				Alerts are messages that are meant to be treated as "global" on the client. They are not meant for any room or 
-				thread, and come only from the server or client itself.
+				thread, and come only from the server or client itself. Three types of alerts are defined by the server: ['fade', 'dismiss', 'permanent']. Other types of alerts, or differing alert behaviors, are client specific and not related to capital-A Alerts.
+			</p>
+			<p>
+				NOTE: Alerts are different from chat messages with no Room. Alerts should not be displayed in the message log, but in some other part of the client UI.
+			</p>
+			<h4>i. 'fade' type</h4>
+			<p>
+				Fade type alerts should display on the client when the parasite is actively using the client. The alert should fade after a resonable amount of time (web default is 3500ms).
+			</p>
+			<h4>ii. 'dismiss' type</h4>
+			<p>
+				Dismiss type alerts should stay visible on the client until dismissed.
+			</p>
+			<p>
+				This is not the same as an actionable alert. The web clients use these to display invitations and in the socket reconnect flow, but that is client specific implementation. Dismiss type alerts only have a 'Dismiss' action, and are for messages deemed more important from the server.
+			</p>
+			<h4>iii. 'permanent' type</h4>
+			<p>
+				Permanent type alerts should remain visible on the client until the client has taken whatever action is necessary to clear them. For example, a web client version being out of sync with the server results in the server sending a Permanent type alert to that client, which suggests that the client be reloaded. Permanent alerts should only be displayed when sent from the server or otherwise necessary for proper client functioning (e.g. the client is disconnected from the server)
 			</p>
             <h3>f. Socket Message</h3>
             <p>
@@ -234,7 +252,7 @@
                         <dt>message</dt>
 						<dd>contents of the message</dd>
                         <dt>room id</dt>
-						<dd>destination room id</dd>
+						<dd>destination room id. though not currently used, a room id of null would mean the message goes to ALL rooms.</dd>
                     </dl>
                 </dd>
                 <dt>private message</dt>
@@ -340,15 +358,17 @@
 				<dd>
 					<dl>
 						<dt>status</dt>
-						<dd>TRUE means the user is currently typing.</dd>
+						<dd>FALSE means the user is NOT currently typing. otherwise, the value of this corresponds to the id of the room/thread the user is currently typing in.</dd>
 					</dl>
 				</dd>
                 <dt>version</dt>
 				<dd>
-					<dt>client version</dt>
-					<dd>
-						the provided client version string, with format "#.#.#", is compared to the current version the server is expecting. mismatches will prompt the parasite to reload their page to receive a new client.
-					</dd>
+					<dl>
+						<dt>client version</dt>
+						<dd>
+							the provided client version string, with format "#.#.#", is compared to the current version the server is expecting. mismatches will prompt the parasite to reload their page to receive a new client.
+						</dd>
+					</dl>
 				</dd>
                 <dt>settings</dt>
 				<dd>there's a lot of settings and i really don't want to outline them right this minute, ok?</dd>
@@ -379,14 +399,86 @@
             </p>
             <dl>
                 <dt>auth fail</dt>
+				<dd>
+					<em>Client must immediately log out the current parasite.</em> on web, this is done with location.replace('/logout')
+				</dd>
                 <dt>room data</dt>
+				<dd>
+					<dl>
+						<dt>rooms</dt>
+						<dt>all</dt>
+					</dl>
+				</dd>
                 <dt>private message data</dt>
+				<dd>
+					<dl>
+						<dt>threads</dt>
+					</dl>
+				</dd>
                 <dt>user list</dt>
+				<dd>
+					<dl>
+						<dt>users</dt>
+					</dl>
+				</dd>
                 <dt>update</dt>
+				<dd>
+					this is an update to the parasite's settings, and i dont wanna write all the settings right now
+					<dl>
+						<dt>[key]</dt>
+						<dd>[value]</dd>
+					</dl>
+				</dd>
                 <dt>chat message</dt>
+				<dd>
+					<dl>
+						<dt>room id</dt>
+						<dt>time</dt>
+						<dt>username</dt>
+						<dt>color</dt>
+						<dt>message</dt>
+						<dt>image url</dt>
+						<dt>image src url</dt>
+						<dt>nsfw flag</dt>
+					</dl>
+				</dd>
                 <dt>private message</dt>
+				<dd>
+					<dl>
+						<dt>sender id</dt>
+						<dt>recipient id</dt>
+						<dd>
+							both send and recipient are here because that way the client can determine if a "sent" or "received" sound needs to be played, and if the unread message indicator ought to be displayed.
+						</dd>
+						<dt>time</dt>
+						<dt>username</dt>
+						<dt>color</dt>
+						<dt>message</dt>
+						<dt>image url</dt>
+						<dt>image src url</dt>
+						<dt>nsfw flag</dt>
+					</dl>
+				</dd>
                 <dt>alert</dt>
+				<dd>
+					<dl>
+						<dt>message</dt>
+						<dt>alert_type</dt>
+						<dd>this one didn't get converted to a space, i guess, so that is annoying. one of ['fade', 'dismiss', or 'permanent']. see section 2.e for more info.</dd>
+					</dl>
+				</dd>
                 <dt>invitation</dt>
+				<dd>
+					inviting parasite and room names are sent from the server so the client doesn't have to look it up locally
+					<dl>
+						<dt>user</dt>
+						<dd>this is the display name of the inviting parasite</dd>
+						<dt>user id</dt>
+						<dd>this is the id of the inviting parasite</dd>
+						<dt>room id</dt>
+						<dt>room name</dt>
+					</dl>
+				</dd>
             </dl>
         </section>
         <section>
