@@ -1,18 +1,20 @@
 # Best Chat Ever
 It's, like, really good, oh my gosh.
 
+Now with Python 3!
+
 ## Setup:
 ### Install:
 There are some dependencies that are necessary to install. There might be more. Let me know.
 1. You need to have python, mysql, and npm.
  On Linux:
- `sudo apt-get install build-essential python-dev libmysqlclient-dev python-mysqldb npm`
+ `sudo apt-get install build-essential libmysqlclient-dev npm`
  On Mac:
  `brew install mysql npm openssl`
   Then follow the instructions here to get pip (brew will also give you this url if you type `brew install pip`):
  `https://pip.readthedocs.io/en/stable/installing/`
 2. `npm install -g less less-plugin-clean-css`
-3. `pip install -r install/pip-install`
+3. `pip3 install -r install/pip-install`
   If this doesn't work, try sudo. Some of the packages are dumb.
   If this doesn't work on Mac, try:
   `pip install --ignore-installed -r install/pip-install`
@@ -20,7 +22,7 @@ There are some dependencies that are necessary to install. There might be more. 
 #### Database:
 1. Setup a local MySql database.
 2. Import `install/bestChat.sql` to get the schema and tables.
-3. Make a user 'bestChat' with the password in `tornado_chat.py` and (at least) the following
+3. Make a user 'bestChat' with the password in `chat.cfg` and (at least) the following
 permissions to the `bestchat` schema: DELETE, EXECUTE, INSERT, SELECT, SHOW, VIEW, UPDATE
 
 

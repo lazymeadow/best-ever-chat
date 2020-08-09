@@ -12,7 +12,7 @@ class PrivateMessageMap:
         self._user_list = user_list
 
     def _generate_thread_id(self, user_id1, user_id2):
-        return hash(str.join('', sorted([user_id1, user_id2], key=unicode.lower)))
+        return hash(str.join('', sorted([user_id1, user_id2], key=str.lower)))
 
     def verify_thread_id(self, thread_id, user_id1, user_id2):
         return thread_id == self._generate_thread_id(user_id1, user_id2)

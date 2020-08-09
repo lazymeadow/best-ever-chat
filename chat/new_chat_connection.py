@@ -27,7 +27,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # the user list (of current status for users)
         # the user's default settings (to be used on the client)
 
-        parasite = self.session.handler.get_secure_cookie('parasite')
+        parasite = self.session.handler.get_secure_cookie('parasite').decode("utf-8")
         if parasite is None:
             self._send_auth_fail()
             return False
@@ -67,7 +67,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def on_message(self, message):
         json_message = json.loads(message)
 
-        if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
+        if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite').decode("utf-8"):
             self._send_auth_fail()
 
         message_type = json_message['type']
@@ -135,7 +135,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         elif message_type == 'bug' or message_type == 'feature':
             self._send_to_github(message_type, json_message['title'], json_message['body'])
         else:
-            print 'Received: ' + str(json_message)
+            print('Received: ' + str(json_message))
 
     def on_close(self):
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
@@ -308,7 +308,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
                 updates_map['username'] = new_username
 
-        for key, value in settings.iteritems():
+        for key, value in settings.items():
             old_value = self.current_user[key]
             if self._user_list.update_user_conf(self.current_user['id'], key, value):
                 self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
@@ -488,12 +488,4 @@ class NewMultiRoomChatConnection(SockJSConnection):
                                      'data': new_message})
 
 
-new_chat_router = SockJSRouter(NewMultiRoomChatConnection, prefix='/chat', user_settings={
-    'disabled_transports': [
-        'xhr',
-        'xhr_streaming',
-        'jsonp',
-        'htmlfile',
-        'eventsource'
-    ]
-})
+new_chat_router = SockJSRouter(NewMultiRoomChatConnection, '/chat')

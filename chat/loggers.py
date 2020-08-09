@@ -5,13 +5,15 @@ from logging.handlers import RotatingFileHandler
 from tornado.log import LogFormatter
 
 if not os.path.exists('log'):
+    # create the log dir
     os.mkdir('log')
 
-    with open('log/server.log') as f:
+    # create all the log files
+    with open('log/server.log', 'w+') as f:
         f.close()
-    with open('log/client.log') as f:
+    with open('log/client.log', 'w+') as f:
         f.close()
-    with open('log/access.log') as f:
+    with open('log/access.log', 'w+') as f:
         f.close()
 
 bec_logger = logging.getLogger('bestevarchat')

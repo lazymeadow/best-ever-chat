@@ -1,7 +1,7 @@
 import json
 from collections import deque
 
-from chat.lib import MAX_DEQUE_LENGTH
+from chat.lib import MAX_DEQUE_LENGTH, db_select, db_upsert, db_delete
 from chat.loggers import log_from_server
 
 
@@ -21,7 +21,7 @@ class RoomList:
             'history': deque(maxlen=MAX_DEQUE_LENGTH)
         }
 
-        rooms = self.db.query('SELECT id, name, owner, group_concat(parasite_id) AS members '
+        rooms = db_select(self.db, 'SELECT id, name, owner, group_concat(parasite_id) AS members '
                               'FROM rooms LEFT JOIN room_access a ON rooms.id = a.room_id and a.in_room = TRUE '
                               'GROUP BY id')
         for room in rooms:
@@ -31,7 +31,7 @@ class RoomList:
                 del room['members']
             new_room = self._get_default_room()
             new_room.update(room)
-            self._room_map[room.id] = new_room
+            self._room_map[room['id']] = new_room
 
     @staticmethod
     def _get_default_room():
@@ -83,10 +83,11 @@ class RoomList:
             return None
 
         # create room in db
-        room_id = self.db.insert("INSERT INTO rooms (name, owner) VALUES (%s, %s)",
+        room_id = db_upsert(self.db, "INSERT INTO rooms (name, owner) VALUES (%s, %s)",
                                  name, owner_id)
+
         # add room to owner user
-        self.db.execute(
+        db_upsert(self.db, 
             "INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, TRUE) ON DUPLICATE KEY UPDATE in_room=TRUE",
             room_id, owner_id)
 
@@ -107,11 +108,11 @@ class RoomList:
         member_participants = self.get_room_participants(room_id)
 
         # remove all invitations to this room existing in the message queue
-        self.db.execute("DELETE FROM invitations WHERE room_id = %s", room_id)
+        db_delete(self.db, "DELETE FROM invitations WHERE room_id = %s", room_id)
         # remove all room_access rows for the room from database
-        self.db.execute("DELETE FROM room_access WHERE room_id = %s", room_id)
+        db_delete(self.db, "DELETE FROM room_access WHERE room_id = %s", room_id)
         # remove the room from database
-        self.db.execute("DELETE FROM rooms WHERE id = %s", room_id)
+        db_delete(self.db, "DELETE FROM rooms WHERE id = %s", room_id)
         # remove room from list
         room = self._room_map.pop(room_id, None)
 
@@ -122,7 +123,7 @@ class RoomList:
         if room_id not in self._room_map.keys() or not self._user_list.is_existing_user(user_id):
             return None
         # add room to owner user
-        self.db.execute(
+        db_upsert(self.db, 
             "INSERT INTO room_access (room_id, parasite_id, in_room) VALUES (%s, %s, FALSE) ON DUPLICATE KEY UPDATE in_room=FALSE",
             room_id, user_id)
 
@@ -135,7 +136,7 @@ class RoomList:
         if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys():
             return None
         # grant room access in database
-        self.db.execute("UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s AND room_id = %s",
+        db_upsert(self.db, "UPDATE room_access SET in_room = TRUE WHERE parasite_id = %s AND room_id = %s",
                         user_id, room_id)
         self._room_map[room_id]['members'].add(user_id)
         return True
@@ -144,7 +145,7 @@ class RoomList:
         if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys():
             return None
         # revoke room access in database
-        self.db.execute("UPDATE room_access SET in_room = FALSE WHERE parasite_id = %s AND room_id = %s",
+        db_upsert(self.db, "UPDATE room_access SET in_room = FALSE WHERE parasite_id = %s AND room_id = %s",
                         user_id, room_id)
         self._room_map[room_id]['members'].discard(user_id)
         return True

@@ -1,7 +1,7 @@
 import base64
 import re
 from hashlib import sha256
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 import bcrypt
 import tornado
@@ -15,6 +15,29 @@ from emoji.emojipy import Emoji
 MAX_DEQUE_LENGTH = 200
 
 emoji = Emoji()
+
+
+def db_select(db, query, *query_params):
+    with db.cursor() as cursor:
+        cursor.execute(query, query_params)
+        return cursor.fetchall()
+
+def db_select_one(db, query, *query_params):
+    with db.cursor() as cursor:
+        cursor.execute(query, query_params)
+        return cursor.fetchone()
+
+def db_upsert(db, query, *query_params):
+    with db.cursor() as cursor:
+        cursor.execute(query, query_params)
+        entity_id = cursor.lastrowid
+        db.commit()
+        return entity_id
+
+def db_delete(db, query, *query_params):
+    db.cursor().execute(query, query_params)
+    db.commit()
+
 
 
 def is_image_url(text):

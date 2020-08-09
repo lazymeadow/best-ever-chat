@@ -1,9 +1,8 @@
 import json
-
 from datetime import datetime
 
 from chat.emails import send_password_changed_email
-from chat.lib import hash_password, check_password
+from chat.lib import hash_password, check_password, db_select, db_select_one, db_upsert
 from chat.loggers import log_from_server
 
 allowed_factions = [
@@ -37,7 +36,7 @@ class UserList:
     def __init__(self, db):
         log_from_server('info', 'Initializing user list...')
         self.db = db
-        parasites = self.db.query("SELECT id FROM parasite")
+        parasites = db_select(self.db, "SELECT id FROM parasite")
         for parasite in parasites:
             self.load_user(parasite['id'])
 
@@ -73,18 +72,20 @@ class UserList:
             self._user_map[user['id']].update(user)
 
     def load_user(self, user_id):
-        user = self.db.get(
-            "SELECT id, password, username, email, last_active as lastActive, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
+        user = db_select_one(self.db,
+            "SELECT id, password, username, email, last_active as lastActive FROM parasite WHERE id = %s",
             user_id)
-        if user['conf']:
-            user.update(dict([config.split(':') for config in user['conf'].split(',')]))
+
+        user_conf = db_select(self.db, "SELECT name, value FROM parasite_config WHERE parasite_id = %s", user_id)
+        user.update(user_conf)
+
         if user['lastActive']:
             user['lastActive'] = user['lastActive'].strftime('%Y-%m-%d %H:%M:%S')
         if user['id'] not in self._user_map.keys():
             # this means this is a probably NEW user, created since the server was started.
             new_user = self._user_defaults.copy()
             new_user.update(user)
-            self._user_map[user.id] = new_user
+            self._user_map[user['id']] = new_user
         else:
             self._user_map[user['id']].update(user)
 
@@ -101,8 +102,8 @@ class UserList:
         return [x for x in self._user_map]
 
     def update_user_status(self, user_id, status, participant=None):
-        if status in ['offline', 'active', 'idle'] and self._user_map.has_key(user_id):
-            if status is 'offline':
+        if status in ['offline', 'active', 'idle'] and user_id in self._user_map:
+            if status == 'offline':
                 if participant is not None and participant in self._participants:
                     self._participants.remove(participant)
                     if len(self.get_user_participants(user_id)) == 0:
@@ -111,7 +112,7 @@ class UserList:
                 self._user_map[user_id]['status'] = status
 
     def update_user_typing_status(self, user_id, is_typing):
-        if self._user_map.has_key(user_id):
+        if user_id in self._user_map:
             self._user_map[user_id]['typing'] = is_typing
 
     def update_username(self, user_id, new_username):
@@ -120,7 +121,7 @@ class UserList:
             self._user_map[user_id]['username'] = new_username
             for participant in self.get_user_participants(user_id):
                 participant.current_user['username'] = new_username
-            self.db.update("UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
+            db_upsert(self.db, "UPDATE parasite SET username = %s WHERE id = %s", new_username, user_id)
             return True
 
     def update_user_email(self, user_id, new_email):
@@ -129,7 +130,7 @@ class UserList:
             self._user_map[user_id]['email'] = new_email
             for participant in self.get_user_participants(user_id):
                 participant.current_user['email'] = new_email
-            self.db.update("UPDATE parasite SET email = %s WHERE id = %s", new_email, user_id)
+            db_upsert(self.db, "UPDATE parasite SET email = %s WHERE id = %s", new_email, user_id)
             return True
 
     def update_user_password(self, user_id, new_password, check_match=True):
@@ -139,26 +140,26 @@ class UserList:
             self._user_map[user_id]['password'] = hashed_password
             for participant in self.get_user_participants(user_id):
                 participant.current_user['password'] = hashed_password
-            self.db.update("UPDATE parasite SET password = %s WHERE id = %s", hashed_password, user_id)
+            db_upsert(self.db, "UPDATE parasite SET password = %s WHERE id = %s", hashed_password, user_id)
             send_password_changed_email(self._user_map[user_id]['email'], user_id)
             return True
 
     def update_user_conf(self, user_id, conf_name, conf_value):
-        if self._user_map.has_key(user_id) and self._user_map[user_id][conf_name] != conf_value:
+        if user_id in self._user_map and self._user_map[user_id][conf_name] != conf_value:
             if conf_name == 'faction' and conf_value not in allowed_factions:
                 return False
 
             self._user_map[user_id][conf_name] = conf_value
-            self.db.update(
+            db_upsert(self.db, 
                 "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
                 conf_name, conf_value, user_id, conf_value)
             return True
 
     def update_user_last_active(self, user_id):
-        if self._user_map.has_key(user_id):
+        if user_id in self._user_map:
             now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S');
             self._user_map[user_id]['lastActive'] = now
-            self.db.update("UPDATE parasite SET last_active = %s WHERE id = %s", now, user_id)
+            db_upsert(self.db, "UPDATE parasite SET last_active = %s WHERE id = %s", now, user_id)
 
     def add_participant(self, participant):
         self._participants.add(participant)
