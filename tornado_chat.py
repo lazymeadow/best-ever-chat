@@ -50,7 +50,7 @@ class Application(tornado.web.Application):
         # Have one global connection to the blog DB across all handlers
         self.db = pymysql.connect(
             host=DB_HOST,
-            port=DB_PORT,
+            port=int(DB_PORT),
             user=DB_USER,
             password=DB_PASSWORD,
             db=DB_SCHEMA,
