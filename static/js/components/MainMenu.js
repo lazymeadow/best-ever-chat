@@ -52,11 +52,11 @@ export class MainMenu extends LoggingClass {
         if (about) {
             this._addAbout();
         }
-        if (moderatorTools && Settings.userIsModerator()) {
-            this._addModeratorTools();
-        }
         if (adminTools && Settings.userIsAdmin()) {
             this._addAdminTools();
+        }
+        if (moderatorTools && Settings.userIsModerator()) {
+            this._addModeratorTools();
         }
         this._menuContents.append(this._new_menu_item(
             'Log Out',
@@ -513,7 +513,8 @@ export class MainMenu extends LoggingClass {
                     title: 'Super Secret Stuff',
                     content: AdminTools.getTools(this._chatClient),
                     buttonText: '1337 h4xx',
-                    buttonClickHandler: () => false
+                    buttonClickHandler: () => false,
+                    id: AdminTools.getElementId()
                 });
             }
         ));

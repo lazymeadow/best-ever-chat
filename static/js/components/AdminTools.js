@@ -1,7 +1,14 @@
 import $ from "jquery";
 
+const ELEMENT_ID = 'admin_tools_modal';
+
 export default class AdminTools {
+    static getElementId() {
+        return ELEMENT_ID;
+    }
+
     static getTools(chatClient) {
+        $('#' + ELEMENT_ID + ' .message').empty();
         const toolsSelect = $('<select>', {id: 'admin_tool'})
             .append($('<option>', {
                 value: '',
@@ -39,6 +46,8 @@ export default class AdminTools {
     }
 
     static populateTool(response, chatClient) {
+
+        $('#' + ELEMENT_ID + ' .message').empty();
         $('#admin_tool').prop('disabled', false);
         $('#tools_content').empty();
         if (response.error || response.request !== $('#admin_tool').val()) {
@@ -73,6 +82,10 @@ export default class AdminTools {
                             })));
             }
         }
+    }
+
+    static toolConfirm(confirmationMessage) {
+        $('#' + ELEMENT_ID + ' .message').text(confirmationMessage);
     }
 
     static _getTool(tool, chatClient) {

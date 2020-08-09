@@ -6,8 +6,10 @@ from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
+from chat.emails import send_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
+from chat.tools_lib import can_use_tool
 
 CLIENT_VERSION = '3.3.0'
 
@@ -435,20 +437,17 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _handle_data_request(self, data_type):
         data = None
         data_error = None
-        # admins only: grant mod, revoke mod, grant admin, revoke admin
-        if data_type == 'grant mod':
-            if self.current_user['permission'] != 'admin':
-                data_error = 'Insufficient permissions'
-            else:
+        if can_use_tool(self.current_user['permission'], data_type):
+            # admins only: grant mod, revoke mod, grant admin, revoke admin
+            if data_type == 'grant mod':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_users()
-        # admins only: grant mod, revoke mod, grant admin, revoke admin
-        elif data_type == 'revoke mod':
-            if self.current_user['permission'] != 'admin':
-                data_error = 'Insufficient permissions'
-            else:
+            # admins only: grant mod, revoke mod, grant admin, revoke admin
+            elif data_type == 'revoke mod':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_moderators()
+        else:
+            data_error = 'Insufficient permissions'
         self.send({
             'type': 'data response',
             'data': {
@@ -459,13 +458,17 @@ class NewMultiRoomChatConnection(SockJSConnection):
         })
 
     def _handle_admin_request(self, request_type, data):
-        if self.current_user['permission'] != 'admin':
-            pass
-        else:
+        if can_use_tool(self.current_user['permission'], request_type):
             if request_type == 'grant mod':
                 self._handle_mod_change(True, data['parasite'])
             elif request_type == 'revoke mod':
                 self._handle_mod_change(False, data['parasite'])
+        else:
+            message = "Unauthorized use attempt for tool {} by parasite {}".format(request_type,
+                                                                                   self.current_user['id'])
+            log_from_server(message, 'critical')
+            send_email('audreywiltsie@outlook.com', 'CRITICAL ERROR', 'Critical error logged in Best Evar Chat',
+                       message, message)
 
     def _handle_mod_change(self, is_grant, parasite):
         if is_grant is True:
@@ -495,6 +498,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
             'type': 'alert',
             'data': mod_alert_data
         })
+        self.send({'type': 'tool confirm',
+                   'data': "{} is {} a moderator".format(parasite, 'now' if is_grant else 'no longer')})
 
     ### GENERAL HELPER FUNCTIONS
 

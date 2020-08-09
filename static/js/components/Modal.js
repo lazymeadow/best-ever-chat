@@ -2,12 +2,12 @@ import $ from 'jquery';
 import {LoggingClass} from "../util";
 
 export class Modal extends LoggingClass {
-    constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false}) {
+    constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false, id = null}) {
         super('Modal');
         this.debug('Creating modal');
         const overlay = $('.overlay');
 
-        this.modal = $('<div>');
+        this.modal = $('<div>', {id});
         let messageDiv = $('<div>').addClass('message').text(message);
         this.modal.addClass('modal').addClass(form ? 'form' : '')
             .click(event => event.stopPropagation())

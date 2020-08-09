@@ -260,6 +260,9 @@ export class BestEvarChatClient {
         else if (messageType === 'data response') {
             AdminTools.populateTool(messageData, this);
         }
+        else if (messageType === 'tool confirm') {
+            AdminTools.toolConfirm(messageData);
+        }
     }
 
     _receivedRoomData({rooms, all}) {
