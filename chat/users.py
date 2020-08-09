@@ -30,7 +30,8 @@ class UserList:
         'soundSet': 'AIM',
         'volume': '100',
         'typing': False,
-        'lastActive': None
+        'lastActive': None,
+        'permission': 'user'
     }
 
     def __init__(self, db):
@@ -95,8 +96,9 @@ class UserList:
 
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
-                      key=lambda user: user['status'])
+        return sorted(
+            sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
+            key=lambda user: user['status'])
 
     def get_all_usernames(self):
         return [x for x in self._user_map]
@@ -150,7 +152,7 @@ class UserList:
                 return False
 
             self._user_map[user_id][conf_name] = conf_value
-            db_upsert(self.db, 
+            db_upsert(self.db,
                 "INSERT INTO parasite_config (name, value, parasite_id) VALUES (%s, %s, %s)  ON DUPLICATE KEY UPDATE value=%s",
                 conf_name, conf_value, user_id, conf_value)
             return True
@@ -174,6 +176,18 @@ class UserList:
 
     def get_user_participants(self, user_id):
         return [x for x in self._participants if x.current_user['id'] == user_id]
+
+    def _get_user_list_by_perm(self, perm):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if self._user_map[item]['permission'] == perm]
+
+    def get_users(self):
+        return self._get_user_list_by_perm('user')
+
+    def get_moderators(self):
+        return self._get_user_list_by_perm('mod')
+
+    def get_admins(self):
+        return self._get_user_list_by_perm('admin')
 
     def __str__(self):
         return json.dumps(self.get_user_list())

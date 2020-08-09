@@ -4,6 +4,7 @@ import {UserManager} from "../users";
 import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
+import AdminTools from "../components/AdminTools";
 
 
 export class BestEvarChatClient {
@@ -202,6 +203,21 @@ export class BestEvarChatClient {
         });
     }
 
+    requestData(dataType) {
+        this._send({
+            'type': 'data request',
+            'data type': dataType
+        })
+    }
+
+    sendAdminRequest(requestType, data) {
+        this._send({
+            'type': 'admin request',
+            'request type': requestType,
+            data
+        })
+    }
+
     // Private functions
 
     _send(data) {
@@ -241,6 +257,9 @@ export class BestEvarChatClient {
         else if (messageType === 'invitation') {
             this._receivedInvitation(messageData);
         }
+        else if (messageType === 'data response') {
+            AdminTools.populateTool(messageData, this);
+        }
     }
 
     _receivedRoomData({rooms, all}) {
@@ -256,13 +275,31 @@ export class BestEvarChatClient {
     }
 
     _receivedUpdate(messageData) {
+
         $.each(messageData, (key, value) => {
-            Settings[key] = value;
-            if (key === 'volume') {
-                SoundManager.updateVolume();
+            if (key === 'permission') {
+                if (Settings.permission !== value) {
+                    Settings.permission = value;
+                    if (value === 'user') {
+                        new Alert({
+                            content: 'Your special permissions have been removed.',
+                            type: 'dismiss',
+                            dismissText: 'Fine'
+                        });
+                    }
+                    if (this._mainMenu) {
+                        this._mainMenu.redraw();
+                    }
+                }
             }
-            if (key === 'soundSet') {
-                this._soundManager.updateSoundSet();
+            else {
+                Settings[key] = value;
+                if (key === 'volume') {
+                    SoundManager.updateVolume();
+                }
+                if (key === 'soundSet') {
+                    this._soundManager.updateSoundSet();
+                }
             }
         });
     }
@@ -289,8 +326,15 @@ export class BestEvarChatClient {
         this._incrementUnreadMessageCount();
     }
 
-    _receivedAlert({message, alert_type}) {
-        new Alert({content: message, type: alert_type});
+    _receivedAlert({id, message, ...alertProps}) {
+        let dismissCallback;
+        if (id) {  // this is a persistent message, tell the server to get rid of it, too
+            dismissCallback = () => {
+                this._send({type: 'remove alert', id});
+            }
+        }
+
+        new Alert({content: message, dismissCallback, ...alertProps});
         if (message.includes('offline')) {
             this._soundManager.playDisconnected();
             this._notificationManager.sendStatusNotification(message, '', 'sleep');

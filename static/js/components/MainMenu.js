@@ -3,9 +3,10 @@ import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 import {Alert} from "./Alert";
+import AdminTools from "./AdminTools";
 
 export class MainMenu extends LoggingClass {
-    constructor(chatClient, {clientSettings, userSettings, accountSettings, bugReport, featureRequest, about, adminTools}) {
+    constructor(chatClient, allowedItems) {
         super('MainMenu');
         this._chatClient = chatClient;
 
@@ -17,6 +18,21 @@ export class MainMenu extends LoggingClass {
         else {
             this._menuContents = this._menuElement;
         }
+
+        this._allowedItems = allowedItems;
+    }
+
+    init() {
+        const {
+            clientSettings,
+            userSettings,
+            accountSettings,
+            bugReport,
+            featureRequest,
+            about,
+            moderatorTools,
+            adminTools
+        } = this._allowedItems;
 
         if (clientSettings) {
             this._addClientSettings();
@@ -36,7 +52,10 @@ export class MainMenu extends LoggingClass {
         if (about) {
             this._addAbout();
         }
-        if (adminTools && Settings.userId === 'audrey') {
+        if (moderatorTools && Settings.userIsModerator()) {
+            this._addModeratorTools();
+        }
+        if (adminTools && Settings.userIsAdmin()) {
             this._addAdminTools();
         }
         this._menuContents.append(this._new_menu_item(
@@ -44,7 +63,11 @@ export class MainMenu extends LoggingClass {
             ['fas', 'sign-out-alt'],
             () => window.location = '/logout'
         ));
+    }
 
+    redraw() {
+        this._menuContents.empty();
+        this.init();
     }
 
     _new_menu_item(title, icon, clickHandler) {
@@ -456,6 +479,30 @@ export class MainMenu extends LoggingClass {
         ));
     }
 
+    _addModeratorTools() {
+        const toolMenu = $('<select>', {id: 'mod_tool'})
+            .append($('<option>', {value: '0', text: 'Here is one'}))
+            .append($('<option>', {value: '1', text: 'Here is two'}));
+        toolMenu.change(function () {
+            console.log($(this).val());
+        });
+        this._menuContents.append(this._new_menu_item(
+            'Moderator Menu',
+            ['fas', 'user-shield'],
+            () => {
+                new Modal({
+                    showCancel: false,
+                    title: 'All Your Base Are Belong to Us',
+                    content: $('<div>')
+                        .append($('<label>', {text: 'Pick One', for: 'mod_tool'}))
+                        .append(toolMenu),
+                    buttonText: 'For great justice.',
+                    buttonClickHandler: () => false
+                });
+            }
+        ));
+    }
+
     _addAdminTools() {
         this._menuContents.append(this._new_menu_item(
             'Admin Tools',
@@ -464,8 +511,8 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: $('<div>').text('yeah you know this is where the cool kids go'),
-                    buttonText: '1337',
+                    content: AdminTools.getTools(this._chatClient),
+                    buttonText: '1337 h4xx',
                     buttonClickHandler: () => false
                 });
             }

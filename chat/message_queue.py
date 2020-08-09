@@ -18,3 +18,17 @@ class MessageQueue:
 
     def remove_invitation(self, user_id, room_id):
         db_delete(self.db, "DELETE FROM invitations WHERE parasite_id = %s AND room_id = %s", user_id, room_id)
+
+    def add_alert(self, user_id, content):
+        db_upsert(self.db, "INSERT INTO alerts (parasite_id, content) VALUES (%s, %s)",
+                       user_id, content)
+
+    def get_alerts(self, user_id):
+        return db_select(self.db,
+            "SELECT id, parasite_id as 'user id', content, 'alert' as 'type' FROM alerts WHERE parasite_id = %s", user_id)
+
+    def remove_alert(self, user_id, alert_id):
+        db_delete(self.db, "DELETE FROM alerts WHERE parasite_id = %s AND id = %s", user_id, alert_id)
+
+    def get_all(self, user_id):
+        return self.get_invitations(user_id) + self.get_alerts(user_id)

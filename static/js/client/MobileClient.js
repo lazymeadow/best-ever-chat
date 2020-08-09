@@ -8,11 +8,12 @@ import {_parseEmojis} from "../lib";
 export class MobileClient extends BestEvarChatClient {
     constructor() {
         super();
-        new MainMenu(this, {
+        this._mainMenu = new MainMenu(this, {
             bugReport: true,
             featureRequest: true,
             about: true
         });
+        this._mainMenu.init();
         this._roomManager = new RoomManager(this, this._messageLog, this._soundManager);
     }
 
