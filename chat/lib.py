@@ -20,7 +20,9 @@ emoji = Emoji()
 def db_select(db, query, *query_params):
     with db.cursor() as cursor:
         cursor.execute(query, query_params)
-        return cursor.fetchall()
+        # fetchall will return a TUPLE if there's no matching rows, what on earth
+        result = cursor.fetchall()
+        return result if type(result) != tuple else []
 
 def db_select_one(db, query, *query_params):
     with db.cursor() as cursor:
