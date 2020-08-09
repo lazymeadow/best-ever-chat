@@ -463,28 +463,38 @@ class NewMultiRoomChatConnection(SockJSConnection):
             pass
         else:
             if request_type == 'grant mod':
-                self._user_list.update_user_conf(data['parasite'], 'permission', 'mod')
-                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
-                    "type": "update",
-                    "data": {'permission': 'mod'}
-                })
-                mod_alert_data = {
-                    'type': 'dismiss',
-                    'message': 'You are now a moderator. You have access to the moderator tools. For great justice.',
-                    'dismissText': 'What you say !!'
-                }
-                self._message_queue.add_alert(data['parasite'], json.dumps(mod_alert_data))
-                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
-                    'type': 'alert',
-                    'data': mod_alert_data
-                })
-
+                self._handle_mod_change(True, data['parasite'])
             elif request_type == 'revoke mod':
-                self._user_list.update_user_conf(data['parasite'], 'permission', 'user')
-                self.broadcast(self._user_list.get_user_participants(data['parasite']), {
-                    "type": "update",
-                    "data": {'permission': 'user'}
-                })
+                self._handle_mod_change(False, data['parasite'])
+
+    def _handle_mod_change(self, is_grant, parasite):
+        if is_grant is True:
+            self._user_list.update_user_conf(parasite, 'permission', 'mod')
+            self.broadcast(self._user_list.get_user_participants(parasite), {
+                "type": "update",
+                "data": {'permission': 'mod'}
+            })
+            mod_alert_data = {
+                'type': 'dismiss',
+                'message': 'You are now a moderator. You have access to the moderator tools. For great justice.',
+                'dismissText': 'What you say !!'
+            }
+        else:
+            self._user_list.update_user_conf(parasite, 'permission', 'user')
+            self.broadcast(self._user_list.get_user_participants(parasite), {
+                "type": "update",
+                "data": {'permission': 'user'}
+            })
+            mod_alert_data = {
+                'type': 'dismiss',
+                'message': 'You are no longer a moderator.',
+                'dismissText': 'What you say !!'
+            }
+        self._message_queue.add_alert(parasite, json.dumps(mod_alert_data))
+        self.broadcast(self._user_list.get_user_participants(parasite), {
+            'type': 'alert',
+            'data': mod_alert_data
+        })
 
     ### GENERAL HELPER FUNCTIONS
 
