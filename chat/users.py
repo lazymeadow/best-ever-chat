@@ -78,7 +78,8 @@ class UserList:
             user_id)
 
         user_conf = db_select(self.db, "SELECT name, value FROM parasite_config WHERE parasite_id = %s", user_id)
-        user.update(user_conf)
+        for conf in user_conf:
+            user[conf['name']] = conf['value']
 
         if user['lastActive']:
             user['lastActive'] = user['lastActive'].strftime('%Y-%m-%d %H:%M:%S')
