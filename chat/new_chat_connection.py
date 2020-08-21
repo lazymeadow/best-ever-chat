@@ -8,7 +8,7 @@ from tornado.escape import xhtml_escape, to_unicode
 from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
-from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data
+from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def
 
 CLIENT_VERSION = '4.0.0'
 
@@ -469,90 +469,37 @@ class NewMultiRoomChatConnection(SockJSConnection):
             'data': {
                 'request': data_type,
                 'data': data,
-                'tool info': get_tool_data(data_type, self.current_user['id']),
+                'tool info': get_tool_data(data_type),
                 'error': data_error
             }
         })
 
     def _handle_admin_request(self, request_type, data):
         if can_use_tool(self.current_user['permission'], request_type):
-            if request_type == 'grant mod':
-                self._handle_mod_change(True, data['parasite'], request_type)
-            elif request_type == 'revoke mod':
-                self._handle_mod_change(False, data['parasite'], request_type)
-            if request_type == 'grant admin':
-                self._handle_admin_change(True, data['parasite'], request_type)
-            elif request_type == 'revoke admin':
-                self._handle_admin_change(False, data['parasite'], request_type)
+            tool_data = get_tool_def(request_type)
+            if tool_data['tool type'] ==  'grant':
+                self._handle_grant_tool(tool_data, data['parasite'])
         else:
             message = "Unauthorized use attempt for tool {} by parasite {}".format(request_type,
                                                                                    self.current_user['id'])
             log_from_server(message, 'critical')
             send_admin_email(self.http_server.admin_email, message)
 
-    def _handle_mod_change(self, is_grant, parasite, request_type):
-        if is_grant is True:
-            self._user_list.update_user_conf(parasite, 'permission', 'mod')
-            self.broadcast(self._user_list.get_user_participants(parasite), {
-                "type": "update",
-                "data": {'permission': 'mod'}
-            })
-            mod_alert_data = {
-                'type': 'dismiss',
-                'message': 'You are now a moderator. You have access to the moderator tools. For great justice.',
-                'dismissText': 'What you say !!'
-            }
-        else:
-            self._user_list.update_user_conf(parasite, 'permission', 'user')
-            self.broadcast(self._user_list.get_user_participants(parasite), {
-                "type": "update",
-                "data": {'permission': 'user'}
-            })
-            mod_alert_data = {
-                'type': 'dismiss',
-                'message': 'You are no longer a moderator.',
-                'dismissText': 'What you say !!'
-            }
-        self._message_queue.add_alert(parasite, json.dumps(mod_alert_data))
+    def _handle_grant_tool(self, tool_data, parasite):
+        self._user_list.update_user_conf(parasite, 'permission', tool_data['grant'])
+        self.broadcast(self._user_list.get_user_participants(parasite), {
+            "type": "update",
+            "data": {'permission': tool_data['grant']}
+        })
+        self._message_queue.add_alert(parasite, json.dumps(tool_data['success alert']))
         self.broadcast(self._user_list.get_user_participants(parasite), {
             'type': 'alert',
-            'data': mod_alert_data
+            'data': tool_data['success alert']
         })
-        self._handle_data_request(request_type)
+        self._handle_data_request(tool_data['tool key'])
         self.send({'type': 'tool confirm',
-                   'data': "{} is {} a moderator".format(parasite, 'now' if is_grant else 'no longer')})
+                   'data': tool_data['tool confirm'](parasite)})
 
-    def _handle_admin_change(self, is_grant, parasite, request_type):
-        if is_grant is True:
-            self._user_list.update_user_conf(parasite, 'permission', 'admin')
-            self.broadcast(self._user_list.get_user_participants(parasite), {
-                "type": "update",
-                "data": {'permission': 'admin'}
-            })
-            admin_alert_data = {
-                'type': 'dismiss',
-                'message': 'You are now an admin. You have access to the admin and moderator tools.',
-                'dismissText': 'I accept.'
-            }
-        else:
-            self._user_list.update_user_conf(parasite, 'permission', 'user')
-            self.broadcast(self._user_list.get_user_participants(parasite), {
-                "type": "update",
-                "data": {'permission': 'user'}
-            })
-            admin_alert_data = {
-                'type': 'dismiss',
-                'message': 'You are no longer an admin, but a normal parasitic peon.',
-                'dismissText': 'Oh. Darn.'
-            }
-        self._message_queue.add_alert(parasite, json.dumps(admin_alert_data))
-        self.broadcast(self._user_list.get_user_participants(parasite), {
-            'type': 'alert',
-            'data': admin_alert_data
-        })
-        self._handle_data_request(request_type)
-        self.send({'type': 'tool confirm',
-                   'data': "{} is {} an admin".format(parasite, 'now' if is_grant else 'no longer')})
 
     ### GENERAL HELPER FUNCTIONS
 

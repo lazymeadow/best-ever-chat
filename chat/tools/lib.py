@@ -87,8 +87,14 @@ def get_tool_list(permission_level):
         tool_key_list = _mod_tools
     return [{'key': tool_key, 'name': _tool_defs[tool_key]['display name']} for tool_key in tool_key_list]
 
-
-def get_tool_data(tool_key, parasite):
+def get_tool_data(tool_key):
     tool_def = _tool_defs[tool_key].copy()
-    tool_def['tool confirm'] = tool_def['tool confirm'](parasite)
+    del tool_def['tool confirm']
+    del tool_def['perm level']
+    del tool_def['success alert']
+    return tool_def
+
+def get_tool_def(tool_key):
+    tool_def = _tool_defs[tool_key].copy()
+    tool_def['tool key'] = tool_key
     return tool_def
