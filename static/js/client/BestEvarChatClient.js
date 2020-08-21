@@ -4,7 +4,7 @@ import {UserManager} from "../users";
 import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
-import AdminTools from "../components/AdminTools";
+import {AdminTools} from "../components/Tools";
 
 
 export class BestEvarChatClient {
@@ -258,10 +258,10 @@ export class BestEvarChatClient {
             this._receivedInvitation(messageData);
         }
         else if (messageType === 'data response') {
-            AdminTools.populateTool(messageData, this);
+            AdminTools.instance(this).populateTool(messageData);
         }
         else if (messageType === 'tool confirm') {
-            AdminTools.toolConfirm(messageData);
+            AdminTools.instance(this).toolConfirm(messageData);
         }
     }
 

@@ -3,7 +3,7 @@ import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 import {Alert} from "./Alert";
-import AdminTools from "./AdminTools";
+import {AdminTools} from "./Tools";
 
 export class MainMenu extends LoggingClass {
     constructor(chatClient, allowedItems) {
@@ -511,10 +511,9 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: AdminTools.getTools(this._chatClient),
+                    content: AdminTools.instance(this._chatClient).getTools(),
                     buttonText: '1337 h4xx',
-                    buttonClickHandler: () => false,
-                    id: AdminTools.getElementId()
+                    buttonClickHandler: () => false
                 });
             }
         ));
