@@ -4,6 +4,7 @@ from datetime import datetime
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password, db_select, db_select_one, db_upsert
 from chat.loggers import log_from_server
+from chat.tools.lib import ADMIN_PERM, MOD_PERM, USER_PERM
 
 allowed_factions = [
     'first-order',
@@ -160,7 +161,7 @@ class UserList:
 
     def update_user_last_active(self, user_id):
         if user_id in self._user_map:
-            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S');
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
             self._user_map[user_id]['lastActive'] = now
             db_upsert(self.db, "UPDATE parasite SET last_active = %s WHERE id = %s", now, user_id)
 
@@ -178,17 +179,17 @@ class UserList:
     def get_user_participants(self, user_id):
         return [x for x in self._participants if x.current_user['id'] == user_id]
 
-    def _get_user_list_by_perm(self, perm):
-        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if self._user_map[item]['permission'] == perm]
+    def _get_user_list_by_perm(self, perm, current_user_id):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if (item != current_user_id and self._user_map[item]['permission'] == perm)]
 
-    def get_users(self):
-        return self._get_user_list_by_perm('user')
+    def get_users(self, current_user_id):
+        return self._get_user_list_by_perm(USER_PERM, current_user_id)
 
-    def get_moderators(self):
-        return self._get_user_list_by_perm('mod')
+    def get_moderators(self, current_user_id):
+        return self._get_user_list_by_perm(MOD_PERM, current_user_id)
 
-    def get_admins(self):
-        return self._get_user_list_by_perm('admin')
+    def get_admins(self, current_user_id):
+        return self._get_user_list_by_perm(ADMIN_PERM, current_user_id)
 
     def __str__(self):
         return json.dumps(self.get_user_list())

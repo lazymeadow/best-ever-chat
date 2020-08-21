@@ -203,6 +203,13 @@ export class BestEvarChatClient {
         });
     }
 
+    requestToolList(toolSet) {
+        this._send({
+            'type': 'tool list',
+            'tool set': toolSet
+        })
+    }
+
     requestData(dataType) {
         this._send({
             'type': 'data request',
@@ -262,6 +269,9 @@ export class BestEvarChatClient {
         }
         else if (messageType === 'tool confirm') {
             AdminTools.instance(this).toolConfirm(messageData);
+        }
+        else if (messageType === 'tool list') {
+            AdminTools.instance(this).setTools(messageData);
         }
     }
 

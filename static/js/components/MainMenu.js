@@ -511,9 +511,12 @@ export class MainMenu extends LoggingClass {
                 new Modal({
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: AdminTools.instance(this._chatClient).getTools(),
+                    content: AdminTools.instance(this._chatClient).getToolsContent(),
                     buttonText: '1337 h4xx',
-                    buttonClickHandler: () => false
+                    buttonClickHandler: () => {
+                        AdminTools.instance(this._chatClient).resetTools();
+                        return false;
+                    }
                 });
             }
         ));

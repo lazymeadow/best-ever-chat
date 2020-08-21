@@ -8,7 +8,7 @@ from tornado.escape import xhtml_escape, to_unicode
 from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
-from chat.tools_lib import can_use_tool
+from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data
 
 CLIENT_VERSION = '4.0.0'
 
@@ -140,11 +140,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._message_queue.remove_alert(json_message['user id'], json_message['id'])
         elif message_type == 'bug' or message_type == 'feature':
             self._send_to_github(message_type, json_message['title'], json_message['body'])
+        elif message_type == 'tool list':
+            self._get_tool_list(json_message['tool set'])
         elif message_type == 'data request':
-            log_from_server('info', 'Request for:' + json_message['data type'])
             self._handle_data_request(json_message['data type'])
         elif message_type == 'admin request':
-            log_from_server('info', 'Request for:' + json_message['request type'])
             self._handle_admin_request(json_message['request type'], json_message['data'])
         else:
             print('Received: ' + str(json_message))
@@ -433,6 +433,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
         else:
             self._send_alert('Failed to create {}! ({})'.format(type, issue_json['message']), 'dismiss')
 
+    def _get_tool_list(self, permission_level):
+        if user_perm_has_access(self.current_user['permission'], permission_level):
+            self.send({
+                'type': 'tool list',
+                'data': {
+                    'data': get_tool_list(permission_level)
+                }
+            })
+
     def _handle_data_request(self, data_type):
         data = None
         data_error = None
@@ -440,19 +449,19 @@ class NewMultiRoomChatConnection(SockJSConnection):
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             if data_type == 'grant mod':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
-                data = self._user_list.get_users()
+                data = self._user_list.get_users(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             elif data_type == 'revoke mod':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
-                data = self._user_list.get_moderators()
+                data = self._user_list.get_moderators(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             if data_type == 'grant admin':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
-                data = self._user_list.get_users() + self._user_list.get_moderators()
+                data = self._user_list.get_users(self.current_user['id']) + self._user_list.get_moderators(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             elif data_type == 'revoke admin':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
-                data = self._user_list.get_admins()
+                data = self._user_list.get_admins(self.current_user['id'])
         else:
             data_error = 'Insufficient permissions'
         self.send({
@@ -460,6 +469,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             'data': {
                 'request': data_type,
                 'data': data,
+                'tool info': get_tool_data(data_type, self.current_user['id']),
                 'error': data_error
             }
         })
