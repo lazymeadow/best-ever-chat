@@ -1,4 +1,4 @@
-_admin_tools = ['grant mod', 'revoke mod']
+_admin_tools = ['grant mod', 'revoke mod', 'grant admin', 'revoke admin']
 _mod_tools = []
 
 _admin_perm = 'admin'

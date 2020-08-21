@@ -73,3 +73,8 @@ def send_email(email_address, subject, title, text_content, html_content, image=
         s.quit()
     except Exception as e:
         log_from_server('error', 'Failed to send email:' + msg.as_string())
+
+def send_admin_email(admin_email, message):
+    log_from_server('critical', message)
+    send_email(admin_email, 'CRITICAL ERROR', 'Critical error logged in Best Evar Chat',
+               message, message)

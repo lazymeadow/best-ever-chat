@@ -2,11 +2,10 @@ import json
 from time import time
 
 from boto3 import resource
-from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
-from chat.emails import send_email
+from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
 from chat.tools_lib import can_use_tool
@@ -34,7 +33,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._send_auth_fail()
             return False
 
-        log_from_server('DEBUG', 'Client ({}:{}) connecting...'.format(parasite, self.session.session_id))
+        log_from_server('DEBUG', 'Client ({}:{}@{}) connecting...'.format(parasite, self.session.session_id, info.ip))
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
@@ -56,7 +55,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._send_alert('Connection successful.')
 
-        log_from_server('debug', 'Client ({}:{}) connected successfully.'.format(parasite, self.session.session_id))
+        log_from_server('debug', 'Client ({}:{}@{}) connected successfully.'.format(parasite, self.session.session_id, info.ip))
 
         # send queued messages
         messages = self._message_queue.get_all(self.current_user['id'])
@@ -67,7 +66,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send({'type': message['type'],
                        'data': message_data})
 
-        log_from_server('debug', 'Sent client {} {} queued messages.'.format(parasite, len(messages)))
+        log_from_server('debug', 'Sent client {}({}) {} queued messages.'.format(parasite, self.session.session_id, len(messages)))
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -446,6 +445,14 @@ class NewMultiRoomChatConnection(SockJSConnection):
             elif data_type == 'revoke mod':
                 log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_moderators()
+            # admins only: grant mod, revoke mod, grant admin, revoke admin
+            if data_type == 'grant admin':
+                log_from_server('info', 'Fulfilling request for: ' + data_type)
+                data = self._user_list.get_users() + self._user_list.get_moderators()
+            # admins only: grant mod, revoke mod, grant admin, revoke admin
+            elif data_type == 'revoke admin':
+                log_from_server('info', 'Fulfilling request for: ' + data_type)
+                data = self._user_list.get_admins()
         else:
             data_error = 'Insufficient permissions'
         self.send({
@@ -460,17 +467,20 @@ class NewMultiRoomChatConnection(SockJSConnection):
     def _handle_admin_request(self, request_type, data):
         if can_use_tool(self.current_user['permission'], request_type):
             if request_type == 'grant mod':
-                self._handle_mod_change(True, data['parasite'])
+                self._handle_mod_change(True, data['parasite'], request_type)
             elif request_type == 'revoke mod':
-                self._handle_mod_change(False, data['parasite'])
+                self._handle_mod_change(False, data['parasite'], request_type)
+            if request_type == 'grant admin':
+                self._handle_admin_change(True, data['parasite'], request_type)
+            elif request_type == 'revoke admin':
+                self._handle_admin_change(False, data['parasite'], request_type)
         else:
             message = "Unauthorized use attempt for tool {} by parasite {}".format(request_type,
                                                                                    self.current_user['id'])
             log_from_server(message, 'critical')
-            send_email('audreywiltsie@outlook.com', 'CRITICAL ERROR', 'Critical error logged in Best Evar Chat',
-                       message, message)
+            send_admin_email(self.http_server.admin_email, message)
 
-    def _handle_mod_change(self, is_grant, parasite):
+    def _handle_mod_change(self, is_grant, parasite, request_type):
         if is_grant is True:
             self._user_list.update_user_conf(parasite, 'permission', 'mod')
             self.broadcast(self._user_list.get_user_participants(parasite), {
@@ -498,8 +508,41 @@ class NewMultiRoomChatConnection(SockJSConnection):
             'type': 'alert',
             'data': mod_alert_data
         })
+        self._handle_data_request(request_type)
         self.send({'type': 'tool confirm',
                    'data': "{} is {} a moderator".format(parasite, 'now' if is_grant else 'no longer')})
+
+    def _handle_admin_change(self, is_grant, parasite, request_type):
+        if is_grant is True:
+            self._user_list.update_user_conf(parasite, 'permission', 'admin')
+            self.broadcast(self._user_list.get_user_participants(parasite), {
+                "type": "update",
+                "data": {'permission': 'admin'}
+            })
+            admin_alert_data = {
+                'type': 'dismiss',
+                'message': 'You are now an admin. You have access to the admin and moderator tools.',
+                'dismissText': 'I accept.'
+            }
+        else:
+            self._user_list.update_user_conf(parasite, 'permission', 'user')
+            self.broadcast(self._user_list.get_user_participants(parasite), {
+                "type": "update",
+                "data": {'permission': 'user'}
+            })
+            admin_alert_data = {
+                'type': 'dismiss',
+                'message': 'You are no longer an admin, but a normal parasitic peon.',
+                'dismissText': 'Oh. Darn.'
+            }
+        self._message_queue.add_alert(parasite, json.dumps(admin_alert_data))
+        self.broadcast(self._user_list.get_user_participants(parasite), {
+            'type': 'alert',
+            'data': admin_alert_data
+        })
+        self._handle_data_request(request_type)
+        self.send({'type': 'tool confirm',
+                   'data': "{} is {} an admin".format(parasite, 'now' if is_grant else 'no longer')})
 
     ### GENERAL HELPER FUNCTIONS
 

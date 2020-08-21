@@ -38,6 +38,7 @@ DB_PORT = config_parser.get(config_section, 'BEC_DB_PORT')
 DB_SCHEMA = config_parser.get(config_section, 'BEC_DB_SCHEMA')
 GITHUB_USERNAME = config_parser.get(config_section, 'GITHUB_USERNAME')
 GITHUB_TOKEN = config_parser.get(config_section, 'GITHUB_TOKEN')
+ADMIN_EMAIL = config_parser.get(config_section, 'ADMIN_EMAIL')
 
 http_server = None
 
@@ -61,6 +62,9 @@ class Application(tornado.web.Application):
         # Save the github auth data for making issues
         self.github_username = GITHUB_USERNAME
         self.github_token = GITHUB_TOKEN
+
+        # Save the server admin email for sending very critical alerts
+        self.admin_email = ADMIN_EMAIL
 
         # user list
         self.user_list = UserList(self.db)
