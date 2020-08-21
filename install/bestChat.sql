@@ -13,41 +13,6 @@ USE `bestchat`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `alerts`
---
-
-DROP TABLE IF EXISTS `alerts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alerts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT
-    PRIMARY KEY,
-  `parasite_id` varchar(128) NOT NULL DEFAULT '',
-  `content` varchar(2048) DEFAULT NULL,
-  KEY `alerts_parasite_id_fk` (`parasite_id`),
-  CONSTRAINT `alerts_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `invitations`
---
-
-DROP TABLE IF EXISTS `invitations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `invitations` (
-  `room_id` int(11) NOT NULL DEFAULT '0',
-  `parasite_id` varchar(128) NOT NULL DEFAULT '',
-  `content` varchar(2048) DEFAULT NULL,
-  PRIMARY KEY (`room_id`,`parasite_id`),
-  KEY `invitations_parasite_id_fk` (`parasite_id`),
-  CONSTRAINT `invitations_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`),
-  CONSTRAINT `invitations_rooms_id_fk` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `parasite`
 --
 
@@ -120,6 +85,41 @@ CREATE TABLE `rooms` (
 ) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
+-- Table structure for table `alerts`
+--
+
+DROP TABLE IF EXISTS `alerts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alerts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT
+    PRIMARY KEY,
+  `parasite_id` varchar(128) NOT NULL DEFAULT '',
+  `content` varchar(2048) DEFAULT NULL,
+  KEY `alerts_parasite_id_fk` (`parasite_id`),
+  CONSTRAINT `alerts_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `invitations`
+--
+
+DROP TABLE IF EXISTS `invitations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `invitations` (
+  `room_id` int(11) NOT NULL DEFAULT '0',
+  `parasite_id` varchar(128) NOT NULL DEFAULT '',
+  `content` varchar(2048) DEFAULT NULL,
+  PRIMARY KEY (`room_id`,`parasite_id`),
+  KEY `invitations_parasite_id_fk` (`parasite_id`),
+  CONSTRAINT `invitations_parasite_id_fk` FOREIGN KEY (`parasite_id`) REFERENCES `parasite` (`id`),
+  CONSTRAINT `invitations_rooms_id_fk` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
