@@ -11,7 +11,7 @@ from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_u
 from chat.loggers import log_from_client, log_from_server
 from chat.tools_lib import can_use_tool
 
-CLIENT_VERSION = '3.3.0'
+CLIENT_VERSION = '4.0.0'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
