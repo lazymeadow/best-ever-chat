@@ -5,8 +5,12 @@ let _instance;
 export class AdminTools extends ToolsBase {
     constructor(chatClient) {
         super(chatClient);
+        this.modalId = 'admin_tools_modal';
+    }
 
+    getToolsContent() {
         this._chatClient.requestToolList('admin');
+        return super.getToolsContent();
     }
 
     static instance(chatClient) {

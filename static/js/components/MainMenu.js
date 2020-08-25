@@ -508,13 +508,16 @@ export class MainMenu extends LoggingClass {
             'Admin Tools',
             ['fas', 'feather-alt'],
             () => {
+                const adminTools = AdminTools.instance(this._chatClient);
                 new Modal({
+                    id: adminTools.modalId,
+                    form: true,
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: AdminTools.instance(this._chatClient).getToolsContent(),
+                    content: adminTools.getToolsContent(),
                     buttonText: '1337 h4xx',
                     buttonClickHandler: () => {
-                        AdminTools.instance(this._chatClient).resetTools();
+                        adminTools.resetTools();
                         return false;
                     }
                 });

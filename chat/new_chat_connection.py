@@ -446,22 +446,21 @@ class NewMultiRoomChatConnection(SockJSConnection):
         data = None
         data_error = None
         if can_use_tool(self.current_user['permission'], data_type):
+            log_from_server('info', 'Fulfilling request for: ' + data_type)
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             if data_type == 'grant mod':
-                log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_users(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             elif data_type == 'revoke mod':
-                log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_moderators(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
-            if data_type == 'grant admin':
-                log_from_server('info', 'Fulfilling request for: ' + data_type)
+            elif data_type == 'grant admin':
                 data = self._user_list.get_users(self.current_user['id']) + self._user_list.get_moderators(self.current_user['id'])
             # admins only: grant mod, revoke mod, grant admin, revoke admin
             elif data_type == 'revoke admin':
-                log_from_server('info', 'Fulfilling request for: ' + data_type)
                 data = self._user_list.get_admins(self.current_user['id'])
+            else:
+                data = []
         else:
             data_error = 'Insufficient permissions'
         self.send({
