@@ -7,7 +7,7 @@ import {AdminTools, ModTools} from "./Tools";
 
 export class MainMenu extends LoggingClass {
     constructor(chatClient, allowedItems) {
-        super('MainMenu');
+        super();
         this._chatClient = chatClient;
 
         this._menuElement = $('#main_menu').next('.popout-menu');

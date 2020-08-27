@@ -4,8 +4,8 @@ import {Room} from "./Room";
 import {_focusChatBar, _parseEmojis, setTitle} from '../lib';
 
 export class RoomManager extends LoggingClass {
-    constructor(chatClient, messageLog, soundManager, className = 'RoomManager') {
-        super(className);
+    constructor(chatClient, messageLog, soundManager) {
+        super();
         this._chatClient = chatClient;
         this._messageLog = messageLog;
         this._soundManager = soundManager;
