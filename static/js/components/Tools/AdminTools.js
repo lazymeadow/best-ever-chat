@@ -9,6 +9,7 @@ export class AdminTools extends ToolsBase {
     }
 
     getToolsContent() {
+        this.debug('Requesting admin tool list.');
         this._chatClient.requestToolList('admin');
         return super.getToolsContent();
     }

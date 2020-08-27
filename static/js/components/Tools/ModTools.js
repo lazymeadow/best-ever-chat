@@ -9,6 +9,7 @@ export class ModTools extends ToolsBase {
     }
 
     getToolsContent() {
+        this.debug('Requesting mod tool list.');
         this._chatClient.requestToolList('mod');
         return super.getToolsContent();
     }

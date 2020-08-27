@@ -2,14 +2,14 @@ import json
 from collections import deque
 
 from chat.lib import MAX_DEQUE_LENGTH, db_select, db_upsert, db_delete
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 
 
 class RoomList:
     _room_map = {}
 
     def __init__(self, db, user_list):
-        log_from_server('info', 'Initializing room list...')
+        log_from_server(LogLevel.info, 'Initializing room list...')
         self.db = db
         self._user_list = user_list
 

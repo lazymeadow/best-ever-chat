@@ -3,7 +3,7 @@ from datetime import datetime
 
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password, db_select, db_select_one, db_upsert
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 from chat.tools.lib import ADMIN_PERM, MOD_PERM, USER_PERM
 
 allowed_factions = [
@@ -36,7 +36,7 @@ class UserList:
     }
 
     def __init__(self, db):
-        log_from_server('info', 'Initializing user list...')
+        log_from_server(LogLevel.info, 'Initializing user list...')
         self.db = db
         parasites = db_select(self.db, "SELECT id FROM parasite")
         for parasite in parasites:

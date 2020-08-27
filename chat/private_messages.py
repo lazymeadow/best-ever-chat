@@ -1,14 +1,14 @@
 from collections import deque
 
 from chat.lib import MAX_DEQUE_LENGTH
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 
 
 class PrivateMessageMap:
     _thread_map = {}
 
     def __init__(self, user_list):
-        log_from_server('info', 'Initializing private messages...')
+        log_from_server(LogLevel.info, 'Initializing private messages...')
         self._user_list = user_list
 
     def _generate_thread_id(self, user_id1, user_id2):

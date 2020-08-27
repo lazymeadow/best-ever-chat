@@ -1,10 +1,10 @@
 from chat.lib import db_upsert, db_select, db_delete
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 
 
 class MessageQueue:
     def __init__(self, db, user_list):
-        log_from_server('info', 'Initializing message queue...')
+        log_from_server(LogLevel.info, 'Initializing message queue...')
         self.db = db
         self._user_list = user_list
 

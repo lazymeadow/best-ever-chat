@@ -9,7 +9,7 @@ from requests import get, post
 from tornado.escape import linkify, to_unicode, xhtml_escape
 
 from chat.custom_render import executor
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 from emoji.emojipy import Emoji
 
 MAX_DEQUE_LENGTH = 200
@@ -72,7 +72,7 @@ def upload_to_s3(image_data, image_type, bucket):
     s3_key = 'images/uploads/' + sha256(image_data).hexdigest()
     try:
         exists = filter(lambda x: x.key == s3_key, list(bucket.objects.all()))
-        log_from_server('info', 'Found object in S3: {}'.format(exists))
+        log_from_server(LogLevel.info, 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
             decoded_image = base64.decodestring(image_data[image_data.find(',')+1:])
 
@@ -81,8 +81,8 @@ def upload_to_s3(image_data, image_type, bucket):
                               ACL='public-read')
         return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
     except Exception as e:
-        log_from_server('debug', 'Exception during image upload: ' + e.message)
-        log_from_server('debug', 'Image failed to upload to S3 bucket: UPLOAD({}) KEY({})'.format(image_type, s3_key))
+        log_from_server(LogLevel.error, 'Exception during image upload: ' + str(e))
+        log_from_server(LogLevel.debug, 'Image failed to upload to S3 bucket: UPLOAD({}) KEY({})'.format(image_type, s3_key))
         return None
 
 
@@ -90,7 +90,7 @@ def retrieve_image_in_s3(image_url, bucket):
     s3_key = 'images/' + sha256(image_url).hexdigest()
     try:
         exists = filter(lambda x: x.key == s3_key, list(bucket.objects.all()))
-        log_from_server('info', 'Found object in S3: {}'.format(exists))
+        log_from_server(LogLevel.info, 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
             req_for_image = get(image_url, stream=True)
             file_object_from_req = req_for_image.raw
@@ -102,8 +102,8 @@ def retrieve_image_in_s3(image_url, bucket):
             bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
         return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
     except Exception as e:
-        log_from_server('debug', 'Exception during image transfer: ' + e.message)
-        log_from_server('debug', 'Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
+        log_from_server(LogLevel.error, 'Exception during image transfer: ' + str(e))
+        log_from_server(LogLevel.debug, 'Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))
         return image_url
 
 

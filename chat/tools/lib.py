@@ -44,7 +44,7 @@ _tool_defs = {
         'display name': 'Grant administrator',
         'tool description': 'Gives chosen user administrator permissions.',
         'tool text': 'Choose a new admin',
-        'data function': lambda conn: conn.get_users(conn.current_user['id']) + conn._user_list.get_moderators(conn.current_user['id']),
+        'data function': lambda conn: conn._user_list.get_users(conn.current_user['id']) + conn._user_list.get_moderators(conn.current_user['id']),
         'no data': 'Everyone\'s already an admin.',
         'success alert': {
             'type': 'dismiss',

@@ -41,6 +41,7 @@ export default class ToolsBase extends LoggingClass {
         this._toolsSelect.change(() => {
             const selected = this._toolsSelect.val();
             if (selected) {
+                this.debug(`Requesting tool data (${selected})`);
                 this._toolContent.html(this._getToolData(selected));
             }
         });
@@ -77,6 +78,7 @@ export default class ToolsBase extends LoggingClass {
                                     text: `${element.id} (${element.username})`
                                 }))))
                             .append($('<button>', {text: 'Just do it'}).click(() => {
+                                this.debug(`Executing tool (${response.request})`);
                                 this._chatClient.sendAdminRequest(response.request, {parasite: $('#tool_select').val()});
                             })));
                         break;

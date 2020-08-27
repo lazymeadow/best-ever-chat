@@ -11,7 +11,7 @@ from tornado.ioloop import IOLoop
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
     AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler, MobileHandler
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
 from chat.message_queue import MessageQueue
 from chat.new_chat_connection import new_chat_router
 from chat.private_messages import PrivateMessageMap
@@ -28,7 +28,7 @@ config_parser.read(current_dir + '/install/chat.cfg')
 
 config_section = os.environ.get('BEC_ENV') if os.environ.get('BEC_ENV') is not None else 'local'
 
-log_from_server('info', "Loading config: [{}]".format(config_section))
+log_from_server(LogLevel.info, "Loading config: [{}]".format(config_section))
 
 SECRET_KEY = config_parser.get(config_section, 'BEC_SECRET_KEY')
 DB_USER = config_parser.get(config_section, 'BEC_DB_USER')
@@ -47,7 +47,7 @@ class Application(tornado.web.Application):
     def __init__(self, handlers, settings):
         super(Application, self).__init__(handlers, **settings)
 
-        log_from_server('info', 'Initializing DB connection...')
+        log_from_server(LogLevel.info, 'Initializing DB connection...')
         # Have one global connection to the blog DB across all handlers
         self.db = pymysql.connect(
             host=DB_HOST,
@@ -106,5 +106,5 @@ if __name__ == "__main__":
 
     new_chat_router.get_connection_class().http_server = http_server
 
-    log_from_server('info', 'Complete. Starting server!')
+    log_from_server(LogLevel.info, 'Complete. Starting server!')
     IOLoop.instance().start()
