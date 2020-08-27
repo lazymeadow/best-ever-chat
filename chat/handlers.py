@@ -4,7 +4,7 @@ from random import randint
 import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
-from tornado.escape import url_escape
+from tornado.escape import url_escape, json_decode
 
 from chat.custom_render import BaseHandler
 from chat.emails import send_reset_email
@@ -101,15 +101,38 @@ class AuthLoginHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        parasite = self.user_list.get_user(self.get_argument('parasite'))
+        json_request = False
+        if self.request.headers['Content-Type'] == 'application/json':
+            json_request = True
+            self.args = json_decode(self.request.body)
+            parasite_id = self.args['parasite']
+            password = self.args['password']
+        else:
+            parasite_id = self.get_argument('parasite')
+            password = self.get_argument('password')
+        parasite = self.user_list.get_user(parasite_id)
+
+        error_message = "Incorrect username or password."
+
         try:
-            if check_password(self.get_argument('password'), parasite['password']):
+            if check_password(password, parasite['password']):
                 self.set_secure_cookie("parasite", str(parasite['id']), expires_days=90)
-                self.redirect('/')
+                if json_request:
+                    self.write(json.dumps({'success': True, 'cookie name': 'parasite'}))
+                else:
+                    self.redirect('/')
             else:
-                self.render2("login.html", error="Incorrect username or password.")
+                if json_request:
+                    self.set_status(401, error_message)
+                    self.write(json.dumps({'error': error_message}))
+                else:
+                    self.render2("login.html", error=error_message)
         except:
-            self.render2("login.html", error="Incorrect username or password.")
+            if json_request:
+                self.set_status(401, error_message)
+                self.write(json.dumps({'error': error_message}))
+            else:
+                self.render2("login.html", error=error_message)
 
 
 class AuthLogoutHandler(BaseHandler):

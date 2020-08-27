@@ -83,7 +83,7 @@ if __name__ == "__main__":
     settings = {
         'cookie_secret': SECRET_KEY,
         'template_path': 'templates',
-        'xsrf_cookies': True,
+        'xsrf_cookies': False,
         'login_url': "/login",
         'static_path': os.path.join(os.path.dirname(__file__), 'static/dist'),
         'emojis': curated_emojis,
