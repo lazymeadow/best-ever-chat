@@ -8,7 +8,8 @@ from tornado.escape import xhtml_escape, to_unicode
 from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
 from chat.loggers import log_from_client, log_from_server
-from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def
+from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def, \
+    tool_data_request
 
 CLIENT_VERSION = '4.0.0'
 
@@ -438,7 +439,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send({
                 'type': 'tool list',
                 'data': {
-                    'data': get_tool_list(permission_level)
+                    'data': get_tool_list(permission_level),
+                    'perm level': permission_level
                 }
             })
 
@@ -447,20 +449,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         data_error = None
         if can_use_tool(self.current_user['permission'], data_type):
             log_from_server('info', 'Fulfilling request for: ' + data_type)
-            # admins only: grant mod, revoke mod, grant admin, revoke admin
-            if data_type == 'grant mod':
-                data = self._user_list.get_users(self.current_user['id'])
-            # admins only: grant mod, revoke mod, grant admin, revoke admin
-            elif data_type == 'revoke mod':
-                data = self._user_list.get_moderators(self.current_user['id'])
-            # admins only: grant mod, revoke mod, grant admin, revoke admin
-            elif data_type == 'grant admin':
-                data = self._user_list.get_users(self.current_user['id']) + self._user_list.get_moderators(self.current_user['id'])
-            # admins only: grant mod, revoke mod, grant admin, revoke admin
-            elif data_type == 'revoke admin':
-                data = self._user_list.get_admins(self.current_user['id'])
-            else:
-                data = []
+            data = tool_data_request(self, data_type)
         else:
             data_error = 'Insufficient permissions'
         self.send({
@@ -496,8 +485,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             'data': tool_data['success alert']
         })
         self._handle_data_request(tool_data['tool key'])
-        self.send({'type': 'tool confirm',
-                   'data': tool_data['tool confirm'](parasite)})
+        self.send({
+            'type': 'tool confirm',
+            'data': tool_data['tool confirm'](parasite),
+            'perm level': tool_data['perm level']
+        })
 
 
     ### GENERAL HELPER FUNCTIONS

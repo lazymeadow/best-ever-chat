@@ -12,6 +12,7 @@ _tool_defs = {
         'display name': 'Grant moderator',
         'tool text': 'Choose a new moderator',
         'tool description': 'Gives chosen user moderator permissions.',
+        'data function': lambda conn: conn._user_list.get_users(conn.current_user['id']),
         'no data': 'Everyone\'s already a moderator.',
         'success alert': {
             'type': 'dismiss',
@@ -27,6 +28,7 @@ _tool_defs = {
         'display name': 'Revoke moderator',
         'tool description': 'Removes chosen user\'s moderator permissions, making them a normal parasite again.',
         'tool text': 'Choose a moderator to remove',
+        'data function': lambda conn: conn._user_list.get_moderators(conn.current_user['id']),
         'no data': 'Nobody is a moderator.',
         'success alert': {
             'type': 'dismiss',
@@ -42,6 +44,7 @@ _tool_defs = {
         'display name': 'Grant administrator',
         'tool description': 'Gives chosen user administrator permissions.',
         'tool text': 'Choose a new admin',
+        'data function': lambda conn: conn.get_users(conn.current_user['id']) + conn._user_list.get_moderators(conn.current_user['id']),
         'no data': 'Everyone\'s already an admin.',
         'success alert': {
             'type': 'dismiss',
@@ -57,6 +60,7 @@ _tool_defs = {
         'display name': 'Revoke administrator',
         'tool description': 'Removes chosen user\'s administrator permissions, making them a normal parasite again.',
         'tool text': 'Choose an admin to remove',
+        'data function': lambda conn: conn._user_list.get_admins(conn.current_user['id']),
         'no data': 'Nobody is an admin.',
         'success alert': {
             'type': 'dismiss',
@@ -72,6 +76,7 @@ _tool_defs = {
         'tool description': 'Clears the log for a given room. All connected clients are immediately updated. '
                             'Mods can only use this tool for rooms they are in.',
         'tool text': 'Choose room to empty',
+        'data function': lambda conn: [],
         'no data': 'That\'s weird.',
         'tool confirm': lambda room: "{} log is empty now.".format(room),
     },
@@ -81,6 +86,7 @@ _tool_defs = {
         'display name': 'Delete room with no members',
         'tool description': 'Removes a room that no longer has any members. ¡ATTN: This is a hard delete!',
         'tool text': 'Choose room to delete',
+        'data function': lambda conn: [],
         'no data': 'Wow, there aren\'t any rooms!',
         'tool confirm': lambda room: "{} is gone forever!".format(room),
     },
@@ -89,6 +95,7 @@ _tool_defs = {
         'tool type': 'room',
         'display name': 'Set new room owner',
         'tool description': 'Set the owner of a room to a different member of the room (they must be in the room).',
+        'data function': lambda conn: [],
         'no data': 'There aren\'t any rooms you walnut.',
         'tool confirm': lambda parasite, room: "The new owner of {} is {}.".format(parasite, room)
     },
@@ -100,6 +107,7 @@ _tool_defs = {
                             'from all rooms, resets their display name to their id, and empties their reset token. '
                             'Inactive parasites are blocked from logging in, and must re-request access from an admin.',
         'tool text': 'Go away',
+        'data function': lambda conn: [],
         'no data': 'I guess you\'re the only one here.',
         'tool confirm': lambda parasite: 'Deactivated parasite: {}'.format(parasite),
     },
@@ -109,6 +117,7 @@ _tool_defs = {
         'display name': 'Reactivate parasite',
         'tool description': 'Sets a parasite back to active. Restores nothing. They can do that when they log in.',
         'tool text': 'Perform necromancy',
+        'data function': lambda conn: [],
         'no data': 'No candidates for zombification.',
         'tool confirm': lambda parasite: "You've resurrected {}. Now you must live with that choice.".format(parasite),
     },
@@ -118,6 +127,7 @@ _tool_defs = {
         'display name': 'View parasite data',
         'tool description': 'View whatever a user\'s current data looks like.',
         'tool text': 'Plz',
+        'data function': lambda conn: [],
         'no data': 'There is nobody else to view. Get some friends.',
         'tool confirm': lambda data: json.dumps(data, indent=4),
     },
@@ -151,8 +161,8 @@ def get_tool_list(permission_level):
 
 def get_tool_data(tool_key):
     tool_def = _tool_defs[tool_key].copy()
-    del tool_def['perm level']
     del tool_def['tool confirm']
+    del tool_def['data function']
     if 'success alert' in tool_def:
         del tool_def['success alert']
     return tool_def
@@ -161,3 +171,7 @@ def get_tool_def(tool_key):
     tool_def = _tool_defs[tool_key].copy()
     tool_def['tool key'] = tool_key
     return tool_def
+
+def tool_data_request(chat_connection, tool_key):
+    if tool_key in _tool_defs:
+        return _tool_defs[tool_key]['data function'](chat_connection)

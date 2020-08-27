@@ -3,7 +3,7 @@ import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 import {Alert} from "./Alert";
-import {AdminTools} from "./Tools";
+import {AdminTools, ModTools} from "./Tools";
 
 export class MainMenu extends LoggingClass {
     constructor(chatClient, allowedItems) {
@@ -480,24 +480,22 @@ export class MainMenu extends LoggingClass {
     }
 
     _addModeratorTools() {
-        const toolMenu = $('<select>', {id: 'mod_tool'})
-            .append($('<option>', {value: '0', text: 'Here is one'}))
-            .append($('<option>', {value: '1', text: 'Here is two'}));
-        toolMenu.change(function () {
-            console.log($(this).val());
-        });
         this._menuContents.append(this._new_menu_item(
             'Moderator Menu',
             ['fas', 'user-shield'],
             () => {
+                const modTools = ModTools.instance(this._chatClient);
                 new Modal({
+                    id: modTools.modalId,
+                    form: true,
                     showCancel: false,
                     title: 'All Your Base Are Belong to Us',
-                    content: $('<div>')
-                        .append($('<label>', {text: 'Pick One', for: 'mod_tool'}))
-                        .append(toolMenu),
+                    content: modTools.getToolsContent(),
                     buttonText: 'For great justice.',
-                    buttonClickHandler: () => false
+                    buttonClickHandler: () => {
+                        modTools.resetTools();
+                        return false;
+                    }
                 });
             }
         ));

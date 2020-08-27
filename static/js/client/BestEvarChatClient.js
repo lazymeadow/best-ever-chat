@@ -5,6 +5,7 @@ import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 import {AdminTools} from "../components/Tools";
+import {ModTools} from "../components/Tools/ModTools";
 
 
 export class BestEvarChatClient {
@@ -264,14 +265,14 @@ export class BestEvarChatClient {
         else if (messageType === 'invitation') {
             this._receivedInvitation(messageData);
         }
+        else if (messageType === 'tool list') {
+            this._receivedToolList(messageData);
+        }
         else if (messageType === 'data response') {
-            AdminTools.instance(this).populateTool(messageData);
+            this._receivedToolData(messageData);
         }
         else if (messageType === 'tool confirm') {
-            AdminTools.instance(this).toolConfirm(messageData);
-        }
-        else if (messageType === 'tool list') {
-            AdminTools.instance(this).setTools(messageData);
+            this._receivedToolConfirm(messageData);
         }
     }
 
@@ -355,6 +356,34 @@ export class BestEvarChatClient {
         else if (message.includes('online')) {
             this._soundManager.playConnected();
             this._notificationManager.sendStatusNotification(message, '', 'walk');
+        }
+    }
+
+    _receivedToolList({'perm level': permLevel, data}) {
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).setTools(data);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).setTools(data);
+        }
+    }
+
+    _receivedToolData(toolData) {
+        const permLevel = toolData['tool info']['perm level'];
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).populateTool(toolData);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).populateTool(toolData);
+        }
+    }
+
+    _receivedToolConfirm({'perm level': permLevel, data}) {
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).toolConfirm(data);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).toolConfirm(data);
         }
     }
 

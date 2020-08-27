@@ -1,7 +1,9 @@
 import $ from "jquery";
+import {LoggingClass} from "../../util";
 
-export default class ToolsBase {
+export default class ToolsBase extends LoggingClass {
     constructor(chatClient) {
+        super();
         this._chatClient = chatClient;
         this.availableTools = [];
         this._toolsElement = $('<div>');
@@ -18,7 +20,7 @@ export default class ToolsBase {
     /**
      * Creates the dropdown listing tools for selection
      */
-    setTools({data: availableTools}) {
+    setTools(availableTools) {
         this._toolsElement.empty();
         this._toolsSelect.empty();
         this._toolsSelect

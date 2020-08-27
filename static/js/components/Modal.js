@@ -3,8 +3,8 @@ import {LoggingClass} from "../util";
 
 export class Modal extends LoggingClass {
     constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false, id = null}) {
-        super('Modal');
-        this.debug('Creating modal');
+        super();
+        this.debug(`Creating modal "${title}"`);
         const overlay = $('.overlay');
 
         this.modal = $('<div>', {id});
