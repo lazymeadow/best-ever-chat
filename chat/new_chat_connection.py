@@ -29,13 +29,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # the user list (of current status for users)
         # the user's default settings (to be used on the client)
 
-        parasite = self.session.handler.get_secure_cookie('parasite').decode("utf-8")
+        parasite = self.session.handler.get_secure_cookie('parasite')
         if parasite is None:
             self._send_auth_fail()
             return False
 
+        parasite = parasite.decode("utf-8")
+
         # format manually here because the current user is not yet defined
-        log_from_server(LogLevel.debug, 'Client ({}:{}@{}) connecting...'.format(parasite, self.session.session_id, info.ip))
+        log_from_server(LogLevel.debug, '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
@@ -57,7 +59,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._send_alert('Connection successful.')
 
-        log_from_server(LogLevel.debug, 'Client {} connected successfully.'.format(self._format_parasite_for_log()))
+        log_from_server(LogLevel.debug, '{} Client connected successfully.'.format(self._format_parasite_for_log()))
 
         # send queued messages
         messages = self._message_queue.get_all(self.current_user['id'])
@@ -68,13 +70,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send({'type': message['type'],
                        'data': message_data})
 
-        log_from_server(LogLevel.debug, 'Sent client {} {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
+        log_from_server(LogLevel.debug, '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
 
     def on_message(self, message):
         json_message = json.loads(message)
+        parasite = self.session.handler.get_secure_cookie('parasite')
 
-        if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite').decode("utf-8"):
+        if parasite is None or self.current_user is None or self.current_user['id'] != parasite.decode("utf-8"):
             self._send_auth_fail()
+            return
 
         message_type = json_message['type']
         if message_type == 'client log':
@@ -82,10 +86,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
                             self.session.session_id)
             return
 
-        if json_message['user id'] != self.current_user['id']:
+        if 'user id' not in json_message or json_message['user id'] != self.current_user['id']:
             log_from_server(LogLevel.warning,
                             'Socket message received from incorrect parasite ({}) for client connection {}. Sending authentication failure.'.format(
-                                json_message['user id'], self._format_parasite_for_log()))
+                                json_message['user id'] if 'user id' in json_message else 'unknown', self._format_parasite_for_log()))
             self._send_auth_fail()
             return
 
@@ -149,9 +153,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
         elif message_type == 'admin request':
             self._handle_admin_request(json_message['request type'], json_message['data'])
         else:
-            print('Received: ' + str(json_message))
+            log_from_server(LogLevel.critical, 'Received unknown message type: ' + str(json_message))
 
     def on_close(self):
+        if self.current_user is None:
+            return
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._user_list.update_user_typing_status(self.current_user['id'], False)
         self._user_list.update_user_last_active(self.current_user['id'])
@@ -437,7 +443,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def _get_tool_list(self, permission_level):
         if user_perm_has_access(self.current_user['permission'], permission_level):
-            log_from_server(LogLevel.info, "Sending {} tool list to parasite {}".format(permission_level, self._format_parasite_for_log()))
+            log_from_server(LogLevel.info, "{} Sending {} tool list to parasite".format(self._format_parasite_for_log(), permission_level))
             self.send({
                 'type': 'tool list',
                 'data': {
@@ -446,7 +452,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 }
             })
         else:
-            message = "Unauthorized tool list request for {} tools by parasite {}".format(permission_level, self._format_parasite_for_log())
+            message = "{} Unauthorized tool list request for {} tools by parasite".format(self._format_parasite_for_log(), permission_level)
             send_admin_email(self.http_server.admin_email, message)
 
     def _handle_data_request(self, data_type):
@@ -454,12 +460,12 @@ class NewMultiRoomChatConnection(SockJSConnection):
         data_error = None
         tool_data = None
         if can_use_tool(self.current_user['permission'], data_type):
-            log_from_server(LogLevel.info, "Fulfilling request for tool {} for parasite {}".format(data_type, self._format_parasite_for_log()))
+            log_from_server(LogLevel.info, "{} Fulfilling request for tool {} for parasite".format(self._format_parasite_for_log(), data_type))
             data = tool_data_request(self, data_type)
             tool_data = get_tool_data(data_type)
         else:
             data_error = 'Insufficient permissions'
-            message = "Unauthorized tool data request for tool {} by parasite {}".format(data_type, self._format_parasite_for_log())
+            message = "{} Unauthorized tool data request for tool {} by parasite".format( self._format_parasite_for_log(), data_type)
             send_admin_email(self.http_server.admin_email, message)
         self.send({
             'type': 'data response',
@@ -473,12 +479,12 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def _handle_admin_request(self, request_type, data):
         if can_use_tool(self.current_user['permission'], request_type):
-            log_from_server(LogLevel.info, "Executing tool {} for parasite {}".format(request_type, self._format_parasite_for_log()))
+            log_from_server(LogLevel.info, "{} Executing tool {} for parasite".format(self._format_parasite_for_log(), request_type))
             tool_data = get_tool_def(request_type)
             if tool_data['tool type'] ==  'grant':
                 self._handle_grant_tool(tool_data, data['parasite'])
         else:
-            message = "Unauthorized use attempt for tool {} by parasite {}".format(request_type, self._format_parasite_for_log())
+            message = "{} Unauthorized use attempt for tool {} by parasite".format(self._format_parasite_for_log(), request_type)
             send_admin_email(self.http_server.admin_email, message)
 
     def _handle_grant_tool(self, tool_data, parasite):
@@ -506,6 +512,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         """
         Authentication failed, send a message to the client to log out.
         """
+        log_from_server(LogLevel.debug, "{} Authentication failure.".format(self.session.session_id))
         self.send({'type': 'auth fail',
                    'data': {'username': 'Server',
                             'message': 'Cannot connect. Authentication failure!',

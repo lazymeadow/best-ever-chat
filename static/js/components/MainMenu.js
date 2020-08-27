@@ -61,7 +61,7 @@ export class MainMenu extends LoggingClass {
         this._menuContents.append(this._new_menu_item(
             'Log Out',
             ['fas', 'sign-out-alt'],
-            () => window.location = '/logout'
+            () => this._chatClient.disconnect(true)
         ));
     }
 

@@ -24,6 +24,7 @@ export class BestEvarChatClient {
         this._reconnectTimeout = null;
         this._reconnectCount = 0;
         this._unreadMessageCount = 0;
+        this._reconnectEnabled = true;
 
         this.connect();
     }
@@ -34,6 +35,7 @@ export class BestEvarChatClient {
         this._sock = new SockJS(`https://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
+            this._reconnectEnabled = true;
             if (this._disconnectedAlert) {
                 this._disconnectedAlert.remove();
                 this._disconnectedAlert = null;
@@ -46,12 +48,20 @@ export class BestEvarChatClient {
             });
         };
         this._sock.onmessage = (message) => this._handleMessage(message);
-        this._sock.onclose = () => {
-            console.log('Bye!');
-            this._attemptReconnect();
-        };
+        this._sock.onclose = () => this.disconnect(false);
 
         Logger.set_socket(this._sock);
+    }
+
+    disconnect(logout = false) {
+        console.log('Bye!');
+        if (logout) {
+            this._sock.close(1000);
+            location.replace('/logout');
+        }
+        else if (this._reconnectEnabled) {
+            this._attemptReconnect();
+        }
     }
 
     selectGeneralRoom() {
@@ -239,7 +249,8 @@ export class BestEvarChatClient {
 
     _handleMessage({data: {data: messageData, type: messageType}}) {
         if (messageType === 'auth fail') {
-            location.replace('/logout');
+            this._reconnectEnabled = false;
+            this.disconnect(true);
         }
         else if (messageType === 'room data') {
             this._receivedRoomData(messageData);
