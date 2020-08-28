@@ -3,7 +3,7 @@ import {LoggingClass, Settings} from "../util";
 
 export class User extends LoggingClass {
     constructor({username, color, faction, status, typing, id, lastActive}, userManager) {
-        super('User');
+        super();
         this._userManager = userManager;
 
         this.username = username;

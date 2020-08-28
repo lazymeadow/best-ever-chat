@@ -175,6 +175,11 @@ div.login, div.not-found, div.form {
       &:hover {
         background: lighten(@lightBackgroundColor, 10%);
       }
+
+      &:disabled {
+        background: lighten(@lightBackgroundColor, 10%);
+        color: lighten(@dark, 25%);
+      }
     }
 
     &.cancel {

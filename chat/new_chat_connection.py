@@ -2,14 +2,16 @@ import json
 from time import time
 
 from boto3 import resource
-from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
+from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
-from chat.loggers import log_from_client, log_from_server
+from chat.loggers import log_from_client, log_from_server, LogLevel
+from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def, \
+    tool_data_request
 
-CLIENT_VERSION = '3.3.0'
+CLIENT_VERSION = '4.0.0'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
@@ -32,7 +34,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._send_auth_fail()
             return False
 
-        log_from_server('DEBUG', 'Client ({}:{}) connecting...'.format(parasite, self.session.session_id))
+        parasite = parasite.decode("utf-8")
+
+        # format manually here because the current user is not yet defined
+        log_from_server(LogLevel.debug,
+                        '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
@@ -54,21 +60,27 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
         self._send_alert('Connection successful.')
 
-        log_from_server('debug', 'Client ({}:{}) connected successfully.'.format(parasite, self.session.session_id))
+        log_from_server(LogLevel.debug, '{} Client connected successfully.'.format(self._format_parasite_for_log()))
 
         # send queued messages
-        messages = self._message_queue.get_invitations(self.current_user['id'])
+        messages = self._message_queue.get_all(self.current_user['id'])
         for message in messages:
+            message_data = json.loads(message['content'])
+            if 'id' in message.keys():
+                message_data['id'] = message['id']
             self.send({'type': message['type'],
-                       'data': json.loads(message['content'])})
+                       'data': message_data})
 
-        log_from_server('debug', 'Sent client {} {} queued messages.'.format(parasite, len(messages)))
+        log_from_server(LogLevel.debug,
+                        '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
 
     def on_message(self, message):
         json_message = json.loads(message)
+        parasite = self.session.handler.get_secure_cookie('parasite')
 
-        if self.current_user['id'] != self.session.handler.get_secure_cookie('parasite'):
+        if parasite is None or self.current_user is None or self.current_user['id'] != parasite.decode("utf-8"):
             self._send_auth_fail()
+            return
 
         message_type = json_message['type']
         if message_type == 'client log':
@@ -76,10 +88,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
                             self.session.session_id)
             return
 
-        if json_message['user id'] != self.current_user['id']:
-            log_from_server('warning',
-                            'Socket message received from incorrect parasite ({}) from socket ({}:{}). Sending authentication failure.'.format(
-                                json_message['user id'], self.current_user['id'], self.session.session_id))
+        if 'user id' not in json_message or json_message['user id'] != self.current_user['id']:
+            log_from_server(LogLevel.warning,
+                            'Socket message received from incorrect parasite ({}) for client connection {}. Sending authentication failure.'.format(
+                                json_message['user id'] if 'user id' in json_message else 'unknown',
+                                self._format_parasite_for_log()))
             self._send_auth_fail()
             return
 
@@ -132,12 +145,22 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._send_alert('How did you mess up a perfectly good client version number?', 'permanent')
         elif message_type == 'settings':
             self._update_settings(json_message['data'])
+        elif message_type == 'remove alert':
+            self._message_queue.remove_alert(json_message['user id'], json_message['id'])
         elif message_type == 'bug' or message_type == 'feature':
             self._send_to_github(message_type, json_message['title'], json_message['body'])
+        elif message_type == 'tool list':
+            self._get_tool_list(json_message['tool set'])
+        elif message_type == 'data request':
+            self._handle_data_request(json_message['data type'])
+        elif message_type == 'admin request':
+            self._handle_admin_request(json_message['request type'], json_message['data'])
         else:
-            print 'Received: ' + str(json_message)
+            log_from_server(LogLevel.critical, 'Received unknown message type: ' + str(json_message))
 
     def on_close(self):
+        if self.current_user is None:
+            return
         self._user_list.update_user_status(self.current_user['id'], 'offline', self)
         self._user_list.update_user_typing_status(self.current_user['id'], False)
         self._user_list.update_user_last_active(self.current_user['id'])
@@ -308,7 +331,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._broadcast_alert(u'{} is now {}.'.format(old_username, new_username))
                 updates_map['username'] = new_username
 
-        for key, value in settings.iteritems():
+        for key, value in settings.items():
             old_value = self.current_user[key]
             if self._user_list.update_user_conf(self.current_user['id'], key, value):
                 self._send_alert('{} changed from {} to {}.'.format(key.title(), old_value, value))
@@ -421,12 +444,197 @@ class NewMultiRoomChatConnection(SockJSConnection):
         else:
             self._send_alert('Failed to create {}! ({})'.format(type, issue_json['message']), 'dismiss')
 
+    ### TOOL ACTIONS
+
+    def _get_tool_list(self, permission_level):
+        if user_perm_has_access(self.current_user['permission'], permission_level):
+            log_from_server(LogLevel.info, "{} Sending {} tool list to parasite".format(self._format_parasite_for_log(),
+                                                                                        permission_level))
+            self.send({
+                'type': 'tool list',
+                'data': {
+                    'data': get_tool_list(permission_level),
+                    'perm level': permission_level
+                }
+            })
+        else:
+            message = "{} Unauthorized tool list request for {} tools by parasite".format(
+                self._format_parasite_for_log(), permission_level)
+            send_admin_email(self.http_server.admin_email, message)
+
+    def _handle_data_request(self, data_type):
+        data = None
+        data_error = None
+        tool_data = None
+        if can_use_tool(self.current_user['permission'], data_type):
+            log_from_server(LogLevel.info,
+                            "{} Fulfilling request for tool {} for parasite".format(self._format_parasite_for_log(),
+                                                                                    data_type))
+            data = tool_data_request(self, data_type)
+            tool_data = get_tool_data(data_type)
+        else:
+            data_error = 'Insufficient permissions'
+            message = "{} Unauthorized tool data request for tool {} by parasite".format(
+                self._format_parasite_for_log(), data_type)
+            send_admin_email(self.http_server.admin_email, message)
+        self.send({
+            'type': 'data response',
+            'data': {
+                'request': data_type,
+                'data': data,
+                'tool info': tool_data,
+                'error': data_error
+            }
+        })
+
+    def _handle_admin_request(self, request_type, data):
+        if can_use_tool(self.current_user['permission'], request_type):
+            log_from_server(LogLevel.info,
+                            "{} Executing tool {} for parasite".format(self._format_parasite_for_log(), request_type))
+            tool_data = get_tool_def(request_type)
+            if tool_data['tool type'] == 'grant':
+                self._handle_grant_tool(tool_data, data['parasite'])
+            if tool_data['tool type'] == 'room':
+                self._handle_room_tool(tool_data, data['room'])
+            if tool_data['tool type'] == 'room owner':
+                self._handle_room_owner_tool(tool_data, data['room'], data['parasite'])
+            if tool_data['tool type'] == 'data':
+                self._handle_data_tool(tool_data, data['id'])
+            if tool_data['tool type'] == 'parasite':
+                self._handle_parasite_tool(tool_data, data['parasite'])
+        else:
+            message = "{} Unauthorized use attempt for tool {} by parasite".format(self._format_parasite_for_log(),
+                                                                                   request_type)
+            send_admin_email(self.http_server.admin_email, message)
+
+    def _handle_grant_tool(self, tool_data, parasite):
+        self._user_list.update_user_conf(parasite, 'permission', tool_data['grant'])
+        self.broadcast(self._user_list.get_user_participants(parasite), {
+            "type": "update",
+            "data": {'permission': tool_data['grant']}
+        })
+        self._message_queue.add_alert(parasite, json.dumps(tool_data['success alert']))
+        self.broadcast(self._user_list.get_user_participants(parasite), {
+            'type': 'alert',
+            'data': tool_data['success alert']
+        })
+        self._handle_data_request(tool_data['tool key'])
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](parasite),
+                'perm level': tool_data['perm level']
+            }
+        })
+
+    def _handle_room_tool(self, tool_data, room):
+        room_name = self._room_list.get_room_name(room)
+        # empty room log
+        if tool_data['tool action'] == 'empty':
+            self._room_list.empty_room_log(room)
+            room_members = self._room_list.get_room_participants(room)
+            self.broadcast(room_members, {
+                'type': 'room data',
+                'data': {
+                    'rooms': [self._room_list.get_room(room)],
+                    'all': False,
+                    'clear log': True
+                }
+            })
+        # delete room
+        if tool_data['tool action'] == 'delete':
+            self._delete_room(room)
+
+        self._handle_data_request(tool_data['tool key'])
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](room_name),
+                'perm level': tool_data['perm level']
+            }
+        })
+
+    def _handle_room_owner_tool(self, tool_data, room, new_owner):
+        success = self._room_list.set_room_owner(room, new_owner)
+        room_name = self._room_list.get_room_name(room)
+        if success:
+            self._broadcast_alert("You're now the owner of the room '{}'".format(room_name), 'dismiss', self._user_list.get_user_participants(new_owner))
+            [x._send_room_list(room_id=room) for x in self._room_list.get_room_participants(room)]
+            self._handle_data_request(tool_data['tool key'])
+            self.send({
+                'type': 'tool confirm',
+                'data': {
+                    'message': tool_data['tool confirm'](room_name, self._user_list.get_username(new_owner)),
+                    'perm level': tool_data['perm level']
+                }
+            })
+
+    def _handle_data_tool(self, tool_data, entity_id):
+        data = None
+        if tool_data['data type'] == 'parasite':
+            data = self._user_list.get_user(entity_id).copy()
+            del data['password']
+        if tool_data['data type'] == 'room':
+            data = self._room_list.get_room(entity_id).copy()
+            data['history'] = len(data['history'])
+
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](data),
+                'perm level': tool_data['perm level']
+            }
+        })
+
+    def _handle_parasite_tool(self, tool_data, parasite):
+        if tool_data['tool action'] == 'deactivate':
+            # make sure the user isn't online... that'd be awkward.
+            if len(self._user_list.get_user_participants(parasite)) != 0:
+                self.send({
+                    'type': 'tool confirm',
+                    'data': {
+                        'message': 'Lol, no.',
+                        'perm level': tool_data['perm level']
+                    }
+                })
+                return
+
+            # remove from all rooms
+            self._room_list.remove_user_from_all_rooms(parasite)
+            # remove all message queue items
+            self._message_queue.remove_all(parasite)
+            # deactivate user
+            self._user_list.deactivate_parasite(parasite)
+            # broadcast user list to all
+            self._broadcast_user_list()
+            self._broadcast_alert('{}\'s account has been deactivated.'.format(parasite))
+        elif tool_data['tool action'] == 'reactivate':
+            pass
+            # reactivate user
+            self._user_list.reactivate_parasite(parasite)
+            # add an alert to their queue so they know why everything's reset
+            self._message_queue.add_alert(parasite, json.dumps(tool_data['success alert']))
+            # broadcast user list to all
+            self._broadcast_user_list()
+            self._broadcast_alert('{}\'s account has been reactivated.'.format(parasite))
+
+        # return confirm
+        self._handle_data_request(tool_data['tool key'])
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](parasite),
+                'perm level': tool_data['perm level']
+            }
+        })
+
     ### GENERAL HELPER FUNCTIONS
 
     def _send_auth_fail(self):
         """
         Authentication failed, send a message to the client to log out.
         """
+        log_from_server(LogLevel.debug, "{} Authentication failure.".format(self.session.session_id))
         self.send({'type': 'auth fail',
                    'data': {'username': 'Server',
                             'message': 'Cannot connect. Authentication failure!',
@@ -445,7 +653,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         :return:
         """
         self.send({'type': 'alert', 'data': {'message': message,
-                                             'alert_type': alert_type}})
+                                             'type': alert_type}})
 
     def _send_from_server(self, message, room_id=None):
         """
@@ -487,13 +695,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.broadcast(send_to, {'type': message_type,
                                      'data': new_message})
 
+    def _format_parasite_for_log(self):
+        return "({}:{}@{})".format(self.current_user['id'], self.session.session_id, self.session.conn_info.ip)
 
-new_chat_router = SockJSRouter(NewMultiRoomChatConnection, prefix='/chat', user_settings={
-    'disabled_transports': [
-        'xhr',
-        'xhr_streaming',
-        'jsonp',
-        'htmlfile',
-        'eventsource'
-    ]
-})
+
+new_chat_router = SockJSRouter(NewMultiRoomChatConnection, '/chat')

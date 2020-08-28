@@ -25,6 +25,7 @@ export class Settings {
         Settings.color = Cookies.get('color');
         Settings.soundSet = Cookies.get('soundSet');
         Settings.email = Cookies.get('email');
+        Settings.permission = Cookies.get('permission');
 
         // set value overrides
         Settings.volume = Settings.volume || Cookies.get('volume');
@@ -157,5 +158,21 @@ export class Settings {
 
     static set email(email) {
         localStorage.setItem(`${Settings.userId}.email`, email);
+    }
+
+    static get permission() {
+        return localStorage.getItem(`${Settings.userId}.permission`) || 'user';
+    }
+
+    static set permission(permission) {
+        localStorage.setItem(`${Settings.userId}.permission`, permission);
+    }
+
+    static userIsModerator() {
+        return Settings.permission === 'mod' || Settings.userIsAdmin();
+    }
+
+    static userIsAdmin() {
+        return Settings.permission === 'admin';
     }
 }

@@ -7,10 +7,7 @@ import struct
 
 from tornado.escape import xhtml_unescape
 
-from ruleset import unicode_replace, \
-    shortcode_replace, ascii_replace
-
-chr = unichr
+from emoji.ruleset import unicode_replace, shortcode_replace, ascii_replace
 
 
 class Emoji(object):

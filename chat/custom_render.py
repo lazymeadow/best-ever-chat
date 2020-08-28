@@ -18,10 +18,14 @@ class BaseHandler(tornado.web.RequestHandler):
     def room_list(self):
         return self.application.room_list
 
+    @property
+    def admin_email(self):
+        return self.application.admin_email
+
     def get_current_user(self):
         user_id = self.get_secure_cookie("parasite")
         if not user_id: return None
-        return self.user_list.get_user(user_id)
+        return self.user_list.get_user(user_id.decode("utf-8"))
 
     def render_template(self, template_name, **kwargs):
         template_dirs = []

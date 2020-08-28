@@ -4,6 +4,8 @@ import {UserManager} from "../users";
 import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
+import {AdminTools} from "../components/Tools";
+import {ModTools} from "../components/Tools/ModTools";
 
 
 export class BestEvarChatClient {
@@ -22,6 +24,7 @@ export class BestEvarChatClient {
         this._reconnectTimeout = null;
         this._reconnectCount = 0;
         this._unreadMessageCount = 0;
+        this._reconnectEnabled = true;
 
         this.connect();
     }
@@ -32,6 +35,7 @@ export class BestEvarChatClient {
         this._sock = new SockJS(`https://${this._hostname}/${this._routingPath}/`);
 
         this._sock.onopen = () => {
+            this._reconnectEnabled = true;
             if (this._disconnectedAlert) {
                 this._disconnectedAlert.remove();
                 this._disconnectedAlert = null;
@@ -44,12 +48,20 @@ export class BestEvarChatClient {
             });
         };
         this._sock.onmessage = (message) => this._handleMessage(message);
-        this._sock.onclose = () => {
-            console.log('Bye!');
-            this._attemptReconnect();
-        };
+        this._sock.onclose = () => this.disconnect(false);
 
         Logger.set_socket(this._sock);
+    }
+
+    disconnect(logout = false) {
+        console.log('Bye!');
+        if (logout) {
+            this._sock.close(1000);
+            location.replace('/logout');
+        }
+        else if (this._reconnectEnabled) {
+            this._attemptReconnect();
+        }
     }
 
     selectGeneralRoom() {
@@ -202,6 +214,28 @@ export class BestEvarChatClient {
         });
     }
 
+    requestToolList(toolSet) {
+        this._send({
+            'type': 'tool list',
+            'tool set': toolSet
+        })
+    }
+
+    requestData(dataType) {
+        this._send({
+            'type': 'data request',
+            'data type': dataType
+        })
+    }
+
+    sendAdminRequest(requestType, data) {
+        this._send({
+            'type': 'admin request',
+            'request type': requestType,
+            data
+        })
+    }
+
     // Private functions
 
     _send(data) {
@@ -215,7 +249,8 @@ export class BestEvarChatClient {
 
     _handleMessage({data: {data: messageData, type: messageType}}) {
         if (messageType === 'auth fail') {
-            location.replace('/logout');
+            this._reconnectEnabled = false;
+            this.disconnect(true);
         }
         else if (messageType === 'room data') {
             this._receivedRoomData(messageData);
@@ -241,10 +276,19 @@ export class BestEvarChatClient {
         else if (messageType === 'invitation') {
             this._receivedInvitation(messageData);
         }
+        else if (messageType === 'tool list') {
+            this._receivedToolList(messageData);
+        }
+        else if (messageType === 'data response') {
+            this._receivedToolData(messageData);
+        }
+        else if (messageType === 'tool confirm') {
+            this._receivedToolConfirm(messageData);
+        }
     }
 
-    _receivedRoomData({rooms, all}) {
-        this._roomManager.addRooms(rooms, all);
+    _receivedRoomData({rooms, all, 'clear log': clearLog}) {
+        this._roomManager.addRooms(rooms, all, clearLog);
     }
 
     _receivedPrivateMessageData({threads}) {
@@ -256,13 +300,31 @@ export class BestEvarChatClient {
     }
 
     _receivedUpdate(messageData) {
+
         $.each(messageData, (key, value) => {
-            Settings[key] = value;
-            if (key === 'volume') {
-                SoundManager.updateVolume();
+            if (key === 'permission') {
+                if (Settings.permission !== value) {
+                    Settings.permission = value;
+                    if (value === 'user') {
+                        new Alert({
+                            content: 'Your special permissions have been removed.',
+                            type: 'dismiss',
+                            dismissText: 'Fine'
+                        });
+                    }
+                    if (this._mainMenu) {
+                        this._mainMenu.redraw();
+                    }
+                }
             }
-            if (key === 'soundSet') {
-                this._soundManager.updateSoundSet();
+            else {
+                Settings[key] = value;
+                if (key === 'volume') {
+                    SoundManager.updateVolume();
+                }
+                if (key === 'soundSet') {
+                    this._soundManager.updateSoundSet();
+                }
             }
         });
     }
@@ -289,8 +351,15 @@ export class BestEvarChatClient {
         this._incrementUnreadMessageCount();
     }
 
-    _receivedAlert({message, alert_type}) {
-        new Alert({content: message, type: alert_type});
+    _receivedAlert({id, message, ...alertProps}) {
+        let dismissCallback;
+        if (id) {  // this is a persistent message, tell the server to get rid of it, too
+            dismissCallback = () => {
+                this._send({type: 'remove alert', id});
+            }
+        }
+
+        new Alert({content: message, dismissCallback, ...alertProps});
         if (message.includes('offline')) {
             this._soundManager.playDisconnected();
             this._notificationManager.sendStatusNotification(message, '', 'sleep');
@@ -298,6 +367,34 @@ export class BestEvarChatClient {
         else if (message.includes('online')) {
             this._soundManager.playConnected();
             this._notificationManager.sendStatusNotification(message, '', 'walk');
+        }
+    }
+
+    _receivedToolList({'perm level': permLevel, data}) {
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).setTools(data);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).setTools(data);
+        }
+    }
+
+    _receivedToolData(toolData) {
+        const permLevel = toolData['tool info']['perm level'];
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).populateTool(toolData);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).populateTool(toolData);
+        }
+    }
+
+    _receivedToolConfirm({'perm level': permLevel, message}) {
+        if (permLevel === 'admin') {
+            AdminTools.instance(this).toolConfirm(message);
+        }
+        else if (permLevel === 'mod') {
+            ModTools.instance(this).toolConfirm(message);
         }
     }
 

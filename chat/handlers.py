@@ -4,15 +4,16 @@ from random import randint
 import tornado
 from itsdangerous import URLSafeTimedSerializer
 from tornado import escape, gen
-from tornado.escape import url_escape
+from tornado.escape import url_escape, json_decode
 
 from chat.custom_render import BaseHandler
-from chat.emails import send_reset_email
-from chat.lib import hash_password, check_password
+from chat.emails import send_reset_email, send_reactivation_request_email
+from chat.lib import hash_password, check_password, db_upsert
 
 
 class PageHandler(BaseHandler):
     """Regular HTTP handler to serve the chatroom page"""
+    SUPPORTED_METHODS = ("GET")
 
     @tornado.web.authenticated
     def get(self):
@@ -27,12 +28,15 @@ class PageHandler(BaseHandler):
         self.set_cookie('soundSet', self.current_user['soundSet'] or 'AIM')
         self.set_cookie('email', self.current_user['email'] or '')
         self.set_cookie('faction', self.current_user['faction'] or 'rebel')
+        self.set_cookie('permission', self.current_user['permission'] or 'user')
         self.set_cookie('id', self.current_user['id'])
         self.render2('index.html', emoji_list=self.settings['emojis'])
 
 
 class MobileHandler(BaseHandler):
     """Regular HTTP handler to serve the chatroom page"""
+
+    SUPPORTED_METHODS = ("GET")
 
     @tornado.web.authenticated
     def get(self):
@@ -43,6 +47,8 @@ class MobileHandler(BaseHandler):
 
 
 class ValidateHandler(BaseHandler):
+    SUPPORTED_METHODS = ("POST")
+
     @tornado.web.authenticated
     def post(self):
         new_name = self.get_argument('set_name', default=None, strip=True)
@@ -58,6 +64,8 @@ class ValidateHandler(BaseHandler):
 
 
 class AuthCreateHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
     def get(self):
         self.render2("create_user.html", error=None)
 
@@ -65,57 +73,110 @@ class AuthCreateHandler(BaseHandler):
     def post(self):
         parasite = self.get_argument("parasite")
 
-        if self.user_list.is_existing_user(parasite):
+        if self.user_list.is_a_user(parasite):
             self.render2("create_user.html", error="Invalid username.")
             return
         if self.get_argument("password") == self.get_argument("password2"):
             hashed_password = yield hash_password(escape.utf8(self.get_argument("password")))
             username = parasite if self.user_list.is_valid_username(parasite) else '{}_{}'.format(parasite,
                                                                                                   randint(1000, 9999))
-            self.db.execute(
+            db_upsert(self.db,
                 "INSERT INTO parasite (id, email, password, username) VALUES (%s, %s, %s, _utf8mb4%s)",
                 parasite, self.get_argument("email"), hashed_password, username)
             self.user_list.load_user(parasite)
             self.room_list.add_user_to_member_list(0, parasite)
-            self.render2("login.html", username=parasite, location='login')
+            self.render2("login.html", username=parasite, location='login', message='All signed up! I hope you remember that password. Time to log in!')
         else:
             self.render2("create_user.html", username=parasite, email=self.get_argument("email"),
                          error="Password entries must match.")
 
 
 class AuthLoginHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
     def get(self):
         if self.get_secure_cookie("parasite"):
-            self.redirect(self.get_argument("next", "/"))
+            self.redirect('/')
         self.render2("login.html", error=self.get_argument("error", default=None))
 
     @gen.coroutine
     def post(self):
-        parasite = self.user_list.get_user(self.get_argument('parasite'))
-        try:
-            if check_password(self.get_argument('password'), parasite['password']):
-                self.set_secure_cookie("parasite", str(parasite['id']), expires_days=90)
-                self.redirect(self.get_argument("next", "/"))
+        json_request = False
+        if self.request.headers['Content-Type'] == 'application/json':
+            json_request = True
+            self.args = json_decode(self.request.body)
+            parasite_id = self.args['parasite']
+            password = self.args['password']
+        else:
+            parasite_id = self.get_argument('parasite')
+            password = self.get_argument('password')
+        parasite = self.user_list.get_user(parasite_id)
+
+        if parasite is None and self.user_list.is_a_user(parasite_id) and not self.user_list.is_active_user(parasite_id):
+            error_message = "Your account has been deactivated."
+            if json_request:
+                self.set_status(401, error_message)
+                self.write(json.dumps({'error': error_message + " Visit the website to reactivate."}))
             else:
-                self.render2("login.html", error="Incorrect username or password.")
+                self.render2("reactivate.html", error=error_message, username=parasite_id)
+            return
+
+        error_message = "Incorrect username or password."
+
+        try:
+            if check_password(password, parasite['password']):
+                self.set_secure_cookie("parasite", str(parasite['id']), expires_days=90)
+                if json_request:
+                    self.write(json.dumps({'success': True, 'cookie name': 'parasite'}))
+                else:
+                    self.redirect('/')
+            else:
+                if json_request:
+                    self.set_status(401, error_message)
+                    self.write(json.dumps({'error': error_message}))
+                else:
+                    self.render2("login.html", error=error_message)
         except:
-            self.render2("login.html", error="Incorrect username or password.")
+            if json_request:
+                self.set_status(401, error_message)
+                self.write(json.dumps({'error': error_message}))
+            else:
+                self.render2("login.html", error=error_message)
 
 
 class AuthLogoutHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET")
+
     def get(self):
         self.clear_all_cookies()
         self.redirect("login")
 
+class ReactivateHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
+    def get(self):
+        self.render2("reactivate.html", error=None)
+
+    def post(self):
+        parasite_id = self.get_argument('parasite')
+        # the parasite IS an account, and IS inactive
+        if self.user_list.is_a_user(parasite_id) and not self.user_list.is_active_user(parasite_id):
+            send_reactivation_request_email(self.admin_email, parasite_id)
+            self.render2("login.html", message="Your request has been submitted. Hold on to your butts.")
+        else:
+            self.render2("reactivate.html", error="Stop that.")
+
 
 class AuthPasswordResetHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
     def get(self):
         token = self.get_argument("token")
         try:
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and parasite_record.reset_token == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
@@ -130,7 +191,7 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and self.get_argument("password") == self.get_argument(
                     "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
                 parasite, self.get_argument("password"), check_match=False):
@@ -142,6 +203,8 @@ class AuthPasswordResetHandler(BaseHandler):
 
 
 class AuthPasswordResetRequestHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
     def get(self):
         self.render2("forgot_password.html", error=None)
 
