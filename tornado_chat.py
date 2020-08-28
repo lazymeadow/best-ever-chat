@@ -10,7 +10,8 @@ import pymysql
 from tornado.ioloop import IOLoop
 
 from chat.handlers import ValidateHandler, AuthLoginHandler, AuthCreateHandler, AuthLogoutHandler, \
-    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler, MobileHandler
+    AuthPasswordResetHandler, AuthPasswordResetRequestHandler, PageHandler, Chat404Handler, MobileHandler, \
+    ReactivateHandler
 from chat.loggers import log_from_server, LogLevel
 from chat.message_queue import MessageQueue
 from chat.new_chat_connection import new_chat_router
@@ -97,7 +98,8 @@ if __name__ == "__main__":
                    (r"/logout", AuthLogoutHandler),
                    (r"/forgot_password", AuthPasswordResetRequestHandler),
                    (r"/reset_password", AuthPasswordResetHandler),
-                   ('/validate_username', ValidateHandler)
+                   ('/validate_username', ValidateHandler),
+                   ('/reactivate', ReactivateHandler)
                ] + new_chat_router.urls
 
     http_server = Application(handlers, settings)

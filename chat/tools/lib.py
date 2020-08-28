@@ -117,24 +117,32 @@ _tool_defs = {
     'deactivate parasite': {
         'perm level': ADMIN_PERM,
         'tool type': 'parasite',
+        'tool action': 'deactivate',
         'display name': 'Deactivate parasite',
         'tool description': 'Set the chosen parasite to inactive. Removes all alerts and invitations, removes them '
                             'from all rooms, resets their display name to their id, and empties their reset token. '
                             'Inactive parasites are blocked from logging in, and must re-request access from an admin.',
         'tool text': 'Go away',
-        'data function': lambda conn: [],
+        'data function': lambda conn: conn._user_list.get_active_user_ids(),
         'no data': 'I guess you\'re the only one here.',
         'tool confirm': lambda parasite: 'Deactivated parasite: {}'.format(parasite),
     },
     'reactivate parasite': {
         'perm level': ADMIN_PERM,
         'tool type': 'parasite',
+        'tool action': 'reactivate',
         'display name': 'Reactivate parasite',
         'tool description': 'Sets a parasite back to active. Restores nothing. They can do that when they log in.',
         'tool text': 'Perform necromancy',
-        'data function': lambda conn: [],
+        'data function': lambda conn: conn._user_list.get_inactive_user_ids(),
         'no data': 'No candidates for zombification.',
         'tool confirm': lambda parasite: "You've resurrected {}. Now you must live with that choice.".format(parasite),
+        'success alert': {
+            'type': 'dismiss',
+            'message': 'Your account was reactivated. All settings are back to default, and if you were in any rooms... '
+                       'well, you aren\'t anymore. Welcome back!',
+            'dismissText': 'Sick'
+        },
     },
     'view parasite data': {
         'perm level': ADMIN_PERM,

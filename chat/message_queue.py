@@ -32,3 +32,8 @@ class MessageQueue:
 
     def get_all(self, user_id):
         return self.get_invitations(user_id) + self.get_alerts(user_id)
+
+    def remove_all(self, user_id):
+        db_delete(self.db, "DELETE FROM alerts WHERE parasite_id = %s", user_id)
+        db_delete(self.db, "DELETE FROM invitations WHERE parasite_id = %s", user_id)
+

@@ -100,7 +100,15 @@ export default class ToolsBase extends LoggingClass {
     }
 
     _buildParasiteTool(toolDataSelect, data, toolInfo, request) {
-
+        this._toolContent.append($('<div>').addClass('form-group tools')
+            .append($('<div>').addClass('form-element')
+                .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
+                .append(toolDataSelect
+                    .append(data.map(element => $('<option>', {
+                        value: element.id,
+                        text: element.id
+                    }))))))
+            .append(this._buildRunToolButton(request, () => ({parasite: $('#tool_select').val()})));
     }
 
     _buildDataTool(toolDataSelect, data, toolInfo, request) {

@@ -587,7 +587,46 @@ class NewMultiRoomChatConnection(SockJSConnection):
         })
 
     def _handle_parasite_tool(self, tool_data, parasite):
-        pass
+        if tool_data['tool action'] == 'deactivate':
+            # make sure the user isn't online... that'd be awkward.
+            if len(self._user_list.get_user_participants(parasite)) != 0:
+                self.send({
+                    'type': 'tool confirm',
+                    'data': {
+                        'message': 'Lol, no.',
+                        'perm level': tool_data['perm level']
+                    }
+                })
+                return
+
+            # remove from all rooms
+            self._room_list.remove_user_from_all_rooms(parasite)
+            # remove all message queue items
+            self._message_queue.remove_all(parasite)
+            # deactivate user
+            self._user_list.deactivate_parasite(parasite)
+            # broadcast user list to all
+            self._broadcast_user_list()
+            self._broadcast_alert('{}\'s account has been deactivated.'.format(parasite))
+        elif tool_data['tool action'] == 'reactivate':
+            pass
+            # reactivate user
+            self._user_list.reactivate_parasite(parasite)
+            # add an alert to their queue so they know why everything's reset
+            self._message_queue.add_alert(parasite, json.dumps(tool_data['success alert']))
+            # broadcast user list to all
+            self._broadcast_user_list()
+            self._broadcast_alert('{}\'s account has been reactivated.'.format(parasite))
+
+        # return confirm
+        self._handle_data_request(tool_data['tool key'])
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](parasite),
+                'perm level': tool_data['perm level']
+            }
+        })
 
     ### GENERAL HELPER FUNCTIONS
 

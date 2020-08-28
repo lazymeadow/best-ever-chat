@@ -7,7 +7,7 @@ from tornado import escape, gen
 from tornado.escape import url_escape, json_decode
 
 from chat.custom_render import BaseHandler
-from chat.emails import send_reset_email
+from chat.emails import send_reset_email, send_reactivation_request_email
 from chat.lib import hash_password, check_password, db_upsert
 
 
@@ -73,7 +73,7 @@ class AuthCreateHandler(BaseHandler):
     def post(self):
         parasite = self.get_argument("parasite")
 
-        if self.user_list.is_existing_user(parasite):
+        if self.user_list.is_a_user(parasite):
             self.render2("create_user.html", error="Invalid username.")
             return
         if self.get_argument("password") == self.get_argument("password2"):
@@ -112,6 +112,15 @@ class AuthLoginHandler(BaseHandler):
             password = self.get_argument('password')
         parasite = self.user_list.get_user(parasite_id)
 
+        if parasite is None and self.user_list.is_a_user(parasite_id) and not self.user_list.is_active_user(parasite_id):
+            error_message = "Your account has been deactivated."
+            if json_request:
+                self.set_status(401, error_message)
+                self.write(json.dumps({'error': error_message + " Visit the website to reactivate."}))
+            else:
+                self.render2("reactivate.html", error=error_message, username=parasite_id)
+            return
+
         error_message = "Incorrect username or password."
 
         try:
@@ -142,6 +151,21 @@ class AuthLogoutHandler(BaseHandler):
         self.clear_all_cookies()
         self.redirect("login")
 
+class ReactivateHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET", "POST")
+
+    def get(self):
+        self.render2("reactivate.html", error=None)
+
+    def post(self):
+        parasite_id = self.get_argument('parasite')
+        # the parasite IS an account, and IS inactive
+        if self.user_list.is_a_user(parasite_id) and not self.user_list.is_active_user(parasite_id):
+            send_reactivation_request_email(self.admin_email, parasite_id)
+            self.render2("login.html", message="Your request has been submitted. Hold on to your butts.")
+        else:
+            self.render2("reactivate.html", error="Stop that.")
+
 
 class AuthPasswordResetHandler(BaseHandler):
     SUPPORTED_METHODS = ("GET", "POST")
@@ -152,7 +176,7 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and parasite_record.reset_token == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
@@ -167,7 +191,7 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s", parasite)
+            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and self.get_argument("password") == self.get_argument(
                     "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
                 parasite, self.get_argument("password"), check_match=False):

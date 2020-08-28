@@ -168,6 +168,15 @@ class RoomList:
         self._room_map[room_id]['members'].discard(user_id)
         return True
 
+    def remove_user_from_all_rooms(self, user_id):
+        if not self._user_list.is_existing_user(user_id):
+            return None
+
+        for room in self.get_sparse_room_list_for_user(user_id):
+            self._room_map[room['id']]['members'].discard(user_id)
+
+        db_delete(self.db, "DELETE FROM room_access WHERE parasite_id = %s", user_id)
+
     def set_room_owner(self, room_id, user_id):
         if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys() or user_id not in self._room_map[room_id]['members']:
             return None

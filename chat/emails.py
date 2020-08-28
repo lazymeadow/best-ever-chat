@@ -30,6 +30,11 @@ def send_password_changed_email(email_address, user):
                    user),
                image='cat_rascal')
 
+def send_reactivation_request_email(email_address, user):
+    send_email(email_address, subject='Reactivation request', title='Reactivation request',
+               text_content='Parasite {} is requesting reactivation.'.format(user),
+               html_content='Parasite {} has submitted a request for reactivation.<br/>'
+               'To grant this request, use the admin tools inside the chat.'.format(user))
 
 def send_email(email_address, subject, title, text_content, html_content, image=None):
     sender = 'server@bestevarchat.com'

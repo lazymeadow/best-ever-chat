@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from chat.emails import send_password_changed_email
-from chat.lib import hash_password, check_password, db_select, db_select_one, db_upsert
+from chat.lib import hash_password, check_password, db_select, db_select_one, db_upsert, db_delete
 from chat.loggers import log_from_server, LogLevel
 from chat.tools.lib import ADMIN_PERM, MOD_PERM, USER_PERM
 
@@ -38,7 +38,7 @@ class UserList:
     def __init__(self, db):
         log_from_server(LogLevel.info, 'Initializing user list...')
         self.db = db
-        parasites = db_select(self.db, "SELECT id FROM parasite")
+        parasites = db_select(self.db, "SELECT id FROM parasite WHERE activeAccount = true")
         for parasite in parasites:
             self.load_user(parasite['id'])
 
@@ -46,8 +46,7 @@ class UserList:
         return user_id in self._user_map.keys()
 
     def is_valid_username(self, user_name):
-        return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (
-                user_name not in self._user_map.keys())
+        return self.is_a_user(user_name) != True or user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]
 
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
@@ -193,6 +192,29 @@ class UserList:
 
     def get_all(self):
         return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map]
+
+    def get_inactive_user_ids(self):
+        return db_select(self.db, "SELECT id FROM parasite WHERE activeAccount = false")
+
+    def get_active_user_ids(self):
+        return db_select(self.db, "SELECT id FROM parasite WHERE activeAccount = true")
+
+    def deactivate_parasite(self, user_id):
+        db_delete(self.db, "DELETE FROM parasite_config WHERE parasite_id = %s", user_id)
+        db_upsert(self.db, "UPDATE parasite SET activeAccount = false, last_active = null, reset_token = null WHERE id = %s", user_id)
+        del self._user_map[user_id]
+
+    def reactivate_parasite(self, user_id):
+        db_upsert(self.db, "UPDATE parasite SET activeAccount = true WHERE id = %s", user_id)
+        self.load_user(user_id)
+
+    def is_active_user(self, user_id):
+        parasite = db_select_one(self.db, "SELECT activeAccount FROM parasite WHERE id = %s", user_id)
+        return bool.from_bytes(parasite['activeAccount'], byteorder='big')
+
+    def is_a_user(self, user_id):
+        parasite = db_select_one(self.db, "SELECT id FROM parasite WHERE id = %s", user_id)
+        return parasite != None
 
     def __str__(self):
         return json.dumps(self.get_user_list())
