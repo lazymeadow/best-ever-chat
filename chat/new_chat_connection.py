@@ -37,7 +37,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
         parasite = parasite.decode("utf-8")
 
         # format manually here because the current user is not yet defined
-        log_from_server(LogLevel.debug, '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
+        log_from_server(LogLevel.debug,
+                        '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
 
         self._user_list = self.http_server.user_list
         self._room_list = self.http_server.room_list
@@ -70,7 +71,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self.send({'type': message['type'],
                        'data': message_data})
 
-        log_from_server(LogLevel.debug, '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
+        log_from_server(LogLevel.debug,
+                        '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -89,7 +91,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
         if 'user id' not in json_message or json_message['user id'] != self.current_user['id']:
             log_from_server(LogLevel.warning,
                             'Socket message received from incorrect parasite ({}) for client connection {}. Sending authentication failure.'.format(
-                                json_message['user id'] if 'user id' in json_message else 'unknown', self._format_parasite_for_log()))
+                                json_message['user id'] if 'user id' in json_message else 'unknown',
+                                self._format_parasite_for_log()))
             self._send_auth_fail()
             return
 
@@ -441,9 +444,12 @@ class NewMultiRoomChatConnection(SockJSConnection):
         else:
             self._send_alert('Failed to create {}! ({})'.format(type, issue_json['message']), 'dismiss')
 
+    ### TOOL ACTIONS
+
     def _get_tool_list(self, permission_level):
         if user_perm_has_access(self.current_user['permission'], permission_level):
-            log_from_server(LogLevel.info, "{} Sending {} tool list to parasite".format(self._format_parasite_for_log(), permission_level))
+            log_from_server(LogLevel.info, "{} Sending {} tool list to parasite".format(self._format_parasite_for_log(),
+                                                                                        permission_level))
             self.send({
                 'type': 'tool list',
                 'data': {
@@ -452,7 +458,8 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 }
             })
         else:
-            message = "{} Unauthorized tool list request for {} tools by parasite".format(self._format_parasite_for_log(), permission_level)
+            message = "{} Unauthorized tool list request for {} tools by parasite".format(
+                self._format_parasite_for_log(), permission_level)
             send_admin_email(self.http_server.admin_email, message)
 
     def _handle_data_request(self, data_type):
@@ -460,12 +467,15 @@ class NewMultiRoomChatConnection(SockJSConnection):
         data_error = None
         tool_data = None
         if can_use_tool(self.current_user['permission'], data_type):
-            log_from_server(LogLevel.info, "{} Fulfilling request for tool {} for parasite".format(self._format_parasite_for_log(), data_type))
+            log_from_server(LogLevel.info,
+                            "{} Fulfilling request for tool {} for parasite".format(self._format_parasite_for_log(),
+                                                                                    data_type))
             data = tool_data_request(self, data_type)
             tool_data = get_tool_data(data_type)
         else:
             data_error = 'Insufficient permissions'
-            message = "{} Unauthorized tool data request for tool {} by parasite".format( self._format_parasite_for_log(), data_type)
+            message = "{} Unauthorized tool data request for tool {} by parasite".format(
+                self._format_parasite_for_log(), data_type)
             send_admin_email(self.http_server.admin_email, message)
         self.send({
             'type': 'data response',
@@ -479,12 +489,18 @@ class NewMultiRoomChatConnection(SockJSConnection):
 
     def _handle_admin_request(self, request_type, data):
         if can_use_tool(self.current_user['permission'], request_type):
-            log_from_server(LogLevel.info, "{} Executing tool {} for parasite".format(self._format_parasite_for_log(), request_type))
+            log_from_server(LogLevel.info,
+                            "{} Executing tool {} for parasite".format(self._format_parasite_for_log(), request_type))
             tool_data = get_tool_def(request_type)
-            if tool_data['tool type'] ==  'grant':
+            if tool_data['tool type'] == 'grant':
                 self._handle_grant_tool(tool_data, data['parasite'])
+            if tool_data['tool type'] == 'room':
+                self._handle_room_tool(tool_data, data['room'])
+            if tool_data['tool type'] == 'room owner':
+                self._handle_room_owner_tool(tool_data, data['room'], data['parasite'])
         else:
-            message = "{} Unauthorized use attempt for tool {} by parasite".format(self._format_parasite_for_log(), request_type)
+            message = "{} Unauthorized use attempt for tool {} by parasite".format(self._format_parasite_for_log(),
+                                                                                   request_type)
             send_admin_email(self.http_server.admin_email, message)
 
     def _handle_grant_tool(self, tool_data, parasite):
@@ -501,9 +517,53 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._handle_data_request(tool_data['tool key'])
         self.send({
             'type': 'tool confirm',
-            'data': tool_data['tool confirm'](parasite),
-            'perm level': tool_data['perm level']
+            'data': {
+                'message': tool_data['tool confirm'](parasite),
+                'perm level': tool_data['perm level']
+            }
         })
+
+    def _handle_room_tool(self, tool_data, room):
+        room_name = self._room_list.get_room_name(room)
+        # empty room log
+        if tool_data['tool action'] == 'empty':
+            self._room_list.empty_room_log(room)
+            room_members = self._room_list.get_room_participants(room)
+            self.broadcast(room_members, {
+                'type': 'room data',
+                'data': {
+                    'rooms': [self._room_list.get_room(room)],
+                    'all': False,
+                    'clear log': True
+                }
+            })
+        # delete room
+        if tool_data['tool action'] == 'delete':
+            self._delete_room(room)
+
+        self._handle_data_request(tool_data['tool key'])
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](room_name),
+                'perm level': tool_data['perm level']
+            }
+        })
+
+    def _handle_room_owner_tool(self, tool_data, room, new_owner):
+        success = self._room_list.set_room_owner(room, new_owner)
+        room_name = self._room_list.get_room_name(room)
+        if success:
+            self._broadcast_alert("You're now the owner of the room '{}'".format(room_name), 'dismiss', self._user_list.get_user_participants(new_owner))
+            [x._send_room_list(room_id=room) for x in self._room_list.get_room_participants(room)]
+            self._handle_data_request(tool_data['tool key'])
+            self.send({
+                'type': 'tool confirm',
+                'data': {
+                    'message': tool_data['tool confirm'](room_name, self._user_list.get_username(new_owner)),
+                    'perm level': tool_data['perm level']
+                }
+            })
 
 
     ### GENERAL HELPER FUNCTIONS

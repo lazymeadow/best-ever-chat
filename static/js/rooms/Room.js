@@ -15,7 +15,8 @@ export class Room extends LoggingClass {
         this._messageHistory = new Set(history);
 
         // create a dom element for the room
-        this._roomElement = this._createRoomElement();
+        this._roomElement = $('<div>', {id: `room_${this.id}`});
+        this._createRoomElement();
     }
 
     get messageHistory() {
@@ -24,6 +25,14 @@ export class Room extends LoggingClass {
 
     get template() {
         return this._roomElement;
+    }
+
+    set owner(newOwner) {
+        this.isMine = newOwner === Settings.userId;
+    }
+
+    resetHistory() {
+        this._messageHistory = new Set();
     }
 
     addMessage(messageData) {
@@ -41,13 +50,18 @@ export class Room extends LoggingClass {
         this.template.click();
     }
 
+    refreshRoomElement() {
+        this._createRoomElement();
+    }
+
     /**
      * Create a new jQuery element for the room list using the provided Room object.
      * @returns {*|{trigger, _default}} jQuery element
      * @private
      */
     _createRoomElement() {
-        let roomElement = $('<div>');
+        this._roomElement.empty();
+
         let elementBody = $('<div>', {title: this.name})
             .append($('<span>').addClass('message-indicator far fa-fw fa-comments'))
             .append($('<span>').addClass('list-content').text(this.name));
@@ -121,7 +135,7 @@ export class Room extends LoggingClass {
                     event.stopPropagation();
 
                     // collapse all the other menus
-                    let otherRows = roomElement.siblings();
+                    let otherRows = this._roomElement.siblings();
                     otherRows.each((index, element) => {
                         // toggle the arrow directions
                         $(element).children().first()
@@ -136,14 +150,14 @@ export class Room extends LoggingClass {
                     menu.toggle();
                 });
             elementBody.append(menuButton);
-            roomElement.append(menu);
+            this._roomElement.append(menu);
         }
 
-        return roomElement.prepend(elementBody)
+        this._roomElement.prepend(elementBody)
             .click(() => {
                 $('.current').removeClass('current');
-                roomElement.addClass('current');
-                roomElement.removeClass('has-messages');
+                this._roomElement.addClass('current');
+                this._roomElement.removeClass('has-messages');
                 this._roomManager.setActiveRoom(this.id);
             });
     }

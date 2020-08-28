@@ -287,8 +287,8 @@ export class BestEvarChatClient {
         }
     }
 
-    _receivedRoomData({rooms, all}) {
-        this._roomManager.addRooms(rooms, all);
+    _receivedRoomData({rooms, all, 'clear log': clearLog}) {
+        this._roomManager.addRooms(rooms, all, clearLog);
     }
 
     _receivedPrivateMessageData({threads}) {
@@ -389,12 +389,12 @@ export class BestEvarChatClient {
         }
     }
 
-    _receivedToolConfirm({'perm level': permLevel, data}) {
+    _receivedToolConfirm({'perm level': permLevel, message}) {
         if (permLevel === 'admin') {
-            AdminTools.instance(this).toolConfirm(data);
+            AdminTools.instance(this).toolConfirm(message);
         }
         else if (permLevel === 'mod') {
-            ModTools.instance(this).toolConfirm(data);
+            ModTools.instance(this).toolConfirm(message);
         }
     }
 

@@ -492,6 +492,7 @@ export class MainMenu extends LoggingClass {
                     title: 'All Your Base Are Belong to Us',
                     content: modTools.getToolsContent(),
                     buttonText: 'For great justice.',
+                    onCancel: () => modTools.resetTools(),
                     buttonClickHandler: () => {
                         modTools.resetTools();
                         return false;
@@ -514,6 +515,7 @@ export class MainMenu extends LoggingClass {
                     title: 'Super Secret Stuff',
                     content: adminTools.getToolsContent(),
                     buttonText: '1337 h4xx',
+                    onCancel: () => adminTools.resetTools(),
                     buttonClickHandler: () => {
                         adminTools.resetTools();
                         return false;

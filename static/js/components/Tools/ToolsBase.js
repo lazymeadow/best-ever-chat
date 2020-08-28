@@ -31,7 +31,7 @@ export default class ToolsBase extends LoggingClass {
         this._toolsSelect.val(null);
 
         this._toolsElement
-            .append($('<div>').addClass('form-group')
+            .append($('<div>').addClass('form-group tools')
                 .append($('<div>').addClass('form-element')
                     .append($('<label>', {text: 'Pick One', for: 'admin_tool'}))
                     .append(this._toolsSelect)))
@@ -49,11 +49,67 @@ export default class ToolsBase extends LoggingClass {
     }
 
     _emptyModalMessage() {
-        $(`#${this.modalId} message`).empty();
+        $(`#${this.modalId} .message`).empty();
     }
 
     _setModalMessage(message) {
-        $(`#${this.modalId} message`).text(message);
+        $(`#${this.modalId} .message`).text(message);
+    }
+
+    _buildGrantTool(toolDataSelect, data, toolInfo, request) {
+        this._toolContent.append($('<div>').addClass('form-group tools')
+            .append($('<div>').addClass('form-element')
+                .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
+                .append(toolDataSelect
+                    .append(data.map(element => $('<option>', {
+                        value: element.id,
+                        text: `${element.id} (${element.username})`
+                    }))))))
+            .append(this._buildRunToolButton(request, () => ({parasite: $('#tool_select').val()})));
+        toolDataSelect.val(null);
+    }
+
+    _buildRoomTool(toolDataSelect, data, toolInfo, request) {
+        this._toolContent.append($('<div>').addClass('form-element')
+            .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
+            .append(toolDataSelect
+                .append(data.map(element => $('<option>', {
+                    value: element.id,
+                    text: `${element.name} (${element.id})`
+                })))))
+            .append(this._buildRunToolButton(request, () => ({room: parseInt($('#tool_select').val())})));
+        toolDataSelect.val(null);
+    }
+
+    _buildRoomOwnerTool(toolDataSelect, data, toolInfo, request) {
+        function handle_room_choice() {
+            const members = $(this[this.options.selectedIndex]).data('members');
+            $('#tool_select2').attr('disabled', false).html(members.map(element => $('<option>', {
+                value: element,
+                text: element
+            })));
+        }
+
+        this._toolContent.append($('<div>').addClass('form-element')
+            .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
+            .append(toolDataSelect
+                .append(data.map(element => $('<option>', {
+                    value: element.id,
+                    text: `${element.name} (${element.id})`
+                }).data('members', element.members)))
+                .change(handle_room_choice)))
+            .append($('<div>').addClass('form-element')
+                .append($('<label>', {text: toolInfo['tool text 2'], for: 'tool_select2'}))
+                .append($('<select>', {id: 'tool_select2', value: null, disabled: true})))
+            .append(this._buildRunToolButton(request, () => ({room: parseInt($('#tool_select').val()), parasite: $('#tool_select2').val()})));
+        toolDataSelect.val(null);
+    }
+
+    _buildRunToolButton(request, dataFn) {
+       return $('<button>', {text: 'Just do it'}).click(() => {
+                    this.debug(`Executing tool (${request})`);
+                    this._chatClient.sendAdminRequest(request, dataFn());
+                });
     }
 
     populateTool(response) {
@@ -68,21 +124,18 @@ export default class ToolsBase extends LoggingClass {
             if (data.length === 0) {
                 this._toolContent.append($('<p>').text(toolInfo['no data']));
             } else {
+                const toolDataSelect = $('<select>', {id: 'tool_select'});
+
                 switch (toolInfo['tool type']) {
                     case 'grant':
-                        this._toolContent.append($('<div>').addClass('form-element')
-                            .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
-                            .append($('<select>', {id: 'tool_select'})
-                                .append(data.map(element => $('<option>', {
-                                    value: element.id,
-                                    text: `${element.id} (${element.username})`
-                                }))))
-                            .append($('<button>', {text: 'Just do it'}).click(() => {
-                                this.debug(`Executing tool (${response.request})`);
-                                this._chatClient.sendAdminRequest(response.request, {parasite: $('#tool_select').val()});
-                            })));
+                        this._buildGrantTool(toolDataSelect, data, toolInfo, response.request);
                         break;
                     case 'room':
+                        this._buildRoomTool(toolDataSelect, data, toolInfo, response.request);
+                        break;
+                    case 'room owner':
+                        this._buildRoomOwnerTool(toolDataSelect, data, toolInfo, response.request);
+                        break;
                     case 'parasite':
                     default:
                         this._toolContent.text('nope');

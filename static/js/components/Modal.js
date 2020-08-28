@@ -2,7 +2,7 @@ import $ from 'jquery';
 import {LoggingClass} from "../util";
 
 export class Modal extends LoggingClass {
-    constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', form = false, id = null}) {
+    constructor({title, message, content, buttonText, buttonClickHandler, showCancel = true, cancelText = 'Cancel', onCancel = () => false, form = false, id = null}) {
         super();
         this.debug(`Creating modal "${title}"`);
         const overlay = $('.overlay');
@@ -23,6 +23,9 @@ export class Modal extends LoggingClass {
                             if (overlay.is(':empty')) {
                                 overlay.hide();
                             }
+                            if (onCancel) {
+                                onCancel();
+                            }
                         }) : null)
                     .append(form ? $('<div>').addClass('flex-spacer') : null)
                     .append($('<button>').text(buttonText).click(event => {
@@ -39,6 +42,12 @@ export class Modal extends LoggingClass {
                         }
                     }))));
 
-        overlay.append(this.modal).one('click', () => this.modal.remove()).show();
+        overlay.append(this.modal).one('click', () => {
+            this.modal.remove();
+            if (onCancel)
+            {
+                onCancel();
+            }
+        }).show();
     }
 }

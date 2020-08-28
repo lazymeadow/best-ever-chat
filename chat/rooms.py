@@ -69,6 +69,21 @@ class RoomList:
             [self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
             key=lambda room: room['id'])
 
+    def get_sparse_room_list_for_user(self, user_id):
+        if not self._user_list.is_existing_user(user_id):
+            return None
+        return [{'id': item, 'name': self.get_room_name(item)} for item in self._room_map.keys() if user_id in self._room_map[item]['members']]
+
+    def get_empty_room_list(self):
+        return [{'id': item, 'name': self.get_room_name(item)} for item in self._room_map.keys() if len(self._room_map[item]['members']) == 0 or (self._room_map[item]['members'] == 1 and self._room_map[item]['members'][0] != self._room_map[item]['owner'])]
+
+    def get_all_owned_rooms(self, user_id = None):
+        return [{
+            'id': self._room_map[item]['id'],
+            'name': self._room_map[item]['name'],
+            'members': [member for member in self._room_map[item]['members'] if member != self._room_map[item]['owner']]
+        } for item in self._room_map.keys() if (user_id in self._room_map[item]['members'] if user_id else True) and item != 0 and len(self._room_map[item]['members']) > 1]
+
     def get_room_participants(self, room_id):
         if room_id not in self._room_map.keys():
             return None
@@ -103,7 +118,7 @@ class RoomList:
 
     def remove_room(self, room_id):
         if room_id not in self._room_map.keys():
-            return None
+            return (None, None)
 
         member_participants = self.get_room_participants(room_id)
 
@@ -150,11 +165,26 @@ class RoomList:
         self._room_map[room_id]['members'].discard(user_id)
         return True
 
-    def add_message_to_history(self, room_id, message_data):
-        if room_id not in self._room_map.keys():
+    def set_room_owner(self, room_id, user_id):
+        if not self._user_list.is_existing_user(user_id) or room_id not in self._room_map.keys() or user_id not in self._room_map[room_id]['members']:
             return None
 
+        db_upsert(self.db, "UPDATE rooms SET owner = %s WHERE id = %s", user_id, room_id)
+        self._room_map[room_id]['owner'] = user_id
+        return True
+
+    def add_message_to_history(self, room_id, message_data):
+        if room_id not in self._room_map.keys():
+            pass
+
         self._room_map[room_id]['history'].append(message_data.copy())
+
+    def empty_room_log(self, room_id):
+        if room_id not in self._room_map.keys():
+            pass
+
+        self._room_map[room_id]['history'] = deque(maxlen=MAX_DEQUE_LENGTH)
+
 
     def is_valid_invitation(self, sender_id, recipient_id, room_id):
         """
