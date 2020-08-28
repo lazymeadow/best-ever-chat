@@ -50,7 +50,7 @@ class Emoji(object):
     def ascii_to_unicode(cls, text):
         def replace_ascii(match):
             ascii = text[match.start():match.end()]
-            ascii = ascii.encode('ascii', 'ignore').strip()  # convert escaped HTML entities back to original chars
+            ascii = ascii.strip()  # convert escaped HTML entities back to original chars
             if not ascii or ascii not in ascii_replace:
                 return ascii
             return cls.convert(ascii_replace[ascii])

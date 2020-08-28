@@ -69,16 +69,16 @@ def get_matching_participants(participant_list, matcher, match_attr='id'):
 
 
 def upload_to_s3(image_data, image_type, bucket):
-    s3_key = 'images/uploads/' + sha256(image_data).hexdigest()
+    s3_key = 'images/uploads/' + sha256(image_data.encode('utf-8')).hexdigest()
     try:
-        exists = filter(lambda x: x.key == s3_key, list(bucket.objects.all()))
+        exists = list(bucket.objects.filter(Prefix=s3_key))
         log_from_server(LogLevel.info, 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
-            decoded_image = base64.decodestring(image_data[image_data.find(',')+1:])
+            decoded_image = base64.b64decode(image_data[image_data.find(',')+1:])
 
             # Do the actual upload to s3
-            bucket.put_object(Key=s3_key, Body=decoded_image, ContentEncoding='base64', ContentType=image_type,
-                              ACL='public-read')
+            executor.submit(bucket.put_object(Key=s3_key, Body=decoded_image, ContentEncoding='base64', ContentType=image_type,
+                              ACL='public-read'))
         return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
     except Exception as e:
         log_from_server(LogLevel.error, 'Exception during image upload: ' + str(e))
@@ -87,19 +87,19 @@ def upload_to_s3(image_data, image_type, bucket):
 
 
 def retrieve_image_in_s3(image_url, bucket):
-    s3_key = 'images/' + sha256(image_url).hexdigest()
+    s3_key = 'images/' + sha256(image_url.encode('utf-8')).hexdigest()
     try:
-        exists = filter(lambda x: x.key == s3_key, list(bucket.objects.all()))
-        log_from_server(LogLevel.info, 'Found object in S3: {}'.format(exists))
+        exists = list(bucket.objects.filter(Prefix=s3_key))
+        log_from_server('info', 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
-            req_for_image = get(image_url, stream=True)
+            req_for_image = executor.submit(get(image_url, stream=True))
             file_object_from_req = req_for_image.raw
             req_data = file_object_from_req.read()
             if len(req_data) == 0:
                 raise Exception('empty data, response code:{}'.format(req_for_image.status_code))
 
             # Do the actual upload to s3
-            bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read')
+            executor.submit(bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read'))
         return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
     except Exception as e:
         log_from_server(LogLevel.error, 'Exception during image transfer: ' + str(e))
