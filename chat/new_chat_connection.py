@@ -498,6 +498,10 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._handle_room_tool(tool_data, data['room'])
             if tool_data['tool type'] == 'room owner':
                 self._handle_room_owner_tool(tool_data, data['room'], data['parasite'])
+            if tool_data['tool type'] == 'data':
+                self._handle_data_tool(tool_data, data['id'])
+            if tool_data['tool type'] == 'parasite':
+                self._handle_parasite_tool(tool_data, data['parasite'])
         else:
             message = "{} Unauthorized use attempt for tool {} by parasite".format(self._format_parasite_for_log(),
                                                                                    request_type)
@@ -565,6 +569,25 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 }
             })
 
+    def _handle_data_tool(self, tool_data, entity_id):
+        data = None
+        if tool_data['data type'] == 'parasite':
+            data = self._user_list.get_user(entity_id).copy()
+            del data['password']
+        if tool_data['data type'] == 'room':
+            data = self._room_list.get_room(entity_id).copy()
+            data['history'] = len(data['history'])
+
+        self.send({
+            'type': 'tool confirm',
+            'data': {
+                'message': tool_data['tool confirm'](data),
+                'perm level': tool_data['perm level']
+            }
+        })
+
+    def _handle_parasite_tool(self, tool_data, parasite):
+        pass
 
     ### GENERAL HELPER FUNCTIONS
 

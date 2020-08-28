@@ -69,6 +69,9 @@ class RoomList:
             [self.get_room(item) for item in self._room_map.keys() if user_id in self._room_map[item]['members']],
             key=lambda room: room['id'])
 
+    def get_room_list(self):
+        return sorted([{'id': item, 'name': self.get_room_name(item)} for item in self._room_map.keys()], key=lambda room: room['id'])
+
     def get_sparse_room_list_for_user(self, user_id):
         if not self._user_list.is_existing_user(user_id):
             return None

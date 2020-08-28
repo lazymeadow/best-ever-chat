@@ -10,6 +10,7 @@ export default class ToolsBase extends LoggingClass {
         this._toolsElement.text('Loading...');
         this._toolContent = $('<div>', {id: 'tools_content'});
         this._toolsSelect = $('<select>', {id: 'admin_tool'});
+        this._toolsData = $('<pre>', {id: 'tool_data_display'});
         this.modalId = 'tools_modal';
     }
 
@@ -22,6 +23,7 @@ export default class ToolsBase extends LoggingClass {
      */
     setTools(availableTools) {
         this._toolsElement.empty();
+        this._toolsData.empty();
         this._toolsSelect.empty();
         this._toolsSelect
             .append(availableTools.map(
@@ -36,7 +38,8 @@ export default class ToolsBase extends LoggingClass {
                     .append($('<label>', {text: 'Pick One', for: 'admin_tool'}))
                     .append(this._toolsSelect)))
             .append($('<hr/>'))
-            .append(this._toolContent).addClass('form-group');
+            .append(this._toolContent).addClass('form-group')
+            .append(this._toolsData);
 
         this._toolsSelect.change(() => {
             const selected = this._toolsSelect.val();
@@ -45,15 +48,6 @@ export default class ToolsBase extends LoggingClass {
                 this._toolContent.html(this._getToolData(selected));
             }
         });
-
-    }
-
-    _emptyModalMessage() {
-        $(`#${this.modalId} .message`).empty();
-    }
-
-    _setModalMessage(message) {
-        $(`#${this.modalId} .message`).text(message);
     }
 
     _buildGrantTool(toolDataSelect, data, toolInfo, request) {
@@ -66,7 +60,6 @@ export default class ToolsBase extends LoggingClass {
                         text: `${element.id} (${element.username})`
                     }))))))
             .append(this._buildRunToolButton(request, () => ({parasite: $('#tool_select').val()})));
-        toolDataSelect.val(null);
     }
 
     _buildRoomTool(toolDataSelect, data, toolInfo, request) {
@@ -78,7 +71,6 @@ export default class ToolsBase extends LoggingClass {
                     text: `${element.name} (${element.id})`
                 })))))
             .append(this._buildRunToolButton(request, () => ({room: parseInt($('#tool_select').val())})));
-        toolDataSelect.val(null);
     }
 
     _buildRoomOwnerTool(toolDataSelect, data, toolInfo, request) {
@@ -101,20 +93,38 @@ export default class ToolsBase extends LoggingClass {
             .append($('<div>').addClass('form-element')
                 .append($('<label>', {text: toolInfo['tool text 2'], for: 'tool_select2'}))
                 .append($('<select>', {id: 'tool_select2', value: null, disabled: true})))
-            .append(this._buildRunToolButton(request, () => ({room: parseInt($('#tool_select').val()), parasite: $('#tool_select2').val()})));
-        toolDataSelect.val(null);
+            .append(this._buildRunToolButton(request, () => ({
+                room: parseInt($('#tool_select').val()),
+                parasite: $('#tool_select2').val()
+            })));
+    }
+
+    _buildParasiteTool(toolDataSelect, data, toolInfo, request) {
+
+    }
+
+    _buildDataTool(toolDataSelect, data, toolInfo, request) {
+        this._toolContent.append($('<div>').addClass('form-group tools')
+            .append($('<div>').addClass('form-element')
+                .append($('<label>', {text: toolInfo['tool text'], for: 'tool_select'}))
+                .append(toolDataSelect
+                    .append(data.map(element => $('<option>', {
+                        value: element.id,
+                        text: toolInfo['data type'] === 'parasite' ? `${element.id} (${element.username})` : `${element.name} (${element.id})`
+                    }))))))
+            .append(this._buildRunToolButton(request, () => ({id: toolInfo['data type'] === 'parasite' ? toolDataSelect.val() : parseInt(toolDataSelect.val())})));
     }
 
     _buildRunToolButton(request, dataFn) {
-       return $('<button>', {text: 'Just do it'}).click(() => {
-                    this.debug(`Executing tool (${request})`);
-                    this._chatClient.sendAdminRequest(request, dataFn());
-                });
+        return $('<button>', {id: 'run_tool', text: 'Just do it', disabled: true, class: 'secondary'}).click(() => {
+            this.debug(`Executing tool (${request})`);
+            this._chatClient.sendAdminRequest(request, dataFn());
+        });
     }
 
     populateTool(response) {
         this._toolContent.empty();
-        this._emptyModalMessage();
+        this._toolsData.empty();
         this._toolsSelect.prop('disabled', false);
         if (response.error || response.request !== this._toolsSelect.val()) {
             this._toolContent.html("Request failed: " + response.error);
@@ -122,7 +132,7 @@ export default class ToolsBase extends LoggingClass {
             const {'tool info': toolInfo, data} = response;
             this._toolContent.html($('<p>').text(toolInfo['tool description']));
             if (data.length === 0) {
-                this._toolContent.append($('<p>').text(toolInfo['no data']));
+                this._toolsData.text(toolInfo['no data']);
             } else {
                 const toolDataSelect = $('<select>', {id: 'tool_select'});
 
@@ -136,20 +146,27 @@ export default class ToolsBase extends LoggingClass {
                     case 'room owner':
                         this._buildRoomOwnerTool(toolDataSelect, data, toolInfo, response.request);
                         break;
+                    case 'data':
+                        this._buildDataTool(toolDataSelect, data, toolInfo, response.request);
+                        break;
                     case 'parasite':
+                        this._buildParasiteTool(toolDataSelect, data, toolInfo, response.request);
+                        break;
                     default:
                         this._toolContent.text('nope');
                 }
+
+                toolDataSelect.val(null).one('change', () => $('#run_tool').attr('disabled', false));
             }
         }
     }
 
     toolConfirm(message) {
-        this._setModalMessage(message);
+        this._toolsData.text(message);
     }
 
     _getToolData(tool) {
-        this._emptyModalMessage();
+        this._toolsData.empty();
         this._chatClient.requestData(tool);
         this._toolsSelect.prop('disabled', true);
         return 'Loading...';
@@ -158,7 +175,7 @@ export default class ToolsBase extends LoggingClass {
     resetTools() {
         this._toolsElement.text('Loading...');
         this._toolContent.empty();
-        this._emptyModalMessage();
+        this._toolsData.empty();
         this._toolsSelect.val(null);
     }
 }

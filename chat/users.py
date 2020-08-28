@@ -191,5 +191,8 @@ class UserList:
     def get_admins(self, current_user_id):
         return self._get_user_list_by_perm(ADMIN_PERM, current_user_id)
 
+    def get_all(self):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map]
+
     def __str__(self):
         return json.dumps(self.get_user_list())
