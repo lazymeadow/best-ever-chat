@@ -8,7 +8,7 @@ from tornado.escape import url_escape, json_decode
 
 from chat.custom_render import BaseHandler
 from chat.emails import send_reset_email, send_reactivation_request_email
-from chat.lib import hash_password, check_password, db_upsert
+from chat.lib import hash_password, check_password, db_upsert, db_select_one
 
 
 class PageHandler(BaseHandler):
@@ -176,7 +176,7 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
+            parasite_record = db_select_one(self.db, "SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and parasite_record.reset_token == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
@@ -191,7 +191,7 @@ class AuthPasswordResetHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
-            parasite_record = self.db.get("SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
+            parasite_record = db_select_one(self.db, "SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and self.get_argument("password") == self.get_argument(
                     "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
                 parasite, self.get_argument("password"), check_match=False):
@@ -216,7 +216,7 @@ class AuthPasswordResetRequestHandler(BaseHandler):
             from tornado_chat import SECRET_KEY
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             string = serializer.dumps(parasite)
-            self.db.execute("UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
+            db_upsert(self.db, "UPDATE parasite SET reset_token = %s WHERE id = %s", string, parasite)
 
             send_reset_email(user['email'], parasite, string)
 

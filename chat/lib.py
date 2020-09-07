@@ -16,8 +16,13 @@ MAX_DEQUE_LENGTH = 200
 
 emoji = Emoji()
 
+def _verify_db_conn(db):
+    if not db.open:
+        db.ping()
+
 
 def db_select(db, query, *query_params):
+    _verify_db_conn(db)
     with db.cursor() as cursor:
         cursor.execute(query, query_params)
         # fetchall will return a TUPLE if there's no matching rows, what on earth
@@ -25,11 +30,13 @@ def db_select(db, query, *query_params):
         return result if type(result) != tuple else []
 
 def db_select_one(db, query, *query_params):
+    _verify_db_conn(db)
     with db.cursor() as cursor:
         cursor.execute(query, query_params)
         return cursor.fetchone()
 
 def db_upsert(db, query, *query_params):
+    _verify_db_conn(db)
     with db.cursor() as cursor:
         cursor.execute(query, query_params)
         entity_id = cursor.lastrowid
@@ -37,6 +44,7 @@ def db_upsert(db, query, *query_params):
         return entity_id
 
 def db_delete(db, query, *query_params):
+    _verify_db_conn(db)
     db.cursor().execute(query, query_params)
     db.commit()
 

@@ -464,6 +464,7 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>4.0.0</h3><em>September 7th, 2020</em><p>The DB got weird and maybe it\'s fixed now.</p>')
                         .append('<h3>4.0.0</h3><em>August 28th, 2020</em><p>OH DANG</p><p>4.0 is here with python 3 support and admin/moderator tools.</p><p>There\'s nothing else. Welcome to 2020.</p>')
                         .append('<h3>3.3.0</h3><em>August 2nd, 2019</em><p>Good news, everyone!</p><p>There\'s no longer any excuse for missing messages. Best Evar Chat 3.3 supports notifications!</p>')
                         .append('<h3>3.2.1</h3><em>July 19th, 2019</em><p>Fixes various bugs. I\'m not going to list them all, they\'re not that important.</p>')
