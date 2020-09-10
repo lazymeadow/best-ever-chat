@@ -11,7 +11,7 @@ from chat.loggers import log_from_client, log_from_server, LogLevel
 from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def, \
     tool_data_request
 
-CLIENT_VERSION = '4.0.2'
+CLIENT_VERSION = '4.0.3'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
@@ -115,12 +115,13 @@ class NewMultiRoomChatConnection(SockJSConnection):
                 self._broadcast_image(json_message['user id'], image_src_url, json_message['room id'],
                                       json_message['nsfw'], json_message['image url'])
         elif message_type == 'image upload':
-            image_url = upload_to_s3(json_message['image data'], json_message['image type'], self._bucket)
-            if image_url is not None:
+            try:
+                image_url = upload_to_s3(json_message['image data'], json_message['image type'], self._bucket)
                 self._broadcast_image(json_message['user id'], image_url, json_message['room id'],
                                       json_message['nsfw'])
-            else:
-                self._send_alert('Failed to send uploaded image.', 'dismiss')
+            except Exception as e:
+                self._send_alert('Failed to upload image. This incident has been recorded.', 'dismiss')
+                send_admin_email(self.http_server.admin_email, str(e))
         elif message_type == 'room action':
             if json_message['action'] == 'create':
                 self._create_room(json_message['room name'])

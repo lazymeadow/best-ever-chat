@@ -91,7 +91,7 @@ def upload_to_s3(image_data, image_type, bucket):
     except Exception as e:
         log_from_server(LogLevel.error, 'Exception during image upload: ' + str(e))
         log_from_server(LogLevel.debug, 'Image failed to upload to S3 bucket: UPLOAD({}) KEY({})'.format(image_type, s3_key))
-        return None
+        raise e
 
 
 def retrieve_image_in_s3(image_url, bucket):
@@ -100,7 +100,8 @@ def retrieve_image_in_s3(image_url, bucket):
         exists = list(bucket.objects.filter(Prefix=s3_key))
         log_from_server('info', 'Found object in S3: {}'.format(exists))
         if len(exists) <= 0:
-            req_for_image = executor.submit(get(image_url, stream=True))
+            future_for_image = executor.submit(get, image_url, stream=True)
+            req_for_image = future_for_image.result(60)
             file_object_from_req = req_for_image.raw
             req_data = file_object_from_req.read()
             if len(req_data) == 0:
