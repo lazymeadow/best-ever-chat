@@ -66,10 +66,10 @@ You
 ---
 
 
-favicon from: http://www.iconka.com
+cat images: http://www.iconka.com
 
 
-twemoji: https://github.com/twitter/twemoji
+twemoji client parsing: https://github.com/twitter/twemoji
 
 
-emojione: https://www.emojione.com
+joypixels emoji assets: https://www.joypixels.com/

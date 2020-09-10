@@ -10,11 +10,10 @@ from tornado.escape import linkify, to_unicode, xhtml_escape
 
 from chat.custom_render import executor
 from chat.loggers import log_from_server, LogLevel
-from emoji.emojipy import Emoji
-
+from emoji import BestEverEmoji
 MAX_DEQUE_LENGTH = 200
 
-emoji = Emoji()
+emoji = BestEverEmoji()
 
 def _verify_db_conn(db):
     if not db.open:

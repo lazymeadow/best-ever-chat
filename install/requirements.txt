@@ -1,5 +1,6 @@
 bcrypt>=3.2.0
 boto3>=1.14.47
+emojipy==3.0.5
 itsdangerous>=1.1.0
 Jinja2>=2.11.2
 lesscpy>=0.14.0
