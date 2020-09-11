@@ -57,7 +57,7 @@ def send_email(email_address, subject, title, text_content, html_content, image=
             img = MIMEImage(image_file.read())
             img.add_header('Content-ID', '<{}>'.format(image))
             msgRoot.attach(img)
-    with open('./static/dist/emojione/assets/2665.png', 'rb') as heart_image:
+    with open('./static/dist/heart.png', 'rb') as heart_image:
         img = MIMEImage(heart_image.read())
         img.add_header('Content-ID', '<heart>')
         msgRoot.attach(img)
