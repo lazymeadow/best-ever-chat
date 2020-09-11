@@ -12,7 +12,7 @@ let chatHistory;
 export function _parseEmojis(element) {
     twemoji.parse(element || document.body, {
         callback: (icon, options) => options.base.concat(icon, options.ext),
-        base: 'https://best-ever-emoji-assets.s3-us-west-2.amazonaws.com/',
+        base: 'https://emoji.bestevarchat.com/',
         attributes: function (icon, variant) {
             return {title: icon + variant};
         }

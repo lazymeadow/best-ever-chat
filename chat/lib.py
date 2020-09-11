@@ -86,7 +86,7 @@ def upload_to_s3(image_data, image_type, bucket):
             # Do the actual upload to s3
             executor.submit(bucket.put_object(Key=s3_key, Body=decoded_image, ContentEncoding='base64', ContentType=image_type,
                               ACL='public-read'))
-        return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
+        return 'https://images.bestevarchat.com/' + s3_key
     except Exception as e:
         log_from_server(LogLevel.error, 'Exception during image upload: ' + str(e))
         log_from_server(LogLevel.debug, 'Image failed to upload to S3 bucket: UPLOAD({}) KEY({})'.format(image_type, s3_key))
@@ -108,7 +108,7 @@ def retrieve_image_in_s3(image_url, bucket):
 
             # Do the actual upload to s3
             executor.submit(bucket.put_object(Key=s3_key, Body=req_data, ACL='public-read'))
-        return 'https://s3-us-west-2.amazonaws.com/best-ever-chat-image-cache/' + s3_key
+        return 'https://images.bestevarchat.com/' + s3_key
     except Exception as e:
         log_from_server(LogLevel.error, 'Exception during image transfer: ' + str(e))
         log_from_server(LogLevel.debug, 'Image failed to transfer to S3 bucket: URL({}) KEY({})'.format(image_url, s3_key))

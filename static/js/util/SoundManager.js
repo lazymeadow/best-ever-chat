@@ -5,6 +5,9 @@ import {LoggingClass} from "./Logger";
 export class SoundManager extends LoggingClass {
     constructor() {
         super();
+
+        this._soundAssetUrl = 'http://audio.bestevarchat.com';
+
         this._receiveSound = $('<audio>').attr('type', 'audio/mpeg');
         this._sendSound = $('<audio>').attr('type', 'audio/mpeg');
         this._connectSound = $('<audio>').attr('type', 'audio/mpeg');
@@ -58,10 +61,10 @@ export class SoundManager extends LoggingClass {
 
     updateSoundSet() {
         let soundSet = Settings.soundSet;
-        this._receiveSound.attr('src', `https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/${soundSet}/message-receive.wav`);
-        this._sendSound.attr('src', `https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/${soundSet}/message-send.wav`);
-        this._connectSound.attr('src', `https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/${soundSet}/user-online.wav`);
-        this._disconnectSound.attr('src', `https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/${soundSet}/user-offline.wav`);
-        this._activateSound.attr('src', `https://s3-us-west-2.amazonaws.com/best-ever-chat-audio/${soundSet}/activate-sounds.wav`);
+        this._receiveSound.attr('src', `${this._soundAssetUrl}/${soundSet}/message-receive.wav`);
+        this._sendSound.attr('src', `${this._soundAssetUrl}/${soundSet}/message-send.wav`);
+        this._connectSound.attr('src', `${this._soundAssetUrl}/${soundSet}/user-online.wav`);
+        this._disconnectSound.attr('src', `${this._soundAssetUrl}/${soundSet}/user-offline.wav`);
+        this._activateSound.attr('src', `${this._soundAssetUrl}/${soundSet}/activate-sounds.wav`);
     }
 }
