@@ -5,7 +5,7 @@ import {Logger, NotificationManager, Settings, SoundManager} from "../util";
 import {Alert, MessageLog} from "../components";
 import {CLIENT_VERSION, MAX_RETRIES} from "../lib";
 import {AdminTools} from "../components/Tools";
-import {ModTools} from "../components/Tools/ModTools";
+import {ModTools} from "../components/Tools";
 
 
 export class BestEvarChatClient {
