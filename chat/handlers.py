@@ -8,7 +8,8 @@ from tornado.escape import url_escape, json_decode
 
 from chat.custom_render import BaseHandler
 from chat.emails import send_reset_email, send_reactivation_request_email
-from chat.lib import hash_password, check_password, db_upsert, db_select_one
+from chat.lib import hash_password, check_password, db_upsert, db_select_one, search_emoji
+from emoji.emoji_curation import curated_emojis
 
 
 class PageHandler(BaseHandler):
@@ -223,6 +224,17 @@ class AuthPasswordResetRequestHandler(BaseHandler):
         self.render2("login.html", location='login',
                      message="A password reset email has been sent for {}. Check your spam folder!".format(parasite),
                      username=parasite)
+
+
+class EmojiSearchHandler(BaseHandler):
+    SUPPORTED_METHODS = ("GET")
+
+    def get(self):
+        query = self.get_argument("search", '')
+        if query == '':
+            self.write(json.dumps({"search": "", "result": curated_emojis}))
+        else:
+            self.write(json.dumps({"search": query, "result": search_emoji(query)}))
 
 
 class Chat404Handler(BaseHandler):

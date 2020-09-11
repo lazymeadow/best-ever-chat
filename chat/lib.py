@@ -134,3 +134,13 @@ def create_github_issue(username, token, title, body, issue_type):
                 },
                 headers={'Accept': 'application/vnd.github.v3+json'},
                 auth=(username, token))
+
+
+def search_emoji(query):
+    '''
+
+    :param query:
+    :return: all the matching unicode chars
+    '''
+    return emoji.search(query)
+
