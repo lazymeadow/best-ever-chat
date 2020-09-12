@@ -95,10 +95,15 @@ class UserList:
         # we need to return a map that is filtered down to the necessary information for a user list
         return self._user_map.copy()
 
+    def _get_list_user(self, user_id):
+        user_copy = self._user_map[user_id].copy()
+        del user_copy['password']
+        return user_copy
+
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
         return sorted(
-            sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
+            sorted([self._get_list_user(item) for item in self._user_map], key=lambda user: user['username'].lower()),
             key=lambda user: user['status'])
 
     def get_all_usernames(self):
@@ -172,11 +177,11 @@ class UserList:
 
     def get_all_participants(self, exclude=None):
         if exclude is not None:
-            return [x for x in self._participants if x.current_user['id'] != exclude]
+            return set([x for x in self._participants if x.current_user['id'] != exclude])
         return self._participants
 
     def get_user_participants(self, user_id):
-        return [x for x in self._participants if x.current_user['id'] == user_id]
+        return set([x for x in self._participants if x.current_user['id'] == user_id])
 
     def _get_user_list_by_perm(self, perm, current_user_id):
         return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if (item != current_user_id and self._user_map[item]['permission'] == perm)]

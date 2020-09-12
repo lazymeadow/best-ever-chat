@@ -178,7 +178,7 @@ class AuthPasswordResetHandler(BaseHandler):
             serializer = URLSafeTimedSerializer(SECRET_KEY)
             parasite = serializer.loads(token, max_age=86400)
             parasite_record = db_select_one(self.db, "SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
-            if parasite_record is not None and parasite_record.reset_token == token:
+            if parasite_record is not None and parasite_record['reset_token'] == token:
                 self.render2("reset_password.html", error=None, token=token)
             else:
                 self.render2("login.html", error="Invalid reset link.", location="login")
@@ -194,7 +194,7 @@ class AuthPasswordResetHandler(BaseHandler):
             parasite = serializer.loads(token, max_age=86400)
             parasite_record = db_select_one(self.db, "SELECT reset_token FROM parasite WHERE id = %s AND activeAccount = true", parasite)
             if parasite_record is not None and self.get_argument("password") == self.get_argument(
-                    "password2") and parasite_record.reset_token == token and self.user_list.update_user_password(
+                    "password2") and parasite_record['reset_token'] == token and self.user_list.update_user_password(
                 parasite, self.get_argument("password"), check_match=False):
                 self.render2("login.html", message="Password reset successful.", location="login")
             else:

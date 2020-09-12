@@ -4,6 +4,7 @@ from time import time
 from boto3 import resource
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
+from tornado.websocket import WebSocketError
 
 from chat.emails import send_admin_email
 from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
@@ -29,50 +30,54 @@ class NewMultiRoomChatConnection(SockJSConnection):
         # the user list (of current status for users)
         # the user's default settings (to be used on the client)
 
-        parasite = self.session.handler.get_secure_cookie('parasite')
-        if parasite is None:
-            self._send_auth_fail()
-            return False
+        try:
+            self.session.verify_state()
+            parasite = self.session.handler.get_secure_cookie('parasite')
+            if parasite is None:
+                self._send_auth_fail()
+                return False
 
-        parasite = parasite.decode("utf-8")
+            parasite = parasite.decode("utf-8")
 
-        # format manually here because the current user is not yet defined
-        log_from_server(LogLevel.debug,
-                        '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
+            # format manually here because the current user is not yet defined
+            log_from_server(LogLevel.debug,
+                            '({}:{}@{}) Client connecting...'.format(parasite, self.session.session_id, info.ip))
 
-        self._user_list = self.http_server.user_list
-        self._room_list = self.http_server.room_list
-        self._private_messages = self.http_server.private_message_map
-        self._message_queue = self.http_server.message_queue
+            self._user_list = self.http_server.user_list
+            self._room_list = self.http_server.room_list
+            self._private_messages = self.http_server.private_message_map
+            self._message_queue = self.http_server.message_queue
 
-        self._user_list.add_participant(self)
-        self.current_user = self._user_list.get_user(parasite)
-        was_offline = self.current_user['status'] == 'offline'
+            self._user_list.add_participant(self)
+            self.current_user = self._user_list.get_user(parasite)
+            was_offline = self.current_user['status'] == 'offline'
 
-        self._user_list.update_user_status(parasite, 'active')
-        self._user_list.update_user_last_active(self.current_user['id'])
+            self._user_list.update_user_status(parasite, 'active')
+            self._user_list.update_user_last_active(self.current_user['id'])
 
-        self._broadcast_user_list()
-        self._send_room_list()
-        self._send_pm_thread_list()
-        if was_offline is True:
-            self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
+            self._broadcast_user_list()
+            self._send_room_list()
+            self._send_pm_thread_list()
+            if was_offline is True:
+                self._broadcast_alert(u'{} is online.'.format(self.current_user['username']))
 
-        self._send_alert('Connection successful.')
+            self._send_alert('Connection successful.')
 
-        log_from_server(LogLevel.debug, '{} Client connected successfully.'.format(self._format_parasite_for_log()))
+            log_from_server(LogLevel.debug, '{} Client connected successfully.'.format(self._format_parasite_for_log()))
 
-        # send queued messages
-        messages = self._message_queue.get_all(self.current_user['id'])
-        for message in messages:
-            message_data = json.loads(message['content'])
-            if 'id' in message.keys():
-                message_data['id'] = message['id']
-            self.send({'type': message['type'],
-                       'data': message_data})
+            # send queued messages
+            messages = self._message_queue.get_all(self.current_user['id'])
+            for message in messages:
+                message_data = json.loads(message['content'])
+                if 'id' in message.keys():
+                    message_data['id'] = message['id']
+                self.send({'type': message['type'],
+                           'data': message_data})
 
-        log_from_server(LogLevel.debug,
-                        '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
+            log_from_server(LogLevel.debug,
+                            '{} Sent client {} queued messages.'.format(self._format_parasite_for_log(), len(messages)))
+        except WebSocketError as wse:
+            return
 
     def on_message(self, message):
         json_message = json.loads(message)
@@ -166,7 +171,7 @@ class NewMultiRoomChatConnection(SockJSConnection):
         self._user_list.update_user_typing_status(self.current_user['id'], False)
         self._user_list.update_user_last_active(self.current_user['id'])
         self._user_list.remove_participant(self)
-        self._broadcast_user_list()
+        self._broadcast_user_list(self._user_list.get_all_participants(self.current_user['id']))
         if self._user_list.get_user(self.current_user['id'])['status'] == 'offline':
             self._broadcast_alert(u'{} is offline.'.format(self.current_user['username']))
 
