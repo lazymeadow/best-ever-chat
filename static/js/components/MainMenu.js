@@ -3,10 +3,11 @@ import {LoggingClass, Settings} from "../util";
 import {Modal} from "./Modal";
 import {BestColorPicker} from "./BestColorPicker";
 import {Alert} from "./Alert";
+import {AdminTools, ModTools} from "./Tools";
 
 export class MainMenu extends LoggingClass {
-    constructor(chatClient, {clientSettings, userSettings, accountSettings, bugReport, featureRequest, about, adminTools}) {
-        super('MainMenu');
+    constructor(chatClient, allowedItems) {
+        super();
         this._chatClient = chatClient;
 
         this._menuElement = $('#main_menu').next('.popout-menu');
@@ -17,6 +18,21 @@ export class MainMenu extends LoggingClass {
         else {
             this._menuContents = this._menuElement;
         }
+
+        this._allowedItems = allowedItems;
+    }
+
+    init() {
+        const {
+            clientSettings,
+            userSettings,
+            accountSettings,
+            bugReport,
+            featureRequest,
+            about,
+            moderatorTools,
+            adminTools
+        } = this._allowedItems;
 
         if (clientSettings) {
             this._addClientSettings();
@@ -36,15 +52,22 @@ export class MainMenu extends LoggingClass {
         if (about) {
             this._addAbout();
         }
-        if (adminTools && Settings.userId === 'audrey') {
+        if (adminTools && Settings.userIsAdmin()) {
             this._addAdminTools();
+        }
+        if (moderatorTools && Settings.userIsModerator()) {
+            this._addModeratorTools();
         }
         this._menuContents.append(this._new_menu_item(
             'Log Out',
             ['fas', 'sign-out-alt'],
-            () => window.location = '/logout'
+            () => this._chatClient.disconnect(true)
         ));
+    }
 
+    redraw() {
+        this._menuContents.empty();
+        this.init();
     }
 
     _new_menu_item(title, icon, clickHandler) {
@@ -441,6 +464,10 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>4.1.1</h3><em>September 11th, 2020</em><p>Missed the heart emoji in the email template.</p>')
+                        .append('<h3>4.1.0</h3><em>September 11th, 2020</em><p>Updated emoji libraries! Now you can search for emojis in the little pop-up thingy. And you can probably use some emojis that were unavailable before - there are 700 more!</p><p>Also some other stuff you wouldn\'t notice, like static assets have super slick urls now, and image caching was super not functional but is now working again.</p>')
+                        .append('<h3>4.0.1</h3><em>September 7th, 2020</em><p>The DB got weird and maybe it\'s fixed now.</p>')
+                        .append('<h3>4.0.0</h3><em>August 28th, 2020</em><p>OH DANG</p><p>4.0 is here with python 3 support and admin/moderator tools.</p><p>There\'s nothing else. Welcome to 2020.</p>')
                         .append('<h3>3.3.0</h3><em>August 2nd, 2019</em><p>Good news, everyone!</p><p>There\'s no longer any excuse for missing messages. Best Evar Chat 3.3 supports notifications!</p>')
                         .append('<h3>3.2.1</h3><em>July 19th, 2019</em><p>Fixes various bugs. I\'m not going to list them all, they\'re not that important.</p>')
                         .append('<h3>3.2.0</h3><em>July 19th, 2019</em><p>Fixes some image sharing bugs.</p><p>IMAGE UPLOAD!!!!</p>')
@@ -456,17 +483,47 @@ export class MainMenu extends LoggingClass {
         ));
     }
 
+    _addModeratorTools() {
+        this._menuContents.append(this._new_menu_item(
+            'Moderator Menu',
+            ['fas', 'user-shield'],
+            () => {
+                const modTools = ModTools.instance(this._chatClient);
+                new Modal({
+                    id: modTools.modalId,
+                    form: true,
+                    showCancel: false,
+                    title: 'All Your Base Are Belong to Us',
+                    content: modTools.getToolsContent(),
+                    buttonText: 'For great justice.',
+                    onCancel: () => modTools.resetTools(),
+                    buttonClickHandler: () => {
+                        modTools.resetTools();
+                        return false;
+                    }
+                });
+            }
+        ));
+    }
+
     _addAdminTools() {
         this._menuContents.append(this._new_menu_item(
             'Admin Tools',
             ['fas', 'feather-alt'],
             () => {
+                const adminTools = AdminTools.instance(this._chatClient);
                 new Modal({
+                    id: adminTools.modalId,
+                    form: true,
                     showCancel: false,
                     title: 'Super Secret Stuff',
-                    content: $('<div>').text('yeah you know this is where the cool kids go'),
-                    buttonText: '1337',
-                    buttonClickHandler: () => false
+                    content: adminTools.getToolsContent(),
+                    buttonText: '1337 h4xx',
+                    onCancel: () => adminTools.resetTools(),
+                    buttonClickHandler: () => {
+                        adminTools.resetTools();
+                        return false;
+                    }
                 });
             }
         ));

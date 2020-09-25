@@ -3,19 +3,29 @@ import twemoji from "twemoji";
 import moment from 'moment';
 import {ChatHistory, Settings} from "./util";
 
-export const CLIENT_VERSION = '3.3.0';
+export const CLIENT_VERSION = '3.5.0';
 export const MAX_RETRIES = 3;
 
 let idleTimeout;
 let chatHistory;
+let emojiSearchTimeout;
 
 export function _parseEmojis(element) {
     twemoji.parse(element || document.body, {
-        base: '/static/',
-        folder: 'emojione/assets',
+        callback: (icon, options) => options.base.concat(icon, options.ext),
+        base: 'https://emoji.bestevarchat.com/',
         attributes: function (icon, variant) {
             return {title: icon + variant};
         }
+    });
+}
+
+function _emojiLibraryClickSetup() {
+    // adding emojis to your chat message when clicked in the list
+    $('#emoji_list .emoji').click(event => {
+        event.stopPropagation();
+        const chatText = $('.chat-bar').children('input');
+        chatText.val(chatText.val() + $(event.target).prop('alt'));
     });
 }
 
@@ -79,13 +89,7 @@ export function preClientInit() {
 
     // parse emoji list and button
     _parseEmojis();
-
-    // adding emojis to your chat message when clicked in the list
-    $('#emoji_list .emoji').click(event => {
-        event.stopPropagation();
-        const chatText = chatBar.children('input');
-        chatText.val(chatText.val() + $(event.target).prop('alt'));
-    });
+    _emojiLibraryClickSetup();
 
     // set auto scroll threshold when messages are received so you're not popped back to the bottom when catching up
     window.autoScroll = true;
@@ -155,8 +159,7 @@ export function postClientInit(chatClient) {
             // down arrow goes through history, too
             else if (event.which === 40) {
                 chatInput.val(chatHistory.getPrevious());
-            }
-            else {
+            } else {
                 chatHistory.reset();
             }
             // submit chat on enter and reset value
@@ -172,6 +175,65 @@ export function postClientInit(chatClient) {
             // update typing status
             chatClient.sendTyping();
         });
+
+    const _buildEmojiTable = (unicodeChars) => {
+        const resultsContainer = $('#emoji_list');
+        resultsContainer.empty();
+        let row = $('<tr>');
+        let completeRow = false;
+        for (let index = 0; index < 108; index++) {
+            if (index === 0 && unicodeChars.length === 0) {
+                row.append($('<td>', {text: 'Only official emojis, you fool.'}));
+            }
+            else {
+                const item = unicodeChars[index];
+                if (!item) {
+                    row.append($('<td>'));
+                } else {
+                    // twemoji + joypixels = bad encoding
+                    // convert from unicode to twemoji shortcode, then back, and the images are just great
+                    row.append($('<td>', {html: twemoji.convert.fromCodePoint(twemoji.convert.toCodePoint(item))}));
+                }
+                completeRow = (index + 1) % 12 === 0;
+                if (completeRow) {
+                    resultsContainer.append(row);
+                    row = $('<tr>');
+                }
+            }
+        }
+        if (!completeRow) {
+            resultsContainer.append(row);
+        }
+        _parseEmojis(resultsContainer[0]);
+        _emojiLibraryClickSetup();
+    }
+
+    const _emojiSearchCallback = (query) => {
+        if (!emojiSearchTimeout) {
+            window.clearTimeout(emojiSearchTimeout);
+            emojiSearchTimeout = window.setTimeout(() => {
+                $.get('/emoji_search', {
+                    search: query
+                })
+                    .then(rsp => {
+                        const {result} = JSON.parse(rsp);
+                        _buildEmojiTable(result);
+                    });
+                emojiSearchTimeout = null;
+            }, 500);  // half a second
+        }
+    }
+
+    $('#emoji_search').keyup(event => {
+        let searchInput = $(event.target);
+        const searchQuery = searchInput.val();
+        _emojiSearchCallback(searchQuery);
+    });
+
+    $('#clear_emoji_search').click(() => {
+        $('#emoji_search').val('');
+        _emojiSearchCallback('');
+    })
 
     // set idle listeners
     const resetIdleTimeout = () => {

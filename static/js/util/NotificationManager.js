@@ -4,7 +4,7 @@ import {Settings} from "./Settings";
 
 export default class NotificationManager extends LoggingClass {
     constructor(createAlert) {
-        super('NotificationManager');
+        super();
         this._createAlert = createAlert;
         this._enabled = false;
         this._timeout = null;

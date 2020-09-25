@@ -67,10 +67,19 @@
         width: -moz-max-content;
         cursor: default;
 
+        & table#emoji_list tr {
+          height: 25px;
+        }
+
         & img.emoji {
           height: 1.25em;
           width: 1.25em;
           cursor: pointer;
+        }
+
+        & #clear_emoji_search {
+          align-self: center;
+          color: @dark;
         }
 
         & > .popout-indicator {

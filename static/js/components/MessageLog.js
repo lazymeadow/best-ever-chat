@@ -9,7 +9,7 @@ import {Settings} from "../util/Settings";
 
 export class MessageLog extends LoggingClass {
     constructor() {
-        super('MessageLog');
+        super();
         this._logElement = $('#log');
     }
 

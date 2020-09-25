@@ -15,8 +15,8 @@ class Logger {
 }
 
 class LoggingClass {
-    constructor(className) {
-        this.className = className;
+    constructor() {
+        this.className = this.constructor.name;
     }
 
     debug(message) {

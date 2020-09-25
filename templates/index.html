@@ -42,6 +42,13 @@
             <div class="button">
                 😃
                 <div class="popout-option">
+                    <div class="form-group">
+                        <label for="emoji_search">Search:</label>
+                        <input id="emoji_search" name="search" type="text" tabindex="1" />
+                        <div id="clear_emoji_search">
+                            <span class="far fa-times-circle"></span>
+                        </div>
+                    </div>
                     <table id="emoji_list">
                         {% for emojis in emoji_list | batch(12) %}
                             <tr>

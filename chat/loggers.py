@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 from tornado.log import LogFormatter
 
 if not os.path.exists('log'):
+    # create the log dir
     os.mkdir('log')
 
     with open('log/server.log') as f:
@@ -68,30 +69,37 @@ boto3_logger.addHandler(boto_file_handler)
 boto3_logger.propagate = False
 
 
+class LogLevel(object):
+    debug = 'DEBUG'
+    info = 'INFO'
+    warning = 'WARNING'
+    error = 'ERROR'
+    critical = 'CRITICAL'
+
+
 def log_from_client(level, message, parasite_id, session_id):
     client_logger_adapter = ClientLoggerAdapter(client_logger, {'parasite_id': parasite_id, 'session_id': session_id})
-    level = level.upper()
-    if level == 'DEBUG':
+    level = level.upper()  # client sends a string
+    if level == LogLevel.debug:
         client_logger_adapter.debug(message)
-    elif level == 'INFO':
+    elif level == LogLevel.info:
         client_logger_adapter.info(message)
-    elif level == 'WARNING':
+    elif level == LogLevel.warning:
         client_logger_adapter.warning(message)
-    elif level == 'ERROR':
+    elif level == LogLevel.error:
         client_logger_adapter.error(message)
-    elif level == 'CRITICAL':
+    elif level == LogLevel.critical:
         client_logger_adapter.critical(message)
 
 
 def log_from_server(level, message):
-    level = level.upper()
-    if level == 'DEBUG':
+    if level == LogLevel.debug:
         server_logger.debug(message)
-    elif level == 'INFO':
+    elif level == LogLevel.info:
         server_logger.info(message)
-    elif level == 'WARNING':
+    elif level == LogLevel.warning:
         server_logger.warning(message)
-    elif level == 'ERROR':
+    elif level == LogLevel.error:
         server_logger.error(message)
-    elif level == 'CRITICAL':
+    elif level == LogLevel.critical:
         server_logger.critical(message)

@@ -3,6 +3,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
+from chat.loggers import log_from_server, LogLevel
+
 
 def send_reset_email(email_address, user, token):
     reset_link = 'https://bestevarchat.com/reset_password?token=' + token
@@ -28,6 +30,11 @@ def send_password_changed_email(email_address, user):
                    user),
                image='cat_rascal')
 
+def send_reactivation_request_email(email_address, user):
+    send_email(email_address, subject='Reactivation request', title='Reactivation request',
+               text_content='Parasite {} is requesting reactivation.'.format(user),
+               html_content='Parasite {} has submitted a request for reactivation.<br/>'
+               'To grant this request, use the admin tools inside the chat.'.format(user))
 
 def send_email(email_address, subject, title, text_content, html_content, image=None):
     sender = 'server@bestevarchat.com'
@@ -50,7 +57,7 @@ def send_email(email_address, subject, title, text_content, html_content, image=
             img = MIMEImage(image_file.read())
             img.add_header('Content-ID', '<{}>'.format(image))
             msgRoot.attach(img)
-    with open('./static/dist/emojione/assets/2665.png', 'rb') as heart_image:
+    with open('./static/dist/heart.png', 'rb') as heart_image:
         img = MIMEImage(heart_image.read())
         img.add_header('Content-ID', '<heart>')
         msgRoot.attach(img)
@@ -70,4 +77,9 @@ def send_email(email_address, subject, title, text_content, html_content, image=
         s.sendmail(sender, recipient, msgRoot.as_string())
         s.quit()
     except Exception as e:
-        log_from_server('error', 'Failed to send email:' + msg)
+        log_from_server(LogLevel.error, 'Failed to send email:\n' + msg.as_string())
+
+def send_admin_email(admin_email, message):
+    log_from_server(LogLevel.critical, message)
+    send_email(admin_email, 'CRITICAL ERROR', 'Critical error logged in Best Evar Chat',
+               message, message)

@@ -4,7 +4,7 @@ import {Modal} from "../components";
 
 export class AdvancedRoomManager extends RoomManager {
     constructor(chatClient, messageLog, soundManager) {
-        super(chatClient, messageLog, soundManager, 'AdvancedRoomManager');
+        super(chatClient, messageLog, soundManager);
 
         this.allowRoomEdits = true;
 

@@ -154,7 +154,10 @@
 
       .selected-panel-item() {
         background-color: lighten(@backgroundColor, 20%);
-        font-weight: bold;
+
+        .list-content {
+          font-weight: bold;
+        }
       }
 
       & #user-list {

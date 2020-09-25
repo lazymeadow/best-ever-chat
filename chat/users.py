@@ -4,7 +4,8 @@ from datetime import datetime
 
 from chat.emails import send_password_changed_email
 from chat.lib import hash_password, check_password
-from chat.loggers import log_from_server
+from chat.loggers import log_from_server, LogLevel
+from chat.tools.lib import ADMIN_PERM, MOD_PERM, USER_PERM
 
 allowed_factions = [
     'first-order',
@@ -31,13 +32,14 @@ class UserList:
         'soundSet': 'AIM',
         'volume': '100',
         'typing': False,
-        'lastActive': None
+        'lastActive': None,
+        'permission': 'user'
     }
 
     def __init__(self, db):
-        log_from_server('info', 'Initializing user list...')
+        log_from_server(LogLevel.info, 'Initializing user list...')
         self.db = db
-        parasites = self.db.query("SELECT id FROM parasite")
+        parasites = self.db.query("SELECT id FROM parasite WHERE activeAccount = true")
         for parasite in parasites:
             self.load_user(parasite['id'])
 
@@ -45,8 +47,7 @@ class UserList:
         return user_id in self._user_map.keys()
 
     def is_valid_username(self, user_name):
-        return (user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]) or (
-                user_name not in self._user_map.keys())
+        return self.is_a_user(user_name) != True or user_name not in [self._user_map[x]['username'] for x in self._user_map.keys()]
 
     def get_username(self, user_id):
         return self._user_map[user_id]['username']
@@ -74,17 +75,20 @@ class UserList:
 
     def load_user(self, user_id):
         user = self.db.get(
-            "SELECT id, password, username, email, last_active as lastActive, group_concat(concat_ws(':', conf.name, conf.value) SEPARATOR ',') AS conf FROM parasite JOIN parasite_config conf ON parasite.id = conf.parasite_id WHERE id = %s",
+            "SELECT id, password, username, email, last_active as lastActive FROM parasite WHERE id = %s",
             user_id)
-        if user['conf']:
-            user.update(dict([config.split(':') for config in user['conf'].split(',')]))
+
+        user_conf = self.db.query("SELECT name, value FROM parasite_config WHERE parasite_id = %s", user_id)
+        for conf in user_conf:
+            user[conf['name']] = conf['value']
+
         if user['lastActive']:
             user['lastActive'] = user['lastActive'].strftime('%Y-%m-%d %H:%M:%S')
         if user['id'] not in self._user_map.keys():
             # this means this is a probably NEW user, created since the server was started.
             new_user = self._user_defaults.copy()
             new_user.update(user)
-            self._user_map[user.id] = new_user
+            self._user_map[user['id']] = new_user
         else:
             self._user_map[user['id']].update(user)
 
@@ -92,9 +96,15 @@ class UserList:
         # we need to return a map that is filtered down to the necessary information for a user list
         return self._user_map.copy()
 
+    def _get_list_user(self, user_id):
+        user_copy = self._user_map[user_id].copy()
+        del user_copy['password']
+        return user_copy
+
     def get_user_list(self):
         # Sorting RELIES on the fact that the stati are ALPHABETICAL!! If this changes, make a good sort!
-        return sorted(sorted([self._user_map[item] for item in self._user_map], key=lambda user: user['username'].lower()),
+        return sorted(
+            sorted([self._get_list_user(item) for item in self._user_map], key=lambda user: user['username'].lower()),
                       key=lambda user: user['status'])
 
     def get_all_usernames(self):
@@ -102,7 +112,7 @@ class UserList:
 
     def update_user_status(self, user_id, status, participant=None):
         if status in ['offline', 'active', 'idle'] and self._user_map.has_key(user_id):
-            if status is 'offline':
+            if status == 'offline':
                 if participant is not None and participant in self._participants:
                     self._participants.remove(participant)
                     if len(self.get_user_participants(user_id)) == 0:
@@ -156,7 +166,7 @@ class UserList:
 
     def update_user_last_active(self, user_id):
         if self._user_map.has_key(user_id):
-            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S');
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
             self._user_map[user_id]['lastActive'] = now
             self.db.update("UPDATE parasite SET last_active = %s WHERE id = %s", now, user_id)
 
@@ -168,11 +178,49 @@ class UserList:
 
     def get_all_participants(self, exclude=None):
         if exclude is not None:
-            return [x for x in self._participants if x.current_user['id'] != exclude]
+            return set([x for x in self._participants if x.current_user['id'] != exclude])
         return self._participants
 
     def get_user_participants(self, user_id):
-        return [x for x in self._participants if x.current_user['id'] == user_id]
+        return set([x for x in self._participants if x.current_user['id'] == user_id])
+
+    def _get_user_list_by_perm(self, perm, current_user_id):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map if (item != current_user_id and self._user_map[item]['permission'] == perm)]
+
+    def get_users(self, current_user_id):
+        return self._get_user_list_by_perm(USER_PERM, current_user_id)
+
+    def get_moderators(self, current_user_id):
+        return self._get_user_list_by_perm(MOD_PERM, current_user_id)
+
+    def get_admins(self, current_user_id):
+        return self._get_user_list_by_perm(ADMIN_PERM, current_user_id)
+
+    def get_all(self):
+        return [{'id': item, 'username': self._user_map[item]['username']} for item in self._user_map]
+
+    def get_inactive_user_ids(self):
+        return self.db.query("SELECT id FROM parasite WHERE activeAccount = false")
+
+    def get_active_user_ids(self):
+        return self.db.query("SELECT id FROM parasite WHERE activeAccount = true")
+
+    def deactivate_parasite(self, user_id):
+        self.db.execute("DELETE FROM parasite_config WHERE parasite_id = %s", user_id)
+        self.db.update("UPDATE parasite SET activeAccount = false, last_active = null, reset_token = null WHERE id = %s", user_id)
+        del self._user_map[user_id]
+
+    def reactivate_parasite(self, user_id):
+        self.db.update("UPDATE parasite SET activeAccount = true WHERE id = %s", user_id)
+        self.load_user(user_id)
+
+    def is_active_user(self, user_id):
+        parasite = self.db.get("SELECT activeAccount FROM parasite WHERE id = %s", user_id)
+        return parasite['activeAccount'] == ''
+
+    def is_a_user(self, user_id):
+        parasite = self.db.get("SELECT id FROM parasite WHERE id = %s", user_id)
+        return parasite is not None
 
     def __str__(self):
         return json.dumps(self.get_user_list())

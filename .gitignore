@@ -1,4 +1,5 @@
 log/
+static/dist/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -93,3 +94,4 @@ ENV/
 
 # idea
 .idea/
+!/static/dist/heart.png

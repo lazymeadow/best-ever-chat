@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% extends "base.html" %}
+
+{% set title = 'Sign In' %}
+
+{% block includes %}
+    <link rel="stylesheet" href="/static/login-style.css" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+    <div class="login">
+        <h1>Reactivate</h1>
+        <div class="message {{ 'error' if error }}">
+            {% if error %}
+                {{ error }}
+            {% elif message %}
+                {{ message }}
+            {% endif %}
+        </div>
+        <p>You can submit a request for account reactivation here. An admin will get back to you whenever they feel like it. Or not.</p>
+        <form action="/reactivate" method="POST">
+            <div class="form-group">
+                <div class="form-element">
+                    <label for="parasite">Username</label>
+                    <input type=text
+                           name="parasite"
+                           id="parasite"
+                           value="{{ username }}"
+                           required
+                           autocomplete="username"
+                           tabindex="1"/>
+                </div>
+            </div>
+            {{ xsrf_form_html() }}
+            <div class="form-element">
+                <div class="flex-spacer"></div>
+                <button type="submit" tabindex="1">Request Reactivation</button>
+            </div>
+            <a href="/login">&lt; I... uh... hang on.</a>
+        </form>
+    </div>
+{% endblock %}</title>
+</head>
+<body>
+
+</body>
+</html>

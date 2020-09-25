@@ -5,7 +5,7 @@ import {_parseEmojis} from "../lib";
 
 export class Alert extends LoggingClass {
     constructor({content, type = 'fade', actionText, actionCallback, dismissText = 'Dismiss', dismissCallback}) {
-        super('Alert');
+        super();
         this.debug('Creating alert');
 
         // create hidden alert

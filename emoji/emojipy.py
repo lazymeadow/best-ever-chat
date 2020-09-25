@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import re
 
 import struct
+from itertools import islice
 
 from tornado.escape import xhtml_unescape
 
@@ -78,3 +79,8 @@ class Emoji(object):
             return char(int(hex_unicode, 16))
         parts = hex_unicode.split('-')
         return ''.join(char(int(x, 16)) for x in parts)
+
+    def search(self, query):
+        return list(islice(
+            [self.ascii_to_unicode(self.shortcode_to_unicode(item)) for item in dict(shortcode_replace, **ascii_replace)
+             if query in item], 108))
