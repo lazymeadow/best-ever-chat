@@ -57,6 +57,10 @@ class Application(tornado.web.Application):
             charset='utf8'
         )
 
+        self.db.execute('SET NAMES utf8mb4')
+        self.db.execute('SET CHARACTER SET utf8mb4')
+        self.db.execute('SET character_set_connection=utf8mb4')
+
         # Save the github auth data for making issues
         self.github_username = GITHUB_USERNAME
         self.github_token = GITHUB_TOKEN
