@@ -4,15 +4,23 @@ It's, like, really good, oh my gosh.
 ## Setup:
 ### Install:
 There are some dependencies that are necessary to install. There might be more. Let me know.
+
 1. You need to have python2.7, mysql, and npm.
+
  On Linux:
+ 
  `sudo apt-get install build-essential python-dev libmysqlclient-dev python-mysqldb npm`
+ 
  On Mac:
+ 
  `brew install mysql npm openssl`
+ 
   Then follow the instructions here to get pip (brew will also give you this url if you type `brew install pip`):
+ 
  `https://pip.readthedocs.io/en/stable/installing/`
  
  On Windows:
+ 
   Just use PyCharm. It will work. 
   
 2. `npm install -g less less-plugin-clean-css`
@@ -27,11 +35,12 @@ There are some dependencies that are necessary to install. There might be more. 
   You can also just use PyCharm and it will install them for you.
   
   On Windows:
-    Don't use a venv, it gets weird with some of the dependencies. 
   
-    MySQL-Python _will fail_, it doesn't really matter what you do.
+   MySQL-Python _will fail_, it doesn't really matter what you do. You need to install it manually.
     
-    Download the installer here:  https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python
+   Download the wheel here:  https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python
+   
+   If you're using virtualenv, make sure you run `path_to_venv\Scripts\activate`, then install it globally with `pip install MySQL_python-1.2.5-cp27-none-win_amd64.whl`
 
 #### Database:
 1. Setup a local MySql database.

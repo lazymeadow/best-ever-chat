@@ -1,6 +1,6 @@
 {
   "name": "best-evar-chat",
-  "version": "4.1.1",
+  "version": "3.5.0",
   "description": "The Best Evar Chat - now with Python 3!",
   "private": true,
   "scripts": {
