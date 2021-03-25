@@ -1,0 +1,2 @@
+rootProject.name='Best Evar Chat'
+include ':app'

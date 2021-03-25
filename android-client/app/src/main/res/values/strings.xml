@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Best Evar Chat</string>
+    <!-- LogInActivity -->
+    <string name="button_log_in">Log in</string>
+    <string name="edit_password">Password</string>
+    <string name="edit_username">Username</string>
+    <string name="log_in_error_dialog_title">Oh no!</string>
+</resources>
