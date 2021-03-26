@@ -403,21 +403,70 @@
                         <dd>
                             (str) the provided client version string, with format "#.#.#", is compared to the current
                             version the server is expecting. mismatches will prompt the parasite to reload their page to
-                            receive a new client.
+                            receive a new client via Alert (see <a href="data-and-entities.html#Section-2-e">Section
+                            2.E</a>)
                         </dd>
                     </dl>
                     example:
                     <pre>
 {
 	"user id": "banana",
-	"type": "typing",
-	"status": 69
+	"type": "version",
+	"client version": "3.5.1"
 }
 			                    </pre>
                 </dd>
                 <dt id="Section-3-a-x">settings</dt>
                 <dd>
-                    there's a lot of settings and i really don't want to outline them right this minute, ok?
+                    settings type messages are a request to update any setting that is stored on the server. some
+                    settings are client side only - these are not listed here and will be ignored by the server. all settings will
+                    trigger an Alert (see <a href="data-and-entities.html#Section-2-e">Section 2.E</a>) to the current
+                    parasite, whether
+                    successful or not. some settings will trigger an Alert to all connected parasites, and some will
+                    trigger an update to the user list for all connected parasites.
+                    <br/>
+                    put all settings to update inside a "data" object
+                    <dl>
+                        <dt>email</dt>
+                        <dd>self explanatory</dd>
+                        <dt>password</dt>
+                        <dd>
+                            parasite password. must be an object with two keys: "password1", "password2". will fail if
+                            the values do not match.
+                        </dd>
+                        <dt>username</dt>
+                        <dd>
+                            parasite display name. must be valid (not an existing parasite id (except of the current
+                            parasite) AND is not another parasite's current display name). also
+                            sends updated user list and Alert to all connected parasites
+                        </dd>
+                        <dt>faction</dt>
+                        <dd>
+                            must be one of the approved factions (see <a href="data-and-entities.html#Section-2-a">Section
+                            2.A</a>). sends updated user list to all connected parasites
+                        </dd>
+                        <dt>color</dt>
+                        <dd>
+                            must be one of the approved colors (see <a href="data-and-entities.html#Section-2-a">Section 2.A</a>).
+                        </dd>
+                        <dt>
+                            soundSet
+                        </dt>
+                        <dd>
+                            must be one of the approved sound sets (see <a href="data-and-entities.html#Section-2-a">Section 2.A</a>).
+                        </dd>
+                    </dl>
+                    example:
+                    <pre>
+{
+    "user id": "banana",
+    "type": settings",
+    "data": {
+        "email": "butt@butt.butt",
+        "username": "banana 🍌"
+    }
+}
+                    </pre>
                 </dd>
                 <dt id="Section-3-a-xi">bug</dt>
                 <dd>
