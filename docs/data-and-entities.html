@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+    <title>BEC - What is these data and entities</title>
+</head>
+<body>
+<div>
+    <header>
+        <h1>Best Ever Chat Docs</h1>
+        <p>
+            <em>Is very important</em>
+        </p>
+    </header>
+    <nav>
+        <ol>
+            <li>
+                <a href="index.html">How it do work</a>
+            </li>
+            <li>
+                <a href="data-and-entities.html">What is these datas and entities</a>
+                <ol>
+                    <li>
+                        <a href="#Section-2-a">Parasite (User)</a>
+                    </li>
+                    <li>
+                        <a href="#Section-2-b">Message</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-b-i">Chat Message</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-b-ii">Private Message</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-b-iii">Image</a>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <a href="#Section-2-c">Room</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-c-i">Invitations</a>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <a href="#Section-2-d">Thread</a>
+                    </li>
+                    <li>
+                        <a href="#Section-2-e">Alerts</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-e-i">'fade' type</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-e-ii">'dismiss' type</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-e-iii">'permanent' type</a>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <a href="socket-messages.html">Socket Messages</a>
+            </li>
+            <li>
+                <a href="rest-endpoints.html">REST Endpoints</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div>
+    <main>
+        <h2>2. What is these datas and entities</h2>
+        <p>
+            There are a lot of datas and a lot of entities that are involved in this chat. It's probably not as many
+            as
+            you
+            are expecting when I say that. But it is still a lot.
+        </p>
+        <section id="Section-2-a">
+            <h3>A. Parasite (User)</h3>
+            <p>
+                This is the user entity. It's called a parasite because that's what a user is doing. Leeching all of
+                the
+                server
+                resources in order to participate in digital social interaction.
+            </p>
+            <p>
+                A parasite has several attributes:
+            </p>
+            <dl>
+                <dt>id</dt>
+                <dd>Traditional "username"/"user id". utf8 string, varchar(128) in db. must be unique</dd>
+                <dt>password</dt>
+                <dd>duh</dd>
+                <dt>username</dt>
+                <dd>This is used as a "display name". This must be unique, except that it can match this parasite's
+                    id.
+                </dd>
+                <dt>email</dt>
+                <dd>ya</dd>
+                <dt>last_active</dt>
+                <dd>
+                    Timestamp of the last known activity for this parasite. This is used to filter parasites for
+                    display
+                    on
+                    the
+                    client.
+                </dd>
+                <dt>typing</dt>
+                <dd>This is set to TRUE via a socket message. TRUE means a typing indicator should be displayed on
+                    the
+                    client.
+                </dd>
+                <dt>status</dt>
+                <dd>One of: [offline/active/idle]. Set via socket message.</dd>
+            </dl>
+            <p>
+                A parasite also has some optional settings, which are included in the parasite entity:
+            </p>
+            <dl>
+                <dt>faction</dt>
+                <dd>
+                    Very important, it is the icon to use for this parasite's status in the user list. It shows when
+                    they
+                    are
+                    active. It is beautiful. Values correspond directly to <a
+                        href="https://fontawesome.com/icons?d=gallery&p=2&q=star%20wars">font
+                    awesome
+                    5 star wars icons</a>. while any string is "valid", the ones that will actually work are:
+                    ['first-order', 'first-order-alt', 'empire', 'galactic-republic', 'galactic-senate',
+                    'jedi-order',
+                    'mandalorian', 'old-republic', 'rebel', 'sith', 'trade-federation']
+                </dd>
+                <dt>color</dt>
+                <dd>
+                    Hex value of the color to display this parasite has chosen for their chat messages. There is no
+                    server
+                    side
+                    validation for the colors, but the web client displays a color picker with the following options
+                    that
+                    are
+                    relatively legible on a white background: ['#555555', '#ff5555', '#ee7733', '#0fba0f',
+                    '#10b1c9',
+                    '#5555ff',
+                    '#bc84e0', '#f27e95', '#775634', '#991111', '#aa3300', '#118822', '#186f7d', '#18187d',
+                    '#663388',
+                    '#b51ba6']
+                </dd>
+                <dt>soundSet</dt>
+                <dd>
+                    Parasites can choose between AIM sounds and MSN sounds straight out of the year 2000. Therefore,
+                    valid
+                    values are ['AIM', 'MSN']. If an different value is set, the client should default to AIM. This
+                    is
+                    not
+                    negotiable. AIM is the default. Client code will not be merge into master if it is not using AIM
+                    as
+                    the
+                    default.
+                </dd>
+                <dt>volume</dt>
+                <dd>
+                    Default client volume level. This is set whenever a clients volume changes. Clients can have
+                    local
+                    overrides
+                    for this value, but a connection from a new client will use this value initially.
+                </dd>
+            </dl>
+        </section>
+        <section id="Section-2-b">
+            <h3>B. Message</h3>
+            <p>
+                A message is the thing that makes this a chat. This is different from a "Socket Message" (see <a
+                    href="socket-messages.html">Section 3</a>), which is
+                what goes between the client and the server.
+            </p>
+            <p>Messages are ONLY saved in memory. Server restarts clear ALL messages from ALL places.</p>
+            <p>
+                Messages are partially sanitized by the server before sending out to clients. A preprocessing
+                function
+                is
+                run on
+                every message to do the following:
+            </p>
+            <ol>
+                <li>Find urls in the message body and wrap in &lt;a&gt;</li>
+                <li>Convert emoji shortcodes to unicode characters</li>
+                <li>Convert ascii emoticons to unicode characters</li>
+                <li>Escape any xhtml in the message if any unacceptable usages are found [script, audio, video,
+                    iframe,
+                    img]
+                </li>
+            </ol>
+            <p>There are three types of messages - 'chat message', 'private message', and 'image'.</p>
+            <section id="Section-2-b-i">
+                <h4>i. Chat Message</h4>
+                <p>Chat messages are what live in Rooms (see <a href="#Section-2-c">section 2.c</a>). They have
+                    several
+                    attributes:
+                </p>
+                <dl>
+                    <dt>username</dt>
+                    <dd>The display name of the parasite who sent them message. Not the id! The client doesn't have
+                        to
+                        figure it
+                        out. This preserves display name changes in the history.
+                    </dd>
+                    <dt>room id</dt>
+                    <dd>ID of the room the message was sent to. if this is not set, it means the message is
+                        "global",
+                        and
+                        goes
+                        to
+                        all rooms
+                    </dd>
+                    <dt>message</dt>
+                    <dd>Contents of the message</dd>
+                    <dt>time</dt>
+                    <dd>unix timestamp when server received message</dd>
+                    <dt>color</dt>
+                    <dd>color to use when displaying this message, based on the parasite's settings at the time the
+                        server
+                        received
+                        the message.
+                    </dd>
+                </dl>
+                <p>NOTE: Chat Messages that contain only an image URL will automatically be converted to Image
+                    messages,
+                    and
+                    vice
+                    versa.</p>
+            </section>
+            <section id="Section-2-b-ii">
+                <h4>ii. Private Message</h4>
+                <p>Private messages are what live in Threads (see <a href="#Section-2-d">section 2.d</a>).</p>
+                <p>A Private Message has the following attributes different from a Chat Message:</p>
+                <dl>
+                    <dt style="text-decoration: line-through;">room id</dt>
+                    <dd>A Private Message does not need a room id</dd>
+                    <dt>sender id</dt>
+                    <dd>there are two users in a thread, and knowing who sent or received is important</dd>
+                    <dt>recipient id</dt>
+                    <dd>same as sender id</dd>
+                </dl>
+            </section>
+            <section id="Section-2-b-iii">
+                <h4>iii. Image</h4>
+                <p>Image messages contain ONLY media content. These messages can live in either Rooms OR
+                    Threads.</p>
+                <p>
+                    An Image message's attributes vary depending on the destination. Image messages going to a Room
+                    look
+                    like a
+                    chat
+                    message, and Image messages going to a Thread look like a private message.
+                </p>
+                <p>
+                    NOTE: Chat Messages that contain only an image URL will automatically be converted to Image
+                    messages,
+                    and
+                    vice
+                    versa.
+                </p>
+                <dl>
+                    <dt style="text-decoration: line-through;">message</dt>
+                    <dd>There is no message content, only image</dd>
+                    <dt>image url</dt>
+                    <dd>The original URL of the image. For image uploads, this will be the same as the image src
+                        url.
+                    </dd>
+                    <dt>image src url</dt>
+                    <dd>
+                        The URL used to display the image in the client. This is generally a URL pointing to the s3
+                        bucket
+                        serving
+                        as the best evar image cache.
+                    </dd>
+                    <dt>nsfw flag</dt>
+                    <dd>If this is TRUE, the image should be hidden by default in the client (collapsed) and marked
+                        as
+                        NSFW.
+                    </dd>
+                </dl>
+            </section>
+        </section>
+        <section id="Section-2-c">
+            <h3>C. Room</h3>
+            <p>
+                A room is a bucket of messages to which 1+ parasite have access. A room is created by a
+                parasite,
+                the
+                "owner",
+                who can also delete the room. Other parasites can be invited to the room, and can "Leave" if
+                they
+                join
+                it.
+                But
+                only the original owner can delete it. The only room that cannot be joined, left, or deleted is
+                room
+                id
+                0,
+                "General". This room has no owner and everyone is stuck in it forever. This forces public
+                interaction.
+            </p>
+            <p>A room has several attributes:</p>
+            <dl>
+                <dt>id</dt>
+                <dd>Every room has an unique id.</dd>
+                <dt>name</dt>
+                <dd>room names don't have to be unique. you can confuse the shit out of everyone.</dd>
+                <dt>owner</dt>
+                <dd>this is a parasite id. every room except "General" has a non-null owner.</dd>
+                <dt>members</dt>
+                <dd>A Set of the ids of parasites in the room. For room id 0, this is just everyone.</dd>
+                <dt>history</dt>
+                <dd>
+                    a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this is 200, but one
+                    day
+                    might be
+                    configurable). this always comes from the server sorted by time.
+                </dd>
+            </dl>
+        </section>
+        <section id="Section-2-c-i">
+            <h4>i. Invitations</h4>
+            <p>
+                Invitations are sent between clients to offer parasites to join a room. An invitation is sent
+                from
+                the
+                server to
+                the invitee's client An invitation is persistent - if a parasite is offline, the invitation will
+                appear
+                when
+                they
+                are next online, and will remain available until removed from the server by accepting to
+                declining.
+            </p>
+        </section>
+        <section id="Section-2-d">
+            <h3>D. Thread</h3>
+            <p>
+                A Thread is used for Private Messages between two Parasites ONLY. The two parasites in a thread can
+                never
+                change.
+                A unique thread is created as soon as the first Private Message is sent from either parasite.
+            </p>
+            <p>
+                A Thread has a few attributes, which are returned from the server in the context of the currently
+                authenticated
+                parasite:
+            </p>
+            <dl>
+                <dt>messages</dt>
+                <dd>
+                    same as a room, this is a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH
+                    (this
+                    is
+                    200,
+                    but one day might be configurable). this always comes from the server sorted by time.
+                </dd>
+                <dt>recipient id</dt>
+                <dd>the parasite id of the OTHER parasite in this thread.</dd>
+            </dl>
+        </section>
+        <section id="Section-2-e">
+            <h3>E. Alerts</h3>
+            <p>
+                Alerts are messages that are meant to be treated as "global" on the client. They are not meant for
+                any
+                room
+                or
+                thread, and come only from the server or client itself. Three types of alerts are defined by the
+                server:
+                ['fade', 'dismiss', 'permanent']. Other types of alerts, or differing alert behaviors, are client
+                specific
+                and
+                not related to capital-A Alerts.
+            </p>
+            <p>
+                NOTE: Alerts are different from chat messages with no Room. Alerts should not be displayed in the
+                message
+                log,
+                but in some other part of the client UI.
+            </p>
+            <section id="Section-2-e-i">
+                <h4>i. 'fade' type</h4>
+                <p>
+                    Fade type alerts should display on the client when the parasite is actively using the client.
+                    The
+                    alert
+                    should
+                    fade after a resonable amount of time (web default is 3500ms).
+                </p>
+            </section>
+            <section id="Section-2-e-ii">
+                <h4>ii. 'dismiss' type</h4>
+                <p>
+                    Dismiss type alerts should stay visible on the client until dismissed.
+                </p>
+                <p>
+                    This is not the same as an actionable alert. The web clients use these to display invitations
+                    and in
+                    the
+                    socket
+                    reconnect flow, but that is client specific implementation. Dismiss type alerts only have a
+                    'Dismiss'
+                    action,
+                    and are for messages deemed more important from the server.
+                </p>
+            </section>
+            <section id="Section-2-e-iii">
+                <h4>iii. 'permanent' type</h4>
+                <p>
+                    Permanent type alerts should remain visible on the client until the client has taken whatever
+                    action
+                    is
+                    necessary to clear them. For example, a web client version being out of sync with the server
+                    results
+                    in
+                    the
+                    server sending a Permanent type alert to that client, which suggests that the client be
+                    reloaded.
+                    Permanent
+                    alerts should only be displayed when sent from the server or otherwise necessary for proper
+                    client
+                    functioning
+                    (e.g. the client is disconnected from the server)
+                </p>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

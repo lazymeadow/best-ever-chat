@@ -65,6 +65,10 @@ h4 {
     margin: 16px 0 8px 32px;
 }
 
+h5 {
+
+}
+
 dl {
     margin: 8px 16px 32px 32px;
 }
@@ -80,7 +84,7 @@ ol {
 
 nav {
     padding: 32px 0;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 nav a {
@@ -110,29 +114,30 @@ nav > ol > li > a {
 nav > ol > li > ol > li > ol {
     font-style: italic;
 }
-        nav ol {
-            counter-reset: section;
-        }
 
-        nav li:before {
-            content: counters(section, ".") ". ";
-            counter-increment: section
-        }
+nav ol {
+    counter-reset: section;
+}
 
-        nav ol li ol {
-            counter-reset: item;
-        }
+nav li:before {
+    content: counters(section, ".") ". ";
+    counter-increment: section
+}
 
-        nav ol li ol li:before {
-            content: counters(section, '.') "." counters(item, '.', lower-latin) ". ";
-            counter-increment: item;
-        }
+nav ol li ol {
+    counter-reset: item;
+}
 
-        nav ol li ol li ol {
-            counter-reset: subitem;
-        }
+nav ol li ol li:before {
+    content: counters(section, '.') "." counters(item, '.', upper-latin) ". ";
+    counter-increment: item;
+}
 
-        nav ol li ol li ol li:before {
-            content: counters(section, '.') "." counters(item, '.', lower-latin) "." counters(subitem, '.', lower-roman) ". ";
-            counter-increment: subitem;
-        }
+nav ol li ol li ol {
+    counter-reset: subitem;
+}
+
+nav ol li ol li ol li:before {
+    content: counters(section, '.') "." counters(item, '.', upper-latin) "." counters(subitem, '.', lower-roman) ". ";
+    counter-increment: subitem;
+}

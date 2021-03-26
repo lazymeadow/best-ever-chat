@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+    <title>BEC - Rest Endpoints</title>
+</head>
+<body>
+<div>
+    <header>
+        <h1>Best Ever Chat Docs</h1>
+        <p>
+            <em>Is very important</em>
+        </p>
+    </header>
+    <nav>
+        <ol>
+            <li>
+                <a href="index.html">How it do work</a>
+            </li>
+            <li>
+                <a href="data-and-entities.html">What is these datas and entities</a>
+            </li>
+            <li>
+                <a href="socket-messages.html">Socket Messages</a>
+            </li>
+            <li>
+                <a href="#">REST Endpoints</a>
+                <ol>
+                    <li>
+                        <a href="#Section-4-a">Unauthenticated endpoints</a>
+                    </li>
+                    <li>
+                        <a href="#Section-4-b">Authenticated endpoints</a>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div>
+    <main>
+
+        <h2>4. REST Endpoints</h2>
+        <p>GET on these endpoints generally returns to you a static webpage. Mostly you use a POST.</p>
+        <section id="Section-4-a">
+            <h3>A. Unauthenticated Endpoints</h3>
+            <dl>
+                <dt>/</dt>
+                <dd>this is the main page, GET only bro</dd>
+                <dt>/m</dt>
+                <dd>this is the mobile site, GET only bro</dd>
+                <dt>/register <em>AUTHENTICATED!</em></dt>
+                <dd>
+                    GET returns the static registration page. POST - this one registers new parasites. Give it
+                    "parasite",
+                    "password", "password2", "email". all of them are required.
+                </dd>
+                <dt>/login</dt>
+                <dd>this one authenticates a parasite</dd>
+                <dt>/logout</dt>
+                <dd>this one makes the parasite not authenticated anymore</dd>
+                <dt>/forgot_password</dt>
+                <dd>this one triggers the forgot password email</dd>
+                <dt>/reset_password</dt>
+                <dd>this one actually does the password reset</dd>
+                <dt>/validate_username <em>AUTHENTICATED!</em></dt>
+                <dd>
+                    POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to
+                    REGISTRATION
+                    (new parasite id) and DISPLAY NAMES (aka "username"). Stupidly, existing display names are
+                    checked
+                    when
+                    validating a new registration. Just pretend that makes sense.
+                </dd>
+            </dl>
+        </section>
+        <section id="Section-4-b">
+            <h3>B. Authenticated Endpoints</h3>
+        </section>
+    </main>
+</div>
+</body>
+</html>
