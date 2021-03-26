@@ -3,7 +3,6 @@ package com.bestevarchat
 import android.content.Context
 import com.android.volley.NetworkResponse
 import com.android.volley.ParseError
-import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.HttpHeaderParser
 import com.android.volley.toolbox.JsonObjectRequest
@@ -15,17 +14,28 @@ import java.net.HttpCookie
 
 private const val LOGIN_URL = "https://bestevarchat.com/login"
 
+/**
+ * Authentication-related methods
+ */
 object AuthService {
 	data class AuthResponse(val success: Boolean, val message: String? = null)
 
 	private var cookie: HttpCookie? = null
 	private var isAuthenticated = false
 
+	/**
+	 * Retrieves an authentication cookie using the given username and password
+	 *
+	 * @param context A Context to associate with this method's Volley queue
+	 * @param username The username to authenticate with
+	 * @param password The password to authenticate with
+	 * @param callback A callback to execute after completing the authentication request
+	 */
 	fun authenticate(
 		context: Context,
 		username: String,
 		password: String,
-		callback: (AuthResponse) -> Unit
+		callback: ((AuthResponse) -> Unit)?
 	) {
 		val queue = Volley.newRequestQueue(context)
 
@@ -47,13 +57,13 @@ object AuthService {
 						isAuthenticated = true
 					}
 
-					callback(AuthResponse(success))
+					callback?.let { it(AuthResponse(success)) }
 				} catch (e: JSONException) {
-					callback(AuthResponse(false, e.message))
+					callback?.let { it(AuthResponse(false, e.message)) }
 				}
 			},
 			{ error ->
-				callback(AuthResponse(false, error.message))
+				callback?.let { it(AuthResponse(false, error.message)) }
 			}
 		) {
 			override fun getBodyContentType(): String {
@@ -86,7 +96,10 @@ object AuthService {
 		queue.add(authRequest)
 	}
 
-	fun getAuthenticationCookie(): HttpCookie {
+	/**
+	 * Retrieves a stored authentication cookie
+	 */
+	fun getAuthCookie(): HttpCookie {
 		if (!isAuthenticated) {
 			throw IllegalStateException(
 				"Attempted to get the authentication cookie before authenticating"

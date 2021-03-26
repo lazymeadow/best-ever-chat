@@ -19,7 +19,7 @@ class ChatViewModel(
 
 	init {
 		viewModelScope.launch(Dispatchers.IO) {
-			val cookie = authService.getAuthenticationCookie()
+			val cookie = authService.getAuthCookie()
 			val headers = mapOf("cookie" to "${cookie.name}=${cookie.value}")
 
 			val serverNumber = (0..9999).random()
