@@ -1,517 +1,509 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        @font-face {
-            font-family: Amiko;
-            font-style: normal;
-            font-weight: 400;
-            src: local("Amiko"),
-            local("Amiko-Regular"),
-            url(https://fonts.gstatic.com/s/amiko/v4/WwkQxPq1DFK04uqieVo.ttf) format("truetype")
-        }
-
-        body {
-            font-family: Amiko, sans-serif;
-            margin: 24px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin: 0;
-        }
-
-        h2 {
-            margin: 0 8px 16px 0;
-        }
-
-        .up-link {
-            font-size: .5em;
-            margin: 0 0 16px 48px;
-        }
-
-        h3 {
-            margin: 0 0 8px 24px;
-        }
-
-        p, h4 {
-            margin: 0 0 0 32px;
-        }
-
-        h4 {
-            margin: 16px 0 8px 32px;
-        }
-
-        dl {
-            margin: 8px 16px 32px 32px;
-        }
-
-        dt {
-            font-style: italic;
-        }
-
-        ol {
-            margin-left: 56px;
-            padding: 0;
-        }
-
-        nav ol {
-            counter-reset: section;
-            margin-left: 32px;
-        }
-
-        nav li {
-            display: block
-        }
-
-        nav li:before {
-            content: counters(section, ".") ". ";
-            counter-increment: section
-        }
-
-        nav ol li ol {
-            counter-reset: item;
-            margin-left: 16px;
-        }
-
-        nav ol li ol li:before {
-            content: counters(section, '.') "." counters(item, '.', lower-latin) ". ";
-            counter-increment: item;
-        }
-
-        nav ol li ol li ol {
-            counter-reset: subitem;
-        }
-
-        nav ol li ol li ol li:before {
-            content: counters(section, '.') "." counters(item, '.', lower-latin) "." counters(subitem, '.', lower-roman) ". ";
-            counter-increment: subitem;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+    <title>Best Ever Chat Docs</title>
 </head>
 <body>
-<h1>Best Ever Chat Docs</h1>
-<p>
-    <em>Is very important</em>
-</p>
-<nav>
-    <ol>
-        <li>
-            <a href="#Section-1">How it do work</a>
-        </li>
-        <li>
-            <a href="#Section-2">What is these datas and entities</a>
+<div>
+    <header>
+        <h1>Best Ever Chat Docs</h1>
+        <p>
+            <em>Is very important</em>
+        </p>
+    </header>
+    <nav>
+        <ol>
+            <li>
+                <a href="#Section-1">How it do work</a>
+            </li>
+            <li>
+                <a href="#Section-2">What is these datas and entities</a>
+                <ol>
+                    <li>
+                        <a href="#Section-2-a">Parasite (User)</a>
+                    </li>
+                    <li>
+                        <a href="#Section-2-b">Message</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-b-i">Chat Message</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-b-ii">Private Message</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-b-iii">Image</a>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <a href="#Section-2-c">Room</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-c-i">Invitations</a>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <a href="#Section-2-d">Thread</a>
+                    </li>
+                    <li>
+                        <a href="#Section-2-e">Alerts</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-e-i">'fade' type</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-e-ii">'dismiss' type</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-e-iii">'permanent' type</a>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <a href="#Section-2-f">Socket Message</a>
+                        <ol>
+                            <li>
+                                <a href="#Section-2-f-i">Client Originating Messages (client => server)</a>
+                            </li>
+                            <li>
+                                <a href="#Section-2-f-ii">Server Originating Messages (server => client)</a>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <a href="#Section-3">REST Endpoints</a>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div>
+    <main>
+        <section id="Section-1">
+            <h2>1. How it do work</h2>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Authenticate via REST. Connect to socket. Send data over socket in correct format, receive and parse
+                data
+                from
+                socket and be best chat.
+            </p>
+        </section>
+        <section id="Section-2">
+            <h2>2. What is these datas and entities</h2>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                There are a lot of datas and a lot of entities that are involved in this chat. It's probably not as many
+                as
+                you
+                are expecting when I say that. But it is still a lot.
+            </p>
+            <h3 id="Section-2-a">a. Parasite (User)</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                This is the user entity. It's called a parasite because that's what a user is doing. Leeching all of the
+                server
+                resources in order to participate in digital social interaction.
+            </p>
+            <p>
+                A parasite has several attributes:
+            </p>
+            <dl>
+                <dt>id</dt>
+                <dd>Traditional "username"/"user id". utf8 string, varchar(128) in db. must be unique</dd>
+                <dt>password</dt>
+                <dd>duh</dd>
+                <dt>username</dt>
+                <dd>This is used as a "display name". This must be unique, except that it can match this parasite's
+                    id.
+                </dd>
+                <dt>email</dt>
+                <dd>ya</dd>
+                <dt>last_active</dt>
+                <dd>
+                    Timestamp of the last known activity for this parasite. This is used to filter parasites for display
+                    on
+                    the
+                    client.
+                </dd>
+                <dt>typing</dt>
+                <dd>This is set to TRUE via a socket message. TRUE means a typing indicator should be displayed on the
+                    client.
+                </dd>
+                <dt>status</dt>
+                <dd>One of: [offline/active/idle]. Set via socket message.</dd>
+            </dl>
+            <p>
+                A parasite also has some optional settings, which are included in the parasite entity:
+            </p>
+            <dl>
+                <dt>faction</dt>
+                <dd>
+                    Very important, it is the icon to use for this parasite's status in the user list. It shows when
+                    they
+                    are
+                    active. It is beautiful. Values correspond directly to <a href="https://fontawesome.com/icons">font
+                    awesome
+                    5 star wars icons</a>. while any string is "valid", the ones that will actually work are:
+                    ['first-order', 'first-order-alt', 'empire', 'galactic-republic', 'galactic-senate', 'jedi-order',
+                    'mandalorian', 'old-republic', 'rebel', 'sith', 'trade-federation']
+                </dd>
+                <dt>color</dt>
+                <dd>
+                    Hex value of the color to display this parasite has chosen for their chat messages. There is no
+                    server
+                    side
+                    validation for the colors, but the web client displays a color picker with the following options
+                    that
+                    are
+                    relatively legible on a white background: ['#555555', '#ff5555', '#ee7733', '#0fba0f', '#10b1c9',
+                    '#5555ff',
+                    '#bc84e0', '#f27e95', '#775634', '#991111', '#aa3300', '#118822', '#186f7d', '#18187d', '#663388',
+                    '#b51ba6']
+                </dd>
+                <dt>soundSet</dt>
+                <dd>
+                    Parasites can choose between AIM sounds and MSN sounds straight out of the year 2000. Therefore,
+                    valid
+                    values are ['AIM', 'MSN']. If an different value is set, the client should default to AIM. This is
+                    not
+                    negotiable. AIM is the default. Client code will not be merge into master if it is not using AIM as
+                    the
+                    default.
+                </dd>
+                <dt>volume</dt>
+                <dd>
+                    Default client volume level. This is set whenever a clients volume changes. Clients can have local
+                    overrides
+                    for this value, but a connection from a new client will use this value initially.
+                </dd>
+            </dl>
+            <h3 id="Section-2-b">b. Message</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                A message is the thing that makes this a chat. This is different from a "Socket Message" (see <a
+                    href="#Section-2-f">section 2.f</a>), which is
+                what goes between the client and the server.
+            </p>
+            <p>Messages are ONLY saved in memory. Server restarts clear ALL messages from ALL places.</p>
+            <p>
+                Messages are partially sanitized by the server before sending out to clients. A preprocessing function
+                is
+                run on
+                every message to do the following:
+            </p>
             <ol>
-                <li>
-                    <a href="#Section-2-a">Parasite (User)</a>
-                </li>
-                <li>
-                    <a href="#Section-2-b">Message</a>
-                    <ol>
-                        <li>
-                            <a href="#Section-2-b-i">Chat Message</a>
-                        </li>
-                        <li>
-                            <a href="#Section-2-b-ii">Private Message</a>
-                        </li>
-                        <li>
-                            <a href="#Section-2-b-iii">Image</a>
-                        </li>
-                    </ol>
-                </li>
-                <li>
-                    <a href="#Section-2-c">Room</a>
-                    <ol>
-                        <li>
-                            <a href="#Section-2-c-i">Invitations</a>
-                        </li>
-                    </ol>
-                </li>
-                <li>
-                    <a href="#Section-2-d">Thread</a>
-                </li>
-                <li>
-                    <a href="#Section-2-e">Alerts</a>
-                    <ol>
-                        <li>
-                            <a href="#Section-2-e-i">'fade' type</a>
-                        </li>
-                        <li>
-                            <a href="#Section-2-e-ii">'dismiss' type</a>
-                        </li>
-                        <li>
-                            <a href="#Section-2-e-iii">'permanent' type</a>
-                        </li>
-                    </ol>
-                </li>
-                <li>
-                    <a href="#Section-2-f">Socket Message</a>
-                    <ol>
-                        <li>
-                            <a href="#Section-2-f-i">Client Originating Messages (client => server)</a>
-                        </li>
-                        <li>
-                            <a href="#Section-2-f-ii">Server Originating Messages (server => client)</a>
-                        </li>
-                    </ol>
+                <li>Find urls in the message body and wrap in &lt;a&gt;</li>
+                <li>Convert emoji shortcodes to unicode characters</li>
+                <li>Convert ascii emoticons to unicode characters</li>
+                <li>Escape any xhtml in the message if any unacceptable usages are found [script, audio, video, iframe,
+                    img]
                 </li>
             </ol>
-        </li>
-        <li>
-            <a href="#Section-3">REST Endpoints</a>
-        </li>
-    </ol>
-</nav>
-<section id="Section-1">
-    <h2>1. How it do work</h2>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Authenticate via REST. Connect to socket. Send data over socket in correct format, receive and parse data from
-        socket and be best chat.
-    </p>
-</section>
-<section id="Section-2">
-    <h2>2. What is these datas and entities</h2>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        There are a lot of datas and a lot of entities that are involved in this chat. It's probably not as many as you
-        are expecting when I say that. But it is still a lot.
-    </p>
-    <h3 id="Section-2-a">a. Parasite (User)</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        This is the user entity. It's called a parasite because that's what a user is doing. Leeching all of the server
-        resources in order to participate in digital social interaction.
-    </p>
-    <p>
-        A parasite has several attributes:
-    </p>
-    <dl>
-        <dt>id</dt>
-        <dd>Traditional "username"/"user id". utf8 string, varchar(128) in db. must be unique</dd>
-        <dt>password</dt>
-        <dd>duh</dd>
-        <dt>username</dt>
-        <dd>This is used as a "display name". This must be unique, except that it can match this parasite's id.</dd>
-        <dt>email</dt>
-        <dd>ya</dd>
-        <dt>last_active</dt>
-        <dd>
-            Timestamp of the last known activity for this parasite. This is used to filter parasites for display on the
-            client.
-        </dd>
-        <dt>typing</dt>
-        <dd>This is set to TRUE via a socket message. TRUE means a typing indicator should be displayed on the client.
-        </dd>
-        <dt>status</dt>
-        <dd>One of: [offline/active/idle]. Set via socket message.</dd>
-    </dl>
-    <p>
-        A parasite also has some optional settings, which are included in the parasite entity:
-    </p>
-    <dl>
-        <dt>faction</dt>
-        <dd>
-            Very important, it is the icon to use for this parasite's status in the user list. It shows when they are
-            active. It is beautiful. Values correspond directly to <a href="https://fontawesome.com/icons">font awesome
-            5 star wars icons</a>. while any string is "valid", the ones that will actually work are:
-            ['first-order', 'first-order-alt', 'empire', 'galactic-republic', 'galactic-senate', 'jedi-order',
-            'mandalorian', 'old-republic', 'rebel', 'sith', 'trade-federation']
-        </dd>
-        <dt>color</dt>
-        <dd>
-            Hex value of the color to display this parasite has chosen for their chat messages. There is no server side
-            validation for the colors, but the web client displays a color picker with the following options that are
-            relatively legible on a white background: ['#555555', '#ff5555', '#ee7733', '#0fba0f', '#10b1c9', '#5555ff',
-            '#bc84e0', '#f27e95', '#775634', '#991111', '#aa3300', '#118822', '#186f7d', '#18187d', '#663388',
-            '#b51ba6']
-        </dd>
-        <dt>soundSet</dt>
-        <dd>
-            Parasites can choose between AIM sounds and MSN sounds straight out of the year 2000. Therefore, valid
-            values are ['AIM', 'MSN']. If an different value is set, the client should default to AIM. This is not
-            negotiable. AIM is the default. Client code will not be merge into master if it is not using AIM as the
-            default.
-        </dd>
-        <dt>volume</dt>
-        <dd>
-            Default client volume level. This is set whenever a clients volume changes. Clients can have local overrides
-            for this value, but a connection from a new client will use this value initially.
-        </dd>
-    </dl>
-    <h3 id="Section-2-b">b. Message</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        A message is the thing that makes this a chat. This is different from a "Socket Message" (see <a
-            href="#Section-2-f">section 2.f</a>), which is
-        what goes between the client and the server.
-    </p>
-    <p>Messages are ONLY saved in memory. Server restarts clear ALL messages from ALL places.</p>
-    <p>
-        Messages are partially sanitized by the server before sending out to clients. A preprocessing function is run on
-        every message to do the following:
-    </p>
-    <ol>
-        <li>Find urls in the message body and wrap in &lt;a&gt;</li>
-        <li>Convert emoji shortcodes to unicode characters</li>
-        <li>Convert ascii emoticons to unicode characters</li>
-        <li>Escape any xhtml in the message if any unacceptable usages are found [script, audio, video, iframe, img]
-        </li>
-    </ol>
-    <p>There are three types of messages - 'chat message', 'private message', and 'image'.</p>
-    <h4 id="Section-2-b-i">i. Chat Message</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>Chat messages are what live in Rooms (see <a href="#Section-2-c">section 2.c</a>). They have several attributes:
-    </p>
-    <dl>
-        <dt>username</dt>
-        <dd>The display name of the parasite who sent them message. Not the id! The client doesn't have to figure it
-            out. This preserves display name changes in the history.
-        </dd>
-        <dt>room id</dt>
-        <dd>ID of the room the message was sent to. if this is not set, it means the message is "global", and goes to
-            all rooms
-        </dd>
-        <dt>message</dt>
-        <dd>Contents of the message</dd>
-        <dt>time</dt>
-        <dd>unix timestamp when server received message</dd>
-        <dt>color</dt>
-        <dd>color to use when displaying this message, based on the parasite's settings at the time the server received
-            the message.
-        </dd>
-    </dl>
-    <p>NOTE: Chat Messages that contain only an image URL will automatically be converted to Image messages, and vice
-        versa.</p>
-    <h4 id="Section-2-b-ii">ii. Private Message</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>Private messages are what live in Threads (see <a href="#Section-2-d">section 2.d</a>).</p>
-    <p>A Private Message has the following attributes different from a Chat Message:</p>
-    <dl>
-        <dt style="text-decoration: line-through;">room id</dt>
-        <dd>A Private Message does not need a room id</dd>
-        <dt>sender id</dt>
-        <dd>there are two users in a thread, and knowing who sent or received is important</dd>
-        <dt>recipient id</dt>
-        <dd>same as sender id</dd>
-    </dl>
-    <h4 id="Section-2-b-iii">iii. Image</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>Image messages contain ONLY media content. These messages can live in either Rooms OR Threads.</p>
-    <p>
-        An Image message's attributes vary depending on the destination. Image messages going to a Room look like a chat
-        message, and Image messages going to a Thread look like a private message.
-    </p>
-    <p>
-        NOTE: Chat Messages that contain only an image URL will automatically be converted to Image messages, and vice
-        versa.
-    </p>
-    <dl>
-        <dt style="text-decoration: line-through;">message</dt>
-        <dd>There is no message content, only image</dd>
-        <dt>image url</dt>
-        <dd>The original URL of the image. For image uploads, this will be the same as the image src url.</dd>
-        <dt>image src url</dt>
-        <dd>
-            The URL used to display the image in the client. This is generally a URL pointing to the s3 bucket serving
-            as the best evar image cache.
-        </dd>
-        <dt>nsfw flag</dt>
-        <dd>If this is TRUE, the image should be hidden by default in the client (collapsed) and marked as NSFW.</dd>
-    </dl>
-    <h3 id="Section-2-c">c. Room</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        A room is a bucket of messages to which 1+ parasite have access. A room is created by a parasite, the "owner",
-        who can also delete the room. Other parasites can be invited to the room, and can "Leave" if they join it. But
-        only the original owner can delete it. The only room that cannot be joined, left, or deleted is room id 0,
-        "General". This room has no owner and everyone is stuck in it forever. This forces public interaction.
-    </p>
-    <p>A room has several attributes:</p>
-    <dl>
-        <dt>id</dt>
-        <dd>Every room has an unique id.</dd>
-        <dt>name</dt>
-        <dd>room names don't have to be unique. you can confuse the shit out of everyone.</dd>
-        <dt>owner</dt>
-        <dd>this is a parasite id. every room except "General" has a non-null owner.</dd>
-        <dt>members</dt>
-        <dd>A Set of the ids of parasites in the room. For room id 0, this is just everyone.</dd>
-        <dt>history</dt>
-        <dd>
-            a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this is 200, but one day might be
-            configurable). this always comes from the server sorted by time.
-        </dd>
-    </dl>
-    <h4 id="Section-2-c-i">i. Invitations</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Invitations are sent between clients to offer parasites to join a room. An invitation is sent from the server to
-        the invitee's client An invitation is persistent - if a parasite is offline, the invitation will appear when
-        they
-        are next online, and will remain available until removed from the server by accepting to declining.
-    </p>
-    <h3 id="Section-2-d">d. Thread</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        A Thread is used for Private Messages between two Parasites ONLY. The two parasites in a thread can never
-        change.
-        A unique thread is created as soon as the first Private Message is sent from either parasite.
-    </p>
-    <p>
-        A Thread has a few attributes, which are returned from the server in the context of the currently authenticated
-        parasite:
-    </p>
-    <dl>
-        <dt>messages</dt>
-        <dd>
-            same as a room, this is a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this is 200,
-            but one day might be configurable). this always comes from the server sorted by time.
-        </dd>
-        <dt>recipient id</dt>
-        <dd>the parasite id of the OTHER parasite in this thread.</dd>
-    </dl>
-    <h3 id="Section-2-e">e. Alerts</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Alerts are messages that are meant to be treated as "global" on the client. They are not meant for any room or
-        thread, and come only from the server or client itself. Three types of alerts are defined by the server:
-        ['fade', 'dismiss', 'permanent']. Other types of alerts, or differing alert behaviors, are client specific and
-        not related to capital-A Alerts.
-    </p>
-    <p>
-        NOTE: Alerts are different from chat messages with no Room. Alerts should not be displayed in the message log,
-        but in some other part of the client UI.
-    </p>
-    <h4 id="Section-2-e-i">i. 'fade' type</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Fade type alerts should display on the client when the parasite is actively using the client. The alert should
-        fade after a resonable amount of time (web default is 3500ms).
-    </p>
-    <h4 id="Section-2-e-ii">ii. 'dismiss' type</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Dismiss type alerts should stay visible on the client until dismissed.
-    </p>
-    <p>
-        This is not the same as an actionable alert. The web clients use these to display invitations and in the socket
-        reconnect flow, but that is client specific implementation. Dismiss type alerts only have a 'Dismiss' action,
-        and are for messages deemed more important from the server.
-    </p>
-    <h4 id="Section-2-e-iii">iii. 'permanent' type</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Permanent type alerts should remain visible on the client until the client has taken whatever action is
-        necessary to clear them. For example, a web client version being out of sync with the server results in the
-        server sending a Permanent type alert to that client, which suggests that the client be reloaded. Permanent
-        alerts should only be displayed when sent from the server or otherwise necessary for proper client functioning
-        (e.g. the client is disconnected from the server)
-    </p>
-    <h3 id="Section-2-f">f. Socket Message</h3>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Socket messages are how the server and the client speak to each other. All Socket Messages are JSON, using <a
-            href="https://www.npmjs.com/package/sockjs">SockJS</a> on the server (<a
-            href="https://github.com/MrJoes/sockjs-tornado">SockJS-tornado 1.0.3</a>) and the existing web clients (<a
-            href="https://github.com/sockjs/sockjs-client">SockJS-client ^1.3.0</a>). The server accepts certain message
-        'types' through the socket from the client, and the client must handle the messages sent by the server.
-    </p>
-    <p>
-        Yes, the keys have spaces. I like it. You can write your own chat server if you don't.
-    </p>
-    <h4>
-        Socket Message Anatomy
-    </h4>
-    <p>
-        A socket message will always have a "type", and almost always have a "user id", with all additional fields being
-        listed at the same level as these two.
-    </p>
-    <h4 id="Section-2-f-i">i. Client Originating Messages (client =&gt; server)</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Client messages are asking the server to mutate state based on parasite actions. Each message type requires
-        certain data be sent within the JSON message. Messages that do not contain one of the following 'type' values
-        will be printed in the server log and ignored.
-    </p>
-    <h5>Message Anatomy</h5>
-    <p>
-        Client Messages (with the exception of type "client log") MUST contain the parasite ID of the currently
-        authenticated parasite in the "user id", or the message will be rejected and authentication will be invalidated
-        via an 'auth fail' message type.
-    <pre>
+            <p>There are three types of messages - 'chat message', 'private message', and 'image'.</p>
+            <h4 id="Section-2-b-i">i. Chat Message</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>Chat messages are what live in Rooms (see <a href="#Section-2-c">section 2.c</a>). They have several
+                attributes:
+            </p>
+            <dl>
+                <dt>username</dt>
+                <dd>The display name of the parasite who sent them message. Not the id! The client doesn't have to
+                    figure it
+                    out. This preserves display name changes in the history.
+                </dd>
+                <dt>room id</dt>
+                <dd>ID of the room the message was sent to. if this is not set, it means the message is "global", and
+                    goes
+                    to
+                    all rooms
+                </dd>
+                <dt>message</dt>
+                <dd>Contents of the message</dd>
+                <dt>time</dt>
+                <dd>unix timestamp when server received message</dd>
+                <dt>color</dt>
+                <dd>color to use when displaying this message, based on the parasite's settings at the time the server
+                    received
+                    the message.
+                </dd>
+            </dl>
+            <p>NOTE: Chat Messages that contain only an image URL will automatically be converted to Image messages, and
+                vice
+                versa.</p>
+            <h4 id="Section-2-b-ii">ii. Private Message</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>Private messages are what live in Threads (see <a href="#Section-2-d">section 2.d</a>).</p>
+            <p>A Private Message has the following attributes different from a Chat Message:</p>
+            <dl>
+                <dt style="text-decoration: line-through;">room id</dt>
+                <dd>A Private Message does not need a room id</dd>
+                <dt>sender id</dt>
+                <dd>there are two users in a thread, and knowing who sent or received is important</dd>
+                <dt>recipient id</dt>
+                <dd>same as sender id</dd>
+            </dl>
+            <h4 id="Section-2-b-iii">iii. Image</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>Image messages contain ONLY media content. These messages can live in either Rooms OR Threads.</p>
+            <p>
+                An Image message's attributes vary depending on the destination. Image messages going to a Room look
+                like a
+                chat
+                message, and Image messages going to a Thread look like a private message.
+            </p>
+            <p>
+                NOTE: Chat Messages that contain only an image URL will automatically be converted to Image messages,
+                and
+                vice
+                versa.
+            </p>
+            <dl>
+                <dt style="text-decoration: line-through;">message</dt>
+                <dd>There is no message content, only image</dd>
+                <dt>image url</dt>
+                <dd>The original URL of the image. For image uploads, this will be the same as the image src url.</dd>
+                <dt>image src url</dt>
+                <dd>
+                    The URL used to display the image in the client. This is generally a URL pointing to the s3 bucket
+                    serving
+                    as the best evar image cache.
+                </dd>
+                <dt>nsfw flag</dt>
+                <dd>If this is TRUE, the image should be hidden by default in the client (collapsed) and marked as NSFW.
+                </dd>
+            </dl>
+            <h3 id="Section-2-c">c. Room</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                A room is a bucket of messages to which 1+ parasite have access. A room is created by a parasite, the
+                "owner",
+                who can also delete the room. Other parasites can be invited to the room, and can "Leave" if they join
+                it.
+                But
+                only the original owner can delete it. The only room that cannot be joined, left, or deleted is room id
+                0,
+                "General". This room has no owner and everyone is stuck in it forever. This forces public interaction.
+            </p>
+            <p>A room has several attributes:</p>
+            <dl>
+                <dt>id</dt>
+                <dd>Every room has an unique id.</dd>
+                <dt>name</dt>
+                <dd>room names don't have to be unique. you can confuse the shit out of everyone.</dd>
+                <dt>owner</dt>
+                <dd>this is a parasite id. every room except "General" has a non-null owner.</dd>
+                <dt>members</dt>
+                <dd>A Set of the ids of parasites in the room. For room id 0, this is just everyone.</dd>
+                <dt>history</dt>
+                <dd>
+                    a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this is 200, but one day
+                    might be
+                    configurable). this always comes from the server sorted by time.
+                </dd>
+            </dl>
+            <h4 id="Section-2-c-i">i. Invitations</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Invitations are sent between clients to offer parasites to join a room. An invitation is sent from the
+                server to
+                the invitee's client An invitation is persistent - if a parasite is offline, the invitation will appear
+                when
+                they
+                are next online, and will remain available until removed from the server by accepting to declining.
+            </p>
+            <h3 id="Section-2-d">d. Thread</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                A Thread is used for Private Messages between two Parasites ONLY. The two parasites in a thread can
+                never
+                change.
+                A unique thread is created as soon as the first Private Message is sent from either parasite.
+            </p>
+            <p>
+                A Thread has a few attributes, which are returned from the server in the context of the currently
+                authenticated
+                parasite:
+            </p>
+            <dl>
+                <dt>messages</dt>
+                <dd>
+                    same as a room, this is a deque of messages sent to the room, limited to the MAX_DEQUE_LENGTH (this
+                    is
+                    200,
+                    but one day might be configurable). this always comes from the server sorted by time.
+                </dd>
+                <dt>recipient id</dt>
+                <dd>the parasite id of the OTHER parasite in this thread.</dd>
+            </dl>
+            <h3 id="Section-2-e">e. Alerts</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Alerts are messages that are meant to be treated as "global" on the client. They are not meant for any
+                room
+                or
+                thread, and come only from the server or client itself. Three types of alerts are defined by the server:
+                ['fade', 'dismiss', 'permanent']. Other types of alerts, or differing alert behaviors, are client
+                specific
+                and
+                not related to capital-A Alerts.
+            </p>
+            <p>
+                NOTE: Alerts are different from chat messages with no Room. Alerts should not be displayed in the
+                message
+                log,
+                but in some other part of the client UI.
+            </p>
+            <h4 id="Section-2-e-i">i. 'fade' type</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Fade type alerts should display on the client when the parasite is actively using the client. The alert
+                should
+                fade after a resonable amount of time (web default is 3500ms).
+            </p>
+            <h4 id="Section-2-e-ii">ii. 'dismiss' type</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Dismiss type alerts should stay visible on the client until dismissed.
+            </p>
+            <p>
+                This is not the same as an actionable alert. The web clients use these to display invitations and in the
+                socket
+                reconnect flow, but that is client specific implementation. Dismiss type alerts only have a 'Dismiss'
+                action,
+                and are for messages deemed more important from the server.
+            </p>
+            <h4 id="Section-2-e-iii">iii. 'permanent' type</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Permanent type alerts should remain visible on the client until the client has taken whatever action is
+                necessary to clear them. For example, a web client version being out of sync with the server results in
+                the
+                server sending a Permanent type alert to that client, which suggests that the client be reloaded.
+                Permanent
+                alerts should only be displayed when sent from the server or otherwise necessary for proper client
+                functioning
+                (e.g. the client is disconnected from the server)
+            </p>
+            <h3 id="Section-2-f">f. Socket Message</h3>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Socket messages are how the server and the client speak to each other. All Socket Messages are JSON,
+                using
+                <a
+                        href="https://www.npmjs.com/package/sockjs">SockJS</a> on the server (<a
+                    href="https://github.com/MrJoes/sockjs-tornado">SockJS-tornado 1.0.3</a>) and the existing web
+                clients (<a
+                    href="https://github.com/sockjs/sockjs-client">SockJS-client ^1.3.0</a>). The server accepts certain
+                message
+                'types' through the socket from the client, and the client must handle the messages sent by the server.
+            </p>
+            <p>
+                Yes, the keys have spaces. I like it. You can write your own chat server if you don't.
+            </p>
+            <h4>
+                Socket Message Anatomy
+            </h4>
+            <p>
+                A socket message will always have a "type", and almost always have a "user id", with all additional
+                fields
+                being
+                listed at the same level as these two.
+            </p>
+            <h4 id="Section-2-f-i">i. Client Originating Messages (client =&gt; server)</h4>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>
+                Client messages are asking the server to mutate state based on parasite actions. Each message type
+                requires
+                certain data be sent within the JSON message. Messages that do not contain one of the following 'type'
+                values
+                will be printed in the server log and ignored.
+            </p>
+            <h5>Message Anatomy</h5>
+            <p>
+                Client Messages (with the exception of type "client log") MUST contain the parasite ID of the currently
+                authenticated parasite in the "user id", or the message will be rejected and authentication will be
+                invalidated
+                via an 'auth fail' message type.
+            <pre>
 {
 	"user id": "&lt;parasite id&gt;",
 	"type": "&lt;type string&gt;",
 	...
 }
 		</pre>
-    </p>
-    <h5>Message Type Definitions</h5>
-    <dl>
-        <dt>client log</dt>
-        <dd>
-            adds a log message to the server-side client log.
+            </p>
+            <h5>Message Type Definitions</h5>
             <dl>
-                <dt>level</dt>
-                <dd>(str) [DEBUG/INFO/WARNING/ERROR/CRITICAL] (case insensitive)</dd>
-                <dt>log</dt>
-                <dd>(str) message to log</dd>
-            </dl>
-            example:
-            <pre>
+                <dt>client log</dt>
+                <dd>
+                    adds a log message to the server-side client log.
+                    <dl>
+                        <dt>level</dt>
+                        <dd>(str) [DEBUG/INFO/WARNING/ERROR/CRITICAL] (case insensitive)</dd>
+                        <dt>log</dt>
+                        <dd>(str) message to log</dd>
+                    </dl>
+                    example:
+                    <pre>
 {
 	"type": "client log",
 	"level": "debug",
 	"log": "Client settings saved!"
 }
 			</pre>
-        </dd>
-        <dt>chat message</dt>
-        <dd>
-            a chat message sent to a room. this is <em>not</em> a private message between two parasites.
-            <dl>
-                <dt>message</dt>
-                <dd>(str) contents of the message</dd>
-                <dt>room id</dt>
-                <dd>(int) destination room id. though not currently used, a room id of null would mean the message goes
-                    to ALL rooms.
                 </dd>
-            </dl>
-            example:
-            <pre>
+                <dt>chat message</dt>
+                <dd>
+                    a chat message sent to a room. this is <em>not</em> a private message between two parasites.
+                    <dl>
+                        <dt>message</dt>
+                        <dd>(str) contents of the message</dd>
+                        <dt>room id</dt>
+                        <dd>(int) destination room id. though not currently used, a room id of null would mean the
+                            message
+                            goes
+                            to ALL rooms.
+                        </dd>
+                    </dl>
+                    example:
+                    <pre>
 {
 	"user id": "banana"
 	"type": "chat message",
@@ -519,17 +511,17 @@
 	"room id": 0  // 0 is the "General" room that all parasites are forced to be in
 }
 			</pre>
-        </dd>
-        <dt>private message</dt>
-        <dd>
-            <dl>
-                <dt>message</dt>
-                <dd>(str) contents of the message</dd>
-                <dt>recipient id</dt>
-                <dd>(str) destination parasite id</dd>
-            </dl>
-            example:
-            <pre>
+                </dd>
+                <dt>private message</dt>
+                <dd>
+                    <dl>
+                        <dt>message</dt>
+                        <dd>(str) contents of the message</dd>
+                        <dt>recipient id</dt>
+                        <dd>(str) destination parasite id</dd>
+                    </dl>
+                    example:
+                    <pre>
 {
 	"user id": "banana",
 	"type": "private message",
@@ -537,21 +529,23 @@
 	"recipient id": "potato"
 }
 			</pre>
-        </dd>
-        <dt>image</dt>
-        <dd>
-            <dl>
-                <dt>message</dt>
-                <dd>(str) the image url</dd>
-                <dt>room id</dt>
-                <dd>(str/int) This is either a room id OR a parasite id if the destination is a thread.</dd>
-                <dt>nsfw</dt>
-                <dd>(bool) the nsfw flag. clients are required to implement nsfw images as hidden (but visible with user
-                    interaction) by default
                 </dd>
-            </dl>
-            example:
-            <pre>
+                <dt>image</dt>
+                <dd>
+                    <dl>
+                        <dt>message</dt>
+                        <dd>(str) the image url</dd>
+                        <dt>room id</dt>
+                        <dd>(str/int) This is either a room id OR a parasite id if the destination is a thread.</dd>
+                        <dt>nsfw</dt>
+                        <dd>(bool) the nsfw flag. clients are required to implement nsfw images as hidden (but visible
+                            with
+                            user
+                            interaction) by default
+                        </dd>
+                    </dl>
+                    example:
+                    <pre>
 {
 	"user id": "banana",
 	"type": "image",
@@ -560,22 +554,25 @@
 	"nsfw": false
 }
 			</pre>
-        </dd>
-        <dt>image upload</dt>
-        <dd>
-            <dl>
-                <dt>image data</dt>
-                <dd>(str) the base64 encoded content of an image file</dd>
-                <dt>image type</dt>
-                <dd>(str) the mime type of the file, based on a web upload. not sure what this needs to be otherwise.
                 </dd>
-                <dt>nsfw</dt>
-                <dd>(bool) the nsfw flag. clients are required to implement nsfw images as hidden (but visible with user
-                    interaction) by default
-                </dd>
-            </dl>
-            example:
-            <pre>
+                <dt>image upload</dt>
+                <dd>
+                    <dl>
+                        <dt>image data</dt>
+                        <dd>(str) the base64 encoded content of an image file</dd>
+                        <dt>image type</dt>
+                        <dd>(str) the mime type of the file, based on a web upload. not sure what this needs to be
+                            otherwise.
+                        </dd>
+                        <dt>nsfw</dt>
+                        <dd>(bool) the nsfw flag. clients are required to implement nsfw images as hidden (but visible
+                            with
+                            user
+                            interaction) by default
+                        </dd>
+                    </dl>
+                    example:
+                    <pre>
 {
 	"user id": "banana",
 	"type": "image upload",
@@ -584,21 +581,21 @@
 	"nsfw": false
 }
 			</pre>
-        </dd>
-        <dt>room action</dt>
-        <dd>
-            the room action has an additional required field "action". there are four actions that can be taken,
-            ['create', 'delete', 'join', 'leave', 'invite']:
-            <dl>
-                <dt>action: create</dt>
+                </dd>
+                <dt>room action</dt>
                 <dd>
-                    anybody can create a new room
+                    the room action has an additional required field "action". there are four actions that can be taken,
+                    ['create', 'delete', 'join', 'leave', 'invite']:
                     <dl>
-                        <dt>(str) room name</dt>
-                        <dd>name of the room to make</dd>
-                    </dl>
-                    example:
-                    <pre>
+                        <dt>action: create</dt>
+                        <dd>
+                            anybody can create a new room
+                            <dl>
+                                <dt>(str) room name</dt>
+                                <dd>name of the room to make</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "room action",
@@ -606,16 +603,16 @@
 	"room name": "Cool Kids Club"
 }
 					</pre>
-                </dd>
-                <dt>action: delete</dt>
-                <dd>
-                    this action is only available to the room owner
-                    <dl>
-                        <dt>room id</dt>
-                        <dd>(int) id of the room to delete.</dd>
-                    </dl>
-                    example:
-                    <pre>
+                        </dd>
+                        <dt>action: delete</dt>
+                        <dd>
+                            this action is only available to the room owner
+                            <dl>
+                                <dt>room id</dt>
+                                <dd>(int) id of the room to delete.</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "room action",
@@ -623,25 +620,33 @@
 	"room id": 42
 }
 					</pre>
-                </dd>
-                <dt>action: join</dt>
-                <dd>
-                    an invition will prompt a parasite to take this action in the client, but it isn't necessary for the
-                    server logic.
-                    <dl>
-                        <dt>room id</dt>
-                        <dd>(int) id of the room to join</dd>
-                        <dt>accept</dt>
-                        <dd>
-							(bool) TRUE if an invitation is being accepted. if FALSE, the inviter will receive an Alert saying
-                            their invitation was declined. (i think server's got a bug where if no inviter is specified,
-                            it will error)
                         </dd>
-                        <dt>inviter id</dt>
-                        <dd>(str) the id of the parasite who sent the invitation, which was part of the invitation data</dd>
-                    </dl>
-                    example:
-                    <pre>
+                        <dt>action: join</dt>
+                        <dd>
+                            an invition will prompt a parasite to take this action in the client, but it isn't necessary
+                            for
+                            the
+                            server logic.
+                            <dl>
+                                <dt>room id</dt>
+                                <dd>(int) id of the room to join</dd>
+                                <dt>accept</dt>
+                                <dd>
+                                    (bool) TRUE if an invitation is being accepted. if FALSE, the inviter will receive
+                                    an
+                                    Alert saying
+                                    their invitation was declined. (i think server's got a bug where if no inviter is
+                                    specified,
+                                    it will error)
+                                </dd>
+                                <dt>inviter id</dt>
+                                <dd>(str) the id of the parasite who sent the invitation, which was part of the
+                                    invitation
+                                    data
+                                </dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "room action",
@@ -651,16 +656,16 @@
 	"inviter id": "potato"
 }
 					</pre>
-                </dd>
-                <dt>action: leave</dt>
-				<dd>
-                    a parasite can only leave a room if they're in it.
-                    <dl>
-                        <dt>room id</dt>
-                        <dd>(int) the room to leave</dd>
-                    </dl>
-                    example:
-                    <pre>
+                        </dd>
+                        <dt>action: leave</dt>
+                        <dd>
+                            a parasite can only leave a room if they're in it.
+                            <dl>
+                                <dt>room id</dt>
+                                <dd>(int) the room to leave</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "room action",
@@ -668,21 +673,22 @@
 	"room id": 69
 }
 					</pre>
-                </dd>
-                <dt>action: invite</dt>
-				<dd>
-                    send bulk invitations to other parasites to join a room, available to any member of the room.
-                    <dl>
-                        <dt>user ids</dt>
-                        <dd>
-                            (str[]) json array of parasite ids
-                            to send invitations to.
                         </dd>
-                        <dt>room id</dt>
-                        <dd>(int) the room to which the parasites are being invited</dd>
-                    </dl>
-                    example:
-                    <pre>
+                        <dt>action: invite</dt>
+                        <dd>
+                            send bulk invitations to other parasites to join a room, available to any member of the
+                            room.
+                            <dl>
+                                <dt>user ids</dt>
+                                <dd>
+                                    (str[]) json array of parasite ids
+                                    to send invitations to.
+                                </dd>
+                                <dt>room id</dt>
+                                <dd>(int) the room to which the parasites are being invited</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "room action",
@@ -691,72 +697,79 @@
 	"room id": 69
 }
 					</pre>
-                </dd>
-            </ul>
-        </dd>
-        <dt>status</dt>
-        <dd>
-            <dl>
-                <dt>status</dt>
-                <dd>(str) one of ['offline', 'active', 'idle']. other values are ignored.</dd>
-            </dl>
-			example:
-			<pre>
+                        </dd>
+                        </ul>
+                        </dd>
+                        <dt>status</dt>
+                        <dd>
+                            <dl>
+                                <dt>status</dt>
+                                <dd>(str) one of ['offline', 'active', 'idle']. other values are ignored.</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "status",
 	"status": "idle"
 }
 			</pre>
-        </dd>
-        <dt>typing</dt>
-        <dd>
-            <dl>
-                <dt>status</dt>
-                <dd>(bool/int/str) FALSE means the user is NOT currently typing. otherwise, the value of this corresponds to the id of the room/thread the user is currently typing in.
-                </dd>
-            </dl>
-			example:
-			<pre>
+                        </dd>
+                        <dt>typing</dt>
+                        <dd>
+                            <dl>
+                                <dt>status</dt>
+                                <dd>(bool/int/str) FALSE means the user is NOT currently typing. otherwise, the value of
+                                    this corresponds to the id of the room/thread the user is currently typing in.
+                                </dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "typing",
 	"status": 69
 }
 			</pre>
-        </dd>
-        <dt>version</dt>
-        <dd>
-            <dl>
-                <dt>client version</dt>
-                <dd>
-                    (str) the provided client version string, with format "#.#.#", is compared to the current version the server is expecting. mismatches will prompt the parasite to reload their page to receive a new
-                    client.
-                </dd>
-            </dl>
-			example:
-			<pre>
+                        </dd>
+                        <dt>version</dt>
+                        <dd>
+                            <dl>
+                                <dt>client version</dt>
+                                <dd>
+                                    (str) the provided client version string, with format "#.#.#", is compared to the
+                                    current version the server is expecting. mismatches will prompt the parasite to
+                                    reload
+                                    their page to receive a new
+                                    client.
+                                </dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "typing",
 	"status": 69
 }
 			</pre>
-        </dd>
-        <dt>settings</dt>
-        <dd>there's a lot of settings and i really don't want to outline them right this minute, ok?</dd>
-        <dt>bug</dt>
-        <dd>
-            this will create an issue on github for the best-ever-chat repo with the label 'bug'. the server must have a
-            valid github username and token in order to utilize the rest api to create an issue.
-            <dl>
-                <dt>title</dt>
-                <dd>(str) the title of the issue to create</dd>
-                <dt>body</dt>
-                <dd>(str) the body of the issue</dd>
-            </dl>
-			example:
-			<pre>
+                        </dd>
+                        <dt>settings</dt>
+                        <dd>there's a lot of settings and i really don't want to outline them right this minute, ok?
+                        </dd>
+                        <dt>bug</dt>
+                        <dd>
+                            this will create an issue on github for the best-ever-chat repo with the label 'bug'. the
+                            server
+                            must have a
+                            valid github username and token in order to utilize the rest api to create an issue.
+                            <dl>
+                                <dt>title</dt>
+                                <dd>(str) the title of the issue to create</dd>
+                                <dt>body</dt>
+                                <dd>(str) the body of the issue</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "bug",
@@ -764,19 +777,21 @@
 	"body": "it's just a floating red star because there's no icon"
 }
 			</pre>
-        </dd>
-        <dt>feature</dt>
-        <dd>
-            this will create an issue on github for the best-ever-chat repo with the label 'feature' and the parasite's id appended to the title. the server must
-            have a valid github username and token in order to utilize the rest api to create an issue.
-            <dl>
-                <dt>title</dt>
-                <dd>(str) the title of the issue to create</dd>
-                <dt>body</dt>
-                <dd>(str) the body of the issue</dd>
-            </dl>
-			example:
-			<pre>
+                        </dd>
+                        <dt>feature</dt>
+                        <dd>
+                            this will create an issue on github for the best-ever-chat repo with the label 'feature' and
+                            the
+                            parasite's id appended to the title. the server must
+                            have a valid github username and token in order to utilize the rest api to create an issue.
+                            <dl>
+                                <dt>title</dt>
+                                <dd>(str) the title of the issue to create</dd>
+                                <dt>body</dt>
+                                <dd>(str) the body of the issue</dd>
+                            </dl>
+                            example:
+                            <pre>
 {
 	"user id": "banana",
 	"type": "feature",
@@ -784,134 +799,146 @@
 	"body": "11"
 }
 			</pre>
-        </dd>
-    </dl>
-    <h4 id="Section-2-f-ii">ii. Server Originating Messages (server =&gt; client)</h4>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>
-        Server messages are providing the client with data to update to the most recent state.
-    </p>
-    <dl>
-        <dt>auth fail</dt>
-        <dd>
-            <em>Client must immediately log out the current parasite.</em> on web, this is done with
-            location.replace('/logout')
-        </dd>
-        <dt>room data</dt>
-        <dd>
+                        </dd>
+                    </dl>
+                    <h4 id="Section-2-f-ii">ii. Server Originating Messages (server =&gt; client)</h4>
+                    <p class="up-link">
+                        <a href="#top">(back to the top)</a>
+                    </p>
+                    <p>
+                        Server messages are providing the client with data to update to the most recent state.
+                    </p>
+                    <dl>
+                        <dt>auth fail</dt>
+                        <dd>
+                            <em>Client must immediately log out the current parasite.</em> on web, this is done with
+                            location.replace('/logout')
+                        </dd>
+                        <dt>room data</dt>
+                        <dd>
+                            <dl>
+                                <dt>rooms</dt>
+                                <dt>all</dt>
+                            </dl>
+                        </dd>
+                        <dt>private message data</dt>
+                        <dd>
+                            <dl>
+                                <dt>threads</dt>
+                            </dl>
+                        </dd>
+                        <dt>user list</dt>
+                        <dd>
+                            <dl>
+                                <dt>users</dt>
+                            </dl>
+                        </dd>
+                        <dt>update</dt>
+                        <dd>
+                            this is an update to the parasite's settings, and i dont wanna write all the settings right
+                            now
+                            <dl>
+                                <dt>[key]</dt>
+                                <dd>[value]</dd>
+                            </dl>
+                        </dd>
+                        <dt>chat message</dt>
+                        <dd>
+                            <dl>
+                                <dt>room id</dt>
+                                <dt>time</dt>
+                                <dt>username</dt>
+                                <dt>color</dt>
+                                <dt>message</dt>
+                                <dt>image url</dt>
+                                <dt>image src url</dt>
+                                <dt>nsfw flag</dt>
+                            </dl>
+                        </dd>
+                        <dt>private message</dt>
+                        <dd>
+                            <dl>
+                                <dt>sender id</dt>
+                                <dt>recipient id</dt>
+                                <dd>
+                                    both send and recipient are here because that way the client can determine if a
+                                    "sent"
+                                    or "received"
+                                    sound needs to be played, and if the unread message indicator ought to be displayed.
+                                </dd>
+                                <dt>time</dt>
+                                <dt>username</dt>
+                                <dt>color</dt>
+                                <dt>message</dt>
+                                <dt>image url</dt>
+                                <dt>image src url</dt>
+                                <dt>nsfw flag</dt>
+                            </dl>
+                        </dd>
+                        <dt>alert</dt>
+                        <dd>
+                            <dl>
+                                <dt>message</dt>
+                                <dt>alert_type</dt>
+                                <dd>this one didn't get converted to a space, i guess, so that is annoying. one of
+                                    ['fade',
+                                    'dismiss',
+                                    or 'permanent']. see section 2.e for more info.
+                                </dd>
+                            </dl>
+                        </dd>
+                        <dt>invitation</dt>
+                        <dd>
+                            inviting parasite and room names are sent from the server so the client doesn't have to look
+                            it
+                            up locally
+                            <dl>
+                                <dt>user</dt>
+                                <dd>this is the display name of the inviting parasite</dd>
+                                <dt>user id</dt>
+                                <dd>this is the id of the inviting parasite</dd>
+                                <dt>room id</dt>
+                                <dt>room name</dt>
+                            </dl>
+                        </dd>
+                    </dl>
+        </section>
+        <section id="Section-3">
+            <h2>3. REST Endpoints</h2>
+            <p class="up-link">
+                <a href="#top">(back to the top)</a>
+            </p>
+            <p>GET on these endpoints generally returns to you a static webpage. Mostly you use a POST.</p>
             <dl>
-                <dt>rooms</dt>
-                <dt>all</dt>
-            </dl>
-        </dd>
-        <dt>private message data</dt>
-        <dd>
-            <dl>
-                <dt>threads</dt>
-            </dl>
-        </dd>
-        <dt>user list</dt>
-        <dd>
-            <dl>
-                <dt>users</dt>
-            </dl>
-        </dd>
-        <dt>update</dt>
-        <dd>
-            this is an update to the parasite's settings, and i dont wanna write all the settings right now
-            <dl>
-                <dt>[key]</dt>
-                <dd>[value]</dd>
-            </dl>
-        </dd>
-        <dt>chat message</dt>
-        <dd>
-            <dl>
-                <dt>room id</dt>
-                <dt>time</dt>
-                <dt>username</dt>
-                <dt>color</dt>
-                <dt>message</dt>
-                <dt>image url</dt>
-                <dt>image src url</dt>
-                <dt>nsfw flag</dt>
-            </dl>
-        </dd>
-        <dt>private message</dt>
-        <dd>
-            <dl>
-                <dt>sender id</dt>
-                <dt>recipient id</dt>
+                <dt>/</dt>
+                <dd>this is the main page, GET only bro</dd>
+                <dt>/m</dt>
+                <dd>this is the mobile site, GET only bro</dd>
+                <dt>/register <em>AUTHENTICATED!</em></dt>
                 <dd>
-                    both send and recipient are here because that way the client can determine if a "sent" or "received"
-                    sound needs to be played, and if the unread message indicator ought to be displayed.
+                    GET returns the static registration page. POST - this one registers new parasites. Give it
+                    "parasite",
+                    "password", "password2", "email". all of them are required.
                 </dd>
-                <dt>time</dt>
-                <dt>username</dt>
-                <dt>color</dt>
-                <dt>message</dt>
-                <dt>image url</dt>
-                <dt>image src url</dt>
-                <dt>nsfw flag</dt>
-            </dl>
-        </dd>
-        <dt>alert</dt>
-        <dd>
-            <dl>
-                <dt>message</dt>
-                <dt>alert_type</dt>
-                <dd>this one didn't get converted to a space, i guess, so that is annoying. one of ['fade', 'dismiss',
-                    or 'permanent']. see section 2.e for more info.
+                <dt>/login</dt>
+                <dd>this one authenticates a parasite</dd>
+                <dt>/logout</dt>
+                <dd>this one makes the parasite not authenticated anymore</dd>
+                <dt>/forgot_password</dt>
+                <dd>this one triggers the forgot password email</dd>
+                <dt>/reset_password</dt>
+                <dd>this one actually does the password reset</dd>
+                <dt>/validate_username <em>AUTHENTICATED!</em></dt>
+                <dd>
+                    POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to
+                    REGISTRATION
+                    (new parasite id) and DISPLAY NAMES (aka "username"). Stupidly, existing display names are checked
+                    when
+                    validating a new registration. Just pretend that makes sense.
                 </dd>
             </dl>
-        </dd>
-        <dt>invitation</dt>
-        <dd>
-            inviting parasite and room names are sent from the server so the client doesn't have to look it up locally
-            <dl>
-                <dt>user</dt>
-                <dd>this is the display name of the inviting parasite</dd>
-                <dt>user id</dt>
-                <dd>this is the id of the inviting parasite</dd>
-                <dt>room id</dt>
-                <dt>room name</dt>
-            </dl>
-        </dd>
-    </dl>
-</section>
-<section id="Section-3">
-    <h2>3. REST Endpoints</h2>
-    <p class="up-link">
-        <a href="#top">(back to the top)</a>
-    </p>
-    <p>GET on these endpoints generally returns to you a static webpage. Mostly you use a POST.</p>
-    <dl>
-        <dt>/</dt>
-        <dd>this is the main page, GET only bro</dd>
-        <dt>/m</dt>
-        <dd>this is the mobile site, GET only bro</dd>
-        <dt>/register <em>AUTHENTICATED!</em></dt>
-        <dd>
-            GET returns the static registration page. POST - this one registers new parasites. Give it "parasite",
-            "password", "password2", "email". all of them are required.
-        </dd>
-        <dt>/login</dt>
-        <dd>this one authenticates a parasite</dd>
-        <dt>/logout</dt>
-        <dd>this one makes the parasite not authenticated anymore</dd>
-        <dt>/forgot_password</dt>
-        <dd>this one triggers the forgot password email</dd>
-        <dt>/reset_password</dt>
-        <dd>this one actually does the password reset</dd>
-        <dt>/validate_username <em>AUTHENTICATED!</em></dt>
-        <dd>
-            POST only. Give it "set_name". this checks if a name is valid when changing it. This applies to REGISTRATION
-            (new parasite id) and DISPLAY NAMES (aka "username"). Stupidly, existing display names are checked when
-            validating a new registration. Just pretend that makes sense.
-        </dd>
-    </dl>
-</section>
+        </section>
+    </main>
+</div>
 </body>
 </html>
