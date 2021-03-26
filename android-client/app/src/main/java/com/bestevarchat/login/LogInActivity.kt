@@ -2,11 +2,11 @@ package com.bestevarchat.login
 
 import android.app.AlertDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bestevarchat.chat.ChatActivity
 import com.bestevarchat.R
@@ -18,7 +18,7 @@ class LogInActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_log_in)
 		val viewModel = ViewModelProvider(this).get(LogInViewModel::class.java)
 
-		viewModel.authenticateResponse.observe(this, {
+		viewModel.authResponse.observe(this, {
 			Log.d("LogInActivity", "Response: {success: ${it.success}, message: ${it.message}}")
 
 			if (it.success) {

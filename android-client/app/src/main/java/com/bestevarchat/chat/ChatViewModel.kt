@@ -3,7 +3,7 @@ package com.bestevarchat.chat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bestevarchat.AuthenticationService
+import com.bestevarchat.AuthService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.java_websocket.client.WebSocketClient
@@ -13,7 +13,7 @@ import java.net.URI
 import javax.net.ssl.SSLSocketFactory
 
 class ChatViewModel(
-	private val authService: AuthenticationService = AuthenticationService
+	private val authService: AuthService = AuthService
 ) : ViewModel() {
 	private lateinit var webSocketClient: WebSocketClient
 

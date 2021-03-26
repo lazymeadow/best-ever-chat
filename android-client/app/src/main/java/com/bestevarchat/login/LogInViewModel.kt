@@ -1,19 +1,16 @@
 package com.bestevarchat.login
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.bestevarchat.AuthenticationService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.bestevarchat.AuthService
 
-class LogInViewModel(
-	val authenticateResponse: MutableLiveData<AuthenticationService.AuthenticateResponse> = MutableLiveData(),
-	private val authService: AuthenticationService = AuthenticationService
-) : ViewModel() {
+class LogInViewModel(application: Application) : AndroidViewModel(application) {
+	val authResponse: MutableLiveData<AuthService.AuthResponse> = MutableLiveData()
+
 	fun authenticate(username: String, password: String) {
-		viewModelScope.launch(Dispatchers.IO) {
-			authenticateResponse.postValue(authService.authenticate(username, password))
+		AuthService.authenticate(getApplication(), username, password) { response ->
+			authResponse.postValue(response)
 		}
 	}
 }
