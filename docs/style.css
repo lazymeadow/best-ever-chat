@@ -1,0 +1,138 @@
+@font-face {
+    font-family: Amiko;
+    font-style: normal;
+    font-weight: 400;
+    src: local("Amiko"),
+    local("Amiko-Regular"),
+    url(https://fonts.gstatic.com/s/amiko/v4/WwkQxPq1DFK04uqieVo.ttf) format("truetype")
+}
+
+body {
+    font-family: Amiko, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body > div:first-child {
+    background-color: #25687d;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20%;
+    bottom: 0;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+body > div:last-child {
+    padding: 16px 32px;
+    margin-left: 20%;
+}
+
+header {
+    padding: 8px;
+    border-bottom: 2px solid #225e71;
+}
+
+header p {
+    margin: 0;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin: 0;
+}
+
+h2 {
+    margin: 0 8px 16px 0;
+}
+
+h3 {
+    margin: 0 0 8px 24px;
+}
+
+p, h4 {
+    margin: 0 0 0 32px;
+}
+
+h4 {
+    margin: 16px 0 8px 32px;
+}
+
+h5 {
+
+}
+
+dl {
+    margin: 8px 16px 32px 32px;
+}
+
+dt {
+    font-style: italic;
+}
+
+ol {
+    margin-left: 56px;
+    padding: 0;
+}
+
+nav {
+    padding: 32px 0;
+    overflow-y: auto;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+nav ol {
+    margin: 8px;
+}
+
+nav li {
+    display: block;
+    margin: 8px;
+}
+
+/* first level of nav elements is bold */
+nav > ol > li > a {
+    font-weight: bold;
+}
+
+/* third level and below are italic */
+nav > ol > li > ol > li > ol {
+    font-style: italic;
+}
+
+nav ol {
+    counter-reset: section;
+}
+
+nav li:before {
+    content: counters(section, ".") ". ";
+    counter-increment: section
+}
+
+nav ol li ol {
+    counter-reset: item;
+}
+
+nav ol li ol li:before {
+    content: counters(section, '.') "." counters(item, '.', upper-latin) ". ";
+    counter-increment: item;
+}
+
+nav ol li ol li ol {
+    counter-reset: subitem;
+}
+
+nav ol li ol li ol li:before {
+    content: counters(section, '.') "." counters(item, '.', upper-latin) "." counters(subitem, '.', lower-roman) ". ";
+    counter-increment: subitem;
+}

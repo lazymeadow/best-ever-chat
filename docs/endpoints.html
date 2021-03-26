@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+    <title>BEC - Rest Endpoints</title>
+</head>
+<body>
+<div>
+    <header>
+        <h1>Best Ever Chat Docs</h1>
+        <p>
+            <em>Is very important</em>
+        </p>
+    </header>
+    <nav>
+        <ol>
+            <li>
+                <a href="index.html">How it do work</a>
+            </li>
+            <li>
+                <a href="data-and-entities.html">What is these datas and entities</a>
+            </li>
+            <li>
+                <a href="socket-messages.html">Socket Messages</a>
+            </li>
+            <li>
+                <a href="#">Endpoints</a>
+                <ol>
+                    <li>
+                        <a href="#Section-4-a">Unauthenticated endpoints</a>
+                    </li>
+                    <li>
+                        <a href="#Section-4-b">Authenticated endpoints</a>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+    </nav>
+</div>
+<div>
+    <main>
+
+        <h2>4. Endpoints</h2>
+        <p>
+            GET on these endpoints generally returns to you a static webpage, POST does some stuff but often rediects to
+            another static page. There's not a lot of REST going on here.
+        </p>
+        <section id="Section-4-a">
+            <h3>A. Unauthenticated Endpoints</h3>
+            <dl>
+                <dt>/register</dt>
+                <dd>
+                    GET - returns the static registration page
+                    <br/>
+                    POST - this one registers new parasites. Give it "parasite", "password", "password2", "email" as
+                    form-data. valid values for "parasite" are not an existing parasite id AND not a current parasite
+                    display name (see <a href="data-and-entities.html#Section-2-a">Section 2.A</a>). all of them are
+                    required.
+                </dd>
+                <dt>/login</dt>
+                <dd>
+                    GET - returns the static login page
+                    <br/>
+                    POST - this one logs in a parasite. Give it "parasite" and "password" as form-data, or use JSON with
+                    Content-Type header set as below
+                    <pre>
+Request
+Content-Type: application/json
+{
+    "parasite": "butt",
+    "password": "Facefoot123!"
+}
+
+Response
+Cookie: parasite="&lt;your token&gt;"
+{
+    "success": true,
+    "cookie name": "parasite"
+}
+                    </pre>
+                </dd>
+                <dt>/logout</dt>
+                <dd>GET - this one makes the parasite not authenticated anymore, then redirects to /login</dd>
+                <dt>/forgot_password</dt>
+                <dd>
+                    GET - returns the static password reset request page so a parasite can input their username and get
+                    a password reset email.
+                    <br/>
+                    POST - this one triggers the forgot password email, which will include a link to the GET for this
+                    endpoint with the correct token. send "parasite" as form-data. redirects to /login
+                </dd>
+                <dt>/reset_password</dt>
+                <dd>
+                    GET - returns the static password reset page. query param "token" is required
+                    <br/>
+                    POST - this one actually does the password reset. send "token", "password", "password2" as
+                    form-data. redirects to /login
+                </dd>
+                <dt>/reactivate</dt>
+                <dd>
+                    GET - returns the static reactivate request page. the parasite must know their username.
+                    <br/>
+                    POST - sends the reactivation request to the admin email defined in chat.cfg. reactivation must be
+                    done through the web client admin tools by a parasite with admin permissions. redirects to /login on
+                    success
+                </dd>
+                <dt>/emoji_search</dt>
+                <dd>
+                    GET - lets you search for a keyword in the available emojis by shortcode with a keyword. it should
+                    probably be authenticated? but it isn't. requires query param "search", returns json with matching
+                    unicode characters as "result"
+                    <pre>
+Response
+{
+    "search": "horse",
+    "result": [
+        "\ud83c\udfc7",
+        "\ud83c\udfc7\ud83c\udfff",
+        "\ud83c\udfc7\ud83c\udffe",
+        "\ud83d\udc34",
+        "\ud83c\udfc7\ud83c\udffc",
+        "\ud83c\udfc7\ud83c\udffd",
+        "\ud83d\udc0e",
+        "\ud83c\udfa0",
+        "\ud83c\udfc7\ud83c\udffb"
+    ]
+}
+                    </pre>
+                </dd>
+            </dl>
+        </section>
+        <section id="Section-4-b">
+            <h3>B. Authenticated Endpoints</h3>
+            <dl>
+                <dt>/</dt>
+                <dd>GET - this is the main web site with the web client</dd>
+                <dt>/m</dt>
+                <dd>GET - this is the mobile web site with the mobile web client</dd>
+                <dt>/validate_username</dt>
+                <dd>
+                    POST - Give it "set_name" as form-data. this checks if a username is valid when changing it. a valid
+                    name is not an existing parasite id AND is not a current parasite display name (see <a
+                        href="data-and-entities.html#Section-2-a">Section 2.A</a>). returns only JSON true or false
+                </dd>
+            </dl>
+        </section>
+    </main>
+</div>
+</body>
+</html>
