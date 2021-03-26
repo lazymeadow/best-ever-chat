@@ -1,6 +1,7 @@
 package com.bestevarchat
 
 import android.content.Context
+import androidx.core.content.edit
 import com.android.volley.NetworkResponse
 import com.android.volley.ParseError
 import com.android.volley.Response
@@ -18,10 +19,10 @@ private const val LOGIN_URL = "https://bestevarchat.com/login"
  * Authentication-related methods
  */
 object AuthService {
-	data class AuthResponse(val success: Boolean, val message: String? = null)
+	const val PREFERENCES_NAME = "auth"
+	const val PREFERENCE_COOKIE = "cookie"
 
-	private var cookie: HttpCookie? = null
-	private var isAuthenticated = false
+	data class AuthResponse(val success: Boolean, val message: String? = null)
 
 	/**
 	 * Retrieves an authentication cookie using the given username and password
@@ -51,10 +52,13 @@ object AuthService {
 
 					val success = data.getBoolean("success")
 					if (success) {
-						cookie = HttpCookie.parse(headers.getString("Set-Cookie")).first {
+						val cookie = HttpCookie.parse(headers.getString("Set-Cookie")).first {
 							it.name == data.getString("cookie name")
 						}
-						isAuthenticated = true
+
+						context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).edit {
+							putString(PREFERENCE_COOKIE, "${cookie.name}=${cookie.value}")
+						}
 					}
 
 					callback?.let { it(AuthResponse(success)) }
@@ -97,16 +101,22 @@ object AuthService {
 	}
 
 	/**
-	 * Retrieves a stored authentication cookie
+	 * @return A stored authentication cookie
 	 */
-	fun getAuthCookie(): HttpCookie {
-		if (!isAuthenticated) {
-			throw IllegalStateException(
+	fun getAuthCookie(context: Context): String {
+		val cookie = context
+			.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+			.getString(PREFERENCE_COOKIE, null)
+
+		return cookie
+			?: throw IllegalStateException(
 				"Attempted to get the authentication cookie before authenticating"
 			)
-		}
+	}
 
-		// If we set isAuthenticated to true, cookie must be set
-		return cookie as HttpCookie
+	fun isAuthenticated(context: Context): Boolean {
+		return context
+			.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+			.contains(PREFERENCE_COOKIE)
 	}
 }

@@ -1,7 +1,8 @@
 package com.bestevarchat.chat
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bestevarchat.AuthService
 import kotlinx.coroutines.Dispatchers
@@ -12,15 +13,12 @@ import java.lang.Exception
 import java.net.URI
 import javax.net.ssl.SSLSocketFactory
 
-class ChatViewModel(
-	private val authService: AuthService = AuthService
-) : ViewModel() {
+class ChatViewModel(application: Application) : AndroidViewModel(application) {
 	private lateinit var webSocketClient: WebSocketClient
 
 	init {
 		viewModelScope.launch(Dispatchers.IO) {
-			val cookie = authService.getAuthCookie()
-			val headers = mapOf("cookie" to "${cookie.name}=${cookie.value}")
+			val headers = mapOf("cookie" to AuthService.getAuthCookie(getApplication()))
 
 			val serverNumber = (0..9999).random()
 
