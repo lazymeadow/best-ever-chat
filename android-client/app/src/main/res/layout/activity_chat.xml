@@ -5,4 +5,11 @@
 	android:layout_height="match_parent"
 	tools:context=".chat.ChatActivity">
 
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recyclerMessages"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		tools:layout_editor_absoluteX="91dp"
+		tools:layout_editor_absoluteY="451dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
