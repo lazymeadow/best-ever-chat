@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
-import org.json.JSONArray
 import java.lang.Exception
 import java.net.URI
 import javax.net.ssl.SSLSocketFactory
@@ -42,47 +41,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 				}
 
 				override fun onMessage(message: String?) {
-					/**
-					 * SockJS prepends characters to the otherwise pure JSON message. We need to
-					 * remove those before we can parse the message into an object.
-					 */
-					val messageJsonArray = if (message == null || message.length <= 1) {
-						JSONArray()
-					} else {
-						JSONArray(message.substring(1))
-					}
-
-					Log.d("ChatViewModel Socket", "onMessage: $messageJsonArray")
-
-					val generalMessages = mutableListOf<ChatMessage>()
-					for (i in 0 until messageJsonArray.length()) {
-						val messageElementJsonObject = messageJsonArray.getJSONObject(i)
-						if (messageElementJsonObject.getString("type") == "room data") {
-							val dataJsonObject = messageElementJsonObject.getJSONObject("data")
-							val roomsJsonArray = dataJsonObject.getJSONArray("rooms")
-							for (j in 0 until roomsJsonArray.length()) {
-								val roomsElementJsonObject = roomsJsonArray.getJSONObject(j)
-								if (roomsElementJsonObject.getString("name") == "General") {
-									val historyJsonArray =
-										roomsElementJsonObject.getJSONArray("history")
-									for (k in 0 until historyJsonArray.length()) {
-										val historyElementJsonObject =
-											historyJsonArray.getJSONObject(k)
-										val chatMessage = ChatMessage(
-											"${
-												historyElementJsonObject.getString("username")
-											}: ${
-												historyElementJsonObject.optString("message", "Alas! 'Twas an empty message.")
-											}"
-										)
-										generalMessages.add(chatMessage)
-									}
-								}
-							}
-						}
-					}
-
-					MessagesProvider.addMessages(generalMessages)
+					Log.d("ChatViewModel Socket", "onMessage: $message")
+					MessageHandler.handle(message)
 				}
 
 				override fun onOpen(handshakeDate: ServerHandshake?) {
