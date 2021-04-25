@@ -5,4 +5,6 @@
 	<string name="edit_password">Password</string>
 	<string name="edit_username">Username</string>
 	<string name="log_in_error_dialog_title">Oh no!</string>
+	<!-- MessagesAdapter -->
+	<string name="text_message">%1$s: %2$s</string>
 </resources>

@@ -48,15 +48,12 @@ object MessageHandler {
 				for (j in 0 until historyJsonArray.length()) {
 					val historyElementJsonObject = historyJsonArray.getJSONObject(j)
 					val chatMessage = ChatMessage(
-						"${
-							historyElementJsonObject.getString(
-								MESSAGE_DATA_ROOMS_HISTORY_KEY_USERNAME
-							)
-						}: ${
-							historyElementJsonObject.optString(
-								MESSAGE_DATA_ROOMS_HISTORY_KEY_MESSAGE
-							)
-						}"
+						message = historyElementJsonObject.optString(
+							MESSAGE_DATA_ROOMS_HISTORY_KEY_MESSAGE
+						),
+						username = historyElementJsonObject.getString(
+							MESSAGE_DATA_ROOMS_HISTORY_KEY_USERNAME
+						)
 					)
 					generalMessages.add(chatMessage)
 				}

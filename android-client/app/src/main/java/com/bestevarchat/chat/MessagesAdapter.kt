@@ -14,7 +14,11 @@ class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>
 
 	class MessagesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 		fun bind(chatMessage: ChatMessage) {
-			itemView.findViewById<TextView>(R.id.message).text = chatMessage.text
+			itemView.findViewById<TextView>(R.id.message).text = itemView.context.getString(
+				R.string.text_message,
+				chatMessage.username,
+				chatMessage.message
+			)
 		}
 	}
 
