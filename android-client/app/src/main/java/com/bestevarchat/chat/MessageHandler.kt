@@ -14,6 +14,11 @@ private const val MESSAGE_DATA_ROOMS_HISTORY_KEY_USERNAME = "username"
 private const val TYPE_ROOM_DATA = "room data"
 
 object MessageHandler {
+	/**
+	 * Parses a message and updates app state accordingly
+	 *
+	 * @param message The message to parse
+	 */
 	fun handle(message: String?) {
 		/**
 		 * SockJS prepends characters to the otherwise pure JSON message. We need to

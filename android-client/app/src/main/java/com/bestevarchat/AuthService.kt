@@ -114,6 +114,9 @@ object AuthService {
 			)
 	}
 
+	/**
+	 * @return Whether or not the app has a stored authentication cookie
+	 */
 	fun isAuthenticated(context: Context): Boolean {
 		return context
 			.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)

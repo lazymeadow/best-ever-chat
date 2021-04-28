@@ -14,6 +14,11 @@ class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>
 	}
 
 	class MessagesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+		/**
+		 * Binds a chat message's information to a UI element
+		 *
+		 * @param chatMessage The message to display in the UI
+		 */
 		fun bind(chatMessage: ChatMessage) {
 			itemView.findViewById<TextView>(R.id.message).text = itemView.context.getString(
 				R.string.text_message,
