@@ -1,21 +1,40 @@
 package com.bestevarchat.chat
 
 object MessagesProvider {
-	private val messages = mutableListOf<ChatMessage>()
-	private val subscribers = mutableListOf<() -> Unit>()
+	private val messages = mutableMapOf<String, MutableList<ChatMessage>>()
+	private val subscribers = mutableMapOf<String, MutableList<() -> Unit>>()
 
-	fun addMessages(messages: List<ChatMessage>) {
-		this.messages.addAll(messages)
-		notifySubscribers()
+	/**
+	 * Adds messages to a room
+	 *
+	 * @param room The room to add messages to
+	 * @param messages The messages to add to the room
+	 */
+	fun addMessages(room: String, messages: List<ChatMessage>) {
+		this.messages.getOrPut(room, { mutableListOf() }).addAll(messages)
+		notifySubscribers(room)
 	}
 
-	fun getMessages(): List<ChatMessage> {
-		return messages
+	/**
+	 * @param room The room to get messages for
+	 *
+	 * @return The messages in the room
+	 */
+	fun getMessages(room: String): List<ChatMessage> {
+		return messages.getOrPut(room, { mutableListOf() })
 	}
 
-	fun onDataSetChanged(observer: () -> Unit) {
-		subscribers.add(observer)
+	/**
+	 * Registers an observer to be executed when a room's messages is modified
+	 *
+	 * @param room The room to observe
+	 * @param observer A function to invoke when the observed room's list of messages changes
+	 */
+	fun onDataSetChanged(room: String, observer: () -> Unit) {
+		subscribers.getOrPut(room, { mutableListOf() }).add(observer)
 	}
 
-	private fun notifySubscribers() = subscribers.forEach { it.invoke() }
+	private fun notifySubscribers(room: String) {
+		subscribers[room]?.forEach { it.invoke() }
+	}
 }

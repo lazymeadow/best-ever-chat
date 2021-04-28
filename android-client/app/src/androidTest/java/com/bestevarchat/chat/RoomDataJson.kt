@@ -10,7 +10,7 @@ const val ROOM_DATA_JSON = """
 				{
 					"owner": "null",
 					"id": 0,
-					"name": "General",
+					"name": "The Shire",
 					"history": [
 						{
 							"username": "Frodo",

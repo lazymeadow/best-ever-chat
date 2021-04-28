@@ -7,9 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bestevarchat.R
 
+// TODO: "General" shouldn't be hardcoded anywhere in here. Nope. We should handle all the rooms.
 class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>() {
 	init {
-		MessagesProvider.onDataSetChanged { this.notifyDataSetChanged() }
+		MessagesProvider.onDataSetChanged("General") { this.notifyDataSetChanged() }
 	}
 
 	class MessagesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -22,10 +23,12 @@ class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>
 		}
 	}
 
-	override fun getItemCount(): Int = MessagesProvider.getMessages().size
+	override fun getItemCount(): Int {
+		return MessagesProvider.getMessages("General").size
+	}
 
 	override fun onBindViewHolder(holder: MessagesViewHolder, position: Int) {
-		val message = MessagesProvider.getMessages()[position]
+		val message = MessagesProvider.getMessages("General")[position]
 		holder.bind(message)
 	}
 

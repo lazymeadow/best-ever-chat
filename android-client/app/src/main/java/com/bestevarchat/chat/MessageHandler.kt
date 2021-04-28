@@ -37,17 +37,16 @@ object MessageHandler {
 		val dataJsonObject = messageElementJsonObject.getJSONObject(MESSAGE_KEY_DATA)
 		val roomsJsonArray = dataJsonObject.getJSONArray(MESSAGE_DATA_KEY_ROOMS)
 
-		val generalMessages = mutableListOf<ChatMessage>()
-
 		for (i in 0 until roomsJsonArray.length()) {
+			val messages = mutableListOf<ChatMessage>()
 			val roomsElementJsonObject = roomsJsonArray.getJSONObject(i)
-			// TODO: Handle all them other rooms
-			if (roomsElementJsonObject.getString(MESSAGE_DATA_ROOMS_KEY_NAME) == "General") {
-				val historyJsonArray =
-					roomsElementJsonObject.getJSONArray(MESSAGE_DATA_ROOMS_KEY_HISTORY)
-				for (j in 0 until historyJsonArray.length()) {
-					val historyElementJsonObject = historyJsonArray.getJSONObject(j)
-					val chatMessage = ChatMessage(
+
+			val historyJsonArray =
+				roomsElementJsonObject.getJSONArray(MESSAGE_DATA_ROOMS_KEY_HISTORY)
+			for (j in 0 until historyJsonArray.length()) {
+				val historyElementJsonObject = historyJsonArray.getJSONObject(j)
+				messages.add(
+					ChatMessage(
 						message = historyElementJsonObject.optString(
 							MESSAGE_DATA_ROOMS_HISTORY_KEY_MESSAGE
 						),
@@ -55,11 +54,13 @@ object MessageHandler {
 							MESSAGE_DATA_ROOMS_HISTORY_KEY_USERNAME
 						)
 					)
-					generalMessages.add(chatMessage)
-				}
+				)
 			}
-		}
 
-		MessagesProvider.addMessages(generalMessages)
+			MessagesProvider.addMessages(
+				roomsElementJsonObject.getString(MESSAGE_DATA_ROOMS_KEY_NAME),
+				messages
+			)
+		}
 	}
 }
