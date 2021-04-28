@@ -5,15 +5,13 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val TEST_ROOM = "The Shire"
-
 @RunWith(AndroidJUnit4::class)
 class MessageHandlerTest {
 	@Test
 	fun handleRoomDataMessage() {
 		MessageHandler.handle(ROOM_DATA_JSON)
 
-		val messages = MessagesProvider.getMessages(TEST_ROOM)
+		val messages = MessagesProvider.getMessages("The Shire")
 
 		assertEquals(3, messages.size)
 
