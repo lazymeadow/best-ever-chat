@@ -1,11 +1,11 @@
-package com.bestevarchat.chat
+package com.bestevarchat
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.bestevarchat.chat.MessageHandler
+import com.bestevarchat.chat.MessagesProvider
+import com.bestevarchat.chat.ROOM_DATA_JSON
 import org.junit.Assert.*
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class MessageHandlerTest {
 	@Test
 	fun handleRoomDataMessage() {
