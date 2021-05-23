@@ -76,7 +76,7 @@ export class MessageLog extends LoggingClass {
         });
 
         _parseEmojis(messageContainer[0]);
-        super.debug('Added message to log.');
+        // super.debug('Added message to log.');
     }
 
     /**
