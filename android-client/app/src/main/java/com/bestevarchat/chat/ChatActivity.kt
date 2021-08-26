@@ -14,12 +14,15 @@ class ChatActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_chat)
 		ViewModelProvider(this).get(ChatViewModel::class.java)
 
-		val recycler = findViewById<RecyclerView>(R.id.recyclerMessages)
-		recycler.layoutManager = LinearLayoutManager(
+		val layoutManager = LinearLayoutManager(
 			this,
 			LinearLayoutManager.VERTICAL,
 			false
 		)
-		recycler.adapter = MessagesAdapter()
+		layoutManager.stackFromEnd = true
+
+		val recycler = findViewById<RecyclerView>(R.id.recyclerMessages)
+		recycler.adapter = MessagesAdapter(this)
+		recycler.layoutManager = layoutManager
 	}
 }

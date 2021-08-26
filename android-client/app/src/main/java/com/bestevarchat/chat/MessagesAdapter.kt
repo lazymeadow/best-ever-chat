@@ -1,5 +1,6 @@
 package com.bestevarchat.chat
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bestevarchat.R
 
 // TODO: "General" shouldn't be hardcoded anywhere in here. Nope. We should handle all the rooms.
-class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>() {
+@SuppressLint("NotifyDataSetChanged")
+class MessagesAdapter(chatActivity: ChatActivity) : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>() {
 	init {
-		MessagesProvider.onDataSetChanged("General") { this.notifyDataSetChanged() }
+		MessagesProvider.onDataSetChanged("General") {
+			chatActivity.runOnUiThread {
+				this.notifyDataSetChanged()
+			}
+		}
 	}
 
 	class MessagesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

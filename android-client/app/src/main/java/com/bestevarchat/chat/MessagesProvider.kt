@@ -25,7 +25,7 @@ object MessagesProvider {
 	}
 
 	/**
-	 * Registers an observer to be executed when a room's messages is modified
+	 * Registers an observer to be executed when a room's messages are modified
 	 *
 	 * @param room The room to observe
 	 * @param observer A function to invoke when the observed room's list of messages changes
