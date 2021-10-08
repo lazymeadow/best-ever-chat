@@ -13,7 +13,11 @@
 		android:supportsRtl="true"
 		android:theme="@style/AppTheme">
 		<activity android:name=".chat.ChatActivity" />
-		<activity android:name=".login.LogInActivity">
+		<!--
+			TODO: ChatActivity should probably be the main thing, then it should just redirect to
+				LogInActivity if the user isn't logged in
+		-->
+		<activity android:exported="true" android:name=".login.LogInActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
