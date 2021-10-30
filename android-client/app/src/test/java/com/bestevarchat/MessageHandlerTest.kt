@@ -2,7 +2,6 @@ package com.bestevarchat
 
 import com.bestevarchat.chat.MessageHandler
 import com.bestevarchat.chat.MessagesProvider
-import com.bestevarchat.chat.ROOM_DATA_JSON
 import org.junit.Assert.*
 import org.junit.Test
 

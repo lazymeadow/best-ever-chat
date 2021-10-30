@@ -8,12 +8,12 @@
 
 	<EditText
 		android:id="@+id/editUsername"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:autofillHints="@string/edit_username"
 		android:ems="10"
 		android:hint="@string/edit_username"
 		android:inputType="textPersonName"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
 		app:layout_constraintBottom_toTopOf="@+id/editPassword"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
@@ -23,14 +23,14 @@
 
 	<EditText
 		android:id="@+id/editPassword"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:layout_marginBottom="24dp"
 		android:autofillHints="@string/edit_password"
 		android:ems="10"
 		android:hint="@string/edit_password"
 		android:inputType="textPassword"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="24dp"
-		android:layout_marginTop="16dp"
-		android:layout_width="wrap_content"
 		app:layout_constraintBottom_toTopOf="@+id/buttonLogIn"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
@@ -39,9 +39,9 @@
 
 	<Button
 		android:id="@+id/buttonLogIn"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="16dp"
-		android:layout_width="wrap_content"
 		android:text="@string/button_log_in"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"

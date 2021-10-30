@@ -32,12 +32,7 @@ object AuthService {
 	 * @param password The password to authenticate with
 	 * @param callback A callback to execute after completing the authentication request
 	 */
-	fun authenticate(
-		context: Context,
-		username: String,
-		password: String,
-		callback: ((AuthResponse) -> Unit)?
-	) {
+	fun authenticate(context: Context, username: String, password: String, callback: ((AuthResponse) -> Unit)?) {
 		val queue = Volley.newRequestQueue(context)
 
 		val body = JSONObject()
@@ -71,28 +66,20 @@ object AuthService {
 			}
 		) {
 			override fun getBodyContentType(): String {
-				/**
-				 * Volley automatically sets the Content-Type header to
-				 * "application/json; charset=utf-8", which our server doesn't like
-				 */
+				// Volley automatically sets the content-type header to "application/json; charset=utf-8", which our
+				// server doesn't like
 				return "application/json"
 			}
 
 			override fun parseNetworkResponse(response: NetworkResponse?): Response<JSONObject> {
-				try {
+				return try {
 					val responseWithHeaders = JSONObject()
-					responseWithHeaders.put(
-						"headers",
-						JSONObject(response?.headers as Map<*, *>)
-					)
+					responseWithHeaders.put("headers", JSONObject(response?.headers as Map<*, *>))
 					responseWithHeaders.put("data", JSONObject(String(response.data)))
 
-					return Response.success(
-						responseWithHeaders,
-						HttpHeaderParser.parseCacheHeaders(response)
-					)
+					Response.success(responseWithHeaders, HttpHeaderParser.parseCacheHeaders(response))
 				} catch (e: JSONException) {
-					return Response.error(ParseError(e))
+					Response.error(ParseError(e))
 				}
 			}
 		}
@@ -108,10 +95,7 @@ object AuthService {
 			.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 			.getString(PREFERENCE_COOKIE, null)
 
-		return cookie
-			?: throw IllegalStateException(
-				"Attempted to get the authentication cookie before authenticating"
-			)
+		return cookie ?: throw IllegalStateException("Attempted to get the authentication cookie before authenticating")
 	}
 
 	/**

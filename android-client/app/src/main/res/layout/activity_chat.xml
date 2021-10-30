@@ -3,32 +3,37 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_height="match_parent"
-	android:layout_width="match_parent">
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<!-- Main chat view -->
 	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_height="match_parent"
 		android:layout_width="match_parent"
+		android:layout_height="match_parent"
 		tools:context=".chat.ChatActivity">
 
 		<androidx.appcompat.widget.Toolbar
-			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			app:layout_constraintTop_toTopOf="parent" />
 
 		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/recyclerMessages"
-			android:layout_height="match_parent"
 			android:layout_width="match_parent"
+			android:layout_height="match_parent"
 			tools:layout_editor_absoluteX="91dp"
 			tools:layout_editor_absoluteY="451dp" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
 	<!-- Channel selection drawer -->
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<ListView
+		android:id="@+id/channelList"
+		android:layout_width="240dp"
 		android:layout_height="match_parent"
-		android:layout_width="wrap_content" />
+		android:layout_gravity="start"
+		android:choiceMode="singleChoice"
+		android:divider="@android:color/darker_gray"
+		android:dividerHeight="1dp" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

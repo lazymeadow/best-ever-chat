@@ -1,4 +1,4 @@
-package com.bestevarchat.chat
+package com.bestevarchat
 
 const val ROOM_DATA_JSON = """
 [
