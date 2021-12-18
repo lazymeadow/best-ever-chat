@@ -17,7 +17,10 @@
 			TODO: ChatActivity should probably be the main thing, then it should just redirect to
 				LogInActivity if the user isn't logged in
 		-->
-		<activity android:exported="true" android:name=".login.LogInActivity">
+		<activity
+			android:name=".login.LogInActivity"
+			android:exported="true"
+			android:theme="@style/AppTheme.NoActionBar">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
