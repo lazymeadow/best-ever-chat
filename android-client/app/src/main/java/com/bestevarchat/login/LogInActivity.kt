@@ -1,9 +1,12 @@
 package com.bestevarchat.login
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -33,6 +36,12 @@ class LogInActivity : ComponentActivity() {
 			}
 		}
 	}
+}
+
+fun Context.getActivity(): ComponentActivity? = when (this) {
+	is ComponentActivity -> this
+	is ContextWrapper -> baseContext.getActivity()
+	else -> null
 }
 
 @Composable
@@ -66,6 +75,7 @@ fun LogIn() {
 				AuthService.authenticate(context, username.text, password.text) {
 					if (it.success) {
 						context.startActivity(Intent(context, ChatActivity::class.java))
+						context.getActivity()?.finish()
 					} else {
 						MaterialAlertDialogBuilder(context)
 							.setTitle("Oh no!")
