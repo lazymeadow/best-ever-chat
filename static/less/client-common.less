@@ -186,7 +186,7 @@
         }
       }
 
-      & .image-wrapper {
+      & .image-wrapper, & .track-wrapper {
         display: inline-block;
         background-color: darken(@lightest, 5%);
         color: @backgroundColor;
@@ -203,6 +203,15 @@
         & img {
           max-width: 300px;
           max-height: 300px;
+        }
+      }
+      & .track-wrapper {
+        & iframe {
+          width: 450px;
+          height: 217px;
+        }
+        & a {
+          display: block;
         }
       }
     }

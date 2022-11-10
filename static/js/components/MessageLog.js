@@ -5,7 +5,7 @@ imagesLoaded.makeJQueryPlugin($);
 
 import {LoggingClass} from "../util";
 import {_formatTime, _parseEmojis} from "../lib";
-import {Settings} from "../util/Settings";
+import {Settings} from "../util";
 
 export class MessageLog extends LoggingClass {
     constructor() {
@@ -29,9 +29,10 @@ export class MessageLog extends LoggingClass {
      * @param message message body
      * @param image_url image url
      * @param image_src_url image src url
+     * @param track_link gorilla groove track link
      * @param nsfw_flag image is nsfw
      */
-    printMessage({time, username, color, message, 'image url': image_url, 'image src url': image_src_url, 'nsfw flag': nsfw_flag}) {
+    printMessage({time, username, color, message, 'image url': image_url, 'image src url': image_src_url, 'nsfw flag': nsfw_flag, 'track link': track_link}) {
         let messageContainer = $('<div>').addClass('chat-message');
         // set the message color
         if (color)
@@ -46,13 +47,16 @@ export class MessageLog extends LoggingClass {
         // add the timestamp
         messageContainer.append($('<span>').addClass('timestamp').text(_formatTime(time)));
 
+        let messageContent = message;
         // if the message is an image, create the <img> as the  message body
-        if (image_url) {
-            let imageElement = $('<a>').prop('href', image_url).prop('target', '_blank')
-                .append($('<img>').prop('src', image_src_url));
+        if (!!image_url) {
+            let imageElement = $('<a>').prop('href', image_url)
+                .prop('target', '_blank')
+                .prop('rel', 'noreferrer noopener')
+                .append($('<img>').prop('src', image_src_url).prop('alt', 'some image, idk'));
             let hideImage = Settings.hideImages || nsfw_flag;
             hideImage ? imageElement.hide() : imageElement.show();
-            message = $('<div>').addClass('image-wrapper')
+            messageContent = $('<div>').addClass('image-wrapper')
                 .append($('<span>').text((hideImage ? 'show' : 'hide') + ' image' + (nsfw_flag ? ' -- NSFW!' : ''))
                     .click(function (event) {
                         let image_element = $(event.target).next();
@@ -60,12 +64,20 @@ export class MessageLog extends LoggingClass {
                         $(event.target).text((image_element.is(':visible') ? 'hide' : 'show') + ' image ' + (nsfw_flag ? '-- NSFW!' : ''))
                     }))
                 .append(imageElement);
+        } else if (!!track_link) {
+            let iframeElement = $('<iframe>').prop('src', track_link);
+            messageContent = $('<div>').addClass('track-wrapper')
+                .append(iframeElement)
+                .append($('<a>').text('Go to Gorilla Groove')
+                    .prop('href', track_link)
+                    .prop('target', '_blank')
+                    .prop('rel', 'noreferrer noopener'));
         }
 
         // add the message body
         let messageElement = $('<div>').addClass('message')
             .append($('<span>').addClass('username').text(username + ': '))
-            .append($('<span>').html(message));
+            .append($('<span>').html(messageContent));
 
         this._logElement.append(messageContainer.append(messageElement));
 
