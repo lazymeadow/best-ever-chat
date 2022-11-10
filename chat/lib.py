@@ -16,6 +16,9 @@ MAX_DEQUE_LENGTH = 200
 
 emoji = Emoji()
 
+def is_gorilla_groove_url(text):
+    parsed_url = urlparse(text)
+    return (parsed_url.scheme == 'https') and (parsed_url.hostname == 'gorillagroove.net') and (parsed_url.path.startswith('/track-link'))
 
 def is_image_url(text):
     parsed_url = urlparse(text)

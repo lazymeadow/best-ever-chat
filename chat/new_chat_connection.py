@@ -2,12 +2,12 @@ import json
 from time import time
 
 from boto3 import resource
-from datetime import datetime
 from sockjs.tornado import SockJSConnection, SockJSRouter
 from tornado.escape import xhtml_escape, to_unicode
 
 from chat.emails import send_admin_email
-from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3
+from chat.lib import retrieve_image_in_s3, preprocess_message, emoji, is_image_url, create_github_issue, upload_to_s3, \
+    is_gorilla_groove_url
 from chat.loggers import log_from_client, log_from_server, LogLevel
 from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def, \
     tool_data_request
@@ -211,6 +211,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._broadcast_image(user_id, image_src_url, room_id, original_url=message)
             return
 
+        # if a message consists only of what looks like a gorilla groove track link, convert it to a gg message type.
+        if is_gorilla_groove_url(message):
+            self._broadcast_gg(user_id, room_id, message)
+            return
+
         user = self._user_list.get_user(user_id)
         # send the message
         new_message = {'username': user['username'],
@@ -238,6 +243,11 @@ class NewMultiRoomChatConnection(SockJSConnection):
             self._broadcast_image(self.current_user['id'], image_src_url, recipient_id, original_url=message)
             return
 
+        # if a message consists only of what looks like a gorilla groove track link, convert it to a gg message type.
+        if is_gorilla_groove_url(message):
+            self._broadcast_gg(self.current_user['id'], recipient_id, message)
+            return
+
         user = self._user_list.get_user(self.current_user['id'])
         new_pm = {'sender id': self.current_user['id'],
                   'recipient id': recipient_id,
@@ -249,6 +259,34 @@ class NewMultiRoomChatConnection(SockJSConnection):
                        {'type': 'private message', 'data': new_pm})
 
         self._private_messages.add_pm_to_thread(new_pm, self.current_user['id'], recipient_id, verified_thread_id)
+
+    def _broadcast_gg(self, user_id, destination_id, link):
+        # if the room id is a user's id, then process it as a thread
+        destination_is_thread = destination_id in self._user_list.get_all_usernames()
+
+        user = self._user_list.get_user(user_id)
+        gg_msg = {
+            'username': user['username'],
+            'color': user['color'],
+            'track link': xhtml_escape(link),
+            'time': time()
+        }
+
+        if destination_is_thread:
+            gg_msg['sender id'] = self.current_user['id']
+            gg_msg['recipient id'] = destination_id
+            verified_thread_id = self._private_messages.retrieve_thread_id(self.current_user['id'], destination_id)
+            self.broadcast(self._private_messages.get_thread_participants(verified_thread_id),
+                           {'type': 'private message',
+                            'data': gg_msg})
+
+            self._private_messages.add_pm_to_thread(gg_msg, self.current_user['id'], destination_id,
+                                                    verified_thread_id)
+        else:
+            gg_msg['room id'] = destination_id
+            self.broadcast(self._room_list.get_room_participants(destination_id), {'type': 'chat message',
+                                                                                   'data': gg_msg})
+            self._room_list.add_message_to_history(destination_id, gg_msg)
 
     def _broadcast_image(self, user_id, image_url, destination_id, nsfw_flag=False, original_url=None):
         """
