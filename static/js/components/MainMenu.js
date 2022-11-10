@@ -464,6 +464,8 @@ export class MainMenu extends LoggingClass {
                     showCancel: false,
                     title: 'About',
                     content: $('<div>')
+                        .append('<h3>3.5.2</h3><em>November 9th, 2022</em><p><strong>Critical update!!!</strong></p><p>Sharing a link from our very favorite music service now shows an embedded player. Yes, in this very chat. I know it\'s been over two years since the last update. There\'s no need to be rude.</small></p><p>What? It\'s Gorilla Groove. Why would you say Spotify? What\'s wrong with you?</p>')
+                        .append('<h3>3.5.1</h3><em>May 23rd, 2021</em><p>We fixed the Sean bug</p>')
                         .append('<h3>3.5.0</h3><em>September 25th, 2020</em><p>Look, we tried.</p><p>Chat 4.0 was a disaster. Python 3 is my mortal enemy. We can never reconcile.</p><ul><li>New emoji assets</li><li>Admin/Moderator Tools</li><li>Emoji Search</li></ol>')
                         .append('<h3>3.3.0</h3><em>August 2nd, 2019</em><p>Good news, everyone!</p><p>There\'s no longer any excuse for missing messages. Best Evar Chat 3.3 supports notifications!</p>')
                         .append('<h3>3.2.1</h3><em>July 19th, 2019</em><p>Fixes various bugs. I\'m not going to list them all, they\'re not that important.</p>')

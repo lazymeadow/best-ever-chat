@@ -12,7 +12,7 @@ from chat.loggers import log_from_client, log_from_server, LogLevel
 from chat.tools.lib import can_use_tool, get_tool_list, user_perm_has_access, get_tool_data, get_tool_def, \
     tool_data_request
 
-CLIENT_VERSION = '3.5.0'
+CLIENT_VERSION = '3.5.2'
 
 
 class NewMultiRoomChatConnection(SockJSConnection):
