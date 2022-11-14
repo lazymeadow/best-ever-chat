@@ -67,11 +67,11 @@ export class MessageLog extends LoggingClass {
         } else if (!!track_link) {
             let iframeElement = $('<iframe>').prop('src', track_link + '&mode=fancy');
             messageContent = $('<div>').addClass('track-wrapper')
-                .append(iframeElement)
-                .append($('<a>').text('Go to Gorilla Groove')
+                .append($('<a>').text('Shared from Gorilla Groove')
                     .prop('href', track_link)
                     .prop('target', '_blank')
-                    .prop('rel', 'noreferrer noopener'));
+                    .prop('rel', 'noreferrer noopener'))
+                .append(iframeElement);
         }
 
         // add the message body
