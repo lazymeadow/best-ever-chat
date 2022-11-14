@@ -65,7 +65,7 @@ export class MessageLog extends LoggingClass {
                     }))
                 .append(imageElement);
         } else if (!!track_link) {
-            let iframeElement = $('<iframe>').prop('src', track_link);
+            let iframeElement = $('<iframe>').prop('src', track_link + '&mode=fancy');
             messageContent = $('<div>').addClass('track-wrapper')
                 .append(iframeElement)
                 .append($('<a>').text('Go to Gorilla Groove')
